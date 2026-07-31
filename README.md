@@ -64,6 +64,8 @@ site out of the box.
 - Responses are cached server-side for 60 seconds (configurable via
   `CACHE_TTL_MS`) to stay well within GitHub's API rate limits.
 
+Link: https://artivoralabs.github.io/DashView/#
+
 ## Deploying
 
 `server.js` needs somewhere that runs Node (Render, Railway, Fly.io, a VPS,
