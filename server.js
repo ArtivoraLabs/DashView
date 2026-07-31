@@ -4,77 +4,124 @@ const cors = require("cors");
 const app = express();
 
 app.use(cors());
+app.use(express.static("public"));
+
 
 const TOKEN = "YOUR_GITHUB_TOKEN";
-const ORG = "YOUR_ORGANIZATION_NAME";
+const ORG = "ArtivoraLabs";
 
 
-app.get("/dashboard-data", async (req,res)=>{
+app.get("/api/dashboard", async(req,res)=>{
+
 
 const query = `
+
 {
  organization(login:"${ORG}") {
 
-  projectsV2(first:10){
 
-   nodes{
+ repositories(first:20){
 
-    title
-    number
+ nodes{
 
-    items(first:50){
+ name
+ description
+ primaryLanguage{
+  name
+ }
 
-     nodes{
-
-      type
-
-      content{
-
-       ... on Issue {
-        title
-        state
-       }
-
-      }
-
-     }
-
-    }
-
-   }
-
-  }
+ stargazerCount
+ forkCount
+ updatedAt
 
  }
 
+ }
+
+
+
+ projectsV2(first:10){
+
+ nodes{
+
+ title
+ number
+ closed
+
+ items(first:100){
+
+ nodes{
+
+ type
+
+ content{
+
+ ... on Issue {
+
+ title
+ state
+
+ }
+
+ }
+
+ }
+
+ }
+
+
+ }
+
+
+ }
+
+
 }
+
+}
+
 `;
+
 
 
 const response = await fetch(
 "https://api.github.com/graphql",
 {
+
 method:"POST",
 
 headers:{
+
 Authorization:`Bearer ${TOKEN}`,
+
 "Content-Type":"application/json"
+
 },
+
 
 body:JSON.stringify({
 query
 })
+
 
 });
 
 
 const data = await response.json();
 
-res.json(data);
+
+res.json(data.data);
+
 
 });
 
 
+
+
 app.listen(3000,()=>{
-console.log("DashView Live Server Running");
+
+console.log(
+"DashView running on port 3000"
+);
+
 });
