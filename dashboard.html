@@ -1,67 +1,546 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
 
-<title>DashView</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="stylesheet" href="style.css">
+<title>DashView Dashboard | ArtivoraLabs</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Inter,Arial,sans-serif;
+}
+
+
+body{
+
+background:
+radial-gradient(circle at top left,#2563eb55,transparent 35%),
+radial-gradient(circle at bottom right,#9333ea55,transparent 35%),
+#020617;
+
+color:white;
+
+display:flex;
+
+min-height:100vh;
+
+}
+
+
+/* SIDEBAR */
+
+
+.sidebar{
+
+width:260px;
+
+padding:30px;
+
+background:#ffffff10;
+
+backdrop-filter:blur(20px);
+
+border-right:1px solid #ffffff20;
+
+}
+
+
+
+.logo{
+
+font-size:30px;
+
+font-weight:800;
+
+color:#38bdf8;
+
+margin-bottom:40px;
+
+}
+
+
+.menu a{
+
+display:block;
+
+padding:15px;
+
+margin:10px 0;
+
+color:#cbd5e1;
+
+text-decoration:none;
+
+border-radius:15px;
+
+}
+
+
+.menu a:hover{
+
+background:#ffffff15;
+
+color:white;
+
+}
+
+
+
+
+/* MAIN */
+
+
+.main{
+
+flex:1;
+
+padding:35px;
+
+}
+
+
+
+.header{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+}
+
+
+
+.header h1{
+
+font-size:35px;
+
+}
+
+
+
+.profile{
+
+background:#ffffff15;
+
+padding:15px 25px;
+
+border-radius:30px;
+
+}
+
+
+
+
+
+/* CARDS */
+
+
+.cards{
+
+display:grid;
+
+grid-template-columns:repeat(4,1fr);
+
+gap:20px;
+
+margin-top:35px;
+
+}
+
+
+
+.card{
+
+background:#ffffff10;
+
+border:1px solid #ffffff20;
+
+backdrop-filter:blur(20px);
+
+padding:25px;
+
+border-radius:25px;
+
+}
+
+
+
+.card h2{
+
+font-size:35px;
+
+color:#38bdf8;
+
+}
+
+
+
+
+
+
+/* PROJECTS */
+
+
+.projects{
+
+display:grid;
+
+grid-template-columns:1fr 1fr;
+
+gap:25px;
+
+margin-top:30px;
+
+}
+
+
+.project-card{
+
+background:#ffffff10;
+
+padding:30px;
+
+border-radius:25px;
+
+border:1px solid #ffffff20;
+
+}
+
+
+
+.tag{
+
+display:inline-block;
+
+padding:8px 15px;
+
+background:#38bdf8;
+
+color:#020617;
+
+border-radius:20px;
+
+margin-top:15px;
+
+}
+
+
+
+.progress{
+
+height:10px;
+
+background:#334155;
+
+border-radius:20px;
+
+margin-top:20px;
+
+}
+
+
+
+.progress div{
+
+height:100%;
+
+background:linear-gradient(
+90deg,#38bdf8,#a855f7
+);
+
+border-radius:20px;
+
+width:75%;
+
+}
+
+
+
+
+
+
+/* ANALYTICS */
+
+
+.analytics{
+
+display:grid;
+
+grid-template-columns:1fr 1fr;
+
+gap:25px;
+
+margin-top:30px;
+
+}
+
+
+
+.chart{
+
+background:#ffffff10;
+
+padding:30px;
+
+border-radius:25px;
+
+border:1px solid #ffffff20;
+
+}
+
+
+
+
+
+/* REPOSITORY */
+
+
+.repo{
+
+margin-top:30px;
+
+background:#ffffff10;
+
+padding:25px;
+
+border-radius:25px;
+
+}
+
+
+
+.repo-item{
+
+display:flex;
+
+justify-content:space-between;
+
+padding:15px;
+
+border-bottom:1px solid #ffffff20;
+
+}
+
+
+
+
+
+
+/* ACTIVITY */
+
+
+.activity{
+
+margin-top:30px;
+
+}
+
+
+.activity div{
+
+background:#ffffff10;
+
+padding:15px;
+
+margin:10px 0;
+
+border-radius:15px;
+
+}
+
+
+
+
+
+@media(max-width:1000px){
+
+.sidebar{
+
+display:none;
+
+}
+
+.cards{
+
+grid-template-columns:1fr;
+
+}
+
+
+.projects,
+.analytics{
+
+grid-template-columns:1fr;
+
+}
+
+
+}
+
+</style>
+
 
 </head>
 
 
 <body>
 
-<div class="background"></div>
 
 
-<div class="container">
+
+<!-- SIDEBAR -->
 
 
-<h1 class="title">DashView</h1>
+<aside class="sidebar">
 
-<p class="subtitle">
-Organization Project Analytics
+
+<div class="logo">
+DashView
+</div>
+
+
+<div class="menu">
+
+
+<a href="#">
+Dashboard
+</a>
+
+<a href="#">
+Projects
+</a>
+
+<a href="#">
+Repositories
+</a>
+
+<a href="#">
+Analytics
+</a>
+
+<a href="#">
+Team
+</a>
+
+
+</div>
+
+
+</aside>
+
+
+
+
+
+
+<!-- MAIN -->
+
+
+<main class="main">
+
+
+
+<div class="header">
+
+
+<div>
+
+<h1>
+ArtivoraLabs Dashboard
+</h1>
+
+<p>
+Organization Intelligence Center
 </p>
 
+</div>
+
+
+
+<div class="profile">
+
+ArtivoraLabs
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- SUMMARY -->
 
 
 <div class="cards">
 
 
-<div class="glass card">
-
-<h2>Team Planning</h2>
-
-<span>#4</span>
+<div class="card">
 
 <p>
-Private Project
+Projects
 </p>
 
+<h2>
+02
+</h2>
+
+</div>
+
+
+
+<div class="card">
+
 <p>
-Updated 3 days ago
+Tasks
 </p>
+
+<h2>
+Live
+</h2>
+
+</div>
+
+
+
+<div class="card">
+
+<p>
+Repositories
+</p>
+
+<h2>
+Sync
+</h2>
 
 </div>
 
 
 
 
-<div class="glass card">
-
-<h2>Task Tracking</h2>
-
-<span>#2</span>
+<div class="card">
 
 <p>
-Private Project
+Status
 </p>
 
-<p>
-Updated 3 days ago
-</p>
+<h2>
+Active
+</h2>
 
 </div>
 
@@ -72,41 +551,236 @@ Updated 3 days ago
 
 
 
-<div class="glass chart-box">
 
-<h2>Project Progress</h2>
+
+
+<!-- PROJECTS -->
+
+
+<h2 style="margin-top:40px">
+Projects Overview
+</h2>
+
+
+<div class="projects">
+
+
+
+<div class="project-card">
+
+
+<h2>
+Team Planning
+</h2>
+
+
+<p>
+Project #4
+</p>
+
+
+<span class="tag">
+Private
+</span>
+
+
+<p style="margin-top:20px">
+
+Team workflow, planning and collaboration
+
+</p>
+
+
+<div class="progress">
+
+<div style="width:80%"></div>
+
+</div>
+
+
+<p>
+Progress 80%
+</p>
+
+
+</div>
+
+
+
+
+
+<div class="project-card">
+
+
+<h2>
+Task Tracking
+</h2>
+
+
+<p>
+Project #2
+</p>
+
+
+<span class="tag">
+Private
+</span>
+
+
+<p style="margin-top:20px">
+
+Task management and productivity tracking
+
+</p>
+
+
+
+<div class="progress">
+
+<div style="width:65%"></div>
+
+</div>
+
+
+<p>
+Progress 65%
+</p>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<!-- CHARTS -->
+
+
+<div class="analytics">
+
+
+<div class="chart">
+
+<h2>
+Project Progress
+</h2>
 
 <canvas id="progressChart"></canvas>
 
+
 </div>
 
 
 
+<div class="chart">
 
-
-<div class="glass chart-box">
-
-<h2>Task Status</h2>
+<h2>
+Task Status
+</h2>
 
 <canvas id="taskChart"></canvas>
 
+
+</div>
+
+
 </div>
 
 
 
 
 
-<div class="glass chart-box">
 
-<h2>Live GitHub Projects</h2>
 
-<canvas id="projectChart"></canvas>
+
+<!-- REPOS -->
+
+
+<div class="repo">
+
+
+<h2>
+Repositories
+</h2>
+
+
+<div class="repo-item">
+
+<span>
+GitHub Repository
+</span>
+
+<span>
+Live Sync
+</span>
+
+
+</div>
+
+
+<div class="repo-item">
+
+<span>
+Development Activity
+</span>
+
+<span>
+Tracking
+</span>
+
+
+</div>
+
 
 </div>
 
 
 
+
+
+
+
+
+<!-- ACTIVITY -->
+
+
+<div class="activity">
+
+
+<h2>
+Recent Activity
+</h2>
+
+
+<div>
+✓ Project updated
 </div>
+
+
+<div>
+✓ New task created
+</div>
+
+
+<div>
+✓ Repository synchronized
+</div>
+
+
+</div>
+
+
+
+</main>
+
 
 
 
@@ -115,33 +789,29 @@ Updated 3 days ago
 <script>
 
 
-// Static Project Progress Chart
-
 new Chart(
-document.getElementById('progressChart'),
+
+document.getElementById("progressChart"),
+
 {
 
-type:'doughnut',
+type:"doughnut",
 
 data:{
 
 labels:[
-
 "Team Planning",
-
 "Task Tracking"
-
 ],
 
 datasets:[{
 
-data:[70,85],
+data:[80,65],
 
 backgroundColor:[
 
 "#38bdf8",
-
-"#818cf8"
+"#a855f7"
 
 ]
 
@@ -154,41 +824,32 @@ backgroundColor:[
 
 
 
-
-// Static Task Status Chart
-
 new Chart(
 
-document.getElementById('taskChart'),
+document.getElementById("taskChart"),
 
 {
 
-type:'bar',
+type:"bar",
 
 data:{
 
 labels:[
-
 "Completed",
-
 "In Progress",
-
 "Pending"
-
 ],
 
 datasets:[{
 
 label:"Tasks",
 
-data:[45,30,15],
+data:[50,30,20],
 
 backgroundColor:[
 
 "#22c55e",
-
 "#facc15",
-
 "#ef4444"
 
 ]
@@ -200,105 +861,9 @@ backgroundColor:[
 });
 
 
-
-
-
-
-// LIVE GITHUB PROJECT DATA
-
-fetch("http://localhost:3000/dashboard-data")
-
-.then(res => res.json())
-
-.then(data => {
-
-
-let projects =
-data.data.organization.projectsV2.nodes;
-
-
-
-let names = [];
-
-let counts = [];
-
-
-
-projects.forEach(project => {
-
-
-names.push(project.title);
-
-
-
-counts.push(
-project.items.nodes.length
-);
-
-
-
-});
-
-
-
-
-
-new Chart(
-
-document.getElementById("projectChart"),
-
-{
-
-type:"bar",
-
-
-data:{
-
-labels:names,
-
-
-datasets:[{
-
-label:"Total Tasks",
-
-
-data:counts,
-
-
-backgroundColor:[
-
-"#38bdf8",
-
-"#818cf8",
-
-"#22c55e"
-
-]
-
-
-}]
-
-
-}
-
-});
-
-
-})
-
-.catch(error=>{
-
-
-console.log(error);
-
-
-});
-
-
-
 </script>
 
 
-</body>
 
+</body>
 </html>
