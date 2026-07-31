@@ -1,778 +1,358 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>DashView | ArtivoraLabs</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+<meta name="description" content="DashView is ArtivoraLabs' organization intelligence platform — live GitHub projects, repositories and analytics in one place." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
 
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Inter,sans-serif;
-}
-
-body{
-
-background:
-radial-gradient(circle at top left,#2563eb55,transparent 35%),
-radial-gradient(circle at bottom right,#9333ea55,transparent 35%),
-#020617;
-
-color:white;
-}
-
-
-/* NAV */
-
-nav{
-
-width:90%;
-margin:25px auto;
-
-padding:20px 35px;
-
-display:flex;
-justify-content:space-between;
-align-items:center;
-
-background:#ffffff10;
-
-backdrop-filter:blur(20px);
-
-border:1px solid #ffffff20;
-
-border-radius:25px;
-
-position:sticky;
-top:20px;
-
-}
-
-
-.logo{
-
-font-size:30px;
-font-weight:800;
-
-background:linear-gradient(90deg,#38bdf8,#c084fc);
-
--webkit-background-clip:text;
-color:transparent;
-
-}
-
-
-nav a{
-
-color:#cbd5e1;
-text-decoration:none;
-margin-left:25px;
-
-}
-
-
-
-
-/* HERO */
-
-.hero{
-
-width:90%;
-margin:90px auto;
-
-display:grid;
-
-grid-template-columns:1fr 1fr;
-
-gap:50px;
-
-align-items:center;
-
-}
-
-
-
-.hero h1{
-
-font-size:70px;
-
-line-height:1.1;
-
-font-weight:800;
-
-}
-
-
-
-.hero span{
-
-background:
-linear-gradient(90deg,#38bdf8,#a855f7);
-
--webkit-background-clip:text;
-
-color:transparent;
-
-}
-
-
-
-.hero p{
-
-margin-top:25px;
-
-font-size:20px;
-
-color:#94a3b8;
-
-line-height:1.7;
-
-}
-
-
-
-button{
-
-margin-top:35px;
-
-padding:16px 35px;
-
-border:none;
-
-border-radius:50px;
-
-background:
-linear-gradient(90deg,#2563eb,#9333ea);
-
-color:white;
-
-font-size:16px;
-
-cursor:pointer;
-
-}
-
-
-
-/* DASHBOARD MOCKUP */
-
-.preview{
-
-padding:30px;
-
-background:#ffffff10;
-
-border-radius:30px;
-
-border:1px solid #ffffff20;
-
-backdrop-filter:blur(20px);
-
-box-shadow:0 30px 80px #0008;
-
-}
-
-
-
-.stat-grid{
-
-display:grid;
-
-grid-template-columns:repeat(3,1fr);
-
-gap:15px;
-
-margin:20px 0;
-
-}
-
-
-.stat{
-
-background:#ffffff12;
-
-padding:20px;
-
-border-radius:20px;
-
-}
-
-
-.stat h2{
-
-color:#38bdf8;
-
-}
-
-
-
-.box{
-
-background:#ffffff10;
-
-padding:20px;
-
-margin:15px 0;
-
-border-radius:20px;
-
-}
-
-
-
-
-
-/* SECTIONS */
-
-section{
-
-width:90%;
-
-margin:100px auto;
-
-}
-
-
-
-.title{
-
-font-size:40px;
-
-margin-bottom:40px;
-
-}
-
-
-
-
-
-.cards{
-
-display:grid;
-
-grid-template-columns:repeat(3,1fr);
-
-gap:25px;
-
-}
-
-
-
-.card{
-
-padding:30px;
-
-background:#ffffff10;
-
-border:1px solid #ffffff20;
-
-border-radius:25px;
-
-backdrop-filter:blur(20px);
-
-transition:.3s;
-
-}
-
-
-
-.card:hover{
-
-transform:translateY(-10px);
-
-}
-
-
-
-
-
-/* PROJECTS */
-
-
-.project{
-
-display:grid;
-
-grid-template-columns:1fr 1fr;
-
-gap:25px;
-
-}
-
-
-.progress{
-
-height:12px;
-
-background:#334155;
-
-border-radius:20px;
-
-overflow:hidden;
-
-}
-
-
-
-.progress div{
-
-height:100%;
-
-background:linear-gradient(90deg,#38bdf8,#a855f7);
-
-width:80%;
-
-}
-
-
-
-
-
-/* ACTIVITY */
-
-
-.activity li{
-
-list-style:none;
-
-padding:15px;
-
-background:#ffffff10;
-
-margin:10px 0;
-
-border-radius:15px;
-
-}
-
-
-
-
-
-footer{
-
-text-align:center;
-
-padding:50px;
-
-color:#94a3b8;
-
-}
-
-
-
-
-@media(max-width:900px){
-
-.hero{
-
-grid-template-columns:1fr;
-
-}
-
-.cards{
-
-grid-template-columns:1fr;
-
-}
-
-.project{
-
-grid-template-columns:1fr;
-
-}
-
-.hero h1{
-
-font-size:45px;
-
-}
-
-}
-
-
+  :root{
+    --bg:#020617;
+    --glass:rgba(255,255,255,.06);
+    --glass-strong:rgba(255,255,255,.1);
+    --glass-border:rgba(255,255,255,.14);
+    --blue:#38bdf8;
+    --violet:#a855f7;
+    --indigo:#6366f1;
+    --green:#22c55e;
+    --text:#f1f5f9;
+    --text-dim:#94a3b8;
+    --font-display:'Space Grotesk',Inter,sans-serif;
+    --font-body:'Inter',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  body{
+    font-family:var(--font-body);
+    background:var(--bg);
+    color:var(--text);
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  a{color:inherit;}
+
+  /* ---------- Liquid glass background (signature element) ---------- */
+  .liquid-bg{
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    overflow:hidden;
+    filter:url(#goo);
+    opacity:.6;
+  }
+  .blob{position:absolute;border-radius:50%;mix-blend-mode:screen;}
+  .blob.b1{width:520px;height:520px;background:var(--blue);top:-160px;left:-120px;animation:drift1 24s ease-in-out infinite alternate;}
+  .blob.b2{width:440px;height:440px;background:var(--violet);top:10%;right:-140px;animation:drift2 28s ease-in-out infinite alternate;}
+  .blob.b3{width:340px;height:340px;background:var(--indigo);bottom:-120px;left:30%;animation:drift3 32s ease-in-out infinite alternate;}
+  .blob.b4{width:260px;height:260px;background:var(--blue);bottom:20%;right:20%;animation:drift1 20s ease-in-out infinite alternate-reverse;}
+
+  @keyframes drift1{from{transform:translate(0,0);}to{transform:translate(180px,140px);}}
+  @keyframes drift2{from{transform:translate(0,0);}to{transform:translate(-160px,120px);}}
+  @keyframes drift3{from{transform:translate(0,0) scale(1);}to{transform:translate(120px,-100px) scale(1.2);}}
+
+  @media (prefers-reduced-motion: reduce){
+    .blob{animation:none !important;}
+    .card,.glass-card,.project-mock{transition:none !important;}
+  }
+
+  /* ---------- Glass helpers ---------- */
+  .glass{
+    background:var(--glass);
+    border:1px solid var(--glass-border);
+    backdrop-filter:blur(22px);
+    -webkit-backdrop-filter:blur(22px);
+  }
+  .glass-sheen{position:relative;overflow:hidden;}
+  .glass-sheen::before{
+    content:"";
+    position:absolute;top:0;left:-60%;width:40%;height:100%;
+    background:linear-gradient(120deg,transparent,rgba(255,255,255,.1),transparent);
+    transform:skewX(-20deg);
+    transition:left .7s ease;
+    pointer-events:none;
+  }
+  .glass-sheen:hover::before{left:130%;}
+
+  /* ---------- Nav ---------- */
+  nav{
+    width:min(1200px,92%);
+    margin:22px auto;
+    padding:18px 30px;
+    display:flex;justify-content:space-between;align-items:center;
+    border-radius:24px;
+    position:sticky;top:18px;
+    z-index:10;
+  }
+  .logo{
+    font-family:var(--font-display);
+    font-size:22px;font-weight:700;
+    background:linear-gradient(90deg,var(--blue),var(--violet));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  nav .links a{color:var(--text-dim);text-decoration:none;margin-left:26px;font-size:14px;font-weight:500;transition:.2s;}
+  nav .links a:hover{color:var(--text);}
+  nav .links a.cta{
+    color:var(--bg);
+    background:linear-gradient(90deg,var(--blue),var(--violet));
+    padding:9px 20px;border-radius:30px;font-weight:600;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    width:min(1200px,92%);
+    margin:70px auto 100px;
+    display:grid;
+    grid-template-columns:1.05fr .95fr;
+    gap:60px;
+    align-items:center;
+  }
+
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--font-mono);font-size:12px;
+    color:var(--blue);
+    padding:6px 14px;border-radius:20px;
+    margin-bottom:22px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+
+  .hero h1{
+    font-family:var(--font-display);
+    font-size:clamp(38px,5vw,64px);
+    line-height:1.08;
+    font-weight:700;
+    letter-spacing:-.01em;
+  }
+  .hero h1 span{
+    background:linear-gradient(90deg,var(--blue),var(--violet));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+
+  .hero p.lede{
+    margin-top:24px;font-size:17px;color:var(--text-dim);line-height:1.7;max-width:52ch;
+  }
+
+  .hero-actions{display:flex;gap:14px;margin-top:36px;flex-wrap:wrap;}
+
+  .btn-primary,.btn-secondary{
+    padding:15px 30px;border-radius:50px;font-size:15px;font-weight:600;
+    text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+    transition:.2s;
+  }
+  .btn-primary{
+    background:linear-gradient(90deg,#2563eb,#9333ea);color:white;
+  }
+  .btn-primary:hover{transform:translateY(-2px);filter:brightness(1.1);}
+  .btn-secondary{
+    background:var(--glass);border:1px solid var(--glass-border);color:var(--text);
+  }
+  .btn-secondary:hover{background:var(--glass-strong);}
+
+  .hero-note{margin-top:22px;font-size:13px;color:var(--text-dim);font-family:var(--font-mono);}
+
+  /* ---------- Preview mock ---------- */
+  .preview{
+    padding:28px;border-radius:28px;box-shadow:0 40px 90px #0009;
+  }
+  .preview-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+  .preview-top h3{font-family:var(--font-display);font-size:16px;font-weight:600;}
+  .live-pill{
+    display:flex;align-items:center;gap:6px;font-size:11px;font-family:var(--font-mono);color:var(--text-dim);
+    background:var(--glass-strong);padding:5px 12px;border-radius:20px;
+  }
+  .live-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+  .stat{padding:16px;border-radius:18px;text-align:center;}
+  .stat h2{font-family:var(--font-mono);font-size:24px;color:var(--blue);}
+  .stat p{font-size:11px;color:var(--text-dim);margin-top:4px;}
+
+  .project-mock{padding:16px 18px;border-radius:16px;margin-top:10px;}
+  .project-mock h4{font-family:var(--font-display);font-size:14px;font-weight:600;}
+  .project-mock p{font-size:11px;color:var(--text-dim);margin-top:2px;}
+  .mini-progress{height:6px;background:#1e293b;border-radius:20px;margin-top:10px;overflow:hidden;}
+  .mini-progress div{height:100%;background:linear-gradient(90deg,var(--blue),var(--violet));}
+
+  /* ---------- Sections ---------- */
+  section.pad{width:min(1200px,92%);margin:110px auto;}
+  .section-eyebrow{font-family:var(--font-mono);font-size:12px;color:var(--blue);letter-spacing:.06em;margin-bottom:10px;}
+  .title{font-family:var(--font-display);font-size:clamp(28px,3.4vw,40px);font-weight:600;margin-bottom:44px;max-width:22ch;}
+
+  .cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  .feature-card{padding:32px;border-radius:24px;transition:transform .3s ease;}
+  .feature-card:hover{transform:translateY(-8px);}
+  .feature-card .icon{font-size:26px;}
+  .feature-card h3{font-family:var(--font-display);font-size:18px;font-weight:600;margin-top:16px;}
+  .feature-card p{font-size:14px;color:var(--text-dim);margin-top:10px;line-height:1.6;}
+
+  footer{
+    text-align:center;padding:60px 20px 40px;color:var(--text-dim);font-size:13px;
+  }
+  footer .logo{font-size:18px;margin-bottom:10px;display:inline-block;}
+
+  @media(max-width:900px){
+    .hero{grid-template-columns:1fr;}
+    .cards3{grid-template-columns:1fr;}
+    nav .links a:not(.cta){display:none;}
+  }
 </style>
-
 </head>
-
 
 <body>
 
-
-
-<nav>
-
-<div class="logo">
-DashView
+<svg width="0" height="0" style="position:absolute">
+  <filter id="goo">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="24" result="blur" />
+    <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9" result="goo" />
+  </filter>
+</svg>
+<div class="liquid-bg" aria-hidden="true">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+  <div class="blob b4"></div>
 </div>
 
-
-<div>
-
-<a href="#">
-Home
-</a>
-
-<a href="#">
-Projects
-</a>
-
-<a href="#">
-Analytics
-</a>
-
-<a href="#">
-Dashboard
-</a>
-
-</div>
-
-
+<nav class="glass" style="border-radius:24px;">
+  <div class="logo">DashView</div>
+  <div class="links">
+    <a href="#features">Features</a>
+    <a href="#projects">Projects</a>
+    <a href="dashboard.html" class="cta">Open Dashboard</a>
+  </div>
 </nav>
 
-
-
-
-
 <section class="hero">
+  <div>
+    <div class="eyebrow glass" style="border-radius:20px;"><span class="dot"></span> Synced live with GitHub</div>
+    <h1>Your org's <span>GitHub activity</span>, in one intelligent view</h1>
+    <p class="lede">
+      DashView pulls ArtivoraLabs' projects, repositories and task status
+      straight from GitHub and keeps them current — no spreadsheets,
+      no manual updates, no stale status meetings.
+    </p>
+    <div class="hero-actions">
+      <a href="dashboard.html" class="btn-primary">Open Dashboard →</a>
+      <a href="https://github.com/ArtivoraLabs" target="_blank" rel="noopener" class="btn-secondary">View on GitHub</a>
+    </div>
+    <p class="hero-note">Auto-refreshes every 5 minutes · manual sync anytime</p>
+  </div>
 
+  <div class="preview glass glass-sheen">
+    <div class="preview-top">
+      <h3>ArtivoraLabs Overview</h3>
+      <span class="live-pill"><span class="dot"></span> Live</span>
+    </div>
 
-<div>
+    <div class="stat-grid">
+      <div class="stat glass"><h2 id="heroProjectCount">02</h2><p>Projects</p></div>
+      <div class="stat glass"><h2 id="heroRepoCount">Live</h2><p>Repositories</p></div>
+      <div class="stat glass"><h2>24/7</h2><p>Monitoring</p></div>
+    </div>
 
-
-<h1>
-
-Smart
-
-<span>
-Organization
-</span>
-
-Intelligence
-
-</h1>
-
-
-<p>
-
-DashView is the centralized platform for
-ArtivoraLabs to monitor GitHub projects,
-tasks, repositories and team performance
-with powerful analytics.
-
-</p>
-
-
-<button>
-Open Dashboard
-</button>
-
-
-</div>
-
-
-
-
-
-<div class="preview">
-
-
-<h2>
-ArtivoraLabs Overview
-</h2>
-
-
-
-<div class="stat-grid">
-
-
-<div class="stat">
-
-<h2>
-02
-</h2>
-
-<p>
-Projects
-</p>
-
-</div>
-
-
-<div class="stat">
-
-<h2>
-Live
-</h2>
-
-<p>
-GitHub Sync
-</p>
-
-</div>
-
-
-<div class="stat">
-
-<h2>
-24/7
-</h2>
-
-<p>
-Monitoring
-</p>
-
-</div>
-
-
-</div>
-
-
-
-
-<div class="box">
-
-<h3>
-Team Planning
-</h3>
-
-<p>
-Project #4 • Private</p>
-
-</div>
-
-
-<div class="box">
-
-<h3>
-Task Tracking
-</h3>
-
-<p>
-Project #2 • Private</p>
-
-</div>
-
-
-
-</div>
-
-
+    <div id="heroProjectList">
+      <div class="project-mock glass">
+        <h4>Team Planning</h4>
+        <p>Project #4 · Private</p>
+        <div class="mini-progress"><div style="width:80%"></div></div>
+      </div>
+      <div class="project-mock glass">
+        <h4>Task Tracking</h4>
+        <p>Project #2 · Private</p>
+        <div class="mini-progress"><div style="width:65%"></div></div>
+      </div>
+    </div>
+  </div>
 </section>
 
+<section class="pad" id="features">
+  <p class="section-eyebrow">Platform</p>
+  <h2 class="title">Everything the team needs to know about the org, at a glance</h2>
 
-
-
-
-
-
-
-<section>
-
-<h2 class="title">
-Platform Features
-</h2>
-
-
-<div class="cards">
-
-
-<div class="card">
-
-<h2>
-📊 Analytics
-</h2>
-
-<p>
-Real-time charts, progress tracking and reports.
-</p>
-
-</div>
-
-
-
-<div class="card">
-
-<h2>
-🚀 Projects
-</h2>
-
-<p>
-Manage organization projects and workflows.
-</p>
-
-</div>
-
-
-
-
-<div class="card">
-
-<h2>
-👥 Teams
-</h2>
-
-<p>
-Track collaboration and productivity.
-</p>
-
-</div>
-
-
-</div>
-
-
+  <div class="cards3">
+    <div class="feature-card glass glass-sheen">
+      <div class="icon">📊</div>
+      <h3>Live analytics</h3>
+      <p>Progress and task-status charts rebuild themselves from real project data every time you open the dashboard.</p>
+    </div>
+    <div class="feature-card glass glass-sheen">
+      <div class="icon">🗂️</div>
+      <h3>Projects, auto-tracked</h3>
+      <p>Create a new project in the ArtivoraLabs org and it appears on the dashboard automatically — nothing to configure.</p>
+    </div>
+    <div class="feature-card glass glass-sheen">
+      <div class="icon">📦</div>
+      <h3>Repository intelligence</h3>
+      <p>Stars, forks, primary language and last activity for every repo in the org, sorted by what changed most recently.</p>
+    </div>
+  </div>
 </section>
 
+<section class="pad" id="projects">
+  <p class="section-eyebrow">Projects</p>
+  <h2 class="title">Pulled straight from ArtivoraLabs on GitHub</h2>
 
-
-
-
-
-
-
-<section>
-
-<h2 class="title">
-ArtivoraLabs Projects
-</h2>
-
-
-
-<div class="project">
-
-
-<div class="card">
-
-<h2>
-Team Planning
-</h2>
-
-<p>
-Project #4
-</p>
-
-<p>
-Private Project
-</p>
-
-<br>
-
-<div class="progress">
-
-<div></div>
-
-</div>
-
-
-</div>
-
-
-
-
-<div class="card">
-
-<h2>
-Task Tracking
-</h2>
-
-<p>
-Project #2
-</p>
-
-<p>
-Private Project
-</p>
-
-<br>
-
-
-<div class="progress">
-
-<div style="width:65%"></div>
-
-</div>
-
-
-</div>
-
-
-</div>
-
-
+  <div class="cards3" style="grid-template-columns:1fr 1fr;">
+    <div class="feature-card glass glass-sheen">
+      <h3>Team Planning</h3>
+      <p>Project #4 · Private — team workflow, planning and collaboration.</p>
+      <div class="mini-progress" style="margin-top:18px;"><div style="width:80%"></div></div>
+    </div>
+    <div class="feature-card glass glass-sheen">
+      <h3>Task Tracking</h3>
+      <p>Project #2 · Private — task management and productivity tracking.</p>
+      <div class="mini-progress" style="margin-top:18px;"><div style="width:65%"></div></div>
+    </div>
+  </div>
 </section>
-
-
-
-
-
-
-
-<section>
-
-
-<h2 class="title">
-Recent Activity
-</h2>
-
-
-<ul class="activity">
-
-
-<li>
-✓ Project updated
-</li>
-
-<li>
-✓ New task created
-</li>
-
-<li>
-✓ Repository synchronized
-</li>
-
-<li>
-✓ Team activity recorded
-</li>
-
-
-</ul>
-
-
-</section>
-
-
-
-
-
-
 
 <footer>
-
-<h2>
-DashView
-</h2>
-
-<p>
-ArtivoraLabs Organization Intelligence Platform
-</p>
-
-<p>
-© 2026 All Rights Reserved
-</p>
-
-
+  <div class="logo">DashView</div>
+  <p>ArtivoraLabs Organization Intelligence Platform</p>
+  <p>© 2026 ArtivoraLabs. All rights reserved.</p>
 </footer>
 
+<script>
+  // Best-effort live preview — quietly falls back to the static numbers
+  // above if this page isn't served from the same origin as the API
+  // (e.g. when the landing page is hosted separately from the server).
+  fetch("/api/dashboard")
+    .then((r) => (r.ok ? r.json() : Promise.reject()))
+    .then((data) => {
+      const projects = data.organization.projectsV2.nodes;
+      const repos = data.organization.repositories.nodes;
 
+      document.getElementById("heroProjectCount").textContent = String(projects.length).padStart(2, "0");
+      document.getElementById("heroRepoCount").textContent = repos.length;
+
+      if (projects.length) {
+        document.getElementById("heroProjectList").innerHTML = projects
+          .slice(0, 2)
+          .map((p) => {
+            const items = p.items.nodes.filter((n) => n.content);
+            const closed = items.filter((n) => n.content.state === "CLOSED").length;
+            const pct = items.length ? Math.round((closed / items.length) * 100) : 0;
+            return `
+              <div class="project-mock glass">
+                <h4>${p.title}</h4>
+                <p>Project #${p.number} · ${p.closed ? "Closed" : "Active"}</p>
+                <div class="mini-progress"><div style="width:${pct}%"></div></div>
+              </div>`;
+          })
+          .join("");
+      }
+    })
+    .catch(() => {
+      /* API not reachable from here — static preview stays as-is */
+    });
+</script>
 
 </body>
 </html>

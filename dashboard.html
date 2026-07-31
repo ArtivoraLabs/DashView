@@ -1,869 +1,343 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>DashView Dashboard | ArtivoraLabs</title>
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard · DashView | ArtivoraLabs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Inter,Arial,sans-serif;
-}
-
-
-body{
-
-background:
-radial-gradient(circle at top left,#2563eb55,transparent 35%),
-radial-gradient(circle at bottom right,#9333ea55,transparent 35%),
-#020617;
-
-color:white;
-
-display:flex;
-
-min-height:100vh;
-
-}
-
-
-/* SIDEBAR */
-
-
-.sidebar{
-
-width:260px;
-
-padding:30px;
-
-background:#ffffff10;
-
-backdrop-filter:blur(20px);
-
-border-right:1px solid #ffffff20;
-
-}
-
-
-
-.logo{
-
-font-size:30px;
-
-font-weight:800;
-
-color:#38bdf8;
-
-margin-bottom:40px;
-
-}
-
-
-.menu a{
-
-display:block;
-
-padding:15px;
-
-margin:10px 0;
-
-color:#cbd5e1;
-
-text-decoration:none;
-
-border-radius:15px;
-
-}
-
-
-.menu a:hover{
-
-background:#ffffff15;
-
-color:white;
-
-}
-
-
-
-
-/* MAIN */
-
-
-.main{
-
-flex:1;
-
-padding:35px;
-
-}
-
-
-
-.header{
-
-display:flex;
-
-justify-content:space-between;
-
-align-items:center;
-
-}
-
-
-
-.header h1{
-
-font-size:35px;
-
-}
-
-
-
-.profile{
-
-background:#ffffff15;
-
-padding:15px 25px;
-
-border-radius:30px;
-
-}
-
-
-
-
-
-/* CARDS */
-
-
-.cards{
-
-display:grid;
-
-grid-template-columns:repeat(4,1fr);
-
-gap:20px;
-
-margin-top:35px;
-
-}
-
-
-
-.card{
-
-background:#ffffff10;
-
-border:1px solid #ffffff20;
-
-backdrop-filter:blur(20px);
-
-padding:25px;
-
-border-radius:25px;
-
-}
-
-
-
-.card h2{
-
-font-size:35px;
-
-color:#38bdf8;
-
-}
-
-
-
-
-
-
-/* PROJECTS */
-
-
-.projects{
-
-display:grid;
-
-grid-template-columns:1fr 1fr;
-
-gap:25px;
-
-margin-top:30px;
-
-}
-
-
-.project-card{
-
-background:#ffffff10;
-
-padding:30px;
-
-border-radius:25px;
-
-border:1px solid #ffffff20;
-
-}
-
-
-
-.tag{
-
-display:inline-block;
-
-padding:8px 15px;
-
-background:#38bdf8;
-
-color:#020617;
-
-border-radius:20px;
-
-margin-top:15px;
-
-}
-
-
-
-.progress{
-
-height:10px;
-
-background:#334155;
-
-border-radius:20px;
-
-margin-top:20px;
-
-}
-
-
-
-.progress div{
-
-height:100%;
-
-background:linear-gradient(
-90deg,#38bdf8,#a855f7
-);
-
-border-radius:20px;
-
-width:75%;
-
-}
-
-
-
-
-
-
-/* ANALYTICS */
-
-
-.analytics{
-
-display:grid;
-
-grid-template-columns:1fr 1fr;
-
-gap:25px;
-
-margin-top:30px;
-
-}
-
-
-
-.chart{
-
-background:#ffffff10;
-
-padding:30px;
-
-border-radius:25px;
-
-border:1px solid #ffffff20;
-
-}
-
-
-
-
-
-/* REPOSITORY */
-
-
-.repo{
-
-margin-top:30px;
-
-background:#ffffff10;
-
-padding:25px;
-
-border-radius:25px;
-
-}
-
-
-
-.repo-item{
-
-display:flex;
-
-justify-content:space-between;
-
-padding:15px;
-
-border-bottom:1px solid #ffffff20;
-
-}
-
-
-
-
-
-
-/* ACTIVITY */
-
-
-.activity{
-
-margin-top:30px;
-
-}
-
-
-.activity div{
-
-background:#ffffff10;
-
-padding:15px;
-
-margin:10px 0;
-
-border-radius:15px;
-
-}
-
-
-
-
-
-@media(max-width:1000px){
-
-.sidebar{
-
-display:none;
-
-}
-
-.cards{
-
-grid-template-columns:1fr;
-
-}
-
-
-.projects,
-.analytics{
-
-grid-template-columns:1fr;
-
-}
-
-
-}
-
+  :root{
+    --bg:#020617;
+    --bg-2:#050b1f;
+    --glass:rgba(255,255,255,.06);
+    --glass-strong:rgba(255,255,255,.1);
+    --glass-border:rgba(255,255,255,.14);
+    --blue:#38bdf8;
+    --violet:#a855f7;
+    --indigo:#6366f1;
+    --green:#22c55e;
+    --amber:#fbbf24;
+    --red:#f87171;
+    --text:#f1f5f9;
+    --text-dim:#94a3b8;
+    --font-display:'Space Grotesk',Inter,sans-serif;
+    --font-body:'Inter',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  body{
+    font-family:var(--font-body);
+    background:var(--bg);
+    color:var(--text);
+    display:flex;
+    min-height:100vh;
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  /* ---------- Liquid glass background ---------- */
+  .liquid-bg{
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    overflow:hidden;
+    filter:url(#goo);
+    opacity:.55;
+  }
+  .blob{
+    position:absolute;
+    border-radius:50%;
+    mix-blend-mode:screen;
+  }
+  .blob.b1{width:420px;height:420px;background:var(--blue);top:-120px;left:-100px;animation:drift1 22s ease-in-out infinite alternate;}
+  .blob.b2{width:360px;height:360px;background:var(--violet);bottom:-140px;right:-80px;animation:drift2 26s ease-in-out infinite alternate;}
+  .blob.b3{width:260px;height:260px;background:var(--indigo);top:40%;left:55%;animation:drift3 30s ease-in-out infinite alternate;}
+
+  @keyframes drift1{from{transform:translate(0,0);}to{transform:translate(160px,120px);}}
+  @keyframes drift2{from{transform:translate(0,0);}to{transform:translate(-140px,-100px);}}
+  @keyframes drift3{from{transform:translate(0,0) scale(1);}to{transform:translate(-100px,80px) scale(1.15);}}
+
+  @media (prefers-reduced-motion: reduce){
+    .blob{animation:none !important;}
+  }
+
+  a{color:inherit;}
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    width:250px;
+    padding:32px 24px;
+    background:var(--glass);
+    backdrop-filter:blur(24px);
+    -webkit-backdrop-filter:blur(24px);
+    border-right:1px solid var(--glass-border);
+    flex-shrink:0;
+  }
+
+  .logo{
+    font-family:var(--font-display);
+    font-size:24px;
+    font-weight:700;
+    background:linear-gradient(90deg,var(--blue),var(--violet));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    margin-bottom:8px;
+  }
+  .logo-sub{font-size:12px;color:var(--text-dim);margin-bottom:40px;letter-spacing:.04em;}
+
+  .menu a{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 14px;
+    margin:4px 0;
+    color:var(--text-dim);
+    text-decoration:none;
+    border-radius:12px;
+    font-size:14px;
+    font-weight:500;
+    transition:.2s;
+  }
+  .menu a:hover{background:var(--glass-strong);color:var(--text);}
+  .menu a.active{background:var(--glass-strong);color:var(--text);border:1px solid var(--glass-border);}
+
+  /* ---------- Main ---------- */
+  .main{flex:1;padding:32px 40px 60px;max-width:1400px;}
+
+  .header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    flex-wrap:wrap;
+    gap:16px;
+    margin-bottom:32px;
+  }
+  .header h1{font-family:var(--font-display);font-size:30px;font-weight:600;}
+  .header p{color:var(--text-dim);margin-top:4px;font-size:14px;}
+
+  .header-actions{display:flex;align-items:center;gap:14px;}
+
+  .sync-status{
+    display:flex;align-items:center;gap:8px;
+    padding:8px 16px;
+    background:var(--glass);
+    border:1px solid var(--glass-border);
+    border-radius:30px;
+    font-size:13px;
+    color:var(--text-dim);
+  }
+  .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--text-dim);}
+  .sync-dot[data-state="live"]{background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite;}
+  .sync-dot[data-state="loading"]{background:var(--amber);animation:pulse 1s infinite;}
+  .sync-dot[data-state="error"]{background:var(--red);}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+  button.refresh{
+    display:flex;align-items:center;gap:8px;
+    padding:10px 20px;
+    border:1px solid var(--glass-border);
+    border-radius:30px;
+    background:linear-gradient(90deg,#2563eb,#9333ea);
+    color:white;
+    font-family:var(--font-body);
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.2s;
+  }
+  button.refresh:hover{filter:brightness(1.1);transform:translateY(-1px);}
+
+  #errorBanner{
+    background:rgba(248,113,113,.12);
+    border:1px solid rgba(248,113,113,.35);
+    color:#fecaca;
+    padding:14px 18px;
+    border-radius:14px;
+    font-size:13px;
+    margin-bottom:24px;
+  }
+
+  /* ---------- Glass card base ---------- */
+  .glass-card{
+    position:relative;
+    background:var(--glass);
+    border:1px solid var(--glass-border);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    border-radius:22px;
+    overflow:hidden;
+  }
+  .glass-card::before{
+    content:"";
+    position:absolute;
+    top:0;left:-60%;
+    width:40%;height:100%;
+    background:linear-gradient(120deg,transparent,rgba(255,255,255,.09),transparent);
+    transform:skewX(-20deg);
+    transition:left .7s ease;
+    pointer-events:none;
+  }
+  .glass-card:hover::before{left:130%;}
+
+  /* ---------- Summary cards ---------- */
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:36px;}
+  .card{padding:22px 24px;}
+  .card p{color:var(--text-dim);font-size:13px;margin-bottom:10px;}
+  .card h2{font-family:var(--font-mono);font-size:32px;color:var(--blue);}
+
+  section.block{margin-bottom:40px;}
+  .block-title{font-family:var(--font-display);font-size:20px;font-weight:600;margin-bottom:18px;}
+
+  /* ---------- Projects ---------- */
+  .projects{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .project-card{padding:26px;background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(20px);border-radius:22px;position:relative;overflow:hidden;}
+  .project-card::before{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.09),transparent);transform:skewX(-20deg);transition:left .7s ease;pointer-events:none;}
+  .project-card:hover::before{left:130%;}
+  .project-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+  .project-card h2{font-family:var(--font-display);font-size:19px;font-weight:600;}
+  .project-meta{color:var(--text-dim);font-size:12px;margin-top:6px;}
+  .project-desc{margin-top:14px;font-size:13px;color:#cbd5e1;line-height:1.5;}
+
+  .tag{display:inline-block;padding:5px 13px;font-size:11px;font-weight:600;border-radius:20px;white-space:nowrap;}
+  .tag-active{background:var(--blue);color:var(--bg);}
+  .tag-closed{background:#334155;color:var(--text-dim);}
+
+  .progress{height:8px;background:#1e293b;border-radius:20px;margin-top:18px;overflow:hidden;}
+  .progress div{height:100%;background:linear-gradient(90deg,var(--blue),var(--violet));border-radius:20px;transition:width .6s ease;}
+
+  .project-card-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:13px;color:var(--text-dim);}
+  .view-link{color:var(--blue);text-decoration:none;font-weight:600;font-size:12px;}
+  .view-link:hover{text-decoration:underline;}
+
+  /* ---------- Analytics ---------- */
+  .analytics{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .chart{padding:26px;}
+  .chart h3{font-family:var(--font-display);font-size:15px;font-weight:600;margin-bottom:16px;color:var(--text-dim);}
+  .chart canvas{max-height:260px;}
+
+  /* ---------- Repositories ---------- */
+  .repo-list{padding:8px;}
+  .repo-item{
+    display:flex;justify-content:space-between;align-items:center;gap:16px;
+    padding:16px 18px;
+    border-bottom:1px solid var(--glass-border);
+    flex-wrap:wrap;
+  }
+  .repo-item:last-child{border-bottom:none;}
+  .repo-name{font-family:var(--font-mono);font-weight:600;font-size:14px;text-decoration:none;color:var(--text);}
+  .repo-name:hover{color:var(--blue);}
+  .repo-desc{color:var(--text-dim);font-size:12px;margin-top:4px;}
+  .repo-meta{display:flex;gap:16px;font-size:12px;color:var(--text-dim);font-family:var(--font-mono);}
+
+  .empty-state{padding:30px;text-align:center;color:var(--text-dim);font-size:13px;}
+
+  @media(max-width:1000px){
+    .sidebar{display:none;}
+    .cards{grid-template-columns:1fr 1fr;}
+    .projects,.analytics{grid-template-columns:1fr;}
+  }
 </style>
-
-
 </head>
-
 
 <body>
 
-
-
-
-<!-- SIDEBAR -->
-
+<svg width="0" height="0" style="position:absolute">
+  <filter id="goo">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="24" result="blur" />
+    <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9" result="goo" />
+  </filter>
+</svg>
+<div class="liquid-bg" aria-hidden="true">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+</div>
 
 <aside class="sidebar">
-
-
-<div class="logo">
-DashView
-</div>
-
-
-<div class="menu">
-
-
-<a href="#">
-Dashboard
-</a>
-
-<a href="#">
-Projects
-</a>
-
-<a href="#">
-Repositories
-</a>
-
-<a href="#">
-Analytics
-</a>
-
-<a href="#">
-Team
-</a>
-
-
-</div>
-
-
+  <div class="logo">DashView</div>
+  <div class="logo-sub">ArtivoraLabs</div>
+  <nav class="menu">
+    <a href="dashboard.html" class="active">Dashboard</a>
+    <a href="dashboard.html#projects">Projects</a>
+    <a href="dashboard.html#repos">Repositories</a>
+    <a href="dashboard.html#analytics">Analytics</a>
+    <a href="index.html">← Back to site</a>
+  </nav>
 </aside>
-
-
-
-
-
-
-<!-- MAIN -->
-
 
 <main class="main">
 
-
-
-<div class="header">
-
-
-<div>
-
-<h1>
-ArtivoraLabs Dashboard
-</h1>
-
-<p>
-Organization Intelligence Center
-</p>
-
-</div>
-
-
-
-<div class="profile">
-
-ArtivoraLabs
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-<!-- SUMMARY -->
-
-
-<div class="cards">
-
-
-<div class="card">
-
-<p>
-Projects
-</p>
-
-<h2>
-02
-</h2>
-
-</div>
-
-
-
-<div class="card">
-
-<p>
-Tasks
-</p>
-
-<h2>
-Live
-</h2>
-
-</div>
-
-
-
-<div class="card">
-
-<p>
-Repositories
-</p>
-
-<h2>
-Sync
-</h2>
-
-</div>
-
-
-
-
-<div class="card">
-
-<p>
-Status
-</p>
-
-<h2>
-Active
-</h2>
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-
-<!-- PROJECTS -->
-
-
-<h2 style="margin-top:40px">
-Projects Overview
-</h2>
-
-
-<div class="projects">
-
-
-
-<div class="project-card">
-
-
-<h2>
-Team Planning
-</h2>
-
-
-<p>
-Project #4
-</p>
-
-
-<span class="tag">
-Private
-</span>
-
-
-<p style="margin-top:20px">
-
-Team workflow, planning and collaboration
-
-</p>
-
-
-<div class="progress">
-
-<div style="width:80%"></div>
-
-</div>
-
-
-<p>
-Progress 80%
-</p>
-
-
-</div>
-
-
-
-
-
-<div class="project-card">
-
-
-<h2>
-Task Tracking
-</h2>
-
-
-<p>
-Project #2
-</p>
-
-
-<span class="tag">
-Private
-</span>
-
-
-<p style="margin-top:20px">
-
-Task management and productivity tracking
-
-</p>
-
-
-
-<div class="progress">
-
-<div style="width:65%"></div>
-
-</div>
-
-
-<p>
-Progress 65%
-</p>
-
-
-</div>
-
-
-
-</div>
-
-
-
-
-
-
-
-
-
-<!-- CHARTS -->
-
-
-<div class="analytics">
-
-
-<div class="chart">
-
-<h2>
-Project Progress
-</h2>
-
-<canvas id="progressChart"></canvas>
-
-
-</div>
-
-
-
-<div class="chart">
-
-<h2>
-Task Status
-</h2>
-
-<canvas id="taskChart"></canvas>
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-
-<!-- REPOS -->
-
-
-<div class="repo">
-
-
-<h2>
-Repositories
-</h2>
-
-
-<div class="repo-item">
-
-<span>
-GitHub Repository
-</span>
-
-<span>
-Live Sync
-</span>
-
-
-</div>
-
-
-<div class="repo-item">
-
-<span>
-Development Activity
-</span>
-
-<span>
-Tracking
-</span>
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-
-<!-- ACTIVITY -->
-
-
-<div class="activity">
-
-
-<h2>
-Recent Activity
-</h2>
-
-
-<div>
-✓ Project updated
-</div>
-
-
-<div>
-✓ New task created
-</div>
-
-
-<div>
-✓ Repository synchronized
-</div>
-
-
-</div>
-
-
+  <div class="header">
+    <div>
+      <h1 id="orgName">ArtivoraLabs</h1>
+      <p>Organization Intelligence Center</p>
+    </div>
+    <div class="header-actions">
+      <div class="sync-status">
+        <span class="sync-dot" data-state="loading"></span>
+        <span id="syncLabel">Syncing…</span>
+      </div>
+      <button class="refresh" id="refreshBtn">↻ Refresh</button>
+    </div>
+  </div>
+
+  <div id="errorBanner" hidden></div>
+
+  <div class="cards">
+    <div class="card glass-card">
+      <p>Projects</p>
+      <h2 id="projectCount">00</h2>
+    </div>
+    <div class="card glass-card">
+      <p>Open tasks</p>
+      <h2 id="openTaskCount">—</h2>
+    </div>
+    <div class="card glass-card">
+      <p>Repositories</p>
+      <h2 id="repoCount">00</h2>
+    </div>
+    <div class="card glass-card">
+      <p>Status</p>
+      <h2 style="font-size:22px;color:var(--green)">Active</h2>
+    </div>
+  </div>
+
+  <section class="block" id="projects">
+    <h2 class="block-title">Projects overview</h2>
+    <div class="projects">
+      <div class="empty-state">Loading projects…</div>
+    </div>
+  </section>
+
+  <section class="block" id="analytics">
+    <h2 class="block-title">Analytics</h2>
+    <div class="analytics">
+      <div class="chart glass-card">
+        <h3>Progress by project</h3>
+        <canvas id="progressChart"></canvas>
+      </div>
+      <div class="chart glass-card">
+        <h3>Task status</h3>
+        <canvas id="taskChart"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="repos">
+    <h2 class="block-title">Repositories</h2>
+    <div class="repo-list glass-card">
+      <div class="empty-state">Loading repositories…</div>
+    </div>
+  </section>
 
 </main>
 
-
-
-
-
-
-<script>
-
-
-new Chart(
-
-document.getElementById("progressChart"),
-
-{
-
-type:"doughnut",
-
-data:{
-
-labels:[
-"Team Planning",
-"Task Tracking"
-],
-
-datasets:[{
-
-data:[80,65],
-
-backgroundColor:[
-
-"#38bdf8",
-"#a855f7"
-
-]
-
-}]
-
-}
-
-});
-
-
-
-
-new Chart(
-
-document.getElementById("taskChart"),
-
-{
-
-type:"bar",
-
-data:{
-
-labels:[
-"Completed",
-"In Progress",
-"Pending"
-],
-
-datasets:[{
-
-label:"Tasks",
-
-data:[50,30,20],
-
-backgroundColor:[
-
-"#22c55e",
-"#facc15",
-"#ef4444"
-
-]
-
-}]
-
-}
-
-});
-
-
-</script>
-
-
-
+<script src="script.js"></script>
 </body>
 </html>
