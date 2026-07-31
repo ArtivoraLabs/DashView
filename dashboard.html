@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <title>DashView</title>
 
 <link rel="stylesheet" href="style.css">
@@ -9,11 +10,14 @@
 
 </head>
 
+
 <body>
 
 <div class="background"></div>
 
+
 <div class="container">
+
 
 <h1 class="title">DashView</h1>
 
@@ -22,10 +26,12 @@ Organization Project Analytics
 </p>
 
 
+
 <div class="cards">
 
 
 <div class="glass card">
+
 <h2>Team Planning</h2>
 
 <span>#4</span>
@@ -42,7 +48,9 @@ Updated 3 days ago
 
 
 
+
 <div class="glass card">
+
 <h2>Task Tracking</h2>
 
 <span>#2</span>
@@ -62,6 +70,8 @@ Updated 3 days ago
 
 
 
+
+
 <div class="glass chart-box">
 
 <h2>Project Progress</h2>
@@ -69,6 +79,8 @@ Updated 3 days ago
 <canvas id="progressChart"></canvas>
 
 </div>
+
+
 
 
 
@@ -81,12 +93,29 @@ Updated 3 days ago
 </div>
 
 
+
+
+
+<div class="glass chart-box">
+
+<h2>Live GitHub Projects</h2>
+
+<canvas id="projectChart"></canvas>
+
 </div>
+
+
+
+</div>
+
+
 
 
 
 <script>
 
+
+// Static Project Progress Chart
 
 new Chart(
 document.getElementById('progressChart'),
@@ -97,8 +126,11 @@ type:'doughnut',
 data:{
 
 labels:[
+
 "Team Planning",
+
 "Task Tracking"
+
 ],
 
 datasets:[{
@@ -108,6 +140,7 @@ data:[70,85],
 backgroundColor:[
 
 "#38bdf8",
+
 "#818cf8"
 
 ]
@@ -121,6 +154,8 @@ backgroundColor:[
 
 
 
+
+// Static Task Status Chart
 
 new Chart(
 
@@ -135,7 +170,9 @@ data:{
 labels:[
 
 "Completed",
+
 "In Progress",
+
 "Pending"
 
 ],
@@ -149,7 +186,9 @@ data:[45,30,15],
 backgroundColor:[
 
 "#22c55e",
+
 "#facc15",
+
 "#ef4444"
 
 ]
@@ -161,68 +200,105 @@ backgroundColor:[
 });
 
 
-</script>
 
 
-</body>
-</html>
 
+
+// LIVE GITHUB PROJECT DATA
 
 fetch("http://localhost:3000/dashboard-data")
 
-.then(res=>res.json())
+.then(res => res.json())
 
-.then(data=>{
+.then(data => {
 
 
 let projects =
 data.data.organization.projectsV2.nodes;
 
 
-let names=[];
-let counts=[];
+
+let names = [];
+
+let counts = [];
 
 
-projects.forEach(project=>{
+
+projects.forEach(project => {
+
 
 names.push(project.title);
+
+
 
 counts.push(
 project.items.nodes.length
 );
 
+
+
 });
 
 
 
+
+
 new Chart(
+
 document.getElementById("projectChart"),
+
 {
 
 type:"bar",
+
 
 data:{
 
 labels:names,
 
+
 datasets:[{
 
-label:"Tasks",
+label:"Total Tasks",
+
 
 data:counts,
+
 
 backgroundColor:[
 
 "#38bdf8",
-"#818cf8"
+
+"#818cf8",
+
+"#22c55e"
 
 ]
 
+
 }]
+
 
 }
 
 });
 
 
+})
+
+.catch(error=>{
+
+
+console.log(error);
+
+
 });
+
+
+
+</script>
+
+
+</body>
+
+</html>
