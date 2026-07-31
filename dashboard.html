@@ -166,3 +166,63 @@ backgroundColor:[
 
 </body>
 </html>
+
+
+fetch("http://localhost:3000/dashboard-data")
+
+.then(res=>res.json())
+
+.then(data=>{
+
+
+let projects =
+data.data.organization.projectsV2.nodes;
+
+
+let names=[];
+let counts=[];
+
+
+projects.forEach(project=>{
+
+names.push(project.title);
+
+counts.push(
+project.items.nodes.length
+);
+
+});
+
+
+
+new Chart(
+document.getElementById("projectChart"),
+{
+
+type:"bar",
+
+data:{
+
+labels:names,
+
+datasets:[{
+
+label:"Tasks",
+
+data:counts,
+
+backgroundColor:[
+
+"#38bdf8",
+"#818cf8"
+
+]
+
+}]
+
+}
+
+});
+
+
+});
