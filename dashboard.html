@@ -1,23 +1,168 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>DashView Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+<title>DashView</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 
 <body>
 
+<div class="background"></div>
+
 <div class="container">
 
-<h1>DashView</h1>
+<h1 class="title">DashView</h1>
 
-<div id="projects">
-Loading GitHub Projects...
+<p class="subtitle">
+Organization Project Analytics
+</p>
+
+
+<div class="cards">
+
+
+<div class="glass card">
+<h2>Team Planning</h2>
+
+<span>#4</span>
+
+<p>
+Private Project
+</p>
+
+<p>
+Updated 3 days ago
+</p>
+
 </div>
 
+
+
+<div class="glass card">
+<h2>Task Tracking</h2>
+
+<span>#2</span>
+
+<p>
+Private Project
+</p>
+
+<p>
+Updated 3 days ago
+</p>
+
 </div>
 
-<script src="script.js"></script>
+
+</div>
+
+
+
+<div class="glass chart-box">
+
+<h2>Project Progress</h2>
+
+<canvas id="progressChart"></canvas>
+
+</div>
+
+
+
+<div class="glass chart-box">
+
+<h2>Task Status</h2>
+
+<canvas id="taskChart"></canvas>
+
+</div>
+
+
+</div>
+
+
+
+<script>
+
+
+new Chart(
+document.getElementById('progressChart'),
+{
+
+type:'doughnut',
+
+data:{
+
+labels:[
+"Team Planning",
+"Task Tracking"
+],
+
+datasets:[{
+
+data:[70,85],
+
+backgroundColor:[
+
+"#38bdf8",
+"#818cf8"
+
+]
+
+}]
+
+}
+
+});
+
+
+
+
+
+new Chart(
+
+document.getElementById('taskChart'),
+
+{
+
+type:'bar',
+
+data:{
+
+labels:[
+
+"Completed",
+"In Progress",
+"Pending"
+
+],
+
+datasets:[{
+
+label:"Tasks",
+
+data:[45,30,15],
+
+backgroundColor:[
+
+"#22c55e",
+"#facc15",
+"#ef4444"
+
+]
+
+}]
+
+}
+
+});
+
+
+</script>
+
 
 </body>
 </html>
