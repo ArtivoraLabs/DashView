@@ -1,13 +1,778 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>DashView</title>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>DashView | ArtivoraLabs</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Inter,sans-serif;
+}
+
+body{
+
+background:
+radial-gradient(circle at top left,#2563eb55,transparent 35%),
+radial-gradient(circle at bottom right,#9333ea55,transparent 35%),
+#020617;
+
+color:white;
+}
+
+
+/* NAV */
+
+nav{
+
+width:90%;
+margin:25px auto;
+
+padding:20px 35px;
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+background:#ffffff10;
+
+backdrop-filter:blur(20px);
+
+border:1px solid #ffffff20;
+
+border-radius:25px;
+
+position:sticky;
+top:20px;
+
+}
+
+
+.logo{
+
+font-size:30px;
+font-weight:800;
+
+background:linear-gradient(90deg,#38bdf8,#c084fc);
+
+-webkit-background-clip:text;
+color:transparent;
+
+}
+
+
+nav a{
+
+color:#cbd5e1;
+text-decoration:none;
+margin-left:25px;
+
+}
+
+
+
+
+/* HERO */
+
+.hero{
+
+width:90%;
+margin:90px auto;
+
+display:grid;
+
+grid-template-columns:1fr 1fr;
+
+gap:50px;
+
+align-items:center;
+
+}
+
+
+
+.hero h1{
+
+font-size:70px;
+
+line-height:1.1;
+
+font-weight:800;
+
+}
+
+
+
+.hero span{
+
+background:
+linear-gradient(90deg,#38bdf8,#a855f7);
+
+-webkit-background-clip:text;
+
+color:transparent;
+
+}
+
+
+
+.hero p{
+
+margin-top:25px;
+
+font-size:20px;
+
+color:#94a3b8;
+
+line-height:1.7;
+
+}
+
+
+
+button{
+
+margin-top:35px;
+
+padding:16px 35px;
+
+border:none;
+
+border-radius:50px;
+
+background:
+linear-gradient(90deg,#2563eb,#9333ea);
+
+color:white;
+
+font-size:16px;
+
+cursor:pointer;
+
+}
+
+
+
+/* DASHBOARD MOCKUP */
+
+.preview{
+
+padding:30px;
+
+background:#ffffff10;
+
+border-radius:30px;
+
+border:1px solid #ffffff20;
+
+backdrop-filter:blur(20px);
+
+box-shadow:0 30px 80px #0008;
+
+}
+
+
+
+.stat-grid{
+
+display:grid;
+
+grid-template-columns:repeat(3,1fr);
+
+gap:15px;
+
+margin:20px 0;
+
+}
+
+
+.stat{
+
+background:#ffffff12;
+
+padding:20px;
+
+border-radius:20px;
+
+}
+
+
+.stat h2{
+
+color:#38bdf8;
+
+}
+
+
+
+.box{
+
+background:#ffffff10;
+
+padding:20px;
+
+margin:15px 0;
+
+border-radius:20px;
+
+}
+
+
+
+
+
+/* SECTIONS */
+
+section{
+
+width:90%;
+
+margin:100px auto;
+
+}
+
+
+
+.title{
+
+font-size:40px;
+
+margin-bottom:40px;
+
+}
+
+
+
+
+
+.cards{
+
+display:grid;
+
+grid-template-columns:repeat(3,1fr);
+
+gap:25px;
+
+}
+
+
+
+.card{
+
+padding:30px;
+
+background:#ffffff10;
+
+border:1px solid #ffffff20;
+
+border-radius:25px;
+
+backdrop-filter:blur(20px);
+
+transition:.3s;
+
+}
+
+
+
+.card:hover{
+
+transform:translateY(-10px);
+
+}
+
+
+
+
+
+/* PROJECTS */
+
+
+.project{
+
+display:grid;
+
+grid-template-columns:1fr 1fr;
+
+gap:25px;
+
+}
+
+
+.progress{
+
+height:12px;
+
+background:#334155;
+
+border-radius:20px;
+
+overflow:hidden;
+
+}
+
+
+
+.progress div{
+
+height:100%;
+
+background:linear-gradient(90deg,#38bdf8,#a855f7);
+
+width:80%;
+
+}
+
+
+
+
+
+/* ACTIVITY */
+
+
+.activity li{
+
+list-style:none;
+
+padding:15px;
+
+background:#ffffff10;
+
+margin:10px 0;
+
+border-radius:15px;
+
+}
+
+
+
+
+
+footer{
+
+text-align:center;
+
+padding:50px;
+
+color:#94a3b8;
+
+}
+
+
+
+
+@media(max-width:900px){
+
+.hero{
+
+grid-template-columns:1fr;
+
+}
+
+.cards{
+
+grid-template-columns:1fr;
+
+}
+
+.project{
+
+grid-template-columns:1fr;
+
+}
+
+.hero h1{
+
+font-size:45px;
+
+}
+
+}
+
+
+</style>
+
 </head>
+
+
 <body>
 
-<h1>Welcome to DashView</h1>
 
-<a href="dashboard.html">Open Dashboard</a>
+
+<nav>
+
+<div class="logo">
+DashView
+</div>
+
+
+<div>
+
+<a href="#">
+Home
+</a>
+
+<a href="#">
+Projects
+</a>
+
+<a href="#">
+Analytics
+</a>
+
+<a href="#">
+Dashboard
+</a>
+
+</div>
+
+
+</nav>
+
+
+
+
+
+<section class="hero">
+
+
+<div>
+
+
+<h1>
+
+Smart
+
+<span>
+Organization
+</span>
+
+Intelligence
+
+</h1>
+
+
+<p>
+
+DashView is the centralized platform for
+ArtivoraLabs to monitor GitHub projects,
+tasks, repositories and team performance
+with powerful analytics.
+
+</p>
+
+
+<button>
+Open Dashboard
+</button>
+
+
+</div>
+
+
+
+
+
+<div class="preview">
+
+
+<h2>
+ArtivoraLabs Overview
+</h2>
+
+
+
+<div class="stat-grid">
+
+
+<div class="stat">
+
+<h2>
+02
+</h2>
+
+<p>
+Projects
+</p>
+
+</div>
+
+
+<div class="stat">
+
+<h2>
+Live
+</h2>
+
+<p>
+GitHub Sync
+</p>
+
+</div>
+
+
+<div class="stat">
+
+<h2>
+24/7
+</h2>
+
+<p>
+Monitoring
+</p>
+
+</div>
+
+
+</div>
+
+
+
+
+<div class="box">
+
+<h3>
+Team Planning
+</h3>
+
+<p>
+Project #4 • Private</p>
+
+</div>
+
+
+<div class="box">
+
+<h3>
+Task Tracking
+</h3>
+
+<p>
+Project #2 • Private</p>
+
+</div>
+
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+<section>
+
+<h2 class="title">
+Platform Features
+</h2>
+
+
+<div class="cards">
+
+
+<div class="card">
+
+<h2>
+📊 Analytics
+</h2>
+
+<p>
+Real-time charts, progress tracking and reports.
+</p>
+
+</div>
+
+
+
+<div class="card">
+
+<h2>
+🚀 Projects
+</h2>
+
+<p>
+Manage organization projects and workflows.
+</p>
+
+</div>
+
+
+
+
+<div class="card">
+
+<h2>
+👥 Teams
+</h2>
+
+<p>
+Track collaboration and productivity.
+</p>
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+<section>
+
+<h2 class="title">
+ArtivoraLabs Projects
+</h2>
+
+
+
+<div class="project">
+
+
+<div class="card">
+
+<h2>
+Team Planning
+</h2>
+
+<p>
+Project #4
+</p>
+
+<p>
+Private Project
+</p>
+
+<br>
+
+<div class="progress">
+
+<div></div>
+
+</div>
+
+
+</div>
+
+
+
+
+<div class="card">
+
+<h2>
+Task Tracking
+</h2>
+
+<p>
+Project #2
+</p>
+
+<p>
+Private Project
+</p>
+
+<br>
+
+
+<div class="progress">
+
+<div style="width:65%"></div>
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+
+<h2 class="title">
+Recent Activity
+</h2>
+
+
+<ul class="activity">
+
+
+<li>
+✓ Project updated
+</li>
+
+<li>
+✓ New task created
+</li>
+
+<li>
+✓ Repository synchronized
+</li>
+
+<li>
+✓ Team activity recorded
+</li>
+
+
+</ul>
+
+
+</section>
+
+
+
+
+
+
+
+<footer>
+
+<h2>
+DashView
+</h2>
+
+<p>
+ArtivoraLabs Organization Intelligence Platform
+</p>
+
+<p>
+© 2026 All Rights Reserved
+</p>
+
+
+</footer>
+
+
 
 </body>
 </html>
