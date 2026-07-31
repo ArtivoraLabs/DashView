@@ -1,28 +1,290 @@
-const organization = "YOUR_ORGANIZATION_NAME";
+const API = "http://localhost:3000/api/dashboard";
 
-fetch(`https://api.github.com/orgs/${organization}/repos`)
-.then(response => response.json())
-.then(repos => {
 
-    let output = "";
+async function loadDashboard(){
 
-    repos.forEach(repo => {
+try{
 
-        output += `
-        <div class="card">
-            <h2>${repo.name}</h2>
-            <p>Language: ${repo.language || "N/A"}</p>
-            <p>Stars: ${repo.stargazers_count}</p>
-            <p>Updated: ${repo.updated_at}</p>
-        </div>
-        `;
 
-    });
+const response = await fetch(API);
 
-    document.getElementById("projects").innerHTML = output;
+const data = await response.json();
 
-})
-.catch(() => {
-    document.getElementById("projects").innerHTML =
-    "Unable to load GitHub data";
+
+
+const projects =
+data.projectsV2.nodes;
+
+
+const repositories =
+data.repositories.nodes;
+
+
+
+// PROJECT COUNT
+
+document.querySelector("#projectCount")
+.innerHTML =
+projects.length;
+
+
+
+// REPOSITORY COUNT
+
+document.querySelector("#repoCount")
+.innerHTML =
+repositories.length;
+
+
+
+// PROJECT DATA
+
+
+let projectNames=[];
+
+let taskCounts=[];
+
+
+
+projects.forEach(project=>{
+
+
+projectNames.push(
+project.title
+);
+
+
+
+taskCounts.push(
+project.items.nodes.length
+);
+
+
+
 });
+
+
+
+
+
+
+// PROJECT CHART
+
+
+new Chart(
+
+document.getElementById(
+"progressChart"
+),
+
+{
+
+type:"doughnut",
+
+data:{
+
+
+labels:projectNames,
+
+
+datasets:[{
+
+data:taskCounts,
+
+
+backgroundColor:[
+
+"#38bdf8",
+
+"#a855f7"
+
+]
+
+
+}]
+
+
+}
+
+
+});
+
+
+
+
+
+// TASK STATUS
+
+
+let completed=0;
+
+let pending=0;
+
+
+
+projects.forEach(project=>{
+
+
+project.items.nodes.forEach(item=>{
+
+
+if(
+item.content?.state==="OPEN"
+){
+
+pending++;
+
+}
+
+else{
+
+completed++;
+
+}
+
+
+});
+
+
+});
+
+
+
+
+
+new Chart(
+
+document.getElementById(
+"taskChart"
+),
+
+{
+
+type:"bar",
+
+data:{
+
+labels:[
+
+"Completed",
+
+"Pending"
+
+],
+
+
+datasets:[{
+
+label:"Tasks",
+
+data:[
+
+completed,
+
+pending
+
+],
+
+
+backgroundColor:[
+
+"#22c55e",
+
+"#ef4444"
+
+]
+
+
+}]
+
+
+}
+
+
+});
+
+
+
+
+
+
+
+// PROJECT CARDS
+
+
+let html="";
+
+
+
+projects.forEach(project=>{
+
+
+html += `
+
+
+<div class="project-card">
+
+
+<h2>
+
+${project.title}
+
+</h2>
+
+
+<p>
+
+Project #${project.number}
+
+</p>
+
+
+<span class="tag">
+
+${project.closed ?
+"Closed":
+"Active"}
+
+</span>
+
+
+<p>
+
+Tasks:
+
+${project.items.nodes.length}
+
+</p>
+
+
+</div>
+
+
+`;
+
+
+
+});
+
+
+
+document.querySelector(
+".projects"
+).innerHTML=html;
+
+
+
+}
+
+catch(error){
+
+console.log(error);
+
+}
+
+
+}
+
+
+
+loadDashboard();
