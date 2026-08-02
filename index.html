@@ -3,460 +3,372 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>DashView | ArtivoraLabs</title>
-<meta name="description" content="DashView is ArtivoraLabs' organization intelligence platform — live GitHub projects, repositories and analytics in one place." />
+<title>DashView · ArtivoraLabs Intelligence Platform</title>
+<meta name="description" content="GitHub organization intelligence for ArtivoraLabs — live projects, repos, analytics and team activity in one premium dashboard." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
-
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 <style>
-  :root{
-    --bg:#020617;
-    --glass:rgba(255,255,255,.06);
-    --glass-strong:rgba(255,255,255,.1);
-    --glass-border:rgba(255,255,255,.14);
-    --blue:#38bdf8;
-    --violet:#a855f7;
-    --indigo:#6366f1;
-    --green:#22c55e;
-    --text:#f1f5f9;
-    --text-dim:#94a3b8;
-    --font-display:'Space Grotesk',Inter,sans-serif;
-    --font-body:'Inter',sans-serif;
-    --font-mono:'JetBrains Mono',monospace;
-  }
+/* ── Tokens ─────────────────────────────────────────────────── */
+:root{
+  --bg:#04070f; --surface:#080e1e; --surface-2:#0c1428;
+  --g:rgba(255,255,255,.045); --g-hover:rgba(255,255,255,.08);
+  --g-border:rgba(255,255,255,.09); --g-bright:rgba(255,255,255,.16);
+  --blue:#3b82f6; --blue-dim:rgba(59,130,246,.18);
+  --cyan:#22d3ee; --cyan-dim:rgba(34,211,238,.12);
+  --violet:#8b5cf6; --violet-dim:rgba(139,92,246,.18);
+  --emerald:#10b981; --amber:#f59e0b;
+  --text:#f1f5f9; --text-dim:#64748b; --text-mid:#94a3b8; --text-muted:#334155;
+  --font-d:'Syne',sans-serif; --font-b:'DM Sans',sans-serif; --font-m:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-b);background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;position:relative;}
+a{color:inherit;text-decoration:none;}
 
-  *{margin:0;padding:0;box-sizing:border-box;}
+/* ── Ambient colour blobs (behind dot grid) ─────────────────── */
+.blobs{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;}
+.blob{position:absolute;border-radius:50%;filter:blur(110px);opacity:.22;}
+.b1{width:700px;height:700px;background:var(--blue);top:-200px;left:-200px;animation:drift1 32s ease-in-out infinite alternate;}
+.b2{width:500px;height:500px;background:var(--violet);top:10%;right:-150px;animation:drift2 40s ease-in-out infinite alternate;}
+.b3{width:400px;height:400px;background:#0284c7;bottom:-100px;left:35%;animation:drift3 48s ease-in-out infinite alternate;}
+@keyframes drift1{to{transform:translate(220px,180px);}}
+@keyframes drift2{to{transform:translate(-180px,140px);}}
+@keyframes drift3{to{transform:translate(140px,-120px) scale(1.15);}}
+@media(prefers-reduced-motion:reduce){.blob{animation:none!important;}}
 
-  body{
-    font-family:var(--font-body);
-    background:var(--bg);
-    color:var(--text);
-    overflow-x:hidden;
-    position:relative;
-  }
+/* All content sits above the canvas (z-index 0) */
+.nav-wrap,.hero,.stats-strip,.section,footer{position:relative;z-index:5;}
 
-  a{color:inherit;}
+/* ── Glass ──────────────────────────────────────────────────── */
+.glass{background:var(--g);border:1px solid var(--g-border);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);}
+.sheen{position:relative;overflow:hidden;}
+.sheen::after{content:"";position:absolute;top:0;left:-70%;width:45%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.07),transparent);transform:skewX(-18deg);transition:left .8s ease;pointer-events:none;}
+.sheen:hover::after{left:140%;}
 
-  /* ---------- Liquid glass background (signature element) ---------- */
-  .liquid-bg{
-    position:fixed;
-    inset:0;
-    z-index:-1;
-    overflow:hidden;
-    filter:url(#goo);
-    opacity:.6;
-  }
-  .blob{position:absolute;border-radius:50%;mix-blend-mode:screen;}
-  .blob.b1{width:520px;height:520px;background:var(--blue);top:-160px;left:-120px;animation:drift1 24s ease-in-out infinite alternate;}
-  .blob.b2{width:440px;height:440px;background:var(--violet);top:10%;right:-140px;animation:drift2 28s ease-in-out infinite alternate;}
-  .blob.b3{width:340px;height:340px;background:var(--indigo);bottom:-120px;left:30%;animation:drift3 32s ease-in-out infinite alternate;}
-  .blob.b4{width:260px;height:260px;background:var(--blue);bottom:20%;right:20%;animation:drift1 20s ease-in-out infinite alternate-reverse;}
+/* ── Nav ────────────────────────────────────────────────────── */
+.nav-wrap{width:min(1240px,94%);margin:0 auto;padding-top:20px;position:sticky;top:20px;z-index:100;}
+nav{padding:13px 28px;border-radius:28px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--g-bright);}
+.logo{font-family:var(--font-d);font-size:20px;font-weight:700;letter-spacing:-.02em;background:linear-gradient(135deg,var(--cyan),var(--blue),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.nav-links{display:flex;align-items:center;gap:6px;}
+.nav-links a{color:var(--text-dim);font-size:14px;font-weight:500;padding:8px 14px;border-radius:10px;transition:color .2s,background .2s;}
+.nav-links a:hover{color:var(--text);background:var(--g-hover);}
+.nav-cta{color:#fff!important;background:linear-gradient(135deg,var(--blue),var(--violet))!important;padding:9px 22px!important;border-radius:30px!important;font-weight:600!important;box-shadow:0 0 20px rgba(59,130,246,.35);transition:filter .2s,transform .2s!important;}
+.nav-cta:hover{filter:brightness(1.1);transform:translateY(-1px)!important;}
+.status-pill{display:flex;align-items:center;gap:6px;font-family:var(--font-m);font-size:11px;color:var(--emerald);padding:5px 12px;border-radius:20px;border:1px solid rgba(16,185,129,.25);background:rgba(16,185,129,.08);}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--emerald);box-shadow:0 0 6px var(--emerald);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
 
-  @keyframes drift1{from{transform:translate(0,0);}to{transform:translate(180px,140px);}}
-  @keyframes drift2{from{transform:translate(0,0);}to{transform:translate(-160px,120px);}}
-  @keyframes drift3{from{transform:translate(0,0) scale(1);}to{transform:translate(120px,-100px) scale(1.2);}}
+/* ── Hero ───────────────────────────────────────────────────── */
+.hero{width:min(1240px,94%);margin:90px auto 100px;display:grid;grid-template-columns:1fr 1.05fr;gap:72px;align-items:center;}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;width:fit-content;font-family:var(--font-m);font-size:11px;color:var(--cyan);padding:6px 14px;border-radius:20px;border:1px solid rgba(34,211,238,.25);background:rgba(34,211,238,.08);margin-bottom:28px;letter-spacing:.04em;}
+.hero h1{font-family:var(--font-d);font-size:clamp(40px,5.5vw,72px);line-height:1.05;font-weight:800;letter-spacing:-.03em;margin-bottom:24px;}
+.hero h1 .grad{background:linear-gradient(135deg,#60a5fa,var(--violet),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.hero .lede{font-size:17px;color:var(--text-dim);line-height:1.75;max-width:50ch;margin-bottom:40px;}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:28px;}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:15px 32px;border-radius:30px;font-size:15px;font-weight:600;color:#fff;background:linear-gradient(135deg,var(--blue),var(--violet));box-shadow:0 0 40px rgba(59,130,246,.3);transition:filter .2s,transform .2s,box-shadow .2s;}
+.btn-primary:hover{filter:brightness(1.12);transform:translateY(-2px);box-shadow:0 0 60px rgba(59,130,246,.45);}
+.btn-secondary{display:inline-flex;align-items:center;gap:8px;padding:15px 28px;border-radius:30px;font-size:15px;font-weight:500;background:var(--g);border:1px solid var(--g-bright);color:var(--text);transition:background .2s,transform .2s;}
+.btn-secondary:hover{background:var(--g-hover);transform:translateY(-2px);}
+.hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--text-dim);font-family:var(--font-m);}
 
-  @media (prefers-reduced-motion: reduce){
-    .blob{animation:none !important;}
-    .card,.glass-card,.project-mock{transition:none !important;}
-  }
+/* ── OS Window ──────────────────────────────────────────────── */
+.os-window{border-radius:18px;overflow:hidden;box-shadow:0 32px 90px rgba(0,0,0,.65),0 0 0 1px var(--g-bright);animation:floatY 7s ease-in-out infinite alternate;}
+@keyframes floatY{from{transform:translateY(0);}to{transform:translateY(-14px);}}
+@media(prefers-reduced-motion:reduce){.os-window{animation:none;}}
+.os-tb{display:flex;align-items:center;gap:10px;padding:12px 18px;background:var(--surface);border-bottom:1px solid var(--g-border);}
+.os-dots{display:flex;gap:7px;}
+.os-dots span{width:12px;height:12px;border-radius:50%;}
+.d-r{background:#f43f5e;}.d-a{background:#f59e0b;}.d-g{background:#10b981;}
+.os-title{flex:1;text-align:center;font-family:var(--font-m);font-size:12px;color:var(--text-dim);}
+.os-body{background:var(--surface-2);padding:24px;}
+.os-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.os-top-title{font-family:var(--font-d);font-size:15px;font-weight:700;}
+.live-pill{display:flex;align-items:center;gap:5px;font-family:var(--font-m);font-size:10px;color:var(--text-dim);padding:4px 10px;border-radius:20px;border:1px solid var(--g-border);}
+.os-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.os-stat{padding:12px 14px;border-radius:12px;background:var(--g);border:1px solid var(--g-border);text-align:center;}
+.os-stat .v{font-family:var(--font-m);font-size:22px;color:var(--cyan);font-weight:600;}
+.os-stat .l{font-size:10px;color:var(--text-dim);margin-top:2px;}
+.os-proj{padding:12px 14px;border-radius:12px;margin-bottom:8px;background:var(--g);border:1px solid var(--g-border);}
+.os-proj-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.os-proj-n{font-family:var(--font-d);font-size:12px;font-weight:600;}
+.os-badge{font-family:var(--font-m);font-size:9px;color:var(--bg);padding:2px 8px;border-radius:10px;background:var(--blue);}
+.os-bar{height:4px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden;}
+.os-bar-f{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--blue),var(--violet));}
+.os-bar-m{display:flex;justify-content:space-between;margin-top:5px;font-size:10px;color:var(--text-dim);font-family:var(--font-m);}
+.os-chart{height:80px;border-radius:10px;background:var(--g);border:1px solid var(--g-border);margin-top:10px;overflow:hidden;}
+.os-chart svg{width:100%;height:100%;}
+.cmd-hint{margin-top:10px;padding:8px 12px;border-radius:8px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);display:flex;align-items:center;justify-content:space-between;font-family:var(--font-m);font-size:10px;color:var(--text-dim);}
+.kbd-pair{display:flex;gap:4px;}
+.kbd-pair span{background:var(--surface);border:1px solid var(--g-bright);padding:1px 6px;border-radius:4px;font-size:10px;color:var(--text);}
 
-  /* ---------- Glass helpers ---------- */
-  .glass{
-    background:var(--glass);
-    border:1px solid var(--glass-border);
-    backdrop-filter:blur(22px);
-    -webkit-backdrop-filter:blur(22px);
-  }
-  .glass-sheen{position:relative;overflow:hidden;}
-  .glass-sheen::before{
-    content:"";
-    position:absolute;top:0;left:-60%;width:40%;height:100%;
-    background:linear-gradient(120deg,transparent,rgba(255,255,255,.1),transparent);
-    transform:skewX(-20deg);
-    transition:left .7s ease;
-    pointer-events:none;
-  }
-  .glass-sheen:hover::before{left:130%;}
+/* ── Stats Strip ────────────────────────────────────────────── */
+.stats-strip{width:min(1240px,94%);margin:0 auto 120px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:var(--g-border);border-radius:20px;overflow:hidden;border:1px solid var(--g-border);}
+.stat-item{padding:36px 32px;background:var(--surface);text-align:center;transition:background .2s;border-right:1px solid var(--g-border);}
+.stat-item:last-child{border-right:none;}
+.stat-item:hover{background:rgba(255,255,255,.03);}
+.stat-n{font-family:var(--font-d);font-size:clamp(32px,4vw,52px);font-weight:800;letter-spacing:-.04em;line-height:1;}
+.stat-n.c{background:linear-gradient(135deg,var(--cyan),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.stat-n.v{background:linear-gradient(135deg,var(--violet),#c084fc);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.stat-n.e{background:linear-gradient(135deg,var(--emerald),#34d399);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.stat-n.a{background:linear-gradient(135deg,var(--amber),#fcd34d);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.stat-label{font-size:13px;color:var(--text-dim);margin-top:8px;font-weight:500;}
+.stat-sub{font-family:var(--font-m);font-size:10px;color:var(--text-muted);margin-top:4px;}
 
-  /* ---------- Nav ---------- */
-  nav{
-    width:min(1200px,92%);
-    margin:22px auto;
-    padding:18px 30px;
-    display:flex;justify-content:space-between;align-items:center;
-    border-radius:24px;
-    position:sticky;top:18px;
-    z-index:10;
-  }
-  .logo{
-    font-family:var(--font-display);
-    font-size:22px;font-weight:700;
-    background:linear-gradient(90deg,var(--blue),var(--violet));
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-  }
-  nav .links{display:flex;align-items:center;gap:28px;}
-  nav .links a{color:var(--text-dim);text-decoration:none;font-size:14px;font-weight:500;line-height:1;transition:.2s;}
-  nav .links a:hover{color:var(--text);}
-  nav .links a.cta{
-    color:var(--bg);
-    background:linear-gradient(90deg,var(--blue),var(--violet));
-    padding:10px 22px;border-radius:30px;font-weight:600;
-    display:inline-flex;align-items:center;
-  }
+/* ── Sections ───────────────────────────────────────────────── */
+.section{width:min(1240px,94%);margin:0 auto 120px;}
+.sec-eye{font-family:var(--font-m);font-size:11px;color:var(--cyan);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sec-eye::before{content:"";width:24px;height:1px;background:linear-gradient(90deg,var(--cyan),transparent);}
+.sec-title{font-family:var(--font-d);font-size:clamp(28px,3.5vw,44px);font-weight:700;letter-spacing:-.03em;margin-bottom:56px;max-width:24ch;line-height:1.1;}
+.sec-title .g{background:linear-gradient(135deg,var(--blue),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent;}
 
-  /* ---------- Hero ---------- */
-  .hero{
-    width:min(1200px,92%);
-    margin:70px auto 100px;
-    display:grid;
-    grid-template-columns:1.05fr .95fr;
-    gap:60px;
-    align-items:center;
-  }
+/* ── Features ───────────────────────────────────────────────── */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--g-border);border-radius:20px;overflow:hidden;border:1px solid var(--g-border);}
+.feat-card{padding:36px 32px;background:var(--surface);transition:background .3s;position:relative;overflow:hidden;display:flex;flex-direction:column;}
+.feat-card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--blue-dim),transparent);opacity:0;transition:opacity .3s;}
+.feat-card:hover{background:rgba(255,255,255,.03);}
+.feat-card:hover::before{opacity:1;}
+.feat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:20px;}
+.i-b{background:var(--blue-dim);}.i-v{background:var(--violet-dim);}.i-e{background:rgba(16,185,129,.15);}.i-a{background:rgba(245,158,11,.15);}.i-r{background:rgba(244,63,94,.15);}.i-c{background:var(--cyan-dim);}
+.feat-card h3{font-family:var(--font-d);font-size:17px;font-weight:700;letter-spacing:-.02em;margin-bottom:10px;}
+.feat-card p{font-size:14px;color:var(--text-dim);line-height:1.7;flex:1;}
+.feat-tag{display:inline-flex;align-items:center;gap:4px;font-family:var(--font-m);font-size:10px;color:var(--blue);padding:3px 10px;border-radius:20px;border:1px solid var(--blue-dim);margin-top:16px;width:fit-content;}
 
-  .eyebrow{
-    display:inline-flex;align-items:center;gap:8px;
-    font-family:var(--font-mono);font-size:12px;
-    color:var(--blue);
-    padding:6px 14px;border-radius:20px;
-    margin-bottom:22px;
-  }
-  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 2s infinite;}
-  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+/* ── Steps ──────────────────────────────────────────────────── */
+.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.step-card{padding:36px 28px;border-radius:20px;background:var(--surface);border:1px solid var(--g-border);transition:border-color .3s,transform .3s;}
+.step-card:hover{border-color:var(--g-bright);transform:translateY(-4px);}
+.step-num{font-family:var(--font-m);font-size:11px;font-weight:600;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--blue),var(--violet));color:#fff;margin-bottom:22px;}
+.step-card h3{font-family:var(--font-d);font-size:17px;font-weight:700;letter-spacing:-.02em;margin-bottom:10px;}
+.step-card p{font-size:14px;color:var(--text-dim);line-height:1.7;}
+code.inline{font-family:var(--font-m);font-size:12px;color:var(--cyan);background:var(--surface-2);padding:1px 6px;border-radius:4px;}
 
-  .hero h1{
-    font-family:var(--font-display);
-    font-size:clamp(38px,5vw,64px);
-    line-height:1.08;
-    font-weight:700;
-    letter-spacing:-.01em;
-  }
-  .hero h1 span{
-    background:linear-gradient(90deg,var(--blue),var(--violet));
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-  }
+/* ── About ──────────────────────────────────────────────────── */
+.about-card{border-radius:24px;overflow:hidden;}
+.about-inner{padding:52px 56px;display:grid;grid-template-columns:auto 1fr;gap:36px;align-items:start;}
+.org-logo{width:72px;height:72px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-size:24px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--blue),var(--violet));box-shadow:0 0 30px rgba(139,92,246,.35);flex-shrink:0;}
+.about-inner h3{font-family:var(--font-d);font-size:22px;font-weight:700;letter-spacing:-.03em;margin-bottom:12px;}
+.about-inner p{font-size:15px;color:var(--text-dim);line-height:1.75;max-width:65ch;}
+.tech-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px;}
+.tech-badge{font-family:var(--font-m);font-size:11px;color:var(--text-dim);padding:6px 14px;border-radius:20px;border:1px solid var(--g-border);background:var(--surface-2);transition:border-color .2s,color .2s;}
+.tech-badge:hover{border-color:var(--g-bright);color:var(--text);}
 
-  .hero p.lede{
-    margin-top:24px;font-size:17px;color:var(--text-dim);line-height:1.7;max-width:52ch;
-  }
+/* ── CTA ────────────────────────────────────────────────────── */
+.cta-box{text-align:center;padding:80px 40px;border-radius:24px;border:1px solid var(--g-border);position:relative;overflow:hidden;}
+.cta-box::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 0%,rgba(59,130,246,.1) 0%,transparent 60%);}
+.cta-box h2{font-family:var(--font-d);font-size:clamp(32px,4vw,52px);font-weight:800;letter-spacing:-.03em;margin-bottom:18px;}
+.cta-box p{font-size:16px;color:var(--text-dim);margin-bottom:36px;max-width:48ch;margin-inline:auto;line-height:1.7;}
+.cta-actions{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;}
+.kbd-line{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-m);font-size:12px;color:var(--text-dim);margin-top:20px;}
+.k{display:inline-flex;gap:3px;}.k span{background:var(--surface-2);border:1px solid var(--g-border);border-radius:5px;padding:2px 8px;font-size:11px;color:var(--text);}
 
-  .hero-actions{display:flex;gap:14px;margin-top:36px;flex-wrap:wrap;}
+/* ── Footer ─────────────────────────────────────────────────── */
+footer{border-top:1px solid var(--g-border);padding:56px 0 40px;margin-top:60px;}
+.foot-inner{width:min(1240px,94%);margin:0 auto;display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:40px;}
+.foot-brand .logo{font-family:var(--font-d);font-size:20px;font-weight:700;background:linear-gradient(135deg,var(--cyan),var(--blue),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:12px;display:block;}
+.foot-brand p{font-size:13px;color:var(--text-dim);line-height:1.6;max-width:30ch;}
+.foot-col h4{font-family:var(--font-d);font-size:11px;font-weight:700;color:var(--text-dim);margin-bottom:16px;letter-spacing:.06em;text-transform:uppercase;}
+.foot-col a{display:block;font-size:13px;color:var(--text-dim);padding:4px 0;transition:color .2s;}
+.foot-col a:hover{color:var(--text);}
+.foot-bottom{width:min(1240px,94%);margin:36px auto 0;padding-top:24px;border-top:1px solid var(--g-border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--text-dim);font-family:var(--font-m);}
 
-  .btn-primary,.btn-secondary{
-    padding:15px 30px;border-radius:50px;font-size:15px;font-weight:600;
-    text-decoration:none;display:inline-flex;align-items:center;gap:8px;
-    transition:.2s;
-  }
-  .btn-primary{
-    background:linear-gradient(90deg,#2563eb,#9333ea);color:white;
-  }
-  .btn-primary:hover{transform:translateY(-2px);filter:brightness(1.1);}
-  .btn-secondary{
-    background:var(--glass);border:1px solid var(--glass-border);color:var(--text);
-  }
-  .btn-secondary:hover{background:var(--glass-strong);}
-
-  .hero-note{margin-top:22px;font-size:13px;color:var(--text-dim);font-family:var(--font-mono);}
-
-  /* ---------- Preview mock ---------- */
-  .preview{
-    padding:28px;border-radius:28px;box-shadow:0 40px 90px #0009;
-  }
-  .preview-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
-  .preview-top h3{font-family:var(--font-display);font-size:16px;font-weight:600;}
-  .live-pill{
-    display:flex;align-items:center;gap:6px;font-size:11px;font-family:var(--font-mono);color:var(--text-dim);
-    background:var(--glass-strong);padding:5px 12px;border-radius:20px;
-  }
-  .live-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
-
-  .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
-  .stat{padding:16px;border-radius:18px;text-align:center;}
-  .stat h2{font-family:var(--font-mono);font-size:24px;color:var(--blue);}
-  .stat p{font-size:11px;color:var(--text-dim);margin-top:4px;}
-
-  .project-mock{padding:16px 18px;border-radius:16px;margin-top:10px;}
-  .project-mock h4{font-family:var(--font-display);font-size:14px;font-weight:600;}
-  .project-mock p{font-size:11px;color:var(--text-dim);margin-top:2px;}
-  .mini-progress{height:6px;background:#1e293b;border-radius:20px;margin-top:10px;overflow:hidden;}
-  .mini-progress div{height:100%;background:linear-gradient(90deg,var(--blue),var(--violet));}
-
-  /* ---------- Sections ---------- */
-  section.pad{width:min(1200px,92%);margin:110px auto;}
-  .section-eyebrow{font-family:var(--font-mono);font-size:12px;color:var(--blue);letter-spacing:.06em;margin-bottom:10px;}
-  .title{font-family:var(--font-display);font-size:clamp(28px,3.4vw,40px);font-weight:600;margin-bottom:44px;max-width:22ch;}
-
-  .cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;align-items:stretch;}
-  .feature-card{padding:32px;border-radius:24px;transition:transform .3s ease;display:flex;flex-direction:column;height:100%;}
-  .feature-card:hover{transform:translateY(-8px);}
-  .feature-card .icon{font-size:26px;line-height:1;}
-  .feature-card h3{font-family:var(--font-display);font-size:18px;font-weight:600;margin-top:16px;}
-  .feature-card p{font-size:14px;color:var(--text-dim);margin-top:10px;line-height:1.6;flex:1;}
-  .feature-card .mini-progress{margin-top:auto;padding-top:18px;}
-
-  /* ---------- How it works ---------- */
-  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;counter-reset:step;}
-  .step{padding:30px 28px;border-radius:24px;position:relative;}
-  .step .num{
-    font-family:var(--font-mono);font-size:13px;color:var(--blue);
-    display:flex;align-items:center;justify-content:center;
-    width:32px;height:32px;border-radius:50%;
-    border:1px solid var(--glass-border);background:var(--glass-strong);
-    margin-bottom:18px;
-  }
-  .step h3{font-family:var(--font-display);font-size:17px;font-weight:600;}
-  .step p{font-size:13px;color:var(--text-dim);margin-top:8px;line-height:1.6;}
-
-  /* ---------- About strip ---------- */
-  .about-strip{
-    display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:center;
-    padding:34px 36px;border-radius:26px;
-  }
-  .org-avatar{
-    width:64px;height:64px;border-radius:18px;flex-shrink:0;
-    display:flex;align-items:center;justify-content:center;
-    font-family:var(--font-display);font-weight:700;font-size:22px;
-    background:linear-gradient(135deg,var(--blue),var(--violet));color:var(--bg);
-  }
-  .about-strip h3{font-family:var(--font-display);font-size:18px;font-weight:600;}
-  .about-strip p{font-size:13px;color:var(--text-dim);margin-top:6px;line-height:1.6;max-width:70ch;}
-  .stack-badges{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
-  .stack-badges span{
-    font-family:var(--font-mono);font-size:11px;color:var(--text-dim);
-    padding:5px 12px;border-radius:20px;border:1px solid var(--glass-border);background:var(--glass-strong);
-  }
-
-  footer .foot-links{display:flex;justify-content:center;gap:24px;margin:18px 0;flex-wrap:wrap;}
-  footer .foot-links a{color:var(--text-dim);text-decoration:none;font-size:13px;}
-  footer .foot-links a:hover{color:var(--text);}
-
-  footer{
-    text-align:center;padding:60px 20px 40px;color:var(--text-dim);font-size:13px;
-  }
-  footer .logo{font-size:18px;margin-bottom:10px;display:inline-block;}
-
-  @media(max-width:900px){
-    .hero{grid-template-columns:1fr;}
-    .cards3{grid-template-columns:1fr;}
-    .steps{grid-template-columns:1fr;}
-    .about-strip{grid-template-columns:1fr;text-align:center;}
-    .about-strip .org-avatar{margin:0 auto;}
-    .stack-badges{justify-content:center;}
-    nav .links a:not(.cta){display:none;}
-  }
+/* ── Responsive ─────────────────────────────────────────────── */
+@media(max-width:1024px){.hero{grid-template-columns:1fr;}.os-window{max-width:500px;margin-inline:auto;}.stats-strip{grid-template-columns:repeat(2,1fr);}.feat-grid{grid-template-columns:repeat(2,1fr);}.steps-grid{grid-template-columns:1fr;}.about-inner{grid-template-columns:1fr;}.foot-inner{grid-template-columns:1fr 1fr;}}
+@media(max-width:640px){.feat-grid{grid-template-columns:1fr;}.foot-inner{grid-template-columns:1fr;}.stats-strip{grid-template-columns:1fr;}.nav-links a:not(.nav-cta):not(.status-pill){display:none;}}
 </style>
 </head>
-
 <body>
 
-<svg width="0" height="0" style="position:absolute">
-  <filter id="goo">
-    <feGaussianBlur in="SourceGraphic" stdDeviation="24" result="blur" />
-    <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9" result="goo" />
-  </filter>
-</svg>
-<div class="liquid-bg" aria-hidden="true">
-  <div class="blob b1"></div>
-  <div class="blob b2"></div>
-  <div class="blob b3"></div>
-  <div class="blob b4"></div>
+<!-- Colour atmosphere (behind dot grid) -->
+<div class="blobs" aria-hidden="true">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
 </div>
 
-<nav class="glass" style="border-radius:24px;">
-  <div class="logo">DashView</div>
-  <div class="links">
-    <a href="#features">Features</a>
-    <a href="#how-it-works">How it works</a>
-    <a href="#projects">Projects</a>
-    <a href="dashboard.html" class="cta">Open Dashboard</a>
-  </div>
-</nav>
+<!-- ── Nav ─────────────────────────────────────────────────── -->
+<div class="nav-wrap" style="position:relative;z-index:100;">
+  <nav class="glass">
+    <div class="logo">DashView</div>
+    <div class="nav-links">
+      <div class="status-pill"><span class="pulse"></span>Live sync</div>
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="https://github.com/ArtivoraLabs" target="_blank" rel="noopener">GitHub</a>
+      <a href="dashboard.html" class="nav-cta">Open Dashboard →</a>
+    </div>
+  </nav>
+</div>
 
+<!-- ── Hero ────────────────────────────────────────────────── -->
 <section class="hero">
   <div>
-    <div class="eyebrow glass" style="border-radius:20px;"><span class="dot"></span> Synced live with GitHub</div>
-    <h1>Your org's <span>GitHub activity</span>, in one intelligent view</h1>
-    <p class="lede">
-      DashView pulls ArtivoraLabs' projects, repositories and task status
-      straight from GitHub and keeps them current — no spreadsheets,
-      no manual updates, no stale status meetings.
-    </p>
+    <div class="eyebrow"><span class="pulse"></span> Synced with GitHub in real time</div>
+    <h1>Your org's pulse,<br><span class="grad">always visible</span></h1>
+    <p class="lede">DashView surfaces ArtivoraLabs' project progress, repository health and team activity from GitHub — live, searchable, and always one command away.</p>
     <div class="hero-actions">
+      <a href="dashboard.html" class="btn-primary">Open Dashboard →</a>
+      <a href="https://github.com/ArtivoraLabs" target="_blank" rel="noopener" class="btn-secondary">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+        ArtivoraLabs
+      </a>
+    </div>
+    <div class="hero-meta">
+      <span>🔄 Auto-refresh 5 min</span>
+      <span>·</span>
+      <span>⌘K Command palette</span>
+      <span>·</span>
+      <span>📊 Live charts</span>
+    </div>
+  </div>
+
+  <!-- OS Window -->
+  <div class="os-window glass">
+    <div class="os-tb">
+      <div class="os-dots"><span class="d-r"></span><span class="d-a"></span><span class="d-g"></span></div>
+      <span class="os-title">DashView · ArtivoraLabs</span>
+      <span></span>
+    </div>
+    <div class="os-body">
+      <div class="os-top">
+        <span class="os-top-title">ArtivoraLabs</span>
+        <span class="live-pill"><span class="pulse"></span>Live</span>
+      </div>
+      <div class="os-stats">
+        <div class="os-stat"><div class="v" id="m-proj">02</div><div class="l">Projects</div></div>
+        <div class="os-stat"><div class="v" id="m-repo">05</div><div class="l">Repos</div></div>
+        <div class="os-stat"><div class="v">24/7</div><div class="l">Monitor</div></div>
+      </div>
+      <div class="os-proj">
+        <div class="os-proj-h"><span class="os-proj-n">Team Planning</span><span class="os-badge">Active</span></div>
+        <div class="os-bar"><div class="os-bar-f" style="width:78%"></div></div>
+        <div class="os-bar-m"><span>14 / 18 tasks</span><span>78%</span></div>
+      </div>
+      <div class="os-proj">
+        <div class="os-proj-h"><span class="os-proj-n">Task Tracking</span><span class="os-badge">Active</span></div>
+        <div class="os-bar"><div class="os-bar-f" style="width:62%"></div></div>
+        <div class="os-bar-m"><span>8 / 13 tasks</span><span>62%</span></div>
+      </div>
+      <div class="os-chart">
+        <svg viewBox="0 0 380 80" preserveAspectRatio="none">
+          <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6" stop-opacity=".45"/><stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/></linearGradient></defs>
+          <path d="M0,65 L45,52 L90,60 L135,38 L180,46 L225,30 L270,36 L315,18 L360,12 L380,14 L380,80 L0,80Z" fill="url(#cg)"/>
+          <path d="M0,65 L45,52 L90,60 L135,38 L180,46 L225,30 L270,36 L315,18 L360,12 L380,14" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M0,72 L45,66 L90,70 L135,60 L180,66 L225,56 L270,62 L315,48 L360,42 L380,44" fill="none" stroke="#8b5cf6" stroke-width="1.5" stroke-linejoin="round" opacity=".55"/>
+        </svg>
+      </div>
+      <div class="cmd-hint">
+        <span>Search anything…</span>
+        <div class="kbd-pair"><span>⌘</span><span>K</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Stats Strip ──────────────────────────────────────────── -->
+<div class="stats-strip">
+  <div class="stat-item"><div class="stat-n c" data-target="100" data-suffix="%">0</div><div class="stat-label">Uptime guarantee</div><div class="stat-sub">Since deployment</div></div>
+  <div class="stat-item"><div class="stat-n v" data-target="5" data-suffix="m">0</div><div class="stat-label">Refresh interval</div><div class="stat-sub">Auto-sync cadence</div></div>
+  <div class="stat-item"><div class="stat-n e" data-target="20" data-suffix="+">0</div><div class="stat-label">Repositories tracked</div><div class="stat-sub">Per sync batch</div></div>
+  <div class="stat-item"><div class="stat-n a" data-target="0" data-suffix="">0</div><div class="stat-label">Manual updates needed</div><div class="stat-sub">Fully automated</div></div>
+</div>
+
+<!-- ── Features ────────────────────────────────────────────── -->
+<section class="section" id="features">
+  <div class="sec-eye">Platform</div>
+  <h2 class="sec-title">Intelligence, not just <span class="g">information</span></h2>
+  <div class="feat-grid">
+    <div class="feat-card sheen"><div class="feat-icon i-b">📊</div><h3>Live Analytics</h3><p>Progress and velocity charts rebuild from real project data on every load. No stale screenshots, no copy-paste dashboards.</p><span class="feat-tag">▲ Chart.js</span></div>
+    <div class="feat-card sheen"><div class="feat-icon i-v">⌘</div><h3>Command Palette</h3><p>Press ⌘K anywhere in the dashboard to search repos, jump to projects, trigger a sync, or export your data — all from the keyboard.</p><span class="feat-tag">🔍 Fuzzy search</span></div>
+    <div class="feat-card sheen"><div class="feat-icon i-e">🗂️</div><h3>Project Auto-tracking</h3><p>Create a project in the ArtivoraLabs org and it appears on the dashboard instantly on next sync — zero configuration required.</p><span class="feat-tag">✓ Zero config</span></div>
+    <div class="feat-card sheen"><div class="feat-icon i-c">📦</div><h3>Repository Intelligence</h3><p>Stars, forks, primary language and last activity for every repo — sortable and filterable by language or recency.</p><span class="feat-tag">↕ Sort & filter</span></div>
+    <div class="feat-card sheen"><div class="feat-icon i-a">⚡</div><h3>Smart Caching</h3><p>A local cache serves data instantly while a background sync keeps it fresh, so the dashboard is always fast — even under GitHub rate limits.</p><span class="feat-tag">🔄 TTL: 60s</span></div>
+    <div class="feat-card sheen"><div class="feat-icon i-r">📤</div><h3>One-click Export</h3><p>Export your repository list or project data to CSV in a single click. Perfect for reports, spreadsheets, or feeding other tools.</p><span class="feat-tag">⬇ CSV export</span></div>
+  </div>
+</section>
+
+<!-- ── How it Works ─────────────────────────────────────────── -->
+<section class="section" id="how-it-works">
+  <div class="sec-eye">Process</div>
+  <h2 class="sec-title">Live in three steps</h2>
+  <div class="steps-grid">
+    <div class="step-card sheen"><div class="step-num">1</div><h3>Set your token</h3><p>Add your GitHub token with <code class="inline">read:project</code> and <code class="inline">repo</code> scope to <code class="inline">.env</code>. No webhooks, no OAuth app, no extra setup.</p></div>
+    <div class="step-card sheen"><div class="step-num">2</div><h3>Start the server</h3><p>Run <code class="inline">npm start</code>. The server pulls live data from the GitHub GraphQL API and caches it for instant dashboard loads.</p></div>
+    <div class="step-card sheen"><div class="step-num">3</div><h3>Open the dashboard</h3><p>Navigate to the dashboard, hit ⌘K to search, and see every project and repo in the org — updating automatically every 5 minutes.</p></div>
+  </div>
+</section>
+
+<!-- ── About ─────────────────────────────────────────────────── -->
+<section class="section">
+  <div class="about-card glass sheen">
+    <div class="about-inner">
+      <div class="org-logo">AL</div>
+      <div>
+        <h3>Built exclusively for ArtivoraLabs</h3>
+        <p>DashView is ArtivoraLabs' internal intelligence layer over GitHub — a single dashboard the whole org can check instead of juggling project boards, repo pages, and stale status docs. Every feature is built around the way ArtivoraLabs actually works.</p>
+        <div class="tech-badges">
+          <span class="tech-badge">Node.js</span><span class="tech-badge">Express</span><span class="tech-badge">GitHub GraphQL API</span><span class="tech-badge">Chart.js</span><span class="tech-badge">Syne + DM Sans</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ───────────────────────────────────────────────────── -->
+<section class="section">
+  <div class="cta-box glass">
+    <h2>Ready to see your org<br>in <span style="background:linear-gradient(135deg,var(--cyan),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent;">real time</span>?</h2>
+    <p>Open the dashboard and get a live view of everything happening in ArtivoraLabs, right now.</p>
+    <div class="cta-actions">
       <a href="dashboard.html" class="btn-primary">Open Dashboard →</a>
       <a href="https://github.com/ArtivoraLabs" target="_blank" rel="noopener" class="btn-secondary">View on GitHub</a>
     </div>
-    <p class="hero-note">Auto-refreshes every 5 minutes · manual sync anytime</p>
-  </div>
-
-  <div class="preview glass glass-sheen">
-    <div class="preview-top">
-      <h3>ArtivoraLabs Overview</h3>
-      <span class="live-pill"><span class="dot"></span> Live</span>
-    </div>
-
-    <div class="stat-grid">
-      <div class="stat glass"><h2 id="heroProjectCount">02</h2><p>Projects</p></div>
-      <div class="stat glass"><h2 id="heroRepoCount">Live</h2><p>Repositories</p></div>
-      <div class="stat glass"><h2>24/7</h2><p>Monitoring</p></div>
-    </div>
-
-    <div id="heroProjectList">
-      <div class="project-mock glass">
-        <h4>Team Planning</h4>
-        <p>Project #4 · Private</p>
-        <div class="mini-progress"><div style="width:80%"></div></div>
-      </div>
-      <div class="project-mock glass">
-        <h4>Task Tracking</h4>
-        <p>Project #2 · Private</p>
-        <div class="mini-progress"><div style="width:65%"></div></div>
-      </div>
-    </div>
+    <p class="kbd-line">or press <span class="k"><span>⌘</span><span>K</span></span> from within the dashboard</p>
   </div>
 </section>
 
-<section class="pad" id="features">
-  <p class="section-eyebrow">Platform</p>
-  <h2 class="title">Everything the team needs to know about the org, at a glance</h2>
-
-  <div class="cards3">
-    <div class="feature-card glass glass-sheen">
-      <div class="icon">📊</div>
-      <h3>Live analytics</h3>
-      <p>Progress and task-status charts rebuild themselves from real project data every time you open the dashboard.</p>
-    </div>
-    <div class="feature-card glass glass-sheen">
-      <div class="icon">🗂️</div>
-      <h3>Projects, auto-tracked</h3>
-      <p>Create a new project in the ArtivoraLabs org and it appears on the dashboard automatically — nothing to configure.</p>
-    </div>
-    <div class="feature-card glass glass-sheen">
-      <div class="icon">📦</div>
-      <h3>Repository intelligence</h3>
-      <p>Stars, forks, primary language and last activity for every repo in the org, sorted by what changed most recently.</p>
-    </div>
-  </div>
-</section>
-
-<section class="pad" id="how-it-works">
-  <p class="section-eyebrow">How it works</p>
-  <h2 class="title">From GitHub org to live dashboard in three steps</h2>
-
-  <div class="steps">
-    <div class="step glass glass-sheen">
-      <div class="num">1</div>
-      <h3>Connect the org</h3>
-      <p>Point DashView at the ArtivoraLabs org with a scoped GitHub token — no app install, no webhook setup.</p>
-    </div>
-    <div class="step glass glass-sheen">
-      <div class="num">2</div>
-      <h3>Auto-sync projects &amp; repos</h3>
-      <p>Every project and repository the token can see is pulled in automatically, and re-synced every 5 minutes.</p>
-    </div>
-    <div class="step glass glass-sheen">
-      <div class="num">3</div>
-      <h3>Track everything in one place</h3>
-      <p>Progress, task status and repo activity render as live charts and cards — click through to GitHub anytime.</p>
-    </div>
-  </div>
-</section>
-
-<section class="pad">
-  <div class="about-strip glass glass-sheen">
-    <div class="org-avatar">AL</div>
-    <div>
-      <h3>Built for ArtivoraLabs</h3>
-      <p>DashView is ArtivoraLabs' internal intelligence layer over GitHub — one dashboard the whole org can check instead of jumping between project boards and repo pages.</p>
-      <div class="stack-badges">
-        <span>Node.js</span>
-        <span>Express</span>
-        <span>GitHub GraphQL API</span>
-        <span>Chart.js</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="pad" id="projects">
-  <p class="section-eyebrow">Projects</p>
-  <h2 class="title">Pulled straight from ArtivoraLabs on GitHub</h2>
-
-  <div class="cards3" id="projectsGrid" style="grid-template-columns:1fr 1fr;">
-    <div class="feature-card glass glass-sheen">
-      <h3>Team Planning</h3>
-      <p>Project #4 · Private — team workflow, planning and collaboration.</p>
-      <div class="mini-progress" style="margin-top:18px;"><div style="width:80%"></div></div>
-    </div>
-    <div class="feature-card glass glass-sheen">
-      <h3>Task Tracking</h3>
-      <p>Project #2 · Private — task management and productivity tracking.</p>
-      <div class="mini-progress" style="margin-top:18px;"><div style="width:65%"></div></div>
-    </div>
-  </div>
-</section>
-
+<!-- ── Footer ───────────────────────────────────────────────── -->
 <footer>
-  <div class="logo">DashView</div>
-  <p>ArtivoraLabs Organization Intelligence Platform</p>
-  <div class="foot-links">
-    <a href="dashboard.html">Dashboard</a>
-    <a href="#how-it-works">How it works</a>
-    <a href="https://github.com/ArtivoraLabs" target="_blank" rel="noopener">GitHub org</a>
+  <div class="foot-inner">
+    <div class="foot-brand"><span class="logo">DashView</span><p>ArtivoraLabs' GitHub intelligence platform — live projects, repos, and analytics in one place.</p></div>
+    <div class="foot-col"><h4>Product</h4><a href="dashboard.html">Dashboard</a><a href="#features">Features</a><a href="#how-it-works">How it works</a></div>
+    <div class="foot-col"><h4>Resources</h4><a href="https://github.com/ArtivoraLabs" target="_blank" rel="noopener">GitHub Org</a><a href=".env.example">Config Example</a><a href="https://docs.github.com/en/graphql" target="_blank" rel="noopener">GitHub GraphQL</a></div>
+    <div class="foot-col"><h4>Shortcuts</h4><a href="#">⌘K — Command palette</a><a href="#">R — Refresh data</a><a href="#">? — Keyboard help</a></div>
   </div>
-  <p>© 2026 ArtivoraLabs. All rights reserved.</p>
+  <div class="foot-bottom"><span>© 2026 ArtivoraLabs. All rights reserved.</span><span>DashView v2.0 · Node.js + Express + GitHub GraphQL</span></div>
 </footer>
 
+<!-- ── Interactive Dot Grid ──────────────────────────────────── -->
+<script src="dotgrid.js"></script>
+
 <script>
-  // Best-effort live preview — quietly falls back to the static numbers
-  // above if this page isn't served from the same origin as the API
-  // (e.g. when the landing page is hosted separately from the server).
-  fetch("/api/dashboard")
-    .then((r) => (r.ok ? r.json() : Promise.reject()))
-    .then((data) => {
-      const projects = data.organization.projectsV2.nodes;
-      const repos = data.organization.repositories.nodes;
+/* Animated counters */
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    const el = e.target;
+    const target = +el.dataset.target;
+    const suffix = el.dataset.suffix ?? '';
+    const dur = 1600;
+    const t0 = performance.now();
+    function step(now) {
+      const p = Math.min((now - t0) / dur, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(ease * target) + suffix;
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+    obs.unobserve(el);
+  });
+}, { threshold: 0.4 });
+document.querySelectorAll('.stat-n[data-target]').forEach(el => obs.observe(el));
 
-      document.getElementById("heroProjectCount").textContent = String(projects.length).padStart(2, "0");
-      document.getElementById("heroRepoCount").textContent = repos.length;
-
-      if (projects.length) {
-        document.getElementById("heroProjectList").innerHTML = projects
-          .slice(0, 2)
-          .map((p) => {
-            const items = p.items.nodes.filter((n) => n.content);
-            const closed = items.filter((n) => n.content.state === "CLOSED").length;
-            const pct = items.length ? Math.round((closed / items.length) * 100) : 0;
-            return `
-              <div class="project-mock glass">
-                <h4>${p.title}</h4>
-                <p>Project #${p.number} · ${p.closed ? "Closed" : "Active"}</p>
-                <div class="mini-progress"><div style="width:${pct}%"></div></div>
-              </div>`;
-          })
-          .join("");
-
-        const grid = document.getElementById("projectsGrid");
-        grid.style.gridTemplateColumns = projects.length === 1 ? "1fr" : "1fr 1fr";
-        grid.innerHTML = projects
-          .map((p) => {
-            const items = p.items.nodes.filter((n) => n.content);
-            const closed = items.filter((n) => n.content.state === "CLOSED").length;
-            const pct = items.length ? Math.round((closed / items.length) * 100) : 0;
-            return `
-              <div class="feature-card glass glass-sheen">
-                <h3>${p.title}</h3>
-                <p>Project #${p.number} · ${p.closed ? "Closed" : "Active"} — ${p.shortDescription || "No description yet."}</p>
-                <div class="mini-progress"><div style="width:${pct}%"></div></div>
-              </div>`;
-          })
-          .join("");
-      }
-    })
-    .catch(() => {
-      /* API not reachable from here — static preview stays as-is */
-    });
+/* Live preview */
+fetch('/api/dashboard').then(r => r.ok ? r.json() : Promise.reject()).then(d => {
+  const p = d.organization.projectsV2.nodes;
+  const r = d.organization.repositories.nodes;
+  const mp = document.getElementById('m-proj');
+  const mr = document.getElementById('m-repo');
+  if (mp) mp.textContent = String(p.length).padStart(2,'0');
+  if (mr) mr.textContent = r.length;
+}).catch(() => {});
 </script>
-
 </body>
 </html>
