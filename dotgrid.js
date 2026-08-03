@@ -22,8 +22,8 @@
     dotRadius:      1.5,
     dotSpacing:     18,
     baseColor:      { r: 255, g: 255, b: 255, a: 0.065 },
-    activeColor:    { r: 34,  g: 211, b: 238, a: 1.0   },  // cyan #22d3ee
-    activeColor2:   { r: 59,  g: 130, b: 246, a: 1.0   },  // blue #3b82f6
+    activeColor:    { r: 216, g: 171, b: 85,  a: 1.0   },  // gold #d8ab55
+    activeColor2:   { r: 84,  g: 104, b: 255, a: 1.0   },  // indigo #5468ff
     proximity:      200,         // px — color-transition zone
     bulgeRadius:    140,         // px — bulge push zone
     bulgeStrength:  55,          // max displacement px
