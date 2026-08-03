@@ -1,16 +1,16 @@
 # DashView
 
-Live GitHub organization dashboard for **ArtivoraLabs** — projects, task
+Live GitHub organization dashboard for **ArtivoraLabs**  projects, task
 status and repository activity, pulled automatically from the GitHub
 GraphQL API and displayed on a glass-styled landing page and dashboard.
 
 ## What's here
 
-- `index.html` — marketing / landing page
-- `dashboard.html` — the live dashboard (projects, charts, repositories)
-- `script.js` — fetches `/api/dashboard` and renders everything
-- `server.js` — Express server that queries GitHub on the dashboard's behalf
-- `style.css` — unused now (all styling was moved inline into the two HTML
+- `index.html`  marketing / landing page
+- `dashboard.html`  the live dashboard (projects, charts, repositories)
+- `script.js`  fetches `/api/dashboard` and renders everything
+- `server.js`  Express server that queries GitHub on the dashboard's behalf
+- `style.css`  unused now (all styling was moved inline into the two HTML
   files); safe to delete
 
 ## 1. Install dependencies
@@ -21,7 +21,7 @@ npm install
 
 ## 2. Configure your GitHub token
 
-Never put a real token directly in `server.js` or commit it to git — that
+Never put a real token directly in `server.js` or commit it to git  that
 was how the original version was set up, and anyone with the source could
 use it. Instead:
 
@@ -47,7 +47,7 @@ use it. Instead:
 npm start
 ```
 
-Then open **http://localhost:3000** — this serves the landing page,
+Then open **http://localhost:3000**  this serves the landing page,
 dashboard, and API from one server, so live data works everywhere on the
 site out of the box.
 
@@ -55,11 +55,11 @@ site out of the box.
 
 - New projects you create in the ArtivoraLabs org, and any repositories
   the token can see, show up on the dashboard automatically on the next
-  sync — nothing needs to be added by hand.
+  sync  nothing needs to be added by hand.
 - The dashboard polls `/api/dashboard` on load and every 5 minutes, and
   the **Refresh** button forces an immediate re-sync.
 - Each project card links out to its board on GitHub ("View board"), and
-  each repository links to its GitHub page — that's the "open project"
+  each repository links to its GitHub page  that's the "open project"
   action.
 - Responses are cached server-side for 60 seconds (configurable via
   `CACHE_TTL_MS`) to stay well within GitHub's API rate limits.
@@ -69,7 +69,7 @@ Link: https://artivoralabs.github.io/DashView/#
 ## Deploying
 
 `server.js` needs somewhere that runs Node (Render, Railway, Fly.io, a VPS,
-etc.) — GitHub Pages only serves static files, so it can't host the API.
+etc.)  GitHub Pages only serves static files, so it can't host the API.
 
 If you deploy the API and the static pages to different origins, set
 `ALLOWED_ORIGINS` in the API's environment to the static site's URL, and
