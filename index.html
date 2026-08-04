@@ -37,8 +37,10 @@
 <!-- Resource hints: fonts and the hero video CDN both load on first paint -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="preconnect" href="https://db.onlinewebfonts.com" />
 <link rel="preconnect" href="https://d8j0ntlcm91z4.cloudfront.net" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+<link rel="stylesheet" href="https://db.onlinewebfonts.com/c/9d4d074c9335825a23cce178ee03b498?family=P22+Mackinac+W01+Book" />
 
 <link rel="stylesheet" href="css/globals.css" />
 <link rel="stylesheet" href="css/glass.css" />
@@ -133,11 +135,14 @@
     ══════════════════════════════════════════════════════ -->
     <section id="hero" class="hero" aria-label="Hero section">
 
-      <div class="hero-video-wrapper">
-        <video class="hero-video" autoplay muted playsinline loop preload="auto" aria-hidden="true"
-          onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'hero-video-fallback'}))">
-          <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260508_215831_c6a8989c-d716-4d8d-8745-e972a2eec711.mp4" type="video/mp4" />
-        </video>
+      <div class="hero-video-wrapper" id="heroBoomerangWrap">
+        <div class="hero-video-scale">
+          <video class="hero-video" id="heroBoomerangVideo" muted playsinline preload="auto" crossorigin="anonymous" aria-hidden="true"
+            onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'hero-video-fallback'}))">
+            <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260715_090628_7052d8a6-a094-4341-a4a2-ad58493a67a9.mp4" type="video/mp4" />
+          </video>
+          <canvas class="hero-video hero-video-canvas" id="heroBoomerangCanvas" aria-hidden="true" style="display:none;"></canvas>
+        </div>
       </div>
 
       <div class="hero-overlay" aria-hidden="true"></div>
@@ -916,6 +921,7 @@
 <script src="js/github-config.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/ai-assistant.js"></script>
+<script src="js/boomerang-video.js"></script>
 <script src="js/main.js"></script>
 <script src="js/studio.js"></script>
 </body>

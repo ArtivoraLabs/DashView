@@ -22,11 +22,12 @@
   --color-surface-active: rgba(15, 23, 42, 0.09);
   --color-border: rgba(15, 23, 42, 0.10);
   --color-border-bright: rgba(15, 23, 42, 0.18);
-  --color-text-primary: #0b0c10;
-  --color-text-secondary: rgba(15, 23, 42, 0.58);
-  --color-text-muted: rgba(15, 23, 42, 0.38);
-  --color-accent: rgba(15, 23, 42, 0.9);
-  --color-accent-glow: rgba(15, 23, 42, 0.05);
+  --color-text-primary: #191919;
+  --color-text-secondary: rgba(25, 25, 25, 0.7);
+  --color-text-muted: rgba(25, 25, 25, 0.4);
+  --color-accent: #191919;
+  --color-accent-glow: rgba(25, 25, 25, 0.05);
+  --color-panel-muted: #F4F3F3;
 
   /* Semantic colors — defined once, referenced everywhere via var().
      An -rgb companion is provided for every semantic/brand color so
@@ -45,20 +46,20 @@
   --color-cyan: #0891b2;
   --color-cyan-rgb: 8, 145, 178;
 
-  /* Brand gradient — the site's signature accent, used sparingly
-     across CTAs, active states, highlighted text and data visuals.
-     Indigo → violet → cyan reads as a coherent "neural" hue sweep
-     (each stop 40–60° apart on the wheel) rather than a rainbow. */
-  --brand-1: #6d5ef7;
-  --brand-1-rgb: 109, 94, 247;
-  --brand-2: #9333ea;
-  --brand-2-rgb: 147, 51, 234;
-  --brand-3: #0891b2;
-  --brand-3-rgb: 8, 145, 178;
-  --gradient-brand: linear-gradient(120deg, var(--brand-1) 0%, var(--brand-2) 55%, var(--brand-3) 100%);
-  --gradient-brand-soft: linear-gradient(120deg, rgba(var(--brand-1-rgb), 0.10) 0%, rgba(var(--brand-2-rgb), 0.08) 55%, rgba(var(--brand-3-rgb), 0.08) 100%);
-  --gradient-brand-text: linear-gradient(100deg, var(--color-text-primary) 0%, var(--color-text-primary) 22%, var(--brand-2) 60%, var(--brand-3) 100%);
-  --shadow-brand: 0 8px 30px rgba(var(--brand-1-rgb), 0.22);
+  /* Brand — ink monochrome. One neutral tone standing in for what
+     used to be an indigo→violet→cyan sweep: same variable names so
+     every downstream file that references var(--brand-*) still
+     works, just rendered as ink-on-white instead of a color gradient. */
+  --brand-1: #191919;
+  --brand-1-rgb: 25, 25, 25;
+  --brand-2: #191919;
+  --brand-2-rgb: 25, 25, 25;
+  --brand-3: #454545;
+  --brand-3-rgb: 69, 69, 69;
+  --gradient-brand: linear-gradient(120deg, var(--brand-1) 0%, var(--brand-3) 100%);
+  --gradient-brand-soft: linear-gradient(120deg, rgba(var(--brand-1-rgb), 0.06) 0%, rgba(var(--brand-3-rgb), 0.05) 100%);
+  --gradient-brand-text: var(--color-text-primary);
+  --shadow-brand: 0 8px 30px rgba(var(--brand-1-rgb), 0.16);
 
   /* Glass — frosted panels on a light backdrop: a faint dark tint
      for the fill, a bright inset rim to keep the "catching light"
@@ -74,6 +75,7 @@
 
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif: 'P22 Mackinac W01 Book', Georgia, serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
 
   /* Type Scale */
@@ -165,8 +167,8 @@ body {
   position: absolute;
   border-radius: 50%;
   filter: blur(80px);
-  opacity: 0.5;
-  background: radial-gradient(circle at 30% 30%, rgba(var(--brand-1-rgb), 0.14), rgba(var(--brand-1-rgb), 0) 70%);
+  opacity: 0.35;
+  background: radial-gradient(circle at 30% 30%, rgba(var(--brand-1-rgb), 0.07), rgba(var(--brand-1-rgb), 0) 70%);
   animation: drift 26s ease-in-out infinite;
   will-change: transform;
 }
@@ -189,7 +191,7 @@ body {
   height: 480px;
   border-radius: 50%;
   pointer-events: none;
-  background: radial-gradient(circle, rgba(var(--brand-2-rgb), 0.07) 0%, rgba(var(--brand-2-rgb), 0) 70%);
+  background: radial-gradient(circle, rgba(var(--brand-2-rgb), 0.045) 0%, rgba(var(--brand-2-rgb), 0) 70%);
   transform: translate(-50%, -50%);
   left: var(--cursor-x, 50%);
   top: var(--cursor-y, 50%);
@@ -248,13 +250,13 @@ ul, ol {
 
 /* ── Selection ─────────────────────────────────────────────── */
 ::selection {
-  background: rgba(var(--brand-1-rgb), 0.20);
+  background: rgba(var(--brand-1-rgb), 0.14);
   color: var(--color-text-primary);
 }
 
 /* ── Focus ─────────────────────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid rgba(var(--brand-1-rgb), 0.55);
+  outline: 2px solid rgba(var(--brand-1-rgb), 0.45);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
@@ -311,9 +313,10 @@ main > div.workflow-demo {
 }
 
 .section-title {
+  font-family: var(--font-serif);
   font-size: var(--text-3xl);
-  font-weight: 600;
-  letter-spacing: -0.03em;
+  font-weight: 400;
+  letter-spacing: -0.02em;
   line-height: 1.1;
   color: var(--color-text-primary);
   margin-bottom: var(--space-5);
