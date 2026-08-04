@@ -164,7 +164,7 @@ function renderProjects(projects) {
       </div>
       <div class="dash-proj-bar"><div class="dash-proj-bar-f" data-fill="${p.stats.pct}%"></div></div>
       <div class="dash-proj-meta"><span><b>${p.stats.open}</b> open</span><span><b>${p.stats.closed}</b> closed</span><span><b>${p.stats.total}</b> total</span></div>
-      <div class="dash-spark"><svg viewBox="0 0 260 40" preserveAspectRatio="none"><path d="${path}" fill="none" stroke="rgba(109,94,247,0.75)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="dash-spark"><svg viewBox="0 0 260 40" preserveAspectRatio="none"><path d="${path}" fill="none" stroke="rgba(25,25,25,0.7)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     </div>`;
   }).join('');
   requestAnimationFrame(() => {
@@ -206,7 +206,7 @@ function renderCharts(data) {
   if (charts.act) charts.act.destroy();
   charts.act = new Chart($('actChart'), {
     type: 'line',
-    data: { labels: weeks, datasets: [{ data: completed, borderColor: '#6d5ef7', backgroundColor: 'rgba(109,94,247,0.10)', fill: true, tension: 0.35, pointRadius: 0, borderWidth: 2 }] },
+    data: { labels: weeks, datasets: [{ data: completed, borderColor: '#191919', backgroundColor: 'rgba(25,25,25,0.08)', fill: true, tension: 0.35, pointRadius: 0, borderWidth: 2 }] },
     options: {
       responsive: true, maintainAspectRatio: false,
       animation: prefersReducedMotion ? false : { duration: 900, easing: 'easeOutCubic' },
@@ -219,7 +219,7 @@ function renderCharts(data) {
   const k = data.kpis;
   charts.stat = new Chart($('statChart'), {
     type: 'doughnut',
-    data: { labels: ['Open', 'Completed'], datasets: [{ data: [k.openTasks, k.closedTasks], backgroundColor: ['rgba(109,94,247,0.85)', 'rgba(15,23,42,0.10)'], borderWidth: 0 }] },
+    data: { labels: ['Open', 'Completed'], datasets: [{ data: [k.openTasks, k.closedTasks], backgroundColor: ['rgba(25,25,25,0.85)', 'rgba(15,23,42,0.10)'], borderWidth: 0 }] },
     options: {
       responsive: true, maintainAspectRatio: false, cutout: '68%',
       animation: prefersReducedMotion ? false : { duration: 900, easing: 'easeOutCubic' },
@@ -230,7 +230,7 @@ function renderCharts(data) {
   if (charts.prog) charts.prog.destroy();
   charts.prog = new Chart($('progChart'), {
     type: 'bar',
-    data: { labels: data.projects.map((p) => p.title.split(' ')[0]), datasets: [{ data: data.projects.map((p) => p.stats.pct), backgroundColor: 'rgba(109,94,247,0.65)', borderRadius: 4, maxBarThickness: 26 }] },
+    data: { labels: data.projects.map((p) => p.title.split(' ')[0]), datasets: [{ data: data.projects.map((p) => p.stats.pct), backgroundColor: 'rgba(25,25,25,0.65)', borderRadius: 4, maxBarThickness: 26 }] },
     options: {
       responsive: true, maintainAspectRatio: false,
       animation: prefersReducedMotion ? false : { duration: 900, easing: 'easeOutCubic' },
