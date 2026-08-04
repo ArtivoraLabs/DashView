@@ -140,13 +140,13 @@
 
 .glass-btn-solid {
   background: var(--gradient-brand);
-  color: #fff;
+  color: var(--color-text-primary);
   border: 1px solid transparent;
   box-shadow: var(--shadow-brand), inset 0 1px 0 rgba(255,255,255,0.25);
 }
 .glass-btn-solid:hover {
   filter: brightness(1.08) saturate(1.1);
-  box-shadow: 0 10px 36px rgba(109, 94, 247, 0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+  box-shadow: 0 10px 36px rgba(var(--brand-1-rgb), 0.4), inset 0 1px 0 rgba(255,255,255,0.3);
 }
 
 /* ── Glass Pill ────────────────────────────────────────────── */
@@ -318,7 +318,7 @@
   color: rgba(255,255,255,0.5);
   transition: all var(--transition-fast);
 }
-.modal-close:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.modal-close:hover { background: rgba(255,255,255,0.1); color: var(--color-text-primary); }
 
 /* ── Waitlist form inside modal ───────────────────────────────── */
 .modal-eyebrow {
@@ -354,16 +354,16 @@
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: var(--radius-md);
-  color: #fff;
+  color: var(--color-text-primary);
   font-size: var(--text-sm);
   outline: none;
   transition: border-color var(--transition-fast), background var(--transition-fast);
 }
 .form-input:focus { border-color: rgba(255,255,255,0.28); background: rgba(255,255,255,0.06); }
-.form-input.error { border-color: rgba(248,113,113,0.6); }
+.form-input.error { border-color: rgba(var(--color-danger-rgb), 0.6); }
 .form-error {
   font-size: 11px;
-  color: #f87171;
+  color: var(--color-danger);
   margin-top: var(--space-1);
   display: none;
 }
@@ -383,10 +383,10 @@
   width: 48px; height: 48px;
   margin: 0 auto var(--space-4);
   border-radius: 50%;
-  background: rgba(74,222,128,0.1);
-  border: 1px solid rgba(74,222,128,0.25);
+  background: rgba(var(--color-success-rgb), 0.1);
+  border: 1px solid rgba(var(--color-success-rgb), 0.25);
   display: flex; align-items: center; justify-content: center;
-  color: #4ade80;
+  color: var(--color-success);
 }
 .form-body.hide { display: none; }
 
@@ -403,7 +403,7 @@
   background: transparent;
   border: none;
   outline: none;
-  color: #fff;
+  color: var(--color-text-primary);
   font-size: var(--text-xs);
   min-width: 0;
 }
@@ -413,14 +413,14 @@
   width: 28px; height: 28px;
   background: rgba(255,255,255,0.9);
   border-radius: 50%;
-  color: #000;
+  color: var(--color-bg);
   flex-shrink: 0;
   transition: transform var(--transition-fast);
 }
 .newsletter-submit:hover { transform: scale(1.08); }
 .newsletter-status {
   font-size: var(--text-xs);
-  color: rgba(74,222,128,0.85);
+  color: rgba(var(--color-success-rgb), 0.85);
   display: none;
 }
 .newsletter-status.show { display: inline; }

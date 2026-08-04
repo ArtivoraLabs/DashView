@@ -70,6 +70,7 @@ developer workspace, and a functional GitHub integration panel.
 │   ├── dashboard.css       # Dashboard shell, KPIs, charts, activity log, repo table
 │   └── responsive.css
 ├── js/
+│   ├── github-config.js      # Paste a repo (and optional token) here for a LIVE GitHub panel
 │   ├── main.js               # Core site interactivity (vanilla JS, no dependencies)
 │   ├── studio.js             # AI Studio logic (image gen, code analysis, doc export)
 │   ├── dashboard-data.js     # Deterministic demo-data generator (swap point for a real API)
@@ -97,6 +98,24 @@ fixed. Two things need your input before a real deploy:
    long-term. Swap in a video hosted on your own domain/CDN before launch (the
    gradient fallback already handles it gracefully either way if the request
    ever fails).
+
+## 🔌 Show a real GitHub repo (optional)
+
+The GitHub panel on the homepage (`#github`) ships with demo data. To make
+it live:
+
+1. Open `js/github-config.js`.
+2. Set `repo: 'owner/repo'` to a real repository.
+3. Leave `token: ''` blank if the repo is public — that's enough for stars,
+   language, branches, and recent commits (60 requests/hour).
+4. Only add a token for the higher rate limit or a private repo — **read
+   the warning comment at the top of that file first.** This is a static
+   site with no backend, so anything in that file is visible to anyone who
+   views the page source.
+
+If the repo field is empty, or the request fails for any reason (rate
+limit, network, typo), the panel just keeps showing the demo data — nothing
+breaks.
 
 ## 🚀 Run it locally
 

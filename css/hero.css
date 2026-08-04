@@ -25,7 +25,7 @@
   background:
     radial-gradient(circle at 30% 20%, rgba(255,255,255,0.08), transparent 55%),
     radial-gradient(circle at 75% 65%, rgba(255,255,255,0.05), transparent 50%),
-    linear-gradient(160deg, #0a0a0a 0%, #000000 60%);
+    linear-gradient(160deg, var(--color-bg-elevated) 0%, #000000 60%);
 }
 
 @keyframes video-in {
@@ -47,7 +47,7 @@
   background:
     radial-gradient(circle at 30% 20%, rgba(255,255,255,0.08), transparent 55%),
     radial-gradient(circle at 75% 65%, rgba(255,255,255,0.05), transparent 50%),
-    linear-gradient(160deg, #0a0a0a 0%, #000000 60%);
+    linear-gradient(160deg, var(--color-bg-elevated) 0%, #000000 60%);
 }
 
 @media (min-width: 768px) {
@@ -125,7 +125,7 @@
   height: 6px;
   border-radius: var(--radius-full);
   background: var(--gradient-brand);
-  box-shadow: 0 0 10px rgba(168, 85, 247, 0.7);
+  box-shadow: 0 0 10px rgba(var(--brand-2-rgb), 0.7);
   animation: pulse-dot 2.5s ease-in-out infinite;
 }
 
@@ -214,7 +214,7 @@
   background: transparent;
   border: none;
   outline: none;
-  color: #fff;
+  color: var(--color-text-primary);
   font-size: var(--text-sm);
 }
 .capability-filter input::placeholder { color: rgba(255,255,255,0.3); }
@@ -256,9 +256,9 @@
 .capability-card:hover .capability-icon-wrap {
   background: var(--gradient-brand);
   border-color: transparent;
-  color: #fff;
+  color: var(--color-text-primary);
   transform: scale(1.08) rotate(-4deg);
-  box-shadow: 0 6px 20px rgba(109, 94, 247, 0.35);
+  box-shadow: 0 6px 20px rgba(var(--brand-1-rgb), 0.35);
 }
 
 .capability-title {
@@ -349,7 +349,7 @@
   background: var(--gradient-brand);
   border: none;
   border-radius: var(--radius-full);
-  color: #fff;
+  color: var(--color-text-primary);
   cursor: pointer;
   transition: all var(--transition-base);
   flex-shrink: 0;

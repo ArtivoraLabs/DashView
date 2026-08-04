@@ -560,6 +560,99 @@ const GITHUB_ACTIONS = [
   { label: 'Resolve conflicts',     log: () => 'Auto-merged 2 files — 1 conflict resolved in package.json.' },
 ];
 
+/* ------------------------------------------------------------
+   Real GitHub REST API fetch — used when js/github-config.js
+   has a `repo` set. Falls back silently to the static demo
+   markup already in the page if there's no config, the repo
+   is unreachable, or the API rate-limits the request.
+------------------------------------------------------------ */
+async function fetchRealGitHubData() {
+  const cfg = window.NK_GITHUB_CONFIG;
+  if (!cfg || !cfg.repo) return null;
+
+  const headers = { Accept: 'application/vnd.github+json' };
+  if (cfg.token) headers.Authorization = 'Bearer ' + cfg.token;
+
+  try {
+    const base = 'https://api.github.com/repos/' + cfg.repo;
+    const [repoRes, branchesRes, commitsRes] = await Promise.all([
+      fetch(base, { headers }),
+      fetch(base + '/branches?per_page=5', { headers }),
+      fetch(base + '/commits?per_page=4', { headers }),
+    ]);
+
+    if (!repoRes.ok) throw new Error('repo fetch failed: ' + repoRes.status);
+    const repo = await repoRes.json();
+    const branches = branchesRes.ok ? await branchesRes.json() : [];
+    const commits = commitsRes.ok ? await commitsRes.json() : [];
+
+    return { repo, branches, commits };
+  } catch (err) {
+    console.warn('[NeuralKinetics] Live GitHub data unavailable, showing demo data instead:', err.message);
+    return null;
+  }
+}
+
+function timeAgo(dateStr) {
+  const diffMs = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return mins + 'm ago';
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + 'h ago';
+  return Math.floor(hrs / 24) + 'd ago';
+}
+
+function applyRealGitHubData(data) {
+  const { repo, branches, commits } = data;
+
+  const repoNameEl = qs('#githubRepoName');
+  const repoMetaEl = qs('.github-repo-meta');
+  if (repoNameEl) repoNameEl.firstChild.textContent = repo.full_name + ' ';
+  if (repoMetaEl) {
+    repoMetaEl.textContent = (repo.private ? 'private' : 'public') + ' · ' +
+      (repo.language || '—') + ' · ' + (repo.stargazers_count || 0).toLocaleString() + ' stars';
+  }
+
+  const branchWrap = qs('.github-branches');
+  if (branchWrap && branches.length) {
+    branchWrap.innerHTML = branches.map((b, i) =>
+      '<button type="button" class="branch-item' + (i === 0 ? ' selected' : '') + '">' +
+      '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.6"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>' +
+      '<span class="branch-name">' + b.name + '</span>' +
+      (i === 0 ? '<span class="branch-badge current">current</span>' : '') +
+      '</button>'
+    ).join('');
+  }
+
+  const commitRows = qsa('.commit-row');
+  if (commits.length) {
+    commits.slice(0, commitRows.length).forEach((c, i) => {
+      const row = commitRows[i];
+      if (!row) return;
+      const hashBtn = qs('.commit-hash', row);
+      const msgEl = qs('.commit-msg', row);
+      const metaEl = qs('.commit-meta', row);
+      const firstLine = (c.commit.message || '').split('\n')[0];
+      if (hashBtn) hashBtn.textContent = c.sha.slice(0, 7);
+      if (msgEl) msgEl.textContent = firstLine;
+      if (metaEl) {
+        const author = (c.commit.author && c.commit.author.name) || 'unknown';
+        const when = c.commit.author ? timeAgo(c.commit.author.date) : '';
+        metaEl.textContent = author + ' · ' + when;
+      }
+    });
+  }
+
+  const statValues = qsa('.commit-stat-value');
+  if (statValues[0]) statValues[0].textContent = (repo.open_issues_count ?? '—').toString();
+  if (statValues[1] && repo.forks_count != null) statValues[1].textContent = repo.forks_count.toLocaleString();
+  if (statValues[2] && repo.subscribers_count != null) statValues[2].textContent = repo.subscribers_count.toLocaleString();
+
+  const badge = qs('.github-connected-badge');
+  if (badge) badge.lastChild.textContent = 'Live';
+}
+
 function initGitHubPanel() {
   const grid = qs('#githubActionsGrid');
   const logWrap = qs('#activityLog');
@@ -572,6 +665,12 @@ function initGitHubPanel() {
   const branchItems = qsa('.branch-item');
 
   if (!grid) return;
+
+  // If js/github-config.js points at a real repo, live data is
+  // fetched in the background further down and swapped in once it
+  // arrives — the demo markup stays visible (and fully interactive)
+  // until then, and forever if no config was given or the request
+  // fails.
 
   let repoName = repoNameEl ? repoNameEl.textContent.trim() : 'acme-corp/platform-v2';
   const logEntries = [];
@@ -638,24 +737,40 @@ function initGitHubPanel() {
   on(repoForm, 'submit', (e) => { e.preventDefault(); commitEdit(); });
   on(repoInput, 'blur', commitEdit);
 
-  // Branch selection highlight
-  branchItems.forEach((b) => {
-    on(b, 'click', () => {
-      branchItems.forEach((x) => x.classList.remove('selected'));
-      b.classList.add('selected');
-      const name = qs('.branch-name', b);
-      showToast('Switched to branch ' + (name ? name.textContent : ''));
+  // Branch selection highlight — re-run after live data replaces the
+  // branch list so newly-inserted buttons stay clickable too.
+  function bindBranchItems() {
+    const items = qsa('.branch-item');
+    items.forEach((b) => {
+      on(b, 'click', () => {
+        items.forEach((x) => x.classList.remove('selected'));
+        b.classList.add('selected');
+        const name = qs('.branch-name', b);
+        showToast('Switched to branch ' + (name ? name.textContent : ''));
+      });
     });
-  });
+  }
 
-  // Commit hash copy
-  qsa('.commit-hash').forEach((hashBtn) => {
-    on(hashBtn, 'click', async () => {
-      try {
-        await navigator.clipboard.writeText(hashBtn.textContent.trim());
-        showToast('Commit hash copied');
-      } catch (e) { showToast('Could not copy — select the text manually'); }
+  // Commit hash copy — same idea, re-bindable after a live refresh.
+  function bindCommitHashes() {
+    qsa('.commit-hash').forEach((hashBtn) => {
+      on(hashBtn, 'click', async () => {
+        try {
+          await navigator.clipboard.writeText(hashBtn.textContent.trim());
+          showToast('Commit hash copied');
+        } catch (e) { showToast('Could not copy — select the text manually'); }
+      });
     });
+  }
+
+  bindBranchItems();
+  bindCommitHashes();
+
+  fetchRealGitHubData().then((data) => {
+    if (!data) return;
+    applyRealGitHubData(data);
+    bindBranchItems();
+    bindCommitHashes();
   });
 
   renderLog();

@@ -42,7 +42,7 @@
 }
 .studio-tab-btn.active {
   background: rgba(255,255,255,0.92);
-  color: #000;
+  color: var(--color-bg);
   border-color: rgba(255,255,255,0.92);
 }
 
@@ -78,7 +78,7 @@
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: var(--radius-md);
-  color: #fff;
+  color: var(--color-text-primary);
   font-size: var(--text-sm);
   outline: none;
   appearance: none;
@@ -93,7 +93,7 @@
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: var(--radius-md);
-  color: #fff;
+  color: var(--color-text-primary);
   font-size: var(--text-sm);
   font-family: inherit;
   outline: none;
@@ -111,7 +111,7 @@
   transition: transform var(--transition-fast), border-color var(--transition-fast);
 }
 .studio-swatch:hover { transform: scale(1.08); }
-.studio-swatch.selected { border-color: #fff; transform: scale(1.1); }
+.studio-swatch.selected { border-color: var(--color-text-primary); transform: scale(1.1); }
 
 .studio-full-btn { width: 100%; justify-content: center; }
 
@@ -191,10 +191,10 @@
   display: flex; align-items: center; justify-content: center;
   margin-top: 1px;
 }
-.studio-finding-icon.error { background: rgba(248,113,113,0.14); color: #f87171; }
-.studio-finding-icon.warning { background: rgba(251,191,36,0.14); color: #fbbf24; }
-.studio-finding-icon.info { background: rgba(96,165,250,0.14); color: #60a5fa; }
-.studio-finding-icon.success { background: rgba(74,222,128,0.14); color: #4ade80; }
+.studio-finding-icon.error { background: rgba(var(--color-danger-rgb), 0.14); color: var(--color-danger); }
+.studio-finding-icon.warning { background: rgba(var(--color-warning-rgb), 0.14); color: var(--color-warning); }
+.studio-finding-icon.info { background: rgba(var(--color-info-rgb), 0.14); color: var(--color-info); }
+.studio-finding-icon.success { background: rgba(var(--color-success-rgb), 0.14); color: var(--color-success); }
 .studio-finding-text { color: rgba(255,255,255,0.75); line-height: 1.5; }
 .studio-finding-text code {
   background: rgba(255,255,255,0.08);
@@ -229,7 +229,7 @@
   border: 1px solid var(--color-border);
   cursor: pointer;
   transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
-  color: #fff;
+  color: var(--color-text-primary);
 }
 .studio-export-btn:hover { background: var(--color-surface-hover); border-color: rgba(255,255,255,0.22); transform: translateY(-2px); }
 .studio-export-btn:disabled { opacity: 0.5; cursor: wait; transform: none; }
@@ -238,9 +238,9 @@
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
 }
-.studio-export-icon.docx { background: rgba(96,165,250,0.14); color: #60a5fa; }
-.studio-export-icon.pptx { background: rgba(251,191,36,0.14); color: #fbbf24; }
-.studio-export-icon.xlsx { background: rgba(74,222,128,0.14); color: #4ade80; }
+.studio-export-icon.docx { background: rgba(var(--color-info-rgb), 0.14); color: var(--color-info); }
+.studio-export-icon.pptx { background: rgba(var(--color-warning-rgb), 0.14); color: var(--color-warning); }
+.studio-export-icon.xlsx { background: rgba(var(--color-success-rgb), 0.14); color: var(--color-success); }
 .studio-export-label { font-size: var(--text-sm); font-weight: 600; }
 .studio-export-sub { font-size: 11px; color: rgba(255,255,255,0.35); }
 

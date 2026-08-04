@@ -163,7 +163,7 @@
 }
 
 .navbar-dropdown-link.active {
-  color: #fff;
+  color: var(--color-text-primary);
   background: rgba(255,255,255,0.05);
 }
 

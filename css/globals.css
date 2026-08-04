@@ -13,6 +13,7 @@
   /* Colors */
   --color-bg: #000000;
   --color-bg-deep: #050505;
+  --color-bg-elevated: #0a0a0c;
   --color-surface: rgba(255, 255, 255, 0.04);
   --color-surface-hover: rgba(255, 255, 255, 0.07);
   --color-surface-active: rgba(255, 255, 255, 0.10);
@@ -23,21 +24,38 @@
   --color-text-muted: rgba(255, 255, 255, 0.3);
   --color-accent: rgba(255, 255, 255, 0.9);
   --color-accent-glow: rgba(255, 255, 255, 0.06);
-  --color-success: #4ade80;
+
+  /* Semantic colors — defined once, referenced everywhere via var().
+     An -rgb companion is provided for every semantic/brand color so
+     translucent fills and glows (rgba(var(--x-rgb), 0.12)) stay in
+     lockstep with the solid color instead of drifting out of sync. */
+  --color-success: #34d399;
+  --color-success-rgb: 52, 211, 153;
   --color-warning: #fbbf24;
+  --color-warning-rgb: 251, 191, 36;
   --color-info: #60a5fa;
-  --color-danger: #f87171;
+  --color-info-rgb: 96, 165, 250;
+  --color-danger: #fb7185;
+  --color-danger-rgb: 251, 113, 133;
   --color-violet: #a78bfa;
+  --color-violet-rgb: 167, 139, 250;
   --color-cyan: #22d3ee;
+  --color-cyan-rgb: 34, 211, 238;
 
   /* Brand gradient — the site's signature accent, used sparingly
-     across CTAs, active states, highlighted text and data visuals */
+     across CTAs, active states, highlighted text and data visuals.
+     Indigo → violet → cyan reads as a coherent "neural" hue sweep
+     (each stop 40–60° apart on the wheel) rather than a rainbow. */
   --brand-1: #6d5ef7;
+  --brand-1-rgb: 109, 94, 247;
   --brand-2: #a855f7;
+  --brand-2-rgb: 168, 85, 247;
   --brand-3: #22d3ee;
+  --brand-3-rgb: 34, 211, 238;
   --gradient-brand: linear-gradient(120deg, var(--brand-1) 0%, var(--brand-2) 55%, var(--brand-3) 100%);
-  --gradient-brand-soft: linear-gradient(120deg, rgba(109,94,247,0.16) 0%, rgba(168,85,247,0.14) 55%, rgba(34,211,238,0.14) 100%);
-  --shadow-brand: 0 8px 30px rgba(109, 94, 247, 0.28);
+  --gradient-brand-soft: linear-gradient(120deg, rgba(var(--brand-1-rgb), 0.16) 0%, rgba(var(--brand-2-rgb), 0.14) 55%, rgba(var(--brand-3-rgb), 0.14) 100%);
+  --gradient-brand-text: linear-gradient(100deg, #fff 0%, #fff 22%, var(--brand-2) 60%, var(--brand-3) 100%);
+  --shadow-brand: 0 8px 30px rgba(var(--brand-1-rgb), 0.28);
 
   /* Glass */
   --glass-bg: rgba(255, 255, 255, 0.04);
