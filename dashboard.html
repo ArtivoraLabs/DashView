@@ -204,6 +204,36 @@
             <div class="dash-chart-wrap"><canvas id="progChart"></canvas></div>
           </div>
         </div>
+
+        <div class="dash-chart-card dash-reveal" style="margin-top: var(--space-3);">
+          <div class="dash-heat-hdr">
+            <div>
+              <div class="dash-chart-title">Contribution activity</div>
+              <div class="dash-chart-sub" id="heatSub">Commits across the org, past 52 weeks</div>
+            </div>
+            <div class="dash-heat-legend">
+              <span>Less</span>
+              <span class="dash-heat-swatch" data-level="0"></span>
+              <span class="dash-heat-swatch" data-level="1"></span>
+              <span class="dash-heat-swatch" data-level="2"></span>
+              <span class="dash-heat-swatch" data-level="3"></span>
+              <span class="dash-heat-swatch" data-level="4"></span>
+              <span>More</span>
+            </div>
+          </div>
+          <div class="dash-heat-scroll">
+            <div id="heatMonths" class="dash-heat-months"></div>
+            <div id="heatGrid" class="dash-heat-grid"></div>
+          </div>
+          <div class="dash-heat-tip" id="heatTip"></div>
+        </div>
+
+        <div class="dash-chart-card dash-reveal" style="margin-top: var(--space-3);">
+          <div class="dash-chart-title">Language distribution</div>
+          <div class="dash-chart-sub">Aggregate across all repositories</div>
+          <div class="dash-lang-bar" id="langBar"></div>
+          <div class="dash-lang-legend" id="langLegend"></div>
+        </div>
       </div>
 
       <!-- Activity log -->

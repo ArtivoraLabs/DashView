@@ -1,5 +1,31 @@
 # Changelog
 
+## Visual polish — 2026-08-04
+
+Three additions, all built from scratch (no chart/image libraries beyond the
+Chart.js already in use), continuing the no-stock-assets approach used
+throughout this project.
+
+- **Contribution heatmap** — a 52-week, GitHub-style activity calendar on the
+  dashboard's Analytics section, recolored to the site's monochrome palette.
+  Hover any day for an exact count and date. Deterministic data generated in
+  `js/dashboard-data.js` (`buildContributionCalendar`), rendered in
+  `js/dashboard.js` (`renderHeatmap`) with a staggered fade-in.
+- **Language distribution bar** — an aggregate, color-coded breakdown of
+  languages across all repos, below the heatmap.
+- **Dashboard showcase on the landing page** — a new section (`#dashboard-showcase`
+  in `index.html`) framing a real screenshot of the live dashboard in a
+  browser-chrome mockup (traffic-light dots, fake URL bar). The screenshot
+  (`assets/dashboard-preview.png`) was captured directly from the working
+  page with Playwright at 2x resolution, not mocked up — regenerate it after
+  any future dashboard changes so it stays accurate.
+
+Verified with the same Playwright regression suite as prior rounds, plus a
+manual trace-down of two apparent rendering issues that turned out to be test
+artifacts (the cursor-spotlight effect needs real mouse movement to position
+itself; a scroll-reveal transition was caught mid-animation by too short a
+wait) — not bugs in the site itself.
+
 ## Dashboard merge — 2026-08-03
 
 Merged a second project ("DashView," a GitHub-organization dashboard) into

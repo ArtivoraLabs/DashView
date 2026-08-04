@@ -240,6 +240,71 @@ function renderCharts(data) {
   });
 }
 
+// ── Contribution heatmap ──────────────────────────────────────────
+const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function levelFor(count, max) {
+  if (!count) return 0;
+  const q = max <= 4 ? count : count / max;
+  if (max <= 4) return Math.min(4, count);
+  if (q > 0.75) return 4;
+  if (q > 0.5) return 3;
+  if (q > 0.22) return 2;
+  return 1;
+}
+function renderHeatmap(contributions) {
+  const grid = $('heatGrid'), months = $('heatMonths');
+  if (!grid || !contributions) return;
+  const { days, total, max, bestStreak } = contributions;
+  const today = new Date().toISOString().slice(0, 10);
+
+  grid.innerHTML = days.map((d) => {
+    const isFuture = d.date > today;
+    const lvl = isFuture ? 0 : levelFor(d.count, max);
+    return `<div class="dash-heat-cell${isFuture ? ' future' : ''}" data-level="${lvl}" data-date="${d.date}" data-count="${d.count}" title=""></div>`;
+  }).join('');
+
+  // Month labels: place a label in the column where the month changes
+  let lastMonth = -1;
+  const labels = [];
+  days.forEach((d, i) => {
+    if (i % 7 !== 0) return; // one check per week/column
+    const m = new Date(d.date + 'T00:00:00').getMonth();
+    if (m !== lastMonth) { labels.push(MONTH_ABBR[m]); lastMonth = m; } else { labels.push(''); }
+  });
+  months.innerHTML = labels.map((l) => `<span>${l}</span>`).join('');
+
+  $('heatSub').textContent = total.toLocaleString() + ' commits in the last 52 weeks · longest streak ' + bestStreak + ' days';
+
+  const tip = $('heatTip');
+  const setTip = (el) => {
+    if (!el || el.classList.contains('future')) { tip.innerHTML = '&nbsp;'; return; }
+    const d = new Date(el.dataset.date + 'T00:00:00');
+    const n = +el.dataset.count;
+    tip.innerHTML = '<b>' + n + (n === 1 ? ' commit' : ' commits') + '</b> on ' + d.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+  };
+  $$('.dash-heat-cell', grid).forEach((el) => {
+    on(el, 'mouseenter', () => setTip(el));
+    on(el, 'focus', () => setTip(el));
+  });
+  on(grid, 'mouseleave', () => { tip.innerHTML = '&nbsp;'; });
+
+  if (!prefersReducedMotion) {
+    const cells = $$('.dash-heat-cell', grid);
+    cells.forEach((c, i) => {
+      c.style.opacity = '0';
+      setTimeout(() => { c.style.transition = 'opacity 0.4s'; c.style.opacity = '1'; }, Math.min(i, 200) * 1.4);
+    });
+  }
+}
+
+// ── Language distribution ─────────────────────────────────────────
+function renderLanguages(languages) {
+  const bar = $('langBar'), legend = $('langLegend');
+  if (!bar || !languages || !languages.length) return;
+  bar.innerHTML = languages.map((l) => `<div class="dash-lang-seg" style="width:${l.pct}%;background:${l.color}" title="${esc(l.name)} ${l.pct}%"></div>`).join('');
+  legend.innerHTML = languages.map((l) => `<div class="dash-lang-item"><span class="sw" style="background:${l.color}"></span>${esc(l.name)} <span style="color:var(--color-text-muted)">${l.pct}%</span></div>`).join('');
+}
+
 // ── Activity log ("designed logs") ────────────────────────────────
 const LOG_ICON = { commit: 'di-commit', issue: 'di-issue', pr: 'di-pr', deploy: 'di-rocket' };
 function logRowHTML(ev, isNew) {
@@ -524,6 +589,8 @@ function loadDashboard(opts) {
       renderProjects(state.projects);
       renderMilestones(state.milestones);
       renderCharts(data);
+      renderHeatmap(data.contributions);
+      renderLanguages(data.languages);
       renderActivity();
       populateLangFilter(state.repos);
       renderRepos();

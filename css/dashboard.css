@@ -356,6 +356,36 @@
   .dash-log-row { animation: none !important; }
 }
 
+/* ── Contribution heatmap ─────────────────────────────────── */
+.dash-heat-hdr { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-4); flex-wrap: wrap; }
+.dash-heat-legend { display: flex; align-items: center; gap: 4px; font-size: 10.5px; color: var(--color-text-muted); font-family: var(--font-mono); flex-shrink: 0; }
+.dash-heat-swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; background: var(--lvl-0); }
+.dash-heat-swatch[data-level="0"] { background: rgba(255,255,255,0.06); }
+.dash-heat-swatch[data-level="1"] { background: rgba(255,255,255,0.22); }
+.dash-heat-swatch[data-level="2"] { background: rgba(255,255,255,0.42); }
+.dash-heat-swatch[data-level="3"] { background: rgba(255,255,255,0.68); }
+.dash-heat-swatch[data-level="4"] { background: #ffffff; }
+.dash-heat-scroll { overflow-x: auto; padding-bottom: 4px; }
+.dash-heat-months { display: grid; grid-auto-flow: column; grid-auto-columns: 13px; gap: 3px; font-family: var(--font-mono); font-size: 10px; color: var(--color-text-muted); margin-bottom: 4px; height: 14px; min-width: 700px; }
+.dash-heat-grid { display: grid; grid-template-rows: repeat(7, 11px); grid-auto-flow: column; grid-auto-columns: 11px; gap: 3px; min-width: 700px; }
+.dash-heat-cell { width: 11px; height: 11px; border-radius: 2px; background: rgba(255,255,255,0.06); cursor: pointer; transition: outline-color var(--transition-fast); outline: 1px solid transparent; outline-offset: 1px; }
+.dash-heat-cell:hover { outline-color: rgba(255,255,255,0.5); }
+.dash-heat-cell[data-level="1"] { background: rgba(255,255,255,0.22); }
+.dash-heat-cell[data-level="2"] { background: rgba(255,255,255,0.42); }
+.dash-heat-cell[data-level="3"] { background: rgba(255,255,255,0.68); }
+.dash-heat-cell[data-level="4"] { background: #ffffff; }
+.dash-heat-cell.future { background: transparent !important; cursor: default; }
+.dash-heat-tip { margin-top: var(--space-3); font-family: var(--font-mono); font-size: 11px; color: var(--color-text-secondary); min-height: 14px; }
+.dash-heat-tip b { color: #fff; }
+
+/* ── Language distribution ───────────────────────────────────*/
+.dash-lang-bar { display: flex; width: 100%; height: 10px; border-radius: var(--radius-full); overflow: hidden; background: var(--color-surface-active); margin-top: var(--space-4); }
+.dash-lang-seg { height: 100%; transition: filter var(--transition-fast); }
+.dash-lang-seg:hover { filter: brightness(1.3); }
+.dash-lang-legend { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); margin-top: var(--space-4); }
+.dash-lang-item { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--color-text-secondary); font-family: var(--font-mono); }
+.dash-lang-item .sw { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
 /* ── Responsive ───────────────────────────────────────────── */
 @media (max-width: 1300px) {
   .dash-kpi-grid { grid-template-columns: repeat(3, 1fr); }

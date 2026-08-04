@@ -245,6 +245,55 @@
     };
   }
 
+  // ── Contribution calendar (GitHub-style, 52 weeks) ──────────────
+  function buildContributionCalendar() {
+    const days = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    // Align the end to the upcoming Saturday so the grid always has full weeks
+    const endDow = today.getDay();
+    const end = new Date(today.getTime() + (6 - endDow) * 864e5);
+    const totalDays = 371; // 53 weeks, trimmed to 52 full columns below
+    let streak = 0;
+    for (let i = totalDays - 1; i >= 0; i--) {
+      const d = new Date(end.getTime() - i * 864e5);
+      const dow = d.getDay();
+      const isWeekend = dow === 0 || dow === 6;
+      const base = isWeekend ? rand() * 3 : rand() * 9;
+      const burst = rand() > 0.93 ? int(6, 14) : 0; // occasional big push days
+      const lull = rand() > 0.88 ? -base : 0; // occasional quiet days
+      let count = Math.max(0, Math.round(base + burst + lull));
+      if (d > today) count = 0; // never show activity in the future
+      days.push({ date: d.toISOString().slice(0, 10), count });
+      if (count > 0) streak = d.getTime() === today.getTime() ? streak + 1 : streak;
+    }
+    const trimmed = days.slice(days.length - 364); // exactly 52 full weeks
+    const total = trimmed.reduce((s, d) => s + d.count, 0);
+    const max = Math.max(...trimmed.map((d) => d.count));
+    let best = 0, cur = 0, curStreak = 0, bestStreak = 0;
+    trimmed.forEach((d) => {
+      if (d.count > 0) { cur++; curStreak = cur; } else { cur = 0; }
+      bestStreak = Math.max(bestStreak, curStreak);
+    });
+    return { days: trimmed, total, max, bestStreak };
+  }
+
+  // ── Aggregate language distribution across all repos ────────────
+  function buildLanguageBreakdown(repos) {
+    const totals = {};
+    repos.forEach((r) => {
+      if (!r.primaryLanguage) return;
+      const name = r.primaryLanguage.name;
+      // weight by a rough proxy for repo size so the bar feels realistic
+      const weight = int(8, 100);
+      totals[name] = (totals[name] || 0) + weight;
+    });
+    const sum = Object.values(totals).reduce((a, b) => a + b, 0) || 1;
+    return Object.entries(totals)
+      .map(([name, w]) => ({ name, pct: Math.round((w / sum) * 1000) / 10, color: (LANGS.find((l) => l.name === name) || {}).color || '#888' }))
+      .sort((a, b) => b.pct - a.pct);
+  }
+
   function generate() {
     const repos = buildRepos();
     const members = buildMembers();
@@ -252,9 +301,11 @@
     const milestones = buildMilestones(repos);
     const activity = buildActivity(repos);
     const kpis = computeKPIs(members, projects, repos, milestones);
+    const contributions = buildContributionCalendar();
+    const languages = buildLanguageBreakdown(repos);
     return {
       org: { name: 'acme-corp', login: 'acme-corp', description: 'NeuralKinetics workspace' },
-      members, projects, repositories: repos, milestones, activity, kpis,
+      members, projects, repositories: repos, milestones, activity, kpis, contributions, languages,
       fetchedAt: new Date().toISOString(),
     };
   }
