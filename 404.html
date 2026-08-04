@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Page not found — NeuralKinetics</title>
+<meta name="description" content="This page doesn't exist. Head back to the NeuralKinetics homepage." />
+<meta name="robots" content="noindex" />
+
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
+<meta name="theme-color" content="#000000" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+<link rel="stylesheet" href="css/globals.css" />
+<link rel="stylesheet" href="css/glass.css" />
+<link rel="stylesheet" href="css/responsive.css" />
+
+<style>
+  .notfound-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-6);
+  }
+  .notfound-card {
+    text-align: center;
+    max-width: 480px;
+    padding: var(--space-12) var(--space-8);
+  }
+  .notfound-code {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    letter-spacing: 0.14em;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: var(--space-4);
+  }
+  .notfound-title {
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: var(--space-3);
+  }
+  .notfound-sub {
+    font-size: var(--text-md);
+    color: rgba(255,255,255,0.5);
+    line-height: 1.6;
+    margin-bottom: var(--space-8);
+  }
+</style>
+</head>
+<body>
+
+<div class="ambient-field" aria-hidden="true">
+  <span class="ambient-orb o1"></span>
+  <span class="ambient-orb o2"></span>
+  <span class="ambient-orb o3"></span>
+</div>
+
+<div class="notfound-page">
+  <div class="glass-panel glass-strong notfound-card">
+    <p class="notfound-code">ERROR · 404</p>
+    <h1 class="notfound-title">This page doesn't exist.</h1>
+    <p class="notfound-sub">The page you're looking for may have moved or never existed. Let's get you back on track.</p>
+    <a class="glass-btn glass-btn-solid" href="index.html">Back to homepage</a>
+  </div>
+</div>
+
+</body>
+</html>

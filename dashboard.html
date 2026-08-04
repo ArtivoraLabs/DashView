@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard — NeuralKinetics</title>
+<meta name="description" content="Live workspace intelligence for the NeuralKinetics organization — projects, repositories, team activity and analytics in one command center." />
+<meta name="robots" content="noindex" />
+
+<link rel="canonical" href="https://your-domain.example.com/dashboard.html" />
+<meta name="theme-color" content="#000000" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+<link rel="stylesheet" href="css/globals.css" />
+<link rel="stylesheet" href="css/glass.css" />
+<link rel="stylesheet" href="css/navbar.css" />
+<link rel="stylesheet" href="css/dashboard.css" />
+</head>
+<body class="dash-body">
+
+<!-- Shared icon sprite -->
+<svg class="icon-defs" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden;">
+  <symbol id="di-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"/></symbol>
+  <symbol id="di-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 5 18.5V20"/><circle cx="9.5" cy="8" r="3.2"/><path d="M15.5 5.2a3.2 3.2 0 0 1 0 6.1M20 20v-1.5a3.5 3.5 0 0 0-2.3-3.3"/></symbol>
+  <symbol id="di-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></symbol>
+  <symbol id="di-flag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V4"/><path d="M6 4h11l-2.5 4L17 12H6"/></symbol>
+  <symbol id="di-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></symbol>
+  <symbol id="di-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2.5-7L14 19l2.5-7H21"/></symbol>
+  <symbol id="di-package" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/><path d="M20 16.5V7.5a1 1 0 0 0-.5-.87l-7-4a1 1 0 0 0-1 0l-7 4a1 1 0 0 0-.5.87v9a1 1 0 0 0 .5.87l7 4a1 1 0 0 0 1 0l7-4a1 1 0 0 0 .5-.87Z"/></symbol>
+  <symbol id="di-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="di-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 18v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1"/></symbol>
+  <symbol id="di-keyboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></symbol>
+  <symbol id="di-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></symbol>
+  <symbol id="di-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="m12 2 3.1 6.6 7.2.9-5.3 5 1.4 7.2L12 18.3l-6.4 3.4 1.4-7.2-5.3-5 7.2-.9L12 2Z"/></symbol>
+  <symbol id="di-branch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></symbol>
+  <symbol id="di-commit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M3 12h6m6 0h6"/></symbol>
+  <symbol id="di-pr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.2"/><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="6" r="2.2"/><path d="M6 8.2V15.8M18 8.2v3.3a4 4 0 0 1-4 4h-2.5"/></symbol>
+  <symbol id="di-issue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="di-rocket" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c3 2 5 6 5 10.5-1 .6-2.2 1-3.5 1h-3c-1.3 0-2.5-.4-3.5-1C7 8 9 4 12 2Z"/><path d="M9.5 13.5 7 21l3.5-2M14.5 13.5 17 21l-3.5-2"/><circle cx="12" cy="10" r="1.6"/></symbol>
+  <symbol id="di-external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4 10 14"/><path d="M18 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/></symbol>
+  <symbol id="di-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.4 3.9 2.5 18a1.7 1.7 0 0 0 1.5 2.5h16a1.7 1.7 0 0 0 1.5-2.5L13.6 3.9a1.7 1.7 0 0 0-3.2 0Z"/></symbol>
+  <symbol id="di-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11A8 8 0 1 0 18.3 16"/><path d="M20 5v6h-6"/></symbol>
+  <symbol id="di-table" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M3 10h18M9 10v10"/></symbol>
+  <symbol id="di-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.2"/><rect x="13" y="3" width="8" height="8" rx="1.2"/><rect x="3" y="13" width="8" height="8" rx="1.2"/><rect x="13" y="13" width="8" height="8" rx="1.2"/></symbol>
+  <symbol id="di-arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+</svg>
+
+<div class="dash-shell">
+
+  <!-- ── Sidebar ─────────────────────────────────────────────── -->
+  <aside class="dash-sidebar" id="dashSidebar">
+    <div class="dash-sb-head">
+      <div class="dash-logo">
+        <span class="mark">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="16" cy="16" r="12" stroke="rgba(0,0,0,0.5)" stroke-width="1.4"/>
+            <circle cx="16" cy="16" r="3" fill="#000"/>
+          </svg>
+        </span>
+        <span class="dash-logo-text">NeuralKinetics</span>
+      </div>
+      <button class="dash-sb-toggle" id="sbToggle" aria-label="Collapse sidebar" aria-expanded="true">
+        <svg viewBox="0 0 24 24"><use href="#di-chevron"/></svg>
+      </button>
+    </div>
+
+    <div class="dash-sb-sec">
+      <div class="dash-sb-label">Overview</div>
+      <button class="dash-nav-item active" data-goto="dashTop"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-home"/></svg></span><span class="dash-nav-label">Dashboard</span></button>
+      <button class="dash-nav-item" data-goto="secTeam"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-users"/></svg></span><span class="dash-nav-label">Team</span></button>
+      <button class="dash-nav-item" data-goto="secProjects"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-folder"/></svg></span><span class="dash-nav-label">Projects</span></button>
+      <button class="dash-nav-item" data-goto="secMilestones"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-flag"/></svg></span><span class="dash-nav-label">Milestones</span></button>
+    </div>
+
+    <div class="dash-sb-sec">
+      <div class="dash-sb-label">Insights</div>
+      <button class="dash-nav-item" data-goto="secAnalytics"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-chart"/></svg></span><span class="dash-nav-label">Analytics</span></button>
+      <button class="dash-nav-item" data-goto="secActivity"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-activity"/></svg></span><span class="dash-nav-label">Activity log</span></button>
+      <button class="dash-nav-item" data-goto="secRepos"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-package"/></svg></span><span class="dash-nav-label">Repositories</span></button>
+    </div>
+
+    <div class="dash-sb-sec">
+      <div class="dash-sb-label">Tools</div>
+      <button class="dash-nav-item" id="navSearch"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-search"/></svg></span><span class="dash-nav-label">Search</span><span class="dash-nav-kbd">⌘K</span></button>
+      <button class="dash-nav-item" id="navExport"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-download"/></svg></span><span class="dash-nav-label">Export CSV</span></button>
+      <button class="dash-nav-item" id="navShortcuts"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-keyboard"/></svg></span><span class="dash-nav-label">Shortcuts</span><span class="dash-nav-kbd">?</span></button>
+      <a class="dash-nav-item" href="index.html"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-arrow-left"/></svg></span><span class="dash-nav-label">Back to site</span></a>
+    </div>
+
+    <div class="dash-sb-foot">
+      <div class="dash-org-card">
+        <div class="dash-org-av">NK</div>
+        <div class="dash-org-info">
+          <div class="dash-org-name">acme-corp</div>
+          <div class="dash-org-role">Organization</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Page ────────────────────────────────────────────────── -->
+  <div class="dash-page" id="dashPage">
+    <header class="dash-header">
+      <div>
+        <div class="dash-hdr-title">acme-corp</div>
+        <div class="dash-hdr-sub" id="hdrSub">Workspace intelligence</div>
+      </div>
+      <div class="dash-hdr-r">
+        <div class="dash-search" id="searchTrigger" role="button" tabindex="0" aria-label="Open search (Cmd+K)">
+          <svg viewBox="0 0 24 24"><use href="#di-search"/></svg>
+          <span class="lbl">Search anything…</span>
+          <span class="kbd">⌘K</span>
+        </div>
+        <div class="dash-sync-badge">
+          <span class="dash-sdot" data-state="loading" id="syncDot"></span>
+          <span id="syncLabel">Syncing…</span>
+        </div>
+        <button class="dash-btn-refresh" id="refreshBtn">
+          <svg viewBox="0 0 24 24" class="ri"><use href="#di-refresh"/></svg> Refresh
+        </button>
+        <button class="dash-icon-btn" id="shortcutsBtn" aria-label="Keyboard shortcuts">
+          <svg viewBox="0 0 24 24"><use href="#di-keyboard"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="dash-main" id="dashTop">
+      <div class="dash-err-banner" id="errBanner"><svg viewBox="0 0 24 24"><use href="#di-alert"/></svg><span id="errMsg"></span></div>
+
+      <!-- KPI row 1 -->
+      <div class="dash-kpi-grid">
+        <div class="dash-kpi c-signal dash-reveal"><div class="dash-kpi-lbl">Projects</div><div class="dash-kpi-val" id="kpiProj">—</div><div class="dash-kpi-sub">Active org projects</div></div>
+        <div class="dash-kpi c-violet dash-reveal"><div class="dash-kpi-lbl">Open tasks</div><div class="dash-kpi-val" id="kpiOpen">—</div><div class="dash-kpi-sub">Across all projects</div></div>
+        <div class="dash-kpi c-success dash-reveal"><div class="dash-kpi-lbl">Completed</div><div class="dash-kpi-val" id="kpiDone">—</div><div class="dash-kpi-sub">Closed items</div></div>
+        <div class="dash-kpi c-cyan dash-reveal"><div class="dash-kpi-lbl">Repositories</div><div class="dash-kpi-val" id="kpiRepo">—</div><div class="dash-kpi-sub">Tracked this sync</div></div>
+        <div class="dash-kpi c-warning dash-reveal"><div class="dash-kpi-lbl">Stars</div><div class="dash-kpi-val" id="kpiStars">—</div><div class="dash-kpi-sub">Across all repos</div></div>
+        <div class="dash-kpi c-info dash-reveal"><div class="dash-kpi-lbl">Avg progress</div><div class="dash-kpi-val" id="kpiAvg">—</div><div class="dash-kpi-sub">Across projects</div></div>
+      </div>
+
+      <!-- KPI row 2 -->
+      <div class="dash-ent-row">
+        <div class="dash-ent-kpi dash-reveal"><div class="dash-ent-icon c-info" style="--kpi-c:var(--color-info)"><svg viewBox="0 0 24 24"><use href="#di-users"/></svg></div><div><div class="dash-ent-val" id="kpiMembers">—</div><div class="dash-ent-lbl">Org members</div></div></div>
+        <div class="dash-ent-kpi dash-reveal"><div class="dash-ent-icon" style="--kpi-c:var(--color-violet)"><svg viewBox="0 0 24 24"><use href="#di-pr"/></svg></div><div><div class="dash-ent-val" id="kpiPRs">—</div><div class="dash-ent-lbl">Open pull requests</div></div></div>
+        <div class="dash-ent-kpi dash-reveal"><div class="dash-ent-icon" style="--kpi-c:var(--color-success)"><svg viewBox="0 0 24 24"><use href="#di-flag"/></svg></div><div><div class="dash-ent-val" id="kpiMilestones">—</div><div class="dash-ent-lbl">Open milestones</div></div></div>
+        <div class="dash-ent-kpi dash-reveal"><div class="dash-ent-icon" style="--kpi-c:var(--color-warning)"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 21s-7-4.35-9.5-8.8C1 8.5 2.8 5 6.2 5c1.9 0 3.4 1 4.8 2.7C12.4 6 13.9 5 15.8 5c3.4 0 5.2 3.5 3.7 7.2C19 16.65 12 21 12 21Z"/></svg></div><div><div class="dash-ent-val" id="kpiHealth">—</div><div class="dash-ent-lbl">Avg repo health</div></div></div>
+      </div>
+
+      <!-- Team -->
+      <div class="dash-section" id="secTeam">
+        <div class="dash-sec-hdr">
+          <div class="dash-sec-title">Team <span class="dash-count-badge" id="memberCnt">0</span></div>
+        </div>
+        <div class="dash-team-grid" id="membersGrid">
+          <div class="dash-empty"><svg viewBox="0 0 24 24"><use href="#di-users"/></svg><h3>Loading team…</h3></div>
+        </div>
+      </div>
+
+      <!-- Projects -->
+      <div class="dash-section" id="secProjects">
+        <div class="dash-sec-hdr">
+          <div class="dash-sec-title">Projects <span class="dash-count-badge" id="projCnt">0</span></div>
+        </div>
+        <div class="dash-proj-grid" id="projGrid">
+          <div class="dash-empty"><svg viewBox="0 0 24 24"><use href="#di-folder"/></svg><h3>Loading projects…</h3></div>
+        </div>
+      </div>
+
+      <!-- Milestones -->
+      <div class="dash-section" id="secMilestones">
+        <div class="dash-sec-hdr">
+          <div class="dash-sec-title">Milestones &amp; deadlines <span class="dash-count-badge" id="msCnt">0</span></div>
+        </div>
+        <div class="dash-ms-grid" id="msGrid">
+          <div class="dash-empty"><svg viewBox="0 0 24 24"><use href="#di-flag"/></svg><h3>Loading milestones…</h3></div>
+        </div>
+      </div>
+
+      <!-- Analytics -->
+      <div class="dash-section" id="secAnalytics">
+        <div class="dash-sec-hdr">
+          <div class="dash-sec-title">Analytics</div>
+        </div>
+        <div class="dash-chart-grid">
+          <div class="dash-chart-card dash-reveal">
+            <div class="dash-chart-title">Task activity</div>
+            <div class="dash-chart-sub">Weekly completion trend</div>
+            <div class="dash-chart-wrap"><canvas id="actChart"></canvas></div>
+          </div>
+          <div class="dash-chart-card dash-reveal">
+            <div class="dash-chart-title">Task status</div>
+            <div class="dash-chart-sub">Open vs. completed</div>
+            <div class="dash-chart-wrap"><canvas id="statChart"></canvas></div>
+          </div>
+          <div class="dash-chart-card dash-reveal">
+            <div class="dash-chart-title">Progress</div>
+            <div class="dash-chart-sub">Per project</div>
+            <div class="dash-chart-wrap"><canvas id="progChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity log -->
+      <div class="dash-section" id="secActivity">
+        <div class="dash-sec-hdr">
+          <div class="dash-sec-title">Activity log</div>
+          <div class="dash-log-filters" id="logFilters">
+            <button class="dash-log-pill active" data-type="all">All</button>
+            <button class="dash-log-pill" data-type="commit">Commits</button>
+            <button class="dash-log-pill" data-type="issue">Issues</button>
+            <button class="dash-log-pill" data-type="pr">Pull requests</button>
+            <button class="dash-log-pill" data-type="deploy">Deploys</button>
+          </div>
+        </div>
+        <div class="dash-log dash-reveal">
+          <div class="dash-log-head">
+            <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+            <span class="path">acme-corp / live-activity.log</span>
+          </div>
+          <div class="dash-log-body" id="activityLog">
+            <div class="dash-empty"><svg viewBox="0 0 24 24"><use href="#di-activity"/></svg><h3>Loading activity…</h3></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Repositories -->
+      <div class="dash-section" id="secRepos">
+        <div class="dash-sec-hdr">
+          <div class="dash-sec-title">Repositories <span class="dash-count-badge" id="repoCnt">0</span></div>
+          <div class="dash-repo-ctrl">
+            <div class="dash-repo-search"><svg viewBox="0 0 24 24"><use href="#di-search"/></svg><input type="text" id="repoQ" placeholder="Search repos…" autocomplete="off" /></div>
+            <select class="dash-select" id="langF"><option value="">All languages</option></select>
+            <select class="dash-select" id="sortBy">
+              <option value="health">Health score</option>
+              <option value="updated">Recently updated</option>
+              <option value="stars">Most stars</option>
+              <option value="issues">Open issues</option>
+              <option value="name">Name A–Z</option>
+            </select>
+            <div class="dash-view-toggle">
+              <button id="btnTbl" class="active" aria-label="Table view"><svg viewBox="0 0 24 24"><use href="#di-table"/></svg></button>
+              <button id="btnCrd" aria-label="Card view"><svg viewBox="0 0 24 24"><use href="#di-grid"/></svg></button>
+            </div>
+            <button class="dash-btn-export" id="exportBtn"><svg viewBox="0 0 24 24"><use href="#di-download"/></svg> CSV</button>
+          </div>
+        </div>
+        <div id="repoContainer">
+          <div class="dash-empty"><svg viewBox="0 0 24 24"><use href="#di-package"/></svg><h3>Loading repositories…</h3></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Command palette -->
+<div class="modal-overlay" id="cmdOverlay">
+  <div class="modal-card cmdk-card glass-panel glass-strong">
+    <div class="cmdk-input-row">
+      <svg viewBox="0 0 24 24"><use href="#di-search"/></svg>
+      <input class="cmdk-input" id="cmdInput" placeholder="Search repos, projects, members, or run a command…" autocomplete="off" />
+      <span class="cmdk-esc">Esc</span>
+    </div>
+    <div class="cmdk-results" id="cmdResults"></div>
+    <div class="cmdk-footer">
+      <span><span class="k">↑↓</span>Navigate</span>
+      <span><span class="k">↵</span>Select</span>
+      <span><span class="k">Esc</span>Close</span>
+    </div>
+  </div>
+</div>
+
+<!-- Shortcuts -->
+<div class="modal-overlay" id="shortcutsOverlay">
+  <div class="modal-card shortcuts-card glass-panel glass-strong">
+    <div class="shortcuts-hdr"><h2>Keyboard shortcuts</h2><p>Navigate the dashboard without a mouse</p></div>
+    <div class="shortcuts-list">
+      <div class="shortcuts-row"><span class="lbl">Command palette</span><div class="shortcuts-keys"><span class="k">⌘</span><span class="k">K</span></div></div>
+      <div class="shortcuts-row"><span class="lbl">Refresh data</span><div class="shortcuts-keys"><span class="k">R</span></div></div>
+      <div class="shortcuts-row"><span class="lbl">Show shortcuts</span><div class="shortcuts-keys"><span class="k">?</span></div></div>
+      <div class="shortcuts-row"><span class="lbl">Go to Team</span><div class="shortcuts-keys"><span class="k">G</span><span class="k">T</span></div></div>
+      <div class="shortcuts-row"><span class="lbl">Go to Projects</span><div class="shortcuts-keys"><span class="k">G</span><span class="k">P</span></div></div>
+      <div class="shortcuts-row"><span class="lbl">Go to Activity</span><div class="shortcuts-keys"><span class="k">G</span><span class="k">A</span></div></div>
+      <div class="shortcuts-row"><span class="lbl">Go to Repositories</span><div class="shortcuts-keys"><span class="k">G</span><span class="k">R</span></div></div>
+      <div class="shortcuts-row"><span class="lbl">Export repos CSV</span><div class="shortcuts-keys"><span class="k">E</span></div></div>
+      <div class="shortcuts-row"><span class="lbl">Close overlay</span><div class="shortcuts-keys"><span class="k">Esc</span></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.js" integrity="sha384-zuFoHkJ6+XzUchVtS39qBWxb+LvdA7aQ/ze8jYdufBf/A1jeuKGDBg4crfxvZAr8" crossorigin="anonymous"></script>
+<script src="js/dashboard-data.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

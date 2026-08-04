@@ -1,0 +1,74 @@
+/* ============================================================
+   NeuralKinetics — Responsive Design
+   ============================================================ */
+
+/* ── Tablet (≤1024px) ──────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .capabilities-grid { grid-template-columns: repeat(3, 1fr); }
+  .workspace-layout { grid-template-columns: 1fr; }
+  .workflow-demo-inner { grid-template-columns: 1fr; gap: var(--space-8); }
+  .github-layout { grid-template-columns: 1fr; }
+  .stat-strip-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-8); }
+}
+
+/* ── Mobile (≤768px) ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  .navbar { top: var(--space-3); width: calc(100% - var(--space-6)); }
+  .navbar-brand { display: none; }
+  .navbar-tags { display: none; }
+  .navbar-right-label { display: none; }
+  .navbar-inner { padding: var(--space-2) var(--space-3); }
+
+  .hero-title { font-size: clamp(2.2rem, 9vw, 3.5rem); }
+  .hero-subtitle { font-size: var(--text-sm); }
+
+  .capabilities-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-3); }
+  .capability-card { padding: var(--space-4); }
+
+  .ai-prompts { gap: var(--space-2); }
+  .ai-prompt-chip { font-size: 10px; }
+
+  .section-title { font-size: var(--text-2xl); }
+
+  .workspace-column { gap: var(--space-3); }
+  .workspace-panel .panel-body { padding: var(--space-3); }
+
+  .github-actions-grid { grid-template-columns: 1fr; }
+  .studio-gallery { grid-template-columns: repeat(4, 1fr); }
+
+  .footer-inner { flex-direction: column; align-items: flex-start; gap: var(--space-4); }
+  .footer-links { gap: var(--space-4); }
+
+  .back-to-top { right: var(--space-4); bottom: var(--space-4); }
+}
+
+/* ── Small Mobile (≤480px) ─────────────────────────────────── */
+@media (max-width: 480px) {
+  .container { padding: 0 var(--space-4); }
+  .hero-content { padding: var(--space-16) var(--space-4); }
+  .hero-title { font-size: 2rem; }
+
+  .capabilities-grid { grid-template-columns: 1fr 1fr; gap: var(--space-2); }
+  .capability-card { padding: var(--space-4); gap: var(--space-3); }
+  .capability-icon-wrap { width: 32px; height: 32px; }
+
+  .github-actions-grid { grid-template-columns: 1fr; }
+  .studio-gallery { grid-template-columns: repeat(3, 1fr); }
+
+  .ai-prompts {
+    justify-content: flex-start;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: var(--space-2);
+  }
+
+  .stat-strip-grid { grid-template-columns: repeat(2, 1fr); }
+  .hero-cta-row { flex-direction: column; width: 100%; }
+  .hero-cta-row .glass-btn { width: 100%; justify-content: center; }
+}
+
+/* ── Wide Desktop (≥1440px) ────────────────────────────────── */
+@media (min-width: 1440px) {
+  .container { max-width: 1380px; }
+  .hero-title { font-size: 6rem; }
+}

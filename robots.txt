@@ -1,0 +1,7 @@
+# NeuralKinetics — robots.txt
+# This is a single public marketing page; allow all crawlers.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://your-domain.example.com/sitemap.xml
