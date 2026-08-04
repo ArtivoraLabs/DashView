@@ -147,6 +147,8 @@ Add a `CNAME` file at the project root containing your domain
 (e.g. `neuralkinetics.ai`), then point your DNS `A`/`CNAME` records at GitHub
 Pages per [GitHub's custom domain docs](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site).
 
+Link: https://artivoralabs.github.io/DashView/dashboard.html
+
 ## 🎨 Customizing
 
 - **Colors / spacing / radii** — edit the CSS variables at the top of `css/globals.css`
