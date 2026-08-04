@@ -10,37 +10,40 @@
    scanner immediately, in parallel with everything else. */
 
 :root {
-  /* Colors */
-  --color-bg: #000000;
-  --color-bg-deep: #050505;
-  --color-bg-elevated: #0a0a0c;
-  --color-surface: rgba(255, 255, 255, 0.04);
-  --color-surface-hover: rgba(255, 255, 255, 0.07);
-  --color-surface-active: rgba(255, 255, 255, 0.10);
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-bright: rgba(255, 255, 255, 0.14);
-  --color-text-primary: #ffffff;
-  --color-text-secondary: rgba(255, 255, 255, 0.5);
-  --color-text-muted: rgba(255, 255, 255, 0.3);
-  --color-accent: rgba(255, 255, 255, 0.9);
-  --color-accent-glow: rgba(255, 255, 255, 0.06);
+  /* Colors — light theme. Ink-on-white instead of white-on-black;
+     every surface/text/border token below is still driven from one
+     place, so downstream files that reference var(--color-*) just
+     work. */
+  --color-bg: #ffffff;
+  --color-bg-deep: #f7f8fa;
+  --color-bg-elevated: #eef0f4;
+  --color-surface: rgba(15, 23, 42, 0.035);
+  --color-surface-hover: rgba(15, 23, 42, 0.06);
+  --color-surface-active: rgba(15, 23, 42, 0.09);
+  --color-border: rgba(15, 23, 42, 0.10);
+  --color-border-bright: rgba(15, 23, 42, 0.18);
+  --color-text-primary: #0b0c10;
+  --color-text-secondary: rgba(15, 23, 42, 0.58);
+  --color-text-muted: rgba(15, 23, 42, 0.38);
+  --color-accent: rgba(15, 23, 42, 0.9);
+  --color-accent-glow: rgba(15, 23, 42, 0.05);
 
   /* Semantic colors — defined once, referenced everywhere via var().
      An -rgb companion is provided for every semantic/brand color so
      translucent fills and glows (rgba(var(--x-rgb), 0.12)) stay in
      lockstep with the solid color instead of drifting out of sync. */
-  --color-success: #34d399;
-  --color-success-rgb: 52, 211, 153;
-  --color-warning: #fbbf24;
-  --color-warning-rgb: 251, 191, 36;
-  --color-info: #60a5fa;
-  --color-info-rgb: 96, 165, 250;
-  --color-danger: #fb7185;
-  --color-danger-rgb: 251, 113, 133;
-  --color-violet: #a78bfa;
-  --color-violet-rgb: 167, 139, 250;
-  --color-cyan: #22d3ee;
-  --color-cyan-rgb: 34, 211, 238;
+  --color-success: #059669;
+  --color-success-rgb: 5, 150, 105;
+  --color-warning: #d97706;
+  --color-warning-rgb: 217, 119, 6;
+  --color-info: #2563eb;
+  --color-info-rgb: 37, 99, 235;
+  --color-danger: #e11d48;
+  --color-danger-rgb: 225, 29, 72;
+  --color-violet: #7c3aed;
+  --color-violet-rgb: 124, 58, 237;
+  --color-cyan: #0891b2;
+  --color-cyan-rgb: 8, 145, 178;
 
   /* Brand gradient — the site's signature accent, used sparingly
      across CTAs, active states, highlighted text and data visuals.
@@ -48,24 +51,26 @@
      (each stop 40–60° apart on the wheel) rather than a rainbow. */
   --brand-1: #6d5ef7;
   --brand-1-rgb: 109, 94, 247;
-  --brand-2: #a855f7;
-  --brand-2-rgb: 168, 85, 247;
-  --brand-3: #22d3ee;
-  --brand-3-rgb: 34, 211, 238;
+  --brand-2: #9333ea;
+  --brand-2-rgb: 147, 51, 234;
+  --brand-3: #0891b2;
+  --brand-3-rgb: 8, 145, 178;
   --gradient-brand: linear-gradient(120deg, var(--brand-1) 0%, var(--brand-2) 55%, var(--brand-3) 100%);
-  --gradient-brand-soft: linear-gradient(120deg, rgba(var(--brand-1-rgb), 0.16) 0%, rgba(var(--brand-2-rgb), 0.14) 55%, rgba(var(--brand-3-rgb), 0.14) 100%);
-  --gradient-brand-text: linear-gradient(100deg, #fff 0%, #fff 22%, var(--brand-2) 60%, var(--brand-3) 100%);
-  --shadow-brand: 0 8px 30px rgba(var(--brand-1-rgb), 0.28);
+  --gradient-brand-soft: linear-gradient(120deg, rgba(var(--brand-1-rgb), 0.10) 0%, rgba(var(--brand-2-rgb), 0.08) 55%, rgba(var(--brand-3-rgb), 0.08) 100%);
+  --gradient-brand-text: linear-gradient(100deg, var(--color-text-primary) 0%, var(--color-text-primary) 22%, var(--brand-2) 60%, var(--brand-3) 100%);
+  --shadow-brand: 0 8px 30px rgba(var(--brand-1-rgb), 0.22);
 
-  /* Glass */
-  --glass-bg: rgba(255, 255, 255, 0.04);
-  --glass-bg-strong: rgba(255, 255, 255, 0.07);
-  --glass-blur: blur(25px);
-  --glass-blur-light: blur(12px);
-  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
-  --glass-border-bright: 1px solid rgba(255, 255, 255, 0.14);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  --glass-shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  /* Glass — frosted panels on a light backdrop: a faint dark tint
+     for the fill, a bright inset rim to keep the "catching light"
+     glass highlight legible on white. */
+  --glass-bg: rgba(15, 23, 42, 0.035);
+  --glass-bg-strong: rgba(15, 23, 42, 0.06);
+  --glass-blur: blur(20px);
+  --glass-blur-light: blur(10px);
+  --glass-border: 1px solid rgba(15, 23, 42, 0.08);
+  --glass-border-bright: 1px solid rgba(15, 23, 42, 0.16);
+  --glass-shadow: 0 8px 32px rgba(15, 23, 42, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  --glass-shadow-lg: 0 20px 60px rgba(15, 23, 42, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.8);
 
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -161,7 +166,7 @@ body {
   border-radius: 50%;
   filter: blur(80px);
   opacity: 0.5;
-  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.10), rgba(255,255,255,0) 70%);
+  background: radial-gradient(circle at 30% 30%, rgba(var(--brand-1-rgb), 0.14), rgba(var(--brand-1-rgb), 0) 70%);
   animation: drift 26s ease-in-out infinite;
   will-change: transform;
 }
@@ -184,7 +189,7 @@ body {
   height: 480px;
   border-radius: 50%;
   pointer-events: none;
-  background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 70%);
+  background: radial-gradient(circle, rgba(var(--brand-2-rgb), 0.07) 0%, rgba(var(--brand-2-rgb), 0) 70%);
   transform: translate(-50%, -50%);
   left: var(--cursor-x, 50%);
   top: var(--cursor-y, 50%);
@@ -233,23 +238,23 @@ ul, ol {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(15, 23, 42, 0.16);
   border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(15, 23, 42, 0.28);
 }
 
 /* ── Selection ─────────────────────────────────────────────── */
 ::selection {
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+  background: rgba(var(--brand-1-rgb), 0.20);
+  color: var(--color-text-primary);
 }
 
 /* ── Focus ─────────────────────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.4);
+  outline: 2px solid rgba(var(--brand-1-rgb), 0.55);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }

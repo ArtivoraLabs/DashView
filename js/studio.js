@@ -270,15 +270,18 @@
     const styleSelect = qs('#studioImageStyle');
 
     on(genBtn, 'click', () => {
-      const promptText = (promptInput && promptInput.value.trim()) || 'neural kinetics';
-      const styleKey = styleSelect ? styleSelect.value : 'gradient';
-      studioImageSalt += 1; // each click gives a fresh variation of the same prompt
-      const palette = PALETTES[selectedPaletteIdx];
-      const svg = generateArtwork(promptText, styleKey, palette);
-      setActiveArtwork(svg);
-      galleryItems.unshift({ svg, prompt: promptText });
-      if (galleryItems.length > 12) galleryItems.length = 12;
-      refreshGallery();
+      const run = () => {
+        const promptText = (promptInput && promptInput.value.trim()) || 'neural kinetics';
+        const styleKey = styleSelect ? styleSelect.value : 'gradient';
+        studioImageSalt += 1; // each click gives a fresh variation of the same prompt
+        const palette = PALETTES[selectedPaletteIdx];
+        const svg = generateArtwork(promptText, styleKey, palette);
+        setActiveArtwork(svg);
+        galleryItems.unshift({ svg, prompt: promptText });
+        if (galleryItems.length > 12) galleryItems.length = 12;
+        refreshGallery();
+      };
+      if (window.NKAuth) window.NKAuth.requireAccess(run); else run();
     });
 
     on(promptInput, 'keydown', (e) => {
@@ -479,10 +482,10 @@
     const wrap = qs('#studioDebugResults');
     if (!wrap) return;
     const score = scoreFromFindings(findings);
-    const color = score >= 80 ? '#4ade80' : score >= 50 ? '#fbbf24' : '#f87171';
+    const color = score >= 80 ? '#059669' : score >= 50 ? '#d97706' : '#e11d48';
     let html = '<div class="studio-debug-score-row">' +
       '<div><p class="studio-debug-score" style="color:' + color + ';">' + score + '</p><p class="studio-debug-score-label">Code Health Score</p></div>' +
-      '<div style="flex:1;font-size:var(--text-sm);color:rgba(255,255,255,0.5);">' +
+      '<div style="flex:1;font-size:var(--text-sm);color:rgba(15,23,42,0.55);">' +
       findings.filter((f) => f.level === 'error').length + ' error(s) · ' +
       findings.filter((f) => f.level === 'warning').length + ' warning(s) · ' +
       findings.filter((f) => f.level === 'info' || f.level === 'success').length + ' note(s)</div></div>';
@@ -498,18 +501,21 @@
   function initCodeDebugger() {
     const btn = qs('#studioAnalyzeBtn');
     on(btn, 'click', () => {
-      const code = (qs('#studioDebugInput') || {}).value || '';
-      const lang = (qs('#studioDebugLang') || {}).value || 'javascript';
-      if (!code.trim()) {
-        renderDebugResults([{ level: 'info', text: 'Paste some code above, then run analysis.' }]);
-        return;
-      }
-      let findings;
-      if (lang === 'json') findings = analyzeJson(code);
-      else if (lang === 'html') findings = analyzeHtml(code);
-      else if (lang === 'python') findings = analyzePython(code);
-      else findings = analyzeJavaScript(code);
-      renderDebugResults(findings);
+      const run = () => {
+        const code = (qs('#studioDebugInput') || {}).value || '';
+        const lang = (qs('#studioDebugLang') || {}).value || 'javascript';
+        if (!code.trim()) {
+          renderDebugResults([{ level: 'info', text: 'Paste some code above, then run analysis.' }]);
+          return;
+        }
+        let findings;
+        if (lang === 'json') findings = analyzeJson(code);
+        else if (lang === 'html') findings = analyzeHtml(code);
+        else if (lang === 'python') findings = analyzePython(code);
+        else findings = analyzeJavaScript(code);
+        renderDebugResults(findings);
+      };
+      if (window.NKAuth) window.NKAuth.requireAccess(run); else run();
     });
   }
 

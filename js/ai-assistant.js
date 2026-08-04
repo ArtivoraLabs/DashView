@@ -437,7 +437,12 @@
   }
 
   function togglePanel() {
-    if (panelOpen) closePanel(); else openPanel();
+    if (panelOpen) { closePanel(); return; }
+    if (window.NKAuth) {
+      window.NKAuth.requireAccess(openPanel);
+    } else {
+      openPanel();
+    }
   }
 
   function newChat() {
@@ -470,10 +475,13 @@
     // Public API so other scripts (hero input, dashboard, etc.) can open the assistant
     window.NKAssistant = {
       open: function (text) {
-        openPanel();
-        if (text) sendMessage(text);
+        const run = () => { openPanel(); if (text) sendMessage(text); };
+        if (window.NKAuth) window.NKAuth.requireAccess(run); else run();
       },
-      prefill: function (text) { openPanel(text); },
+      prefill: function (text) {
+        const run = () => openPanel(text);
+        if (window.NKAuth) window.NKAuth.requireAccess(run); else run();
+      },
     };
   }
 

@@ -164,7 +164,7 @@ function renderProjects(projects) {
       </div>
       <div class="dash-proj-bar"><div class="dash-proj-bar-f" data-fill="${p.stats.pct}%"></div></div>
       <div class="dash-proj-meta"><span><b>${p.stats.open}</b> open</span><span><b>${p.stats.closed}</b> closed</span><span><b>${p.stats.total}</b> total</span></div>
-      <div class="dash-spark"><svg viewBox="0 0 260 40" preserveAspectRatio="none"><path d="${path}" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="dash-spark"><svg viewBox="0 0 260 40" preserveAspectRatio="none"><path d="${path}" fill="none" stroke="rgba(109,94,247,0.75)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     </div>`;
   }).join('');
   requestAnimationFrame(() => {
@@ -195,8 +195,8 @@ function renderMilestones(milestones) {
 // ── Charts ────────────────────────────────────────────────────────
 function renderCharts(data) {
   if (typeof Chart === 'undefined') return;
-  const gridColor = 'rgba(255,255,255,0.06)';
-  const tickColor = 'rgba(255,255,255,0.4)';
+  const gridColor = 'rgba(15,23,42,0.08)';
+  const tickColor = 'rgba(15,23,42,0.45)';
   Chart.defaults.font.family = getComputedStyle(document.body).getPropertyValue('--font-sans') || 'Inter';
   Chart.defaults.color = tickColor;
 
@@ -206,7 +206,7 @@ function renderCharts(data) {
   if (charts.act) charts.act.destroy();
   charts.act = new Chart($('actChart'), {
     type: 'line',
-    data: { labels: weeks, datasets: [{ data: completed, borderColor: '#ffffff', backgroundColor: 'rgba(255,255,255,0.08)', fill: true, tension: 0.35, pointRadius: 0, borderWidth: 2 }] },
+    data: { labels: weeks, datasets: [{ data: completed, borderColor: '#6d5ef7', backgroundColor: 'rgba(109,94,247,0.10)', fill: true, tension: 0.35, pointRadius: 0, borderWidth: 2 }] },
     options: {
       responsive: true, maintainAspectRatio: false,
       animation: prefersReducedMotion ? false : { duration: 900, easing: 'easeOutCubic' },
@@ -219,7 +219,7 @@ function renderCharts(data) {
   const k = data.kpis;
   charts.stat = new Chart($('statChart'), {
     type: 'doughnut',
-    data: { labels: ['Open', 'Completed'], datasets: [{ data: [k.openTasks, k.closedTasks], backgroundColor: ['rgba(255,255,255,0.85)', 'rgba(255,255,255,0.15)'], borderWidth: 0 }] },
+    data: { labels: ['Open', 'Completed'], datasets: [{ data: [k.openTasks, k.closedTasks], backgroundColor: ['rgba(109,94,247,0.85)', 'rgba(15,23,42,0.10)'], borderWidth: 0 }] },
     options: {
       responsive: true, maintainAspectRatio: false, cutout: '68%',
       animation: prefersReducedMotion ? false : { duration: 900, easing: 'easeOutCubic' },
@@ -230,7 +230,7 @@ function renderCharts(data) {
   if (charts.prog) charts.prog.destroy();
   charts.prog = new Chart($('progChart'), {
     type: 'bar',
-    data: { labels: data.projects.map((p) => p.title.split(' ')[0]), datasets: [{ data: data.projects.map((p) => p.stats.pct), backgroundColor: 'rgba(255,255,255,0.65)', borderRadius: 4, maxBarThickness: 26 }] },
+    data: { labels: data.projects.map((p) => p.title.split(' ')[0]), datasets: [{ data: data.projects.map((p) => p.stats.pct), backgroundColor: 'rgba(109,94,247,0.65)', borderRadius: 4, maxBarThickness: 26 }] },
     options: {
       responsive: true, maintainAspectRatio: false,
       animation: prefersReducedMotion ? false : { duration: 900, easing: 'easeOutCubic' },
@@ -600,15 +600,23 @@ function loadDashboard(opts) {
       setStatus('live', 'Live · just now');
       if (opts.force) showToast('Dashboard refreshed', 'success');
       if (!liveTimer) startLiveActivity();
+      hideDashLoader();
     } catch (e) {
       console.error('[NeuralKinetics Dashboard]', e);
       setStatus('error', 'Sync failed');
       showErr(e.message + ' — this dashboard runs on generated demo data by default; see CHANGELOG.md to connect a real API.');
       showToast('Failed to sync', 'error');
+      hideDashLoader();
     } finally {
       if (btn) btn.classList.remove('loading');
     }
   }, opts.force ? 500 : 700); // small delay so the loading state is perceptible, matching a real sync
+}
+
+// ── Loading screen ────────────────────────────────────────────────
+function hideDashLoader() {
+  const loader = $('dashLoader');
+  if (loader) loader.classList.add('hide');
 }
 
 // ── Init ───────────────────────────────────────────────────────────
@@ -624,4 +632,7 @@ document.addEventListener('DOMContentLoaded', () => {
   on($('exportBtn'), 'click', () => exportCSV('repos'));
   loadDashboard();
   setInterval(() => loadDashboard(), 5 * 60 * 1000);
+  // Safety net: never leave the loader stuck up if something above throws
+  // before loadDashboard's own try/catch can hide it.
+  setTimeout(hideDashLoader, 4000);
 });

@@ -343,10 +343,10 @@ function initWorkflowDemo() {
       step.classList.remove('active', 'complete');
       if (i < active) {
         step.classList.add('complete');
-        dot.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>';
+        dot.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>';
       } else if (i === active) {
         step.classList.add('active');
-        dot.innerHTML = '<span class="spin"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg></span>';
+        dot.innerHTML = '<span class="spin"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(15,23,42,0.75)" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg></span>';
       } else {
         dot.textContent = String(i + 1);
       }
@@ -618,7 +618,7 @@ function applyRealGitHubData(data) {
   if (branchWrap && branches.length) {
     branchWrap.innerHTML = branches.map((b, i) =>
       '<button type="button" class="branch-item' + (i === 0 ? ' selected' : '') + '">' +
-      '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.6"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>' +
+      '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(15,23,42,0.35)" stroke-width="1.6"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>' +
       '<span class="branch-name">' + b.name + '</span>' +
       (i === 0 ? '<span class="branch-badge current">current</span>' : '') +
       '</button>'
