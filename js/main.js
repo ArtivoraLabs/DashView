@@ -184,7 +184,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ------------------------------------------------------------
-   Hero AI Command Bar — rotating placeholders + simulated replies
+   Hero AI Command Bar — rotating placeholders, submits into
+   the global NeuralKinetics AI Assistant (js/ai-assistant.js)
 ------------------------------------------------------------ */
 const PROMPTS = [
   'Build a React application',
@@ -197,46 +198,17 @@ const PROMPTS = [
   'Plan a project',
 ];
 
-const RESPONSE_LIBRARY = [
-  { keywords: ['react', 'app', 'build', 'component', 'ui', 'design'],
-    reply: "I'd scaffold this as a Vite + React project, break the UI into composable components, and wire up state with hooks before adding styling. Want me to lay out the component tree first?" },
-  { keywords: ['quantum'],
-    reply: "At a high level, quantum computing uses qubits that can hold superpositions of 0 and 1, and entanglement to correlate them — letting certain problems be explored far more efficiently than classical bits allow." },
-  { keywords: ['debug', 'bug', 'error', 'fix'],
-    reply: "Send over the stack trace or the failing behavior and I'll trace it back to the root cause — I'll check state flow, async timing, and recent diffs first, since that's where most regressions hide." },
-  { keywords: ['document', 'analyze', 'data', 'report'],
-    reply: "I can pull out the key figures, summarize findings section by section, and flag anything inconsistent across the document. Drop in the file and I'll start the pass." },
-  { keywords: ['market', 'content', 'copy', 'brand'],
-    reply: "I'd start from your audience and core value prop, draft a few angles, then tighten the strongest one — clear, direct, and on-brand rather than generic." },
-  { keywords: ['plan', 'project', 'roadmap', 'startup'],
-    reply: "Let's break this into milestones with clear owners and dependencies. I'd start with the riskiest unknowns first so we validate direction before investing in polish." },
-];
-
-const FALLBACK_REPLY =
-  "Got it — I can reason through this step by step, pull in relevant context, and put together a concrete plan or output. What's the first constraint I should design around?";
-
-function getAIReply(prompt) {
-  const lower = prompt.toLowerCase();
-  const match = RESPONSE_LIBRARY.find((r) => r.keywords.some((k) => lower.includes(k)));
-  return match ? match.reply : FALLBACK_REPLY;
-}
-
 function initHeroAI() {
   const field = qs('#aiInputField');
   const form = qs('#aiInputForm');
   const sendBtn = qs('#aiSendBtn');
   const promptEl = qs('#aiInputPrompt');
-  const panel = qs('#aiResponsePanel');
-  const questionEl = qs('#aiResponseQuestion');
-  const bodyEl = qs('#aiResponseBody');
-  const closeBtn = qs('#aiResponseClose');
   const chips = qsa('.ai-prompt-chip');
 
   if (!field || !form) return;
 
   let promptIndex = 0;
   let rotateTimer = null;
-  let thinkingTimer = null;
 
   function rotatePrompt() {
     promptEl.classList.remove('showing');
@@ -272,19 +244,11 @@ function initHeroAI() {
   }
   updateSendState();
 
-  function runQuery(question) {
-    clearTimeout(thinkingTimer);
-    panel.classList.add('open');
-    questionEl.textContent = '"' + question + '"';
-    bodyEl.innerHTML =
-      '<div class="ai-response-thinking" aria-live="polite">' +
-      '<span class="ai-thinking-dot"></span><span class="ai-thinking-dot"></span><span class="ai-thinking-dot"></span>' +
-      '<span class="ai-thinking-label">Thinking</span></div>';
-    thinkingTimer = setTimeout(() => {
-      const reply = getAIReply(question);
-      bodyEl.innerHTML = '<p class="ai-response-text" aria-live="polite"></p>';
-      qs('.ai-response-text', bodyEl).textContent = reply;
-    }, 900 + Math.random() * 400);
+  function submitToAssistant(question) {
+    if (!question) return;
+    if (window.NKAssistant) {
+      window.NKAssistant.open(question);
+    }
   }
 
   on(form, 'submit', (e) => {
@@ -293,16 +257,11 @@ function initHeroAI() {
     if (!q) return;
     field.value = '';
     updateSendState();
-    runQuery(q);
+    submitToAssistant(q);
   });
 
   chips.forEach((chip) => {
-    on(chip, 'click', () => runQuery(chip.textContent.trim()));
-  });
-
-  on(closeBtn, 'click', () => {
-    panel.classList.remove('open');
-    clearTimeout(thinkingTimer);
+    on(chip, 'click', () => submitToAssistant(chip.textContent.trim()));
   });
 }
 

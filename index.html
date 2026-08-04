@@ -46,6 +46,7 @@
 <link rel="stylesheet" href="css/hero.css" />
 <link rel="stylesheet" href="css/workspace.css" />
 <link rel="stylesheet" href="css/studio.css" />
+<link rel="stylesheet" href="css/ai-assistant.css" />
 <link rel="stylesheet" href="css/responsive.css" />
 </head>
 <body>
@@ -192,20 +193,6 @@
               <button type="button" class="ai-prompt-chip" role="listitem">Analyze documents</button>
               <button type="button" class="ai-prompt-chip" role="listitem">Write marketing copy</button>
               <button type="button" class="ai-prompt-chip" role="listitem">Plan a project</button>
-            </div>
-
-            <div class="glass-panel ai-response-panel" id="aiResponsePanel">
-              <div class="ai-response-header">
-                <span class="ai-response-badge">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/></svg>
-                  NeuralKinetics
-                </span>
-                <button type="button" class="ai-response-close" id="aiResponseClose" aria-label="Dismiss response">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 6 6 18M6 6l12 12"/></svg>
-                </button>
-              </div>
-              <p class="ai-response-question" id="aiResponseQuestion"></p>
-              <div id="aiResponseBody"></div>
             </div>
           </div>
         </div>
@@ -926,6 +913,7 @@
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
 </button>
 
+<script src="js/ai-assistant.js"></script>
 <script src="js/main.js"></script>
 <script src="js/studio.js"></script>
 </body>

@@ -30,6 +30,15 @@
   --color-violet: #a78bfa;
   --color-cyan: #22d3ee;
 
+  /* Brand gradient — the site's signature accent, used sparingly
+     across CTAs, active states, highlighted text and data visuals */
+  --brand-1: #6d5ef7;
+  --brand-2: #a855f7;
+  --brand-3: #22d3ee;
+  --gradient-brand: linear-gradient(120deg, var(--brand-1) 0%, var(--brand-2) 55%, var(--brand-3) 100%);
+  --gradient-brand-soft: linear-gradient(120deg, rgba(109,94,247,0.16) 0%, rgba(168,85,247,0.14) 55%, rgba(34,211,238,0.14) 100%);
+  --shadow-brand: 0 8px 30px rgba(109, 94, 247, 0.28);
+
   /* Glass */
   --glass-bg: rgba(255, 255, 255, 0.04);
   --glass-bg-strong: rgba(255, 255, 255, 0.07);
@@ -251,13 +260,31 @@ ul, ol {
   padding: var(--space-24) 0;
 }
 
+/* Generous, consistent breathing room between major page sections */
+main > section,
+main > div.workflow-demo {
+  padding-top: var(--space-8);
+  padding-bottom: var(--space-8);
+}
+
 .section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
   font-size: var(--text-xs);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-text-muted);
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.section-label::before {
+  content: "";
+  width: 14px;
+  height: 2px;
+  border-radius: var(--radius-full);
+  background: var(--gradient-brand);
+  flex-shrink: 0;
 }
 
 .section-title {
@@ -266,7 +293,7 @@ ul, ol {
   letter-spacing: -0.03em;
   line-height: 1.1;
   color: var(--color-text-primary);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-5);
 }
 
 .section-sub {
@@ -274,7 +301,15 @@ ul, ol {
   font-weight: 400;
   color: var(--color-text-secondary);
   max-width: 540px;
-  line-height: 1.65;
+  line-height: 1.7;
+}
+
+/* ── Gradient text utility ─────────────────────────────────── */
+.text-gradient {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 /* ── Status Dot ────────────────────────────────────────────── */
@@ -329,7 +364,7 @@ ul, ol {
 /* ── Back to top ───────────────────────────────────────────── */
 .back-to-top {
   position: fixed;
-  right: var(--space-6);
+  left: var(--space-6);
   bottom: var(--space-6);
   z-index: var(--z-floating);
   width: 44px;

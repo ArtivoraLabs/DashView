@@ -22,6 +22,7 @@
 <link rel="stylesheet" href="css/glass.css" />
 <link rel="stylesheet" href="css/navbar.css" />
 <link rel="stylesheet" href="css/dashboard.css" />
+<link rel="stylesheet" href="css/ai-assistant.css" />
 </head>
 <body class="dash-body">
 
@@ -57,7 +58,7 @@
   <!-- ── Sidebar ─────────────────────────────────────────────── -->
   <aside class="dash-sidebar" id="dashSidebar">
     <div class="dash-sb-head">
-      <div class="dash-logo">
+      <a class="dash-logo" href="index.html" aria-label="NeuralKinetics — go to home page">
         <span class="mark">
           <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <circle cx="16" cy="16" r="12" stroke="rgba(0,0,0,0.5)" stroke-width="1.4"/>
@@ -65,15 +66,20 @@
           </svg>
         </span>
         <span class="dash-logo-text">NeuralKinetics</span>
-      </div>
+      </a>
       <button class="dash-sb-toggle" id="sbToggle" aria-label="Collapse sidebar" aria-expanded="true">
         <svg viewBox="0 0 24 24"><use href="#di-chevron"/></svg>
       </button>
     </div>
 
     <div class="dash-sb-sec">
+      <div class="dash-sb-label">Navigate</div>
+      <a class="dash-nav-item dash-nav-item-home" href="index.html"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-home"/></svg></span><span class="dash-nav-label">Home page</span></a>
+    </div>
+
+    <div class="dash-sb-sec">
       <div class="dash-sb-label">Overview</div>
-      <button class="dash-nav-item active" data-goto="dashTop"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-home"/></svg></span><span class="dash-nav-label">Dashboard</span></button>
+      <button class="dash-nav-item active" data-goto="dashTop"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-grid"/></svg></span><span class="dash-nav-label">Dashboard</span></button>
       <button class="dash-nav-item" data-goto="secTeam"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-users"/></svg></span><span class="dash-nav-label">Team</span></button>
       <button class="dash-nav-item" data-goto="secProjects"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-folder"/></svg></span><span class="dash-nav-label">Projects</span></button>
       <button class="dash-nav-item" data-goto="secMilestones"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-flag"/></svg></span><span class="dash-nav-label">Milestones</span></button>
@@ -91,7 +97,6 @@
       <button class="dash-nav-item" id="navSearch"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-search"/></svg></span><span class="dash-nav-label">Search</span><span class="dash-nav-kbd">⌘K</span></button>
       <button class="dash-nav-item" id="navExport"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-download"/></svg></span><span class="dash-nav-label">Export CSV</span></button>
       <button class="dash-nav-item" id="navShortcuts"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-keyboard"/></svg></span><span class="dash-nav-label">Shortcuts</span><span class="dash-nav-kbd">?</span></button>
-      <a class="dash-nav-item" href="index.html"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-arrow-left"/></svg></span><span class="dash-nav-label">Back to site</span></a>
     </div>
 
     <div class="dash-sb-foot">
@@ -133,6 +138,19 @@
 
     <main class="dash-main" id="dashTop">
       <div class="dash-err-banner" id="errBanner"><svg viewBox="0 0 24 24"><use href="#di-alert"/></svg><span id="errMsg"></span></div>
+
+      <div class="dash-welcome dash-reveal">
+        <div class="dash-welcome-glow" aria-hidden="true"></div>
+        <div class="dash-welcome-text">
+          <p class="dash-welcome-eyebrow">Workspace overview</p>
+          <h1 class="dash-welcome-title">Everything happening at <span class="text-gradient">acme-corp</span>, in one view.</h1>
+          <p class="dash-welcome-sub">Live projects, team workload, and repository health — synced automatically.</p>
+        </div>
+        <button type="button" class="dash-welcome-ai" id="dashAskAi">
+          <span class="dash-welcome-ai-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg></span>
+          Ask the AI about this workspace
+        </button>
+      </div>
 
       <!-- KPI row 1 -->
       <div class="dash-kpi-grid">
@@ -328,5 +346,18 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.js" integrity="sha384-zuFoHkJ6+XzUchVtS39qBWxb+LvdA7aQ/ze8jYdufBf/A1jeuKGDBg4crfxvZAr8" crossorigin="anonymous"></script>
 <script src="js/dashboard-data.js"></script>
 <script src="js/dashboard.js"></script>
+<script src="js/ai-assistant.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var askBtn = document.getElementById('dashAskAi');
+    if (askBtn) {
+      askBtn.addEventListener('click', function () {
+        if (window.NKAssistant) {
+          window.NKAssistant.open('Summarize what needs my attention in this workspace right now');
+        }
+      });
+    }
+  });
+</script>
 </body>
 </html>
