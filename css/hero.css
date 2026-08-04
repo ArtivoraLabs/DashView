@@ -245,7 +245,7 @@
 .capability-card:hover .capability-icon-wrap {
   background: var(--gradient-brand);
   border-color: transparent;
-  color: var(--color-text-primary);
+  color: #ffffff;
   transform: scale(1.08) rotate(-4deg);
   box-shadow: 0 6px 20px rgba(var(--brand-1-rgb), 0.35);
 }
@@ -338,7 +338,7 @@
   background: var(--gradient-brand);
   border: none;
   border-radius: var(--radius-full);
-  color: var(--color-text-primary);
+  color: #ffffff;
   cursor: pointer;
   transition: all var(--transition-base);
   flex-shrink: 0;
