@@ -1,5 +1,5 @@
 /**
- * NeuralKinetics — GitHub API configuration
+ * NeuralKinetics - GitHub API configuration
  * ---------------------------------------------------------------
  * Paste your details below to make the GitHub panel on the
  * homepage (#github) show a REAL repository instead of demo data.
@@ -10,7 +10,7 @@
  * ── Do you need a token at all? ──────────────────────────────
  * No, if the repo is public. Unauthenticated requests already
  * work and are enough to show stars, language, branches and
- * recent commits — you just get 60 requests/hour per visitor.
+ * recent commits - you just get 60 requests/hour per visitor.
  *
  * Only add a token if you need the higher 5,000 req/hour limit,
  * or the repo is private.
@@ -18,14 +18,14 @@
  * ── READ THIS BEFORE PASTING A TOKEN ─────────────────────────
  * This site is a static frontend (see .github/workflows/static.yml)
  * with no server. ANY value you put in this file ships as plain
- * text in the deployed site's source — every visitor's browser can
+ * text in the deployed site's source - every visitor's browser can
  * read it via "View Source", and if this repo is public on GitHub,
  * it's also permanently visible in your git history.
  *
  * So:
  *   1. If this site is going to be public, do NOT paste a real
  *      token here. Leave `token: ''` and rely on the 60/hour
- *      unauthenticated limit — it's the safe default.
+ *      unauthenticated limit - it's the safe default.
  *   2. If you must use a token (e.g. running this only locally,
  *      or the repo is not public), create a *fine-grained* PAT at
  *      https://github.com/settings/tokens?type=beta scoped to

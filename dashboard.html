@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Dashboard — NeuralKinetics</title>
-<meta name="description" content="Live workspace intelligence for the NeuralKinetics organization — projects, repositories, team activity and analytics in one command center." />
+<title>Dashboard - NeuralKinetics</title>
+<meta name="description" content="Live workspace intelligence for the NeuralKinetics organization - projects, repositories, team activity and analytics in one command center." />
 <meta name="robots" content="noindex" />
 
 <link rel="canonical" href="https://your-domain.example.com/dashboard.html" />
@@ -78,7 +78,7 @@
   <!-- ── Sidebar ─────────────────────────────────────────────── -->
   <aside class="dash-sidebar" id="dashSidebar">
     <div class="dash-sb-head">
-      <a class="dash-logo" href="index.html" aria-label="NeuralKinetics — go to home page">
+      <a class="dash-logo" href="index.html" aria-label="NeuralKinetics - go to home page">
         <span class="mark">
           <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <circle cx="16" cy="16" r="12" stroke="rgba(0,0,0,0.5)" stroke-width="1.4"/>
@@ -134,6 +134,12 @@
 
   <!-- ── Page ────────────────────────────────────────────────── -->
   <div class="dash-page" id="dashPage">
+    <div class="dash-mobile-topbar">
+      <button class="dash-hamburger" id="mobileNavToggle" aria-label="Open menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <span class="dash-mt-brand">acme-corp - Dashboard</span>
+    </div>
     <header class="dash-header">
       <div>
         <div class="dash-hdr-title" id="hdrTitle">acme-corp</div>
@@ -153,6 +159,9 @@
           <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="14" height="14"><path d="M12 2C6.48 2 2 6.58 2 12.2c0 4.49 2.87 8.3 6.84 9.64.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.89-2.78.62-3.37-1.21-3.37-1.21-.46-1.18-1.11-1.5-1.11-1.5-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.73 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 2.5-.35c.85 0 1.71.12 2.5.35 1.9-1.33 2.74-1.05 2.74-1.05.56 1.42.21 2.47.1 2.73.65.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.8-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.03 10.03 0 0 0 22 12.2C22 6.58 17.52 2 12 2Z"/></svg>
           <span id="ghConnectBtnLbl">Connect GitHub</span>
         </button>
+        <button class="dash-btn-refresh" id="reportBtn" title="Download a PDF-ready report of this workspace">
+          <svg viewBox="0 0 24 24"><use href="#di-download"/></svg> Report
+        </button>
         <button class="dash-btn-refresh" id="refreshBtn">
           <svg viewBox="0 0 24 24" class="ri"><use href="#di-refresh"/></svg> Refresh
         </button>
@@ -170,7 +179,7 @@
         <div class="dash-welcome-text">
           <p class="dash-welcome-eyebrow">Workspace overview</p>
           <h1 class="dash-welcome-title">Everything happening at <span class="text-gradient" id="welcomeOrg">acme-corp</span>, in one view.</h1>
-          <p class="dash-welcome-sub" id="welcomeSub">Live projects, team workload, and repository health — synced automatically.</p>
+          <p class="dash-welcome-sub" id="welcomeSub">Live projects, team workload, and repository health - synced automatically.</p>
         </div>
         <a class="dash-welcome-ai" id="dashAskAi" href="ai.html">
           <span class="dash-welcome-ai-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg></span>
@@ -180,20 +189,20 @@
 
       <!-- KPI row 1 -->
       <div class="dash-kpi-grid">
-        <div class="dash-kpi c-signal dash-reveal"><div class="dash-kpi-lbl">Projects</div><div class="dash-kpi-val" id="kpiProj">—</div><div class="dash-kpi-sub">Active org projects</div></div>
-        <div class="dash-kpi c-violet dash-reveal"><div class="dash-kpi-lbl">Open tasks</div><div class="dash-kpi-val" id="kpiOpen">—</div><div class="dash-kpi-sub">Across all projects</div></div>
-        <div class="dash-kpi c-success dash-reveal"><div class="dash-kpi-lbl">Completed</div><div class="dash-kpi-val" id="kpiDone">—</div><div class="dash-kpi-sub">Closed items</div></div>
-        <div class="dash-kpi c-cyan dash-reveal"><div class="dash-kpi-lbl">Repositories</div><div class="dash-kpi-val" id="kpiRepo">—</div><div class="dash-kpi-sub">Tracked this sync</div></div>
-        <div class="dash-kpi c-warning dash-reveal"><div class="dash-kpi-lbl">Stars</div><div class="dash-kpi-val" id="kpiStars">—</div><div class="dash-kpi-sub">Across all repos</div></div>
-        <div class="dash-kpi c-info dash-reveal"><div class="dash-kpi-lbl">Avg progress</div><div class="dash-kpi-val" id="kpiAvg">—</div><div class="dash-kpi-sub">Across projects</div></div>
+        <div class="dash-kpi c-signal dash-reveal"><div class="dash-kpi-lbl">Projects</div><div class="dash-kpi-val" id="kpiProj">-</div><div class="dash-kpi-sub">Active org projects</div></div>
+        <div class="dash-kpi c-violet dash-reveal"><div class="dash-kpi-lbl">Open tasks</div><div class="dash-kpi-val" id="kpiOpen">-</div><div class="dash-kpi-sub">Across all projects</div></div>
+        <div class="dash-kpi c-success dash-reveal"><div class="dash-kpi-lbl">Completed</div><div class="dash-kpi-val" id="kpiDone">-</div><div class="dash-kpi-sub">Closed items</div></div>
+        <div class="dash-kpi c-cyan dash-reveal"><div class="dash-kpi-lbl">Repositories</div><div class="dash-kpi-val" id="kpiRepo">-</div><div class="dash-kpi-sub">Tracked this sync</div></div>
+        <div class="dash-kpi c-warning dash-reveal"><div class="dash-kpi-lbl">Stars</div><div class="dash-kpi-val" id="kpiStars">-</div><div class="dash-kpi-sub">Across all repos</div></div>
+        <div class="dash-kpi c-info dash-reveal"><div class="dash-kpi-lbl">Avg progress</div><div class="dash-kpi-val" id="kpiAvg">-</div><div class="dash-kpi-sub">Across projects</div></div>
       </div>
 
       <!-- KPI row 2 -->
       <div class="dash-ent-row">
-        <div class="dash-ent-kpi dash-reveal"><div class="dash-ent-icon c-info" style="--kpi-c:var(--color-info)"><svg viewBox="0 0 24 24"><use href="#di-users"/></svg></div><div><div class="dash-ent-val" id="kpiMembers">—</div><div class="dash-ent-lbl">Org members</div></div></div>
-        <div class="dash-ent-kpi dash-reveal"><div class="dash-ent-icon" style="--kpi-c:#6b6b6b"><svg viewBox="0 0 24 24"><use href="#di-pr"/></svg></div><div><div class="dash-ent-val" id="kpiPRs">—</div><div class="dash-ent-lbl">Open pull requests</div></div></div>
-        <div class="dash-ent-kpi dash-reveal"><div class="dash-ent-icon" style="--kpi-c:var(--color-success)"><svg viewBox="0 0 24 24"><use href="#di-flag"/></svg></div><div><div class="dash-ent-val" id="kpiMilestones">—</div><div class="dash-ent-lbl">Open milestones</div></div></div>
-        <div class="dash-ent-kpi dash-reveal"><div class="dash-ent-icon" style="--kpi-c:var(--color-warning)"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 21s-7-4.35-9.5-8.8C1 8.5 2.8 5 6.2 5c1.9 0 3.4 1 4.8 2.7C12.4 6 13.9 5 15.8 5c3.4 0 5.2 3.5 3.7 7.2C19 16.65 12 21 12 21Z"/></svg></div><div><div class="dash-ent-val" id="kpiHealth">—</div><div class="dash-ent-lbl">Avg repo health</div></div></div>
+        <div class="dash-ent-kpi dash-reveal"><div class="dash-ent-icon c-info" style="--kpi-c:var(--color-info)"><svg viewBox="0 0 24 24"><use href="#di-users"/></svg></div><div><div class="dash-ent-val" id="kpiMembers">-</div><div class="dash-ent-lbl">Org members</div></div></div>
+        <div class="dash-ent-kpi dash-reveal"><div class="dash-ent-icon" style="--kpi-c:#6b6b6b"><svg viewBox="0 0 24 24"><use href="#di-pr"/></svg></div><div><div class="dash-ent-val" id="kpiPRs">-</div><div class="dash-ent-lbl">Open pull requests</div></div></div>
+        <div class="dash-ent-kpi dash-reveal"><div class="dash-ent-icon" style="--kpi-c:var(--color-success)"><svg viewBox="0 0 24 24"><use href="#di-flag"/></svg></div><div><div class="dash-ent-val" id="kpiMilestones">-</div><div class="dash-ent-lbl">Open milestones</div></div></div>
+        <div class="dash-ent-kpi dash-reveal"><div class="dash-ent-icon" style="--kpi-c:var(--color-warning)"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 21s-7-4.35-9.5-8.8C1 8.5 2.8 5 6.2 5c1.9 0 3.4 1 4.8 2.7C12.4 6 13.9 5 15.8 5c3.4 0 5.2 3.5 3.7 7.2C19 16.65 12 21 12 21Z"/></svg></div><div><div class="dash-ent-val" id="kpiHealth">-</div><div class="dash-ent-lbl">Avg repo health</div></div></div>
       </div>
 
       <!-- Team -->
@@ -210,6 +219,10 @@
       <div class="dash-section" id="secProjects">
         <div class="dash-sec-hdr">
           <div class="dash-sec-title">Projects <span class="dash-count-badge" id="projCnt">0</span></div>
+          <button class="dash-btn-refresh" id="newProjectBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            New project
+          </button>
         </div>
         <div class="dash-proj-grid" id="projGrid">
           <div class="dash-empty"><svg viewBox="0 0 24 24"><use href="#di-folder"/></svg><h3>Loading projects…</h3></div>
@@ -349,6 +362,44 @@
   </div>
 </div>
 
+<!-- Create / edit project -->
+<div class="modal-overlay" id="projOverlay">
+  <div class="modal-card gh-card glass-panel glass-strong">
+    <button class="modal-close" id="projModalClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <div class="gh-modal-hdr">
+      <svg viewBox="0 0 24 24"><use href="#di-folder"/></svg>
+      <div>
+        <h2 id="projModalTitle">New project</h2>
+        <p>Connect this to your own work - it's saved to this browser and shows up on the dashboard and in reports.</p>
+      </div>
+    </div>
+    <form id="projForm" class="gh-form">
+      <input type="hidden" id="projId" />
+      <label class="form-label" for="projTitle">Project title</label>
+      <input class="form-input" id="projTitle" type="text" placeholder="e.g. Website Redesign" required />
+
+      <label class="form-label" for="projUrl">Link <span>(optional - your repo, board, or doc)</span></label>
+      <input class="form-input" id="projUrl" type="url" placeholder="https://github.com/you/repo" />
+
+      <div style="display:flex; gap:12px;">
+        <div style="flex:1;">
+          <label class="form-label" for="projOpen">Open items</label>
+          <input class="form-input" id="projOpen" type="number" min="0" value="0" />
+        </div>
+        <div style="flex:1;">
+          <label class="form-label" for="projClosed">Closed items</label>
+          <input class="form-input" id="projClosed" type="number" min="0" value="0" />
+        </div>
+      </div>
+
+      <div class="gh-form-actions" style="display:flex; gap:10px; margin-top:10px;">
+        <button type="button" class="glass-btn" id="projDeleteBtn" hidden>Delete</button>
+        <button type="submit" class="glass-btn glass-btn-solid" id="projSaveBtn">Save project</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- Shortcuts -->
 <div class="modal-overlay" id="shortcutsOverlay">
   <div class="modal-card shortcuts-card glass-panel glass-strong">
@@ -375,7 +426,7 @@
       <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="22" height="22"><path d="M12 2C6.48 2 2 6.58 2 12.2c0 4.49 2.87 8.3 6.84 9.64.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.89-2.78.62-3.37-1.21-3.37-1.21-.46-1.18-1.11-1.5-1.11-1.5-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.73 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 2.5-.35c.85 0 1.71.12 2.5.35 1.9-1.33 2.74-1.05 2.74-1.05.56 1.42.21 2.47.1 2.73.65.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.8-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.03 10.03 0 0 0 22 12.2C22 6.58 17.52 2 12 2Z"/></svg>
       <div>
         <h2>Connect GitHub</h2>
-        <p>Pull your real repos, stars, and activity into this dashboard — live.</p>
+        <p>Pull your real repos, stars, and activity into this dashboard - live.</p>
       </div>
     </div>
 
@@ -383,7 +434,7 @@
       <div class="gh-connected-row">
         <img id="ghConnectedAvatar" alt="" />
         <div>
-          <div class="gh-connected-name" id="ghConnectedName">—</div>
+          <div class="gh-connected-name" id="ghConnectedName">-</div>
           <div class="gh-connected-meta">Connected · live data</div>
         </div>
       </div>
@@ -397,7 +448,7 @@
       <label class="form-label" for="ghTokenInput">Personal access token <span>(optional)</span></label>
       <input class="form-input" id="ghTokenInput" type="password" placeholder="Leave blank for public data" autocomplete="off" />
       <p class="gh-form-hint">
-        Only used to call the GitHub API directly from your browser and stored in this browser's <code>localStorage</code> — never sent anywhere else. Public accounts work with no token (60 requests/hour). Add a fine‑grained token (Contents: Read‑only) for a higher limit or your full contribution calendar.
+        Only used to call the GitHub API directly from your browser and stored in this browser's <code>localStorage</code> - never sent anywhere else. Public accounts work with no token (60 requests/hour). Add a fine‑grained token (Contents: Read‑only) for a higher limit or your full contribution calendar.
       </p>
 
       <button type="submit" class="glass-btn glass-btn-solid gh-form-submit">Connect &amp; sync</button>

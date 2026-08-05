@@ -1,32 +1,32 @@
 # Changelog
 
-## Visual polish — 2026-08-04
+## Visual polish - 2026-08-04
 
 Three additions, all built from scratch (no chart/image libraries beyond the
 Chart.js already in use), continuing the no-stock-assets approach used
 throughout this project.
 
-- **Contribution heatmap** — a 52-week, GitHub-style activity calendar on the
+- **Contribution heatmap** - a 52-week, GitHub-style activity calendar on the
   dashboard's Analytics section, recolored to the site's monochrome palette.
   Hover any day for an exact count and date. Deterministic data generated in
   `js/dashboard-data.js` (`buildContributionCalendar`), rendered in
   `js/dashboard.js` (`renderHeatmap`) with a staggered fade-in.
-- **Language distribution bar** — an aggregate, color-coded breakdown of
+- **Language distribution bar** - an aggregate, color-coded breakdown of
   languages across all repos, below the heatmap.
-- **Dashboard showcase on the landing page** — a new section (`#dashboard-showcase`
+- **Dashboard showcase on the landing page** - a new section (`#dashboard-showcase`
   in `index.html`) framing a real screenshot of the live dashboard in a
   browser-chrome mockup (traffic-light dots, fake URL bar). The screenshot
   (`assets/dashboard-preview.png`) was captured directly from the working
-  page with Playwright at 2x resolution, not mocked up — regenerate it after
+  page with Playwright at 2x resolution, not mocked up - regenerate it after
   any future dashboard changes so it stays accurate.
 
 Verified with the same Playwright regression suite as prior rounds, plus a
 manual trace-down of two apparent rendering issues that turned out to be test
 artifacts (the cursor-spotlight effect needs real mouse movement to position
 itself; a scroll-reveal transition was caught mid-animation by too short a
-wait) — not bugs in the site itself.
+wait) - not bugs in the site itself.
 
-## Dashboard merge — 2026-08-03
+## Dashboard merge - 2026-08-03
 
 Merged a second project ("DashView," a GitHub-organization dashboard) into
 this one, as a new `dashboard.html` page. Full details below.
@@ -54,7 +54,7 @@ what the homepage's GitHub panel already referenced.
 
 ### Bug caught in the source project
 DashView's `dashboard.html` loaded Chart.js from
-`.../chart.js@4.4.2/dist/chart.umd.min.js` — **that minified file doesn't
+`.../chart.js@4.4.2/dist/chart.umd.min.js` - **that minified file doesn't
 exist in that package version** (only the unminified `chart.umd.js` is
 published), so the original would have 404'd and silently shown no charts at
 all. Fixed to the correct filename, with a real SRI hash computed from the
@@ -66,7 +66,7 @@ The original project required a Node/Express server with a real GitHub token
 to show anything. This project is intentionally static (no build step, no
 server), so `js/dashboard-data.js` generates a realistic, deterministic
 dataset in the *exact same shape* a real API would return. `js/dashboard.js`
-consumes that shape the same way it would consume a real `fetch()` response —
+consumes that shape the same way it would consume a real `fetch()` response -
 see the comment at the top of `dashboard-data.js` for the two-line swap to
 point it at a real backend later.
 
@@ -80,15 +80,15 @@ Full Playwright pass covering both pages: KPI/chart/log/repo rendering,
 activity-log filtering, repo search/sort/view-toggle, command palette open/
 search/select/close, keyboard shortcuts (`⌘K`, `R`, `E`, `?`, `G`+letter),
 sidebar collapse, CSV download, and cross-page navigation in both directions
-— plus a full regression pass confirming every fix from the previous audit
+- plus a full regression pass confirming every fix from the previous audit
 (the early-access modal, branch-item keyboard access, etc.) still holds.
 
-## Production audit — 2026-08-02
+## Production audit - 2026-08-02
 
 A full pass over the project: every file read, the live UI exercised end-to-end
 in a real headless browser (not just static code review), and every finding
 below fixed in place. Nothing about the design, copy, or product behavior was
-changed — only correctness, accessibility, security, and deploy-readiness.
+changed - only correctness, accessibility, security, and deploy-readiness.
 
 ### 🐛 Fixed
 - **Early-access modal never showed a clean success state.** `#waitlistFormBody`
@@ -101,25 +101,25 @@ changed — only correctness, accessibility, security, and deploy-readiness.
   Branches in the GitHub panel were `<div>`s with a click handler and no way
   to reach them from the keyboard (`tabIndex` was `-1`). Converted to real
   `<button>` elements, matching the pattern already used for file rows and
-  commit hashes elsewhere in the same panel. No JS logic changed — click
+  commit hashes elsewhere in the same panel. No JS logic changed - click
   behavior is identical, Tab/Enter/Space now work too. (`index.html`, `css/workspace.css`)
 - **Copying a commit hash failed silently.** If `navigator.clipboard` was
   unavailable (e.g. non-HTTPS context), the commit-hash copy button did
   nothing with no feedback, unlike the code-copy button which shows an error
   toast. Both now behave the same way. (`js/main.js`)
 - **Duplicate/conflicting CSS declaration** on `.github-action-btn.running .github-action-icon`
-  — two rules set different colors for the same selector; it happened to
+  - two rules set different colors for the same selector; it happened to
   render correctly by cascade order but was confusing and fragile. Consolidated
   into one unambiguous rule per state. (`css/workspace.css`)
 
 ### 🔒 Security
 - **Added Subresource Integrity (SRI) hashes** to the three CDN-loaded export
   libraries (`docx`, `pptxgenjs`, `xlsx` from jsDelivr) in the AI Studio's
-  Report Studio. Previously these were loaded with no integrity check at all —
+  Report Studio. Previously these were loaded with no integrity check at all -
   if the CDN were ever compromised or MITM'd, arbitrary code would execute
   with full page privileges. Hashes were computed from the exact bytes of the
   pinned npm package versions already used (jsDelivr serves npm packages
-  unmodified), so nothing about which library version loads has changed —
+  unmodified), so nothing about which library version loads has changed -
   the browser now just verifies it before running it. (`js/studio.js`)
 
 ### ♿ Accessibility
@@ -152,7 +152,7 @@ changed — only correctness, accessibility, security, and deploy-readiness.
   widths; now steps down to 4 columns at ≤768px and 3 at ≤480px.
 
 ### 🚀 Deployment
-- Restored `.github/workflows/deploy.yml` — the README documented this
+- Restored `.github/workflows/deploy.yml` - the README documented this
   GitHub Actions auto-deploy workflow, but the file was missing from the
   project entirely, so Pages deploys would never have worked out of the box.
 - Added a branded `404.html` for GitHub Pages (previously the default,
@@ -162,7 +162,7 @@ changed — only correctness, accessibility, security, and deploy-readiness.
 - **Hero background video** points to a CloudFront URL
   (`d8j0ntlcm91z4.cloudfront.net/user_.../hf_...mp4`) that looks like a
   temporary asset from another generation platform rather than infrastructure
-  you own. It works today, but nothing guarantees it stays online — replace
+  you own. It works today, but nothing guarantees it stays online - replace
   it with a video hosted on your own domain/CDN before a real launch. The
   gradient fallback (both the CSS layering and the `onerror` handler) already
   works correctly either way, so nothing breaks visually if it does go down.

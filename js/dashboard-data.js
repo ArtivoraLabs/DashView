@@ -1,5 +1,5 @@
 /**
- * NeuralKinetics Dashboard — demo data layer
+ * NeuralKinetics Dashboard - demo data layer
  * ---------------------------------------------------------------
  * This site is intentionally static (see README) so there is no
  * live backend here by default. This module generates a realistic,
@@ -11,12 +11,12 @@
  * To wire up a real backend later:
  *   1. Stand up an API that returns this same JSON shape at, say,
  *      GET /api/dashboard (a Node/Express server querying GitHub's
- *      GraphQL API is one option — see CHANGELOG.md).
+ *      GraphQL API is one option - see CHANGELOG.md).
  *   2. In js/dashboard.js, replace the call to
  *      `window.NK_DASHBOARD_DATA.generate()` with a `fetch(API_URL)`
  *      that resolves to the same shape. Everything downstream
  *      (renderKPIs, renderActivity, the command palette index, …)
- *      already consumes this shape as data — no rendering code
+ *      already consumes this shape as data - no rendering code
  *      needs to change.
  * ---------------------------------------------------------------
  */
@@ -50,7 +50,7 @@
   ];
 
   const REPO_DEFS = [
-    { name: 'platform-v2', desc: 'Core NeuralKinetics platform — API, orchestration, model routing.', lang: 0 },
+    { name: 'platform-v2', desc: 'Core NeuralKinetics platform - API, orchestration, model routing.', lang: 0 },
     { name: 'ai-studio', desc: 'Image generation, code analysis and report export tools.', lang: 0 },
     { name: 'auth-service', desc: 'Authentication, sessions and org/team permissions.', lang: 1 },
     { name: 'design-system', desc: 'Shared glass component library and design tokens.', lang: 0 },

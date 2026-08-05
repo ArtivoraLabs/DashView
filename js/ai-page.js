@@ -1,5 +1,5 @@
 /**
- * NeuralKinetics — AI Assistant page
+ * NeuralKinetics - AI Assistant page
  * ---------------------------------------------------------------
  * A standalone, Claude-style chat page. Unlike the old floating
  * widget this replaces, every reply here comes from the real
@@ -190,13 +190,48 @@
     else { badge.textContent = 'API key not set'; badge.setAttribute('data-state', 'unset'); }
   }
 
+  // ── Workspace context ──────────────────────────────────────────
+  // If the person has connected GitHub (or added their own projects)
+  // on the Dashboard, pull that in as light context so the assistant
+  // can talk about "my repo" / "my project" instead of only ever
+  // answering generically. Everything here is read straight out of
+  // this browser's localStorage - the same store the dashboard uses -
+  // nothing is fetched or sent anywhere except to Claude, as part of
+  // the system prompt, exactly like anything else you'd type in.
+  function buildWorkspaceContext() {
+    const parts = [];
+    try {
+      const gh = JSON.parse(localStorage.getItem('nk_github_connection') || 'null');
+      if (gh && gh.login) parts.push(`The user has connected the GitHub account/org "${gh.login}" to their dashboard.`);
+    } catch (e) {}
+    try {
+      const own = JSON.parse(localStorage.getItem('nk_own_projects') || '[]');
+      if (own.length) {
+        const list = own.slice(0, 8).map((p) => `- "${p.title}" (#${p.number}, ${p.stats.open} open / ${p.stats.closed} closed, ${p.stats.pct}% complete${p.url && p.url !== '#' ? ', ' + p.url : ''})`).join('\n');
+        parts.push(`The user's own tracked projects on their dashboard:\n${list}`);
+      }
+    } catch (e) {}
+    if (!parts.length) return '';
+    return 'Workspace context (from the NeuralKinetics dashboard, for background only - only mention it if relevant to what the user asks):\n' + parts.join('\n\n');
+  }
+  function updateWorkspaceBadge() {
+    const badge = $('aiWorkspaceBadge');
+    if (!badge) return;
+    const connected = !!buildWorkspaceContext();
+    badge.textContent = connected ? 'Workspace connected' : 'Workspace not connected';
+    badge.setAttribute('data-state', connected ? 'set' : 'unset');
+    badge.title = connected ? 'Using your dashboard projects/GitHub connection as context' : 'Connect GitHub or add projects on the Dashboard so the assistant knows about your work';
+  }
+
   async function callClaude(messages, settings) {
     const body = {
       model: activeModel(settings),
       max_tokens: 2048,
       messages: messages.map((m) => ({ role: m.role, content: m.content })),
     };
-    if (settings.systemPrompt) body.system = settings.systemPrompt;
+    const ctx = buildWorkspaceContext();
+    const sys = [settings.systemPrompt, ctx].filter(Boolean).join('\n\n');
+    if (sys) body.system = sys;
 
     const res = await fetch(API_URL, {
       method: 'POST',
@@ -251,7 +286,7 @@
       convo.messages.push({ role: 'assistant', content: 'Something went wrong talking to the Claude API: ' + e.message, error: true });
       saveConvos(convos);
       renderThread();
-      showToast('Request failed — check your API key and model in Settings');
+      showToast('Request failed - check your API key and model in Settings');
     } finally {
       sending = false;
       updateSendState();
@@ -309,7 +344,7 @@
       s.customModel = $('aiCustomModelInput').value.trim();
       s.systemPrompt = $('aiSystemPromptInput').value.trim();
       setSettings(s);
-      updateKeyBadge();
+      updateKeyBadge(); updateWorkspaceBadge();
       $('aiSettingsStatus').textContent = 'Saved.';
       setTimeout(() => { $('aiSettingsStatus').textContent = ''; closeSettings(); }, 500);
     });
@@ -374,7 +409,7 @@
     const run = () => {
       renderConvoList();
       renderThread();
-      updateKeyBadge();
+      updateKeyBadge(); updateWorkspaceBadge();
       initSidebar();
       initSettings();
       initComposer();

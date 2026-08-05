@@ -1,5 +1,5 @@
 /* ============================================================
-   NeuralKinetics — Navbar Styles
+   NeuralKinetics - Navbar Styles
    ============================================================ */
 
 .navbar {
@@ -207,6 +207,20 @@
   background: rgba(15, 23, 42, 0.07);
   border-color: rgba(15, 23, 42, 0.14);
 }
+
+a.navbar-right-pill { text-decoration: none; color: inherit; }
+
+/* Dashboard - secondary, quiet CTA */
+.navbar-link-dashboard { }
+
+/* AI Assistant - the site's flagship feature, so it gets a filled,
+   higher-contrast pill instead of blending in with the rest. */
+.navbar-link-ai {
+  background: #17181c;
+  border-color: #17181c;
+}
+.navbar-link-ai .navbar-right-label { color: #fff; }
+.navbar-link-ai:hover { background: #2c2d33; border-color: #2c2d33; }
 
 .navbar-right-label {
   font-size: var(--text-xs);

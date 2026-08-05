@@ -1,16 +1,16 @@
 /* ============================================================
-   NeuralKinetics — Global Styles
+   NeuralKinetics - Global Styles
    Base CSS variables, resets, and typography
    ============================================================ */
 
 /* Inter + JetBrains Mono are loaded via preconnected <link> tags in
-   index.html <head> rather than @import — @import blocks CSS parsing
+   index.html <head> rather than @import - @import blocks CSS parsing
    until the remote stylesheet round-trips, which delays first paint.
    A <link rel="stylesheet"> is discovered by the browser's preload
    scanner immediately, in parallel with everything else. */
 
 :root {
-  /* Colors — light theme. Ink-on-white instead of white-on-black;
+  /* Colors - light theme. Ink-on-white instead of white-on-black;
      every surface/text/border token below is still driven from one
      place, so downstream files that reference var(--color-*) just
      work. */
@@ -29,7 +29,7 @@
   --color-accent-glow: rgba(25, 25, 25, 0.05);
   --color-panel-muted: #F4F3F3;
 
-  /* Semantic colors — defined once, referenced everywhere via var().
+  /* Semantic colors - defined once, referenced everywhere via var().
      An -rgb companion is provided for every semantic/brand color so
      translucent fills and glows (rgba(var(--x-rgb), 0.12)) stay in
      lockstep with the solid color instead of drifting out of sync. */
@@ -46,7 +46,7 @@
   --color-cyan: #0891b2;
   --color-cyan-rgb: 8, 145, 178;
 
-  /* Brand — ink monochrome. One neutral tone standing in for what
+  /* Brand - ink monochrome. One neutral tone standing in for what
      used to be an indigo→violet→cyan sweep: same variable names so
      every downstream file that references var(--brand-*) still
      works, just rendered as ink-on-white instead of a color gradient. */
@@ -61,7 +61,7 @@
   --gradient-brand-text: var(--color-text-primary);
   --shadow-brand: 0 8px 30px rgba(var(--brand-1-rgb), 0.16);
 
-  /* Glass — frosted panels on a light backdrop: a faint dark tint
+  /* Glass - frosted panels on a light backdrop: a faint dark tint
      for the fill, a bright inset rim to keep the "catching light"
      glass highlight legible on white. */
   --glass-bg: rgba(15, 23, 42, 0.035);

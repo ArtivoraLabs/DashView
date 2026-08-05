@@ -1,5 +1,5 @@
 /* ============================================================
-   NeuralKinetics — Hero & AI Input Styles
+   NeuralKinetics - Hero & AI Input Styles
    ============================================================ */
 
 .hero {
@@ -13,7 +13,7 @@
   overflow: hidden;
 }
 
-/* ── Video Background — boomerang capture/playback ───────────
+/* ── Video Background - boomerang capture/playback ───────────
    .hero-video-wrapper is the full-bleed absolute layer; the video
    and canvas both live inside .hero-video-scale, which is the
    piece that gets the slight oversize + top anchor so the ping-

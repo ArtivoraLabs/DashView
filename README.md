@@ -1,7 +1,7 @@
-# NeuralKinetics — AI Platform Landing Page
+# NeuralKinetics - AI Platform Landing Page
 
 A fully static, dependency-free landing page for an AI platform, built with
-plain **HTML, CSS, and JavaScript** — no build step, no framework, no
+plain **HTML, CSS, and JavaScript** - no build step, no framework, no
 `node_modules`. Features an Apple-inspired "liquid glass" design system with
 scroll-driven animations, a working AI command-bar demo, a simulated
 developer workspace, and a functional GitHub integration panel.
@@ -12,33 +12,33 @@ developer workspace, and a functional GitHub integration panel.
 
 ## ✨ Features
 
-- **Liquid glass UI system** — blurred glass panels, pointer-tracked highlight, glass buttons/pills/inputs
-- **Animated hero** — video/gradient background, staggered entrance animation, rotating placeholder prompts
-- **Working AI command bar** — type or click a suggestion chip and get a simulated, keyword-matched reply with a "thinking" animation
-- **Live capability search** — filter the 12 capability cards in real time
+- **Liquid glass UI system** - blurred glass panels, pointer-tracked highlight, glass buttons/pills/inputs
+- **Animated hero** - video/gradient background, staggered entrance animation, rotating placeholder prompts
+- **Working AI command bar** - type or click a suggestion chip and get a simulated, keyword-matched reply with a "thinking" animation
+- **Live capability search** - filter the 12 capability cards in real time
 - **Animated stat counters** that count up when scrolled into view
-- **Autonomous workflow demo** — self-advancing step tracker
-- **Developer workspace simulation** — clickable file explorer that swaps syntax-highlighted code, a self-typing terminal, git change list, and AI task timeline
-- **GitHub panel** — editable repo name, 9 working action buttons that write to a live activity log, selectable branches, copyable commit hashes
-- **Early-access modal** — validated email form with a success state
+- **Autonomous workflow demo** - self-advancing step tracker
+- **Developer workspace simulation** - clickable file explorer that swaps syntax-highlighted code, a self-typing terminal, git change list, and AI task timeline
+- **GitHub panel** - editable repo name, 9 working action buttons that write to a live activity log, selectable branches, copyable commit hashes
+- **Early-access modal** - validated email form with a success state
 - **Newsletter signup** in the footer
 - **Scrollspy navigation**, scroll progress bar, back-to-top button
 - Fully responsive (mobile / tablet / desktop) and respects `prefers-reduced-motion`
-- **AI Studio** — three genuinely functional, client-side tools (no backend, no API key):
-  - **Image Generator** — type a prompt, pick a style and palette, and get a unique
+- **AI Studio** - three genuinely functional, client-side tools (no backend, no API key):
+  - **Image Generator** - type a prompt, pick a style and palette, and get a unique
     procedurally-generated SVG image (seeded off your prompt text so results are
     reproducible). Download as real `.svg` or rasterized `.png`.
-  - **Code Debugger** — real static analysis in the browser: genuine JavaScript
+  - **Code Debugger** - real static analysis in the browser: genuine JavaScript
     syntax checking (`new Function`), JSON validation (`JSON.parse`), HTML tag-balance
     checking (`DOMParser`), and structural heuristics for Python (indentation,
     bracket balance, missing colons). Produces a code health score and a findings list.
-  - **Report Studio** — fill in a title, summary, bullet points, and a CSV data table,
+  - **Report Studio** - fill in a title, summary, bullet points, and a CSV data table,
     then export a real downloadable **Word report (.docx)**, **PowerPoint deck (.pptx)**
-    with an auto-generated chart slide, or **Excel workbook (.xlsx)** — built client-side
+    with an auto-generated chart slide, or **Excel workbook (.xlsx)** - built client-side
     with `docx`, `pptxgenjs`, and `SheetJS` (loaded from CDN on first use).
-- **Dashboard** (`dashboard.html`) — a full workspace intelligence view, linked from the
+- **Dashboard** (`dashboard.html`) - a full workspace intelligence view, linked from the
   main nav and the GitHub section:
-  - Collapsible sidebar, command palette (`⌘K` — fuzzy search across repos, projects,
+  - Collapsible sidebar, command palette (`⌘K` - fuzzy search across repos, projects,
     members and actions), and a keyboard-shortcut layer (`R` refresh, `E` export, `?`
     help, `G` then a letter to jump to a section)
   - KPI rows, per-project sparklines, team workload, and milestone countdowns
@@ -85,7 +85,7 @@ developer workspace, and a functional GitHub integration panel.
 
 ## ✅ Before you launch
 
-This project has been through a production-readiness pass — see
+This project has been through a production-readiness pass - see
 [`CHANGELOG.md`](CHANGELOG.md) for the full list of what was audited and
 fixed. Two things need your input before a real deploy:
 
@@ -94,7 +94,7 @@ fixed. Two things need your input before a real deploy:
    `robots.txt`. Search-and-replace it with your real domain once you know it.
 2. **Replace the hero background video.** The current `<source>` URL in
    `.hero-video-wrapper` points to a CloudFront link from another generation
-   platform — convenient for a demo, but not something you own or control
+   platform - convenient for a demo, but not something you own or control
    long-term. Swap in a video hosted on your own domain/CDN before launch (the
    gradient fallback already handles it gracefully either way if the request
    ever fails).
@@ -106,15 +106,15 @@ it live:
 
 1. Open `js/github-config.js`.
 2. Set `repo: 'owner/repo'` to a real repository.
-3. Leave `token: ''` blank if the repo is public — that's enough for stars,
+3. Leave `token: ''` blank if the repo is public - that's enough for stars,
    language, branches, and recent commits (60 requests/hour).
-4. Only add a token for the higher rate limit or a private repo — **read
+4. Only add a token for the higher rate limit or a private repo - **read
    the warning comment at the top of that file first.** This is a static
    site with no backend, so anything in that file is visible to anyone who
    views the page source.
 
 If the repo field is empty, or the request fails for any reason (rate
-limit, network, typo), the panel just keeps showing the demo data — nothing
+limit, network, typo), the panel just keeps showing the demo data - nothing
 breaks.
 
 ## 🚀 Run it locally
@@ -122,13 +122,13 @@ breaks.
 No build step required. Any static file server works:
 
 ```bash
-# Option 1 — Python
+# Option 1 - Python
 python3 -m http.server 8080
 
-# Option 2 — Node
+# Option 2 - Node
 npx serve .
 
-# Option 3 — VS Code
+# Option 3 - VS Code
 # Right-click index.html → "Open with Live Server"
 ```
 
@@ -145,19 +145,19 @@ Then open `http://localhost:8080`.
    ```bash
    git init
    git add .
-   git commit -m "Initial commit — NeuralKinetics landing page"
+   git commit -m "Initial commit - NeuralKinetics landing page"
    git branch -M main
    git remote add origin https://github.com/<your-username>/<your-repo>.git
    git push -u origin main
    ```
 2. In your repository on GitHub, go to **Settings → Pages**.
 3. Under **Build and deployment → Source**, select **GitHub Actions**.
-4. Push to `main` (or re-run the workflow from the **Actions** tab) — the
+4. Push to `main` (or re-run the workflow from the **Actions** tab) - the
    included workflow at `.github/workflows/static.yml` will build and deploy
    automatically.
 5. Your site will be live at `https://<your-username>.github.io/<your-repo>/`.
 
-Every subsequent push to `main` redeploys automatically — no extra
+Every subsequent push to `main` redeploys automatically - no extra
 configuration needed.
 
 ### Using a custom domain
@@ -168,18 +168,18 @@ Pages per [GitHub's custom domain docs](https://docs.github.com/en/pages/configu
 
 ## 🎨 Customizing
 
-- **Colors / spacing / radii** — edit the CSS variables at the top of `css/globals.css`
-- **Copy & content** — edit directly in `index.html`
-- **AI demo replies** — edit `RESPONSE_LIBRARY` in `js/main.js`
-- **Hero background video** — swap the `<source>` URL inside `.hero-video-wrapper` in `index.html`
+- **Colors / spacing / radii** - edit the CSS variables at the top of `css/globals.css`
+- **Copy & content** - edit directly in `index.html`
+- **AI demo replies** - edit `RESPONSE_LIBRARY` in `js/main.js`
+- **Hero background video** - swap the `<source>` URL inside `.hero-video-wrapper` in `index.html`
 
 ## 🧩 Browser support
 
 Modern evergreen browsers (Chrome, Edge, Firefox, Safari). Uses
 `backdrop-filter` for the glass effect, `IntersectionObserver` for scroll
-reveals, and the Clipboard API for copy buttons — all with graceful
+reveals, and the Clipboard API for copy buttons - all with graceful
 degradation where unsupported.
 
 ## 📄 License
 
-MIT — see [LICENSE](LICENSE).
+MIT - see [LICENSE](LICENSE).

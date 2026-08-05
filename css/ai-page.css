@@ -1,5 +1,5 @@
 /* ============================================================
-   NeuralKinetics — AI Assistant page (Claude-style chat UI)
+   NeuralKinetics - AI Assistant page (Claude-style chat UI)
    ============================================================ */
 .ai-body { background: var(--color-bg-deep); overflow: hidden; height: 100vh; }
 .icon-defs { display: none; }

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>AI Assistant — NeuralKinetics</title>
+<title>AI Assistant - NeuralKinetics</title>
 <meta name="description" content="Chat with the NeuralKinetics AI Assistant, powered by the real Claude API." />
 <meta name="robots" content="noindex" />
 
@@ -42,7 +42,7 @@
   <!-- ── Sidebar: conversations ─────────────────────────────── -->
   <aside class="ai-sidebar" id="aiSidebar">
     <div class="ai-sb-head">
-      <a class="ai-logo" href="index.html" aria-label="NeuralKinetics — go to home page">
+      <a class="ai-logo" href="index.html" aria-label="NeuralKinetics - go to home page">
         <span class="mark">
           <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <circle cx="16" cy="16" r="12" stroke="rgba(0,0,0,0.5)" stroke-width="1.4"/>
@@ -82,6 +82,7 @@
       </div>
       <div class="ai-topbar-r">
         <span class="ai-key-badge" id="aiKeyBadge" data-state="unset">API key not set</span>
+        <a class="ai-key-badge" id="aiWorkspaceBadge" data-state="unset" href="dashboard.html" style="text-decoration:none;">Workspace not connected</a>
         <button class="ai-icon-btn" id="aiClearChat" aria-label="Clear this chat"><svg viewBox="0 0 24 24"><use href="#ai-i-trash"/></svg></button>
       </div>
     </header>
@@ -96,7 +97,7 @@
             </svg>
           </div>
           <h1>How can I help you today?</h1>
-          <p>This runs on the real Claude API — add your key in Settings to get started.</p>
+          <p>This runs on the real Claude API - add your key in Settings to get started.</p>
           <div class="ai-suggest-row">
             <button type="button" class="ai-suggest-chip" data-prompt="Summarize what needs my attention in this workspace right now">Summarize my workspace</button>
             <button type="button" class="ai-suggest-chip" data-prompt="Write a React component for a searchable data table">Write some code</button>
@@ -137,7 +138,7 @@
       <textarea class="form-input ai-settings-textarea" id="aiSystemPromptInput" placeholder="e.g. You are a helpful assistant for the NeuralKinetics team."></textarea>
 
       <p class="gh-form-hint">
-        Get a key at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>. Stored only in this browser's <code>localStorage</code>. Because this is a static site, the key is visible in your browser's network requests — don't paste a key with billing you're not comfortable exposing on a device you don't control.
+        Get a key at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>. Stored only in this browser's <code>localStorage</code>. Because this is a static site, the key is visible in your browser's network requests - don't paste a key with billing you're not comfortable exposing on a device you don't control.
       </p>
 
       <button type="submit" class="glass-btn glass-btn-solid gh-form-submit">Save settings</button>

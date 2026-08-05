@@ -1,15 +1,15 @@
 /**
- * NeuralKinetics Dashboard — live GitHub connection
+ * NeuralKinetics Dashboard - live GitHub connection
  * ---------------------------------------------------------------
  * Lets a visitor connect their own GitHub account (or org) from
- * the dashboard UI itself — no file editing required. Once
+ * the dashboard UI itself - no file editing required. Once
  * connected, this module replaces the generated demo dataset in
  * js/dashboard-data.js with real data pulled from the public
  * GitHub REST (and optionally GraphQL) API, reshaped into the
  * exact same JSON shape the renderers in js/dashboard.js expect.
  *
  * Everything runs client-side, straight from the browser to
- * api.github.com — this is still a static site with no server.
+ * api.github.com - this is still a static site with no server.
  * The username/token you connect with are only ever stored in
  * this browser's localStorage; nothing is sent anywhere except
  * GitHub's own API.
@@ -49,7 +49,7 @@
     if (!res.ok) {
       if (res.status === 403) {
         const remaining = res.headers.get('x-ratelimit-remaining');
-        if (remaining === '0') throw new Error('GitHub API rate limit reached — add a personal access token in Connect GitHub for a higher limit.');
+        if (remaining === '0') throw new Error('GitHub API rate limit reached - add a personal access token in Connect GitHub for a higher limit.');
       }
       if (res.status === 404) throw new Error('GitHub account "' + path.split('/').filter(Boolean)[1] + '" not found.');
       throw new Error('GitHub API error (' + res.status + ') while fetching ' + path);
@@ -156,7 +156,7 @@
     } else {
       members = [{
         login: account.login, name: account.name || account.login, role: account.bio ? account.bio.slice(0, 40) : 'GitHub user',
-        company: account.company || '—', url: account.html_url, workload: { open: 0, total: 0, pct: 100 },
+        company: account.company || '-', url: account.html_url, workload: { open: 0, total: 0, pct: 100 },
       }];
     }
 
@@ -210,7 +210,7 @@
       .map(([name, count]) => ({ name, pct: Math.round((count / langSum) * 1000) / 10, color: LANG_PALETTE[name] || '#8a8a8a' }))
       .sort((a, b) => b.pct - a.pct);
 
-    // Contribution calendar — only available with a token (GraphQL).
+    // Contribution calendar - only available with a token (GraphQL).
     const contributions = token ? await fetchContributionCalendar(login, token) : emptyCalendar();
 
     const totalStars = repositories.reduce((s, r) => s + r.stargazerCount, 0);

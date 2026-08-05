@@ -1,13 +1,13 @@
 /**
- * NeuralKinetics — AI access gate (demo auth)
+ * NeuralKinetics - AI access gate (demo auth)
  * ---------------------------------------------------------------
  * This is a static site with no backend, so there's no real account
- * system here — no password is stored or checked anywhere. What
+ * system here - no password is stored or checked anywhere. What
  * this DOES do is exactly what the sign-in modal implies for users:
  * gate the AI Assistant page behind a
  * sign-in / create-account step before they can be used, with a
  * "Continue as guest" escape hatch. The "session" is just a flag in
- * sessionStorage — it's a UX gate, not authentication.
+ * sessionStorage - it's a UX gate, not authentication.
  *
  * To wire this to a REAL auth backend later: replace the body of
  * `submitForm()` below with an actual fetch() to your auth API, and
@@ -31,7 +31,7 @@
   }
 
   function markSignedIn(label) {
-    try { sessionStorage.setItem(SESSION_KEY, label || 'guest'); } catch (e) { /* storage unavailable — still proceed for this call */ }
+    try { sessionStorage.setItem(SESSION_KEY, label || 'guest'); } catch (e) { /* storage unavailable - still proceed for this call */ }
   }
 
   function buildDom() {
@@ -75,7 +75,7 @@
       '    <button type="submit" class="glass-btn glass-btn-solid form-submit" id="authSubmit">Sign in</button>' +
       '  </form>' +
       '  <button type="button" class="auth-guest-link" id="authGuestBtn">Continue as guest instead</button>' +
-      '  <p class="auth-demo-note">Demo only — this is a static site, so no account data leaves your browser.</p>' +
+      '  <p class="auth-demo-note">Demo only - this is a static site, so no account data leaves your browser.</p>' +
       '</div>';
 
     document.body.appendChild(overlay);
@@ -137,7 +137,7 @@
       }
       if (!ok) return;
 
-      // Demo only — no real request. Replace with a call to your auth
+      // Demo only - no real request. Replace with a call to your auth
       // API here, and only proceed on a successful response.
       markSignedIn(emailInput.value.trim());
       closeModal();
@@ -177,7 +177,7 @@
   }
 
   /**
-   * requireAccess(callback) — runs `callback` immediately if the demo
+   * requireAccess(callback) - runs `callback` immediately if the demo
    * session is already active; otherwise opens the sign-in modal and
    * runs `callback` once the person signs in, creates an account, or
    * chooses to continue as a guest.

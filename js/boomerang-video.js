@@ -1,9 +1,9 @@
 /* ============================================================
-   NeuralKinetics — Boomerang hero video background
+   NeuralKinetics - Boomerang hero video background
    Plays the source clip once, capturing every frame to small
    offscreen canvases as it goes. Once the clip ends, switches to
    a display canvas that ping-pongs those frames forward→reverse
-   forever at 30fps — a soft looping "boomerang" background with
+   forever at 30fps - a soft looping "boomerang" background with
    no visible seam, unlike a native video loop.
    ============================================================ */
 
@@ -105,7 +105,7 @@
     function () {
       startCapture();
       video.play().catch(function () {
-        /* Autoplay can be blocked before user interaction — the
+        /* Autoplay can be blocked before user interaction - the
            poster frame / fallback background still reads fine. */
       });
     },

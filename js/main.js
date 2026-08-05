@@ -1,5 +1,5 @@
 /* ============================================================
-   NeuralKinetics — Application Logic (Vanilla JS)
+   NeuralKinetics - Application Logic (Vanilla JS)
    ============================================================ */
 'use strict';
 
@@ -62,7 +62,7 @@ function initCursorSpotlight() {
 }
 
 /* ------------------------------------------------------------
-   Glass panel liquid highlight — track pointer per-panel
+   Glass panel liquid highlight - track pointer per-panel
 ------------------------------------------------------------ */
 function initGlassTracking() {
   if (prefersReducedMotion) return;
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ------------------------------------------------------------
-   Hero AI Command Bar — rotating placeholders, submits into
+   Hero AI Command Bar - rotating placeholders, submits into
    the global NeuralKinetics AI Assistant (js/ai-assistant.js)
 ------------------------------------------------------------ */
 const PROMPTS = [
@@ -327,7 +327,7 @@ function initStatCounters() {
 }
 
 /* ------------------------------------------------------------
-   Autonomous workflow demo — steps auto-advance in a loop
+   Autonomous workflow demo - steps auto-advance in a loop
 ------------------------------------------------------------ */
 function initWorkflowDemo() {
   const steps = qsa('.workflow-step');
@@ -360,7 +360,7 @@ function initWorkflowDemo() {
 }
 
 /* ------------------------------------------------------------
-   Developer workspace — file explorer swaps code editor content,
+   Developer workspace - file explorer swaps code editor content,
    terminal types out lines, code can be copied
 ------------------------------------------------------------ */
 const CODE_SAMPLES = {
@@ -493,7 +493,7 @@ function initWorkspacePanels() {
       await navigator.clipboard.writeText(text || '');
       showToast('Code copied to clipboard');
     } catch (err) {
-      showToast('Could not copy — select the code manually');
+      showToast('Could not copy - select the code manually');
     }
   });
 
@@ -505,7 +505,7 @@ function initWorkspacePanels() {
     { type: 'success', prompt: ' ', text: '✓ Auth component tests passed (12/12)' },
     { type: 'success', prompt: ' ', text: '✓ useAuth hook tests passed (8/8)' },
     { type: 'cmd', prompt: '→', text: 'npm run build' },
-    { type: 'success', prompt: ' ', text: '✓ Build complete — 284KB gzip' },
+    { type: 'success', prompt: ' ', text: '✓ Build complete - 284KB gzip' },
   ];
   const terminalWrap = qs('#terminalWrap');
   if (terminalWrap) {
@@ -544,22 +544,22 @@ function initWorkspacePanels() {
 }
 
 /* ------------------------------------------------------------
-   GitHub integration panel — functional demo (UI-level only)
+   GitHub integration panel - functional demo (UI-level only)
 ------------------------------------------------------------ */
 const GITHUB_ACTIONS = [
   { label: 'Clone repository',      log: (repo) => "Cloning into '" + (repo.split('/')[1] || repo) + "'... done." },
-  { label: 'Pull latest changes',   log: () => 'Already up to date — origin/main at a3f9d1c.' },
+  { label: 'Pull latest changes',   log: () => 'Already up to date - origin/main at a3f9d1c.' },
   { label: 'Analyze branches',      log: () => '3 branches found: main, feature/auth-system, fix/dashboard-perf.' },
   { label: 'Create feature branch', log: () => "Created branch 'feature/new-work' from main." },
-  { label: 'Commit changes',        log: () => "Committed 4 files — 'feat: update component logic'." },
+  { label: 'Commit changes',        log: () => "Committed 4 files - 'feat: update component logic'." },
   { label: 'Push updates',          log: (repo) => 'Pushed to ' + repo + '/main (4 objects, 1.2 KiB).' },
-  { label: 'Create pull request',   log: () => 'Opened PR #142 — "Update component logic".' },
-  { label: 'Review code',           log: () => 'Review complete — no blocking issues, 2 suggestions.' },
-  { label: 'Resolve conflicts',     log: () => 'Auto-merged 2 files — 1 conflict resolved in package.json.' },
+  { label: 'Create pull request',   log: () => 'Opened PR #142 - "Update component logic".' },
+  { label: 'Review code',           log: () => 'Review complete - no blocking issues, 2 suggestions.' },
+  { label: 'Resolve conflicts',     log: () => 'Auto-merged 2 files - 1 conflict resolved in package.json.' },
 ];
 
 /* ------------------------------------------------------------
-   Real GitHub REST API fetch — used when js/github-config.js
+   Real GitHub REST API fetch - used when js/github-config.js
    has a `repo` set. Falls back silently to the static demo
    markup already in the page if there's no config, the repo
    is unreachable, or the API rate-limits the request.
@@ -609,7 +609,7 @@ function applyRealGitHubData(data) {
   if (repoNameEl) repoNameEl.firstChild.textContent = repo.full_name + ' ';
   if (repoMetaEl) {
     repoMetaEl.textContent = (repo.private ? 'private' : 'public') + ' · ' +
-      (repo.language || '—') + ' · ' + (repo.stargazers_count || 0).toLocaleString() + ' stars';
+      (repo.language || '-') + ' · ' + (repo.stargazers_count || 0).toLocaleString() + ' stars';
   }
 
   const branchWrap = qs('.github-branches');
@@ -643,7 +643,7 @@ function applyRealGitHubData(data) {
   }
 
   const statValues = qsa('.commit-stat-value');
-  if (statValues[0]) statValues[0].textContent = (repo.open_issues_count ?? '—').toString();
+  if (statValues[0]) statValues[0].textContent = (repo.open_issues_count ?? '-').toString();
   if (statValues[1] && repo.forks_count != null) statValues[1].textContent = repo.forks_count.toLocaleString();
   if (statValues[2] && repo.subscribers_count != null) statValues[2].textContent = repo.subscribers_count.toLocaleString();
 
@@ -666,7 +666,7 @@ function initGitHubPanel() {
 
   // If js/github-config.js points at a real repo, live data is
   // fetched in the background further down and swapped in once it
-  // arrives — the demo markup stays visible (and fully interactive)
+  // arrives - the demo markup stays visible (and fully interactive)
   // until then, and forever if no config was given or the request
   // fails.
 
@@ -735,7 +735,7 @@ function initGitHubPanel() {
   on(repoForm, 'submit', (e) => { e.preventDefault(); commitEdit(); });
   on(repoInput, 'blur', commitEdit);
 
-  // Branch selection highlight — re-run after live data replaces the
+  // Branch selection highlight - re-run after live data replaces the
   // branch list so newly-inserted buttons stay clickable too.
   function bindBranchItems() {
     const items = qsa('.branch-item');
@@ -749,14 +749,14 @@ function initGitHubPanel() {
     });
   }
 
-  // Commit hash copy — same idea, re-bindable after a live refresh.
+  // Commit hash copy - same idea, re-bindable after a live refresh.
   function bindCommitHashes() {
     qsa('.commit-hash').forEach((hashBtn) => {
       on(hashBtn, 'click', async () => {
         try {
           await navigator.clipboard.writeText(hashBtn.textContent.trim());
           showToast('Commit hash copied');
-        } catch (e) { showToast('Could not copy — select the text manually'); }
+        } catch (e) { showToast('Could not copy - select the text manually'); }
       });
     });
   }
@@ -775,7 +775,7 @@ function initGitHubPanel() {
 }
 
 /* ------------------------------------------------------------
-   "Request Early Access" waitlist modal — client-validated demo form
+   "Request Early Access" waitlist modal - client-validated demo form
 ------------------------------------------------------------ */
 function initWaitlistModal() {
   const overlay = qs('#waitlistModal');

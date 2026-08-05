@@ -1,5 +1,5 @@
 /**
- * NeuralKinetics Dashboard — js/dashboard.js
+ * NeuralKinetics Dashboard - js/dashboard.js
  * Renders and drives the workspace dashboard. Data comes from
  * js/dashboard-data.js (see that file for how to swap in a real API).
  */
@@ -84,6 +84,23 @@ function initSidebar() {
     const collapsed = sb.classList.toggle('collapsed');
     $('sbToggle').setAttribute('aria-expanded', String(!collapsed));
   });
+
+  // Mobile hamburger - opens the sidebar as a slide-in drawer instead
+  // of it just vanishing on small screens.
+  const mobileToggle = $('mobileNavToggle');
+  const closeMobileNav = () => {
+    sb.classList.remove('mobile-open');
+    mobileToggle && mobileToggle.setAttribute('aria-expanded', 'false');
+  };
+  on(mobileToggle, 'click', () => {
+    const open = sb.classList.toggle('mobile-open');
+    mobileToggle.setAttribute('aria-expanded', String(open));
+  });
+  // Close drawer after tapping a nav link/section, or when tapping the dimmed backdrop.
+  $$('.dash-nav-item').forEach((btn) => on(btn, 'click', closeMobileNav));
+  on(sb, 'click', (e) => { if (e.target === sb) closeMobileNav(); });
+  on(document, 'keydown', (e) => { if (e.key === 'Escape') closeMobileNav(); });
+
   $$('.dash-nav-item[data-goto]').forEach((btn) => {
     on(btn, 'click', () => goSec(btn.dataset.goto, btn));
   });
@@ -157,9 +174,9 @@ function renderProjects(projects) {
   grid.innerHTML = projects.map((p, i) => {
     const path = sparklinePath(p.sparkline, 260, 40);
     return `
-    <div class="dash-proj-card dash-reveal in">
+    <div class="dash-proj-card dash-reveal in"${p.own ? ` data-own-id="${esc(p.id)}" style="cursor:pointer;" title="Click to edit"` : ''}>
       <div class="dash-proj-h">
-        <div><div class="dash-proj-title"><a href="${esc(p.url)}" target="_blank" rel="noopener" style="color:inherit;">${esc(p.title)}</a></div><div class="dash-proj-num">#${p.number}</div></div>
+        <div><div class="dash-proj-title">${p.own ? '<span style="font-size:10px;font-weight:700;color:var(--color-text-muted);letter-spacing:.04em;">YOURS · </span>' : ''}<a href="${esc(p.url)}" target="_blank" rel="noopener" style="color:inherit;">${esc(p.title)}</a></div><div class="dash-proj-num">#${p.number}</div></div>
         <div class="dash-proj-pct">${p.stats.pct}%</div>
       </div>
       <div class="dash-proj-bar"><div class="dash-proj-bar-f" data-fill="${p.stats.pct}%"></div></div>
@@ -398,7 +415,7 @@ function renderRepoTable(repos) {
       ${repos.map((r) => `
       <tr>
         <td><a class="dash-repo-name" href="${esc(r.url)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><use href="#di-package"/></svg>${esc(r.name)}</a></td>
-        <td>${r.primaryLanguage ? `<span class="dash-lang-dot" style="background:${r.primaryLanguage.color}"></span>${esc(r.primaryLanguage.name)}` : '—'}</td>
+        <td>${r.primaryLanguage ? `<span class="dash-lang-dot" style="background:${r.primaryLanguage.color}"></span>${esc(r.primaryLanguage.name)}` : '-'}</td>
         <td>${healthBadge(r)}</td>
         <td>${r.openIssues.totalCount}</td>
         <td>${r.openPRs.totalCount}</td>
@@ -462,6 +479,70 @@ function exportCSV(type) {
   showToast(filename + ' downloaded', 'success');
 }
 
+// ── Workspace report (opens a print-ready report - "Save as PDF" from
+//    the browser's print dialog gives a real downloadable PDF, with
+//    zero extra libraries or network calls needed) ──────────────────
+function buildReportHTML() {
+  const org = $('hdrTitle')?.textContent || 'Workspace';
+  const now = new Date().toLocaleString();
+  const kpiCards = $$('.dash-kpi-card').map((c) => ({
+    label: c.querySelector('.dash-kpi-label')?.textContent || '',
+    value: c.querySelector('.dash-kpi-value')?.textContent || '',
+  })).filter((k) => k.label);
+
+  const projRows = state.projects.map((p) => `
+    <tr><td>${p.title}</td><td>#${p.number}</td><td>${p.stats.open}</td><td>${p.stats.closed}</td><td>${p.stats.pct}%</td></tr>`).join('');
+
+  const repoRows = state.repos.slice(0, 15).map((r) => `
+    <tr><td>${r.name}</td><td>${r.primaryLanguage?.name || '-'}</td><td>${r.stargazerCount}</td><td>${r.openIssues.totalCount}</td><td>${r.health.grade}</td></tr>`).join('');
+
+  const actRows = (state.activity || []).slice(0, 12).map((a) => `
+    <tr><td>${a.actor?.name || a.actor?.login || ''}</td><td>${a.type || ''}</td><td>${new Date(a.createdAt).toLocaleString()}</td></tr>`).join('');
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${org} - Workspace Report</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, Inter, Segoe UI, Arial, sans-serif; color: #17181c; margin: 0; padding: 40px 48px; }
+    h1 { font-size: 22px; margin: 0 0 2px; }
+    .sub { color: #666; font-size: 12.5px; margin-bottom: 28px; }
+    h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .04em; color: #444; margin: 30px 0 10px; border-bottom: 1px solid #e4e4e7; padding-bottom: 6px; }
+    .kpis { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 8px; }
+    .kpi { border: 1px solid #e4e4e7; border-radius: 10px; padding: 12px 16px; min-width: 130px; }
+    .kpi .v { font-size: 20px; font-weight: 700; }
+    .kpi .l { font-size: 11px; color: #777; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 10px; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #eee; }
+    th { color: #777; font-weight: 600; font-size: 11px; text-transform: uppercase; }
+    footer { margin-top: 40px; font-size: 10.5px; color: #999; }
+    @media print { body { padding: 20px 28px; } }
+  </style></head><body>
+    <h1>${org} - Workspace Report</h1>
+    <div class="sub">Generated ${now} - NeuralKinetics Dashboard</div>
+
+    <h2>Key metrics</h2>
+    <div class="kpis">${kpiCards.map((k) => `<div class="kpi"><div class="v">${k.value}</div><div class="l">${k.label}</div></div>`).join('')}</div>
+
+    <h2>Projects</h2>
+    <table><thead><tr><th>Title</th><th>No.</th><th>Open</th><th>Closed</th><th>Progress</th></tr></thead><tbody>${projRows || '<tr><td colspan=5>No projects</td></tr>'}</tbody></table>
+
+    <h2>Repositories</h2>
+    <table><thead><tr><th>Repo</th><th>Language</th><th>Stars</th><th>Open issues</th><th>Health</th></tr></thead><tbody>${repoRows || '<tr><td colspan=5>No repositories</td></tr>'}</tbody></table>
+
+    <h2>Recent activity</h2>
+    <table><thead><tr><th>Actor</th><th>Type</th><th>When</th></tr></thead><tbody>${actRows || '<tr><td colspan=3>No activity</td></tr>'}</tbody></table>
+
+    <footer>Report generated automatically from the current workspace view. Values reflect ${state.connected ? 'live GitHub data' : 'demo data'} at the time of export.</footer>
+    <script>window.onload = () => setTimeout(() => window.print(), 300);</script>
+  </body></html>`;
+}
+function generateReport() {
+  const w = window.open('', '_blank');
+  if (!w) { showToast('Please allow pop-ups to generate the report', 'error'); return; }
+  w.document.write(buildReportHTML());
+  w.document.close();
+  showToast('Report opened - use "Save as PDF" in the print dialog', 'success');
+}
+
 // ── Command palette ───────────────────────────────────────────────
 function buildCmdIndex() {
   cmdIndex = [
@@ -475,6 +556,7 @@ function buildCmdIndex() {
     { g: 'Actions', ico: 'di-refresh', ttl: 'Refresh data', sub: 'Re-sync the dashboard', act: () => loadDashboard({ force: true }), kbd: 'R' },
     { g: 'Actions', ico: 'di-download', ttl: 'Export repos CSV', sub: 'acme-corp-repos.csv', act: () => exportCSV('repos'), kbd: 'E' },
     { g: 'Actions', ico: 'di-download', ttl: 'Export projects CSV', sub: 'acme-corp-projects.csv', act: () => exportCSV('projects') },
+    { g: 'Actions', ico: 'di-download', ttl: 'Download workspace report', sub: 'Print-ready PDF report', act: () => generateReport() },
     { g: 'Actions', ico: 'di-keyboard', ttl: 'Keyboard shortcuts', sub: 'View all shortcuts', act: () => openShortcuts(), kbd: '?' },
     { g: 'Actions', ico: 'di-table', ttl: 'Table view', sub: 'Switch repos to table', act: () => setRepoView('table') },
     { g: 'Actions', ico: 'di-grid', ttl: 'Card view', sub: 'Switch repos to cards', act: () => setRepoView('cards') },
@@ -584,11 +666,13 @@ function loadDashboard(opts) {
         data = window.NK_DASHBOARD_DATA.generate();
       }
       state.data = data;
+      state.connected = live;
       state.repos = data.repositories;
       state.projects = data.projects;
       state.members = data.members;
       state.activity = data.activity;
       state.milestones = data.milestones;
+      mergeOwnProjects();
 
       renderKPIs(data);
       renderMembers(state.members);
@@ -611,7 +695,7 @@ function loadDashboard(opts) {
     } catch (e) {
       console.error('[NeuralKinetics Dashboard]', e);
       setStatus('error', 'Sync failed');
-      showErr(e.message + (live ? '' : ' — this dashboard runs on generated demo data by default; connect GitHub above for live data.'));
+      showErr(e.message + (live ? '' : ' - this dashboard runs on generated demo data by default; connect GitHub above for live data.'));
       showToast('Failed to sync', 'error');
       hideDashLoader();
     } finally {
@@ -627,8 +711,8 @@ function updateOrgChrome(data, live) {
   $('hdrTitle') && ($('hdrTitle').textContent = org.name || org.login);
   $('welcomeOrg') && ($('welcomeOrg').textContent = org.name || org.login);
   $('welcomeSub') && ($('welcomeSub').textContent = live
-    ? 'Live from GitHub — repositories, stars, and activity synced from @' + org.login + '.'
-    : 'Live projects, team workload, and repository health — synced automatically.');
+    ? 'Live from GitHub - repositories, stars, and activity synced from @' + org.login + '.'
+    : 'Live projects, team workload, and repository health - synced automatically.');
   $('ghOrgName') && ($('ghOrgName').textContent = org.login);
   $('ghOrgRole') && ($('ghOrgRole').textContent = live ? 'Connected · GitHub' : 'Demo data');
   $('ghOrgDot') && $('ghOrgDot').setAttribute('data-state', live ? 'connected' : 'demo');
@@ -682,8 +766,97 @@ function initGithubConnect() {
   on($('ghDisconnectBtn'), 'click', () => {
     window.NK_GITHUB_LIVE.clearConfig();
     closeGhModal();
-    showToast('Disconnected from GitHub — back to demo data', 'info');
+    showToast('Disconnected from GitHub - back to demo data', 'info');
     loadDashboard({ force: true });
+  });
+}
+
+// ── Your own projects (create / edit / delete) ──────────────────────
+// Stored in this browser's localStorage so they persist across visits
+// without needing a backend. They're merged on top of whatever
+// dataset is currently loaded (demo or live GitHub) and show up
+// everywhere projects already render: the grid, charts, the command
+// palette, CSV export and the downloadable report.
+const OWN_PROJ_KEY = 'nk_own_projects';
+function getOwnProjects() {
+  try { return JSON.parse(localStorage.getItem(OWN_PROJ_KEY) || '[]'); } catch (e) { return []; }
+}
+function saveOwnProjects(list) { localStorage.setItem(OWN_PROJ_KEY, JSON.stringify(list)); }
+function mergeOwnProjects() {
+  const own = getOwnProjects();
+  const rest = state.projects.filter((p) => !p.own);
+  state.projects = [...own, ...rest];
+}
+function nextProjectNumber() {
+  const nums = state.projects.map((p) => p.number || 0);
+  return (nums.length ? Math.max(...nums) : 0) + 1;
+}
+function openProjModal(existing) {
+  $('projForm').reset();
+  $('projId').value = existing ? existing.id : '';
+  $('projModalTitle').textContent = existing ? 'Edit project' : 'New project';
+  $('projTitle').value = existing ? existing.title : '';
+  $('projUrl').value = existing ? (existing.url || '') : '';
+  $('projOpen').value = existing ? existing.stats.open : 0;
+  $('projClosed').value = existing ? existing.stats.closed : 0;
+  $('projDeleteBtn').hidden = !existing;
+  $('projOverlay').classList.add('open');
+  setTimeout(() => $('projTitle').focus(), 40);
+}
+function closeProjModal() { $('projOverlay')?.classList.remove('open'); }
+function refreshAfterProjectChange() {
+  mergeOwnProjects();
+  renderProjects(state.projects);
+  renderCharts(state.data || { projects: state.projects });
+  buildCmdIndex();
+}
+function initProjectCRUD() {
+  on($('newProjectBtn'), 'click', () => openProjModal(null));
+  on($('projModalClose'), 'click', closeProjModal);
+  on($('projOverlay'), 'click', (e) => { if (e.target.id === 'projOverlay') closeProjModal(); });
+
+  // Edit an own project by clicking its card (delegated, since cards re-render).
+  on($('projGrid'), 'click', (e) => {
+    const card = e.target.closest('.dash-proj-card[data-own-id]');
+    if (!card || e.target.closest('a')) return;
+    const own = getOwnProjects();
+    const match = own.find((p) => p.id === card.dataset.ownId);
+    if (match) openProjModal(match);
+  });
+
+  on($('projForm'), 'submit', (e) => {
+    e.preventDefault();
+    const id = $('projId').value || ('own-' + Date.now());
+    const title = $('projTitle').value.trim();
+    if (!title) return;
+    const open = Math.max(0, parseInt($('projOpen').value, 10) || 0);
+    const closed = Math.max(0, parseInt($('projClosed').value, 10) || 0);
+    const total = open + closed;
+    const pct = total ? Math.round((closed / total) * 100) : 0;
+    const own = getOwnProjects();
+    const idx = own.findIndex((p) => p.id === id);
+    const existingNumber = idx > -1 ? own[idx].number : nextProjectNumber();
+    const project = {
+      id, own: true, title,
+      url: $('projUrl').value.trim() || '#',
+      number: existingNumber,
+      stats: { open, closed, total, pct },
+      sparkline: idx > -1 ? own[idx].sparkline : [closed, closed, total],
+    };
+    if (idx > -1) own[idx] = project; else own.push(project);
+    saveOwnProjects(own);
+    closeProjModal();
+    refreshAfterProjectChange();
+    showToast(idx > -1 ? 'Project updated' : 'Project created', 'success');
+  });
+
+  on($('projDeleteBtn'), 'click', () => {
+    const id = $('projId').value;
+    if (!id) return;
+    saveOwnProjects(getOwnProjects().filter((p) => p.id !== id));
+    closeProjModal();
+    refreshAfterProjectChange();
+    showToast('Project deleted', 'info');
   });
 }
 
@@ -702,8 +875,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initShortcutsModal();
   initGlobalKeyboard();
   initGithubConnect();
+  initProjectCRUD();
   on($('refreshBtn'), 'click', () => loadDashboard({ force: true }));
   on($('navExport'), 'click', () => exportCSV('repos'));
+  on($('reportBtn'), 'click', () => generateReport());
   on($('exportBtn'), 'click', () => exportCSV('repos'));
   loadDashboard();
   setInterval(() => loadDashboard(), 5 * 60 * 1000);
