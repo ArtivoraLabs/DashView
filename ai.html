@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Assistant — NeuralKinetics</title>
+<meta name="description" content="Chat with the NeuralKinetics AI Assistant, powered by the real Claude API." />
+<meta name="robots" content="noindex" />
+
+<link rel="canonical" href="https://your-domain.example.com/ai.html" />
+<meta name="theme-color" content="#ffffff" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+<link rel="stylesheet" href="css/globals.css" />
+<link rel="stylesheet" href="css/glass.css" />
+<link rel="stylesheet" href="css/ai-page.css" />
+</head>
+<body class="ai-body">
+
+<!-- Shared icon sprite -->
+<svg class="icon-defs" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden;">
+  <symbol id="ai-i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="ai-i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.4 0-2.7-.3-3.9-.9L3 21l1.9-5.6A8.5 8.5 0 1 1 21 11.5Z"/></symbol>
+  <symbol id="ai-i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-13"/></symbol>
+  <symbol id="ai-i-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.4-2-3.4-2.3.8a7.7 7.7 0 0 0-2.6-1.5L14 2.5h-4l-.5 2.5a7.7 7.7 0 0 0-2.6 1.5l-2.3-.8-2 3.4 2 1.4a7.6 7.6 0 0 0 0 3l-2 1.4 2 3.4 2.3-.8a7.7 7.7 0 0 0 2.6 1.5l.5 2.5h4l.5-2.5a7.7 7.7 0 0 0 2.6-1.5l2.3.8 2-3.4-2-1.4Z"/></symbol>
+  <symbol id="ai-i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></symbol>
+  <symbol id="ai-i-arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+  <symbol id="ai-i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.2"/><rect x="13" y="3" width="8" height="8" rx="1.2"/><rect x="3" y="13" width="8" height="8" rx="1.2"/><rect x="13" y="13" width="8" height="8" rx="1.2"/></symbol>
+  <symbol id="ai-i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></symbol>
+  <symbol id="ai-i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+</svg>
+
+<div class="ai-shell">
+
+  <!-- ── Sidebar: conversations ─────────────────────────────── -->
+  <aside class="ai-sidebar" id="aiSidebar">
+    <div class="ai-sb-head">
+      <a class="ai-logo" href="index.html" aria-label="NeuralKinetics — go to home page">
+        <span class="mark">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="16" cy="16" r="12" stroke="rgba(0,0,0,0.5)" stroke-width="1.4"/>
+            <circle cx="16" cy="16" r="3" fill="#000"/>
+          </svg>
+        </span>
+        <span class="ai-logo-text">NeuralKinetics</span>
+      </a>
+      <button class="ai-sb-toggle" id="aiSbToggle" aria-label="Collapse sidebar"><svg viewBox="0 0 24 24"><use href="#ai-i-menu"/></svg></button>
+    </div>
+
+    <button class="ai-new-chat" id="aiNewChat" type="button">
+      <svg viewBox="0 0 24 24"><use href="#ai-i-plus"/></svg>
+      New chat
+    </button>
+
+    <div class="ai-sb-label">Recent</div>
+    <div class="ai-convo-list" id="aiConvoList"></div>
+
+    <div class="ai-sb-foot">
+      <a class="ai-sb-link" href="dashboard.html"><svg viewBox="0 0 24 24"><use href="#ai-i-grid"/></svg> Dashboard</a>
+      <button class="ai-sb-link" id="aiSettingsBtn" type="button"><svg viewBox="0 0 24 24"><use href="#ai-i-settings"/></svg> Settings</button>
+    </div>
+  </aside>
+
+  <!-- ── Main chat column ───────────────────────────────────── -->
+  <div class="ai-main">
+    <header class="ai-topbar">
+      <button class="ai-icon-btn ai-mobile-toggle" id="aiMobileToggle" aria-label="Toggle sidebar"><svg viewBox="0 0 24 24"><use href="#ai-i-menu"/></svg></button>
+      <div class="ai-model-picker">
+        <select id="aiModelSelect" aria-label="Model">
+          <option value="claude-sonnet-4-5">Claude Sonnet 4.5</option>
+          <option value="claude-opus-4-1">Claude Opus 4.1</option>
+          <option value="claude-haiku-4-5">Claude Haiku 4.5</option>
+          <option value="custom">Custom model ID…</option>
+        </select>
+      </div>
+      <div class="ai-topbar-r">
+        <span class="ai-key-badge" id="aiKeyBadge" data-state="unset">API key not set</span>
+        <button class="ai-icon-btn" id="aiClearChat" aria-label="Clear this chat"><svg viewBox="0 0 24 24"><use href="#ai-i-trash"/></svg></button>
+      </div>
+    </header>
+
+    <main class="ai-thread-wrap">
+      <div class="ai-thread" id="aiThread">
+        <div class="ai-empty-state" id="aiEmptyState">
+          <div class="ai-empty-mark">
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="16" cy="16" r="14" stroke="rgba(15,23,42,0.18)" stroke-width="1.4"/>
+              <circle cx="16" cy="16" r="3" fill="#191919"/>
+            </svg>
+          </div>
+          <h1>How can I help you today?</h1>
+          <p>This runs on the real Claude API — add your key in Settings to get started.</p>
+          <div class="ai-suggest-row">
+            <button type="button" class="ai-suggest-chip" data-prompt="Summarize what needs my attention in this workspace right now">Summarize my workspace</button>
+            <button type="button" class="ai-suggest-chip" data-prompt="Write a React component for a searchable data table">Write some code</button>
+            <button type="button" class="ai-suggest-chip" data-prompt="Explain this concept simply: how does a neural network learn?">Explain something</button>
+            <button type="button" class="ai-suggest-chip" data-prompt="Draft a short project status update for my team">Draft a message</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div class="ai-composer-wrap">
+      <form class="ai-composer" id="aiComposer">
+        <textarea id="aiInput" class="ai-composer-input" placeholder="Message the AI Assistant…" rows="1"></textarea>
+        <button type="submit" class="ai-composer-send" id="aiSendBtn" aria-label="Send message">
+          <svg viewBox="0 0 24 24"><use href="#ai-i-send"/></svg>
+        </button>
+      </form>
+      <p class="ai-composer-hint">The AI can make mistakes. Your API key stays in this browser and is never sent anywhere but Anthropic's API.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Settings -->
+<div class="modal-overlay" id="aiSettingsOverlay">
+  <div class="modal-card ai-settings-card glass-panel glass-strong">
+    <button class="modal-close" id="aiSettingsClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <h2>Connect the Claude API</h2>
+    <p class="ai-settings-sub">This page calls <code>api.anthropic.com</code> directly from your browser using your own key.</p>
+
+    <form id="aiSettingsForm">
+      <label class="form-label" for="aiApiKeyInput">Anthropic API key</label>
+      <input class="form-input" id="aiApiKeyInput" type="password" placeholder="sk-ant-…" autocomplete="off" />
+
+      <label class="form-label" for="aiCustomModelInput" id="aiCustomModelLabel" style="display:none;">Custom model ID</label>
+      <input class="form-input" id="aiCustomModelInput" type="text" placeholder="claude-…" autocomplete="off" style="display:none;" />
+
+      <label class="form-label" for="aiSystemPromptInput">System prompt <span>(optional)</span></label>
+      <textarea class="form-input ai-settings-textarea" id="aiSystemPromptInput" placeholder="e.g. You are a helpful assistant for the NeuralKinetics team."></textarea>
+
+      <p class="gh-form-hint">
+        Get a key at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>. Stored only in this browser's <code>localStorage</code>. Because this is a static site, the key is visible in your browser's network requests — don't paste a key with billing you're not comfortable exposing on a device you don't control.
+      </p>
+
+      <button type="submit" class="glass-btn glass-btn-solid gh-form-submit">Save settings</button>
+      <p class="gh-form-status" id="aiSettingsStatus"></p>
+    </form>
+  </div>
+</div>
+
+<!-- Sign-in gate reuses the site's existing demo auth modal -->
+<div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+<script src="js/auth.js"></script>
+<script src="js/ai-page.js"></script>
+</body>
+</html>

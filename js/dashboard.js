@@ -572,11 +572,17 @@ function loadDashboard(opts) {
   hideErr();
   const btn = $('refreshBtn');
   if (btn) btn.classList.add('loading');
+  const live = window.NK_GITHUB_LIVE && window.NK_GITHUB_LIVE.isConnected();
 
-  setTimeout(() => {
+  setTimeout(async () => {
     try {
-      if (!window.NK_DASHBOARD_DATA) throw new Error('Data module failed to load');
-      const data = window.NK_DASHBOARD_DATA.generate();
+      let data;
+      if (live) {
+        data = await window.NK_GITHUB_LIVE.fetchData();
+      } else {
+        if (!window.NK_DASHBOARD_DATA) throw new Error('Data module failed to load');
+        data = window.NK_DASHBOARD_DATA.generate();
+      }
       state.data = data;
       state.repos = data.repositories;
       state.projects = data.projects;
@@ -596,21 +602,89 @@ function loadDashboard(opts) {
       renderRepos();
       buildCmdIndex();
       initReveal();
+      updateOrgChrome(data, live);
 
-      setStatus('live', 'Live · just now');
-      if (opts.force) showToast('Dashboard refreshed', 'success');
+      setStatus('live', live ? 'Live · GitHub · just now' : 'Live · just now');
+      if (opts.force) showToast(live ? 'Synced with GitHub' : 'Dashboard refreshed', 'success');
       if (!liveTimer) startLiveActivity();
       hideDashLoader();
     } catch (e) {
       console.error('[NeuralKinetics Dashboard]', e);
       setStatus('error', 'Sync failed');
-      showErr(e.message + ' — this dashboard runs on generated demo data by default; see CHANGELOG.md to connect a real API.');
+      showErr(e.message + (live ? '' : ' — this dashboard runs on generated demo data by default; connect GitHub above for live data.'));
       showToast('Failed to sync', 'error');
       hideDashLoader();
     } finally {
       if (btn) btn.classList.remove('loading');
     }
   }, opts.force ? 500 : 700); // small delay so the loading state is perceptible, matching a real sync
+}
+
+// ── Org chrome (header / sidebar / welcome banner) ─────────────────
+function updateOrgChrome(data, live) {
+  const org = data.org || { name: 'acme-corp', login: 'acme-corp' };
+  const initials = (org.name || org.login || 'NK').split(/[\s-]+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+  $('hdrTitle') && ($('hdrTitle').textContent = org.name || org.login);
+  $('welcomeOrg') && ($('welcomeOrg').textContent = org.name || org.login);
+  $('welcomeSub') && ($('welcomeSub').textContent = live
+    ? 'Live from GitHub — repositories, stars, and activity synced from @' + org.login + '.'
+    : 'Live projects, team workload, and repository health — synced automatically.');
+  $('ghOrgName') && ($('ghOrgName').textContent = org.login);
+  $('ghOrgRole') && ($('ghOrgRole').textContent = live ? 'Connected · GitHub' : 'Demo data');
+  $('ghOrgDot') && $('ghOrgDot').setAttribute('data-state', live ? 'connected' : 'demo');
+  const av = $('ghOrgAv');
+  if (av) {
+    if (live && data.avatar) av.innerHTML = '<img src="' + data.avatar + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" />';
+    else { av.innerHTML = ''; av.textContent = initials; }
+  }
+  const btnLbl = $('ghConnectBtnLbl');
+  if (btnLbl) btnLbl.textContent = live ? 'Manage connection' : 'Connect GitHub';
+}
+
+// ── Connect GitHub modal ────────────────────────────────────────────
+function openGhModal() {
+  const cfg = window.NK_GITHUB_LIVE && window.NK_GITHUB_LIVE.getConfig();
+  const connectedState = $('ghConnectedState');
+  const form = $('ghConnectForm');
+  if (cfg && cfg.login) {
+    connectedState.hidden = false;
+    form.hidden = true;
+    $('ghConnectedName').textContent = '@' + cfg.login;
+    $('ghConnectedAvatar').src = state.data && state.data.avatar ? state.data.avatar : 'https://github.com/' + cfg.login + '.png';
+  } else {
+    connectedState.hidden = true;
+    form.hidden = false;
+  }
+  $('ghOverlay').classList.add('open');
+}
+function closeGhModal() { $('ghOverlay')?.classList.remove('open'); }
+
+function initGithubConnect() {
+  on($('ghConnectTrigger'), 'click', openGhModal);
+  on($('ghConnectBtn'), 'click', openGhModal);
+  on($('ghModalClose'), 'click', closeGhModal);
+  on($('ghOverlay'), 'click', (e) => { if (e.target.id === 'ghOverlay') closeGhModal(); });
+
+  on($('ghConnectForm'), 'submit', (e) => {
+    e.preventDefault();
+    const login = $('ghLoginInput').value.trim().replace(/^@/, '');
+    const token = $('ghTokenInput').value.trim();
+    if (!login) return;
+    const status = $('ghFormStatus');
+    status.textContent = 'Connecting…';
+    window.NK_GITHUB_LIVE.setConfig({ login, token });
+    closeGhModal();
+    $('ghLoginInput').value = '';
+    $('ghTokenInput').value = '';
+    loadDashboard({ force: true });
+  });
+
+  on($('ghDisconnectBtn'), 'click', () => {
+    window.NK_GITHUB_LIVE.clearConfig();
+    closeGhModal();
+    showToast('Disconnected from GitHub — back to demo data', 'info');
+    loadDashboard({ force: true });
+  });
 }
 
 // ── Loading screen ────────────────────────────────────────────────
@@ -627,6 +701,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initCommandPalette();
   initShortcutsModal();
   initGlobalKeyboard();
+  initGithubConnect();
   on($('refreshBtn'), 'click', () => loadDashboard({ force: true }));
   on($('navExport'), 'click', () => exportCSV('repos'));
   on($('exportBtn'), 'click', () => exportCSV('repos'));

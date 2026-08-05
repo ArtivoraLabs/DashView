@@ -246,9 +246,7 @@ function initHeroAI() {
 
   function submitToAssistant(question) {
     if (!question) return;
-    if (window.NKAssistant) {
-      window.NKAssistant.open(question);
-    }
+    window.location.href = 'ai.html?q=' + encodeURIComponent(question);
   }
 
   on(form, 'submit', (e) => {

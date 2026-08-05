@@ -540,3 +540,43 @@
   .dash-loader-mark { animation: none; }
   .dash-loader-bar-fill { animation: none; width: 60%; }
 }
+
+/* ── GitHub connect (redesigned header + sidebar + modal) ─────────── */
+.dash-btn-github {
+  display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full); background: var(--color-surface); color: var(--color-text-primary);
+  border: var(--glass-border); font-family: var(--font-sans); font-size: var(--text-xs); font-weight: 600;
+  cursor: pointer; transition: background var(--transition-fast), transform var(--transition-fast);
+}
+.dash-btn-github:hover { background: var(--color-surface-hover); transform: translateY(-1px); }
+.dash-btn-github svg { flex-shrink: 0; }
+
+.dash-org-card-btn { width: 100%; text-align: left; border: var(--glass-border); cursor: pointer; position: relative; font: inherit; }
+.dash-org-card-btn:hover { background: var(--color-surface-hover); }
+.dash-org-dot {
+  position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--color-text-muted); flex-shrink: 0;
+}
+.dash-org-dot[data-state="connected"] { background: var(--color-success); box-shadow: 0 0 6px var(--color-success); }
+.dash-org-dot[data-state="demo"] { background: var(--color-text-muted); }
+
+.gh-card { max-width: 460px; text-align: left; }
+.gh-modal-hdr { display: flex; align-items: flex-start; gap: var(--space-3); margin-bottom: var(--space-6); }
+.gh-modal-hdr svg { flex-shrink: 0; margin-top: 2px; color: var(--color-text-primary); }
+.gh-modal-hdr h2 { font-size: var(--text-lg); font-weight: 700; margin: 0 0 var(--space-1); }
+.gh-modal-hdr p { font-size: var(--text-sm); color: var(--color-text-secondary); margin: 0; }
+
+.gh-form { display: flex; flex-direction: column; gap: var(--space-2); }
+.gh-form .form-label { margin-top: var(--space-2); }
+.gh-form .form-label span { font-weight: 400; color: var(--color-text-muted); }
+.gh-form-hint { font-size: var(--text-xs); line-height: 1.5; color: var(--color-text-muted); margin: var(--space-2) 0 0; }
+.gh-form-hint code { font-family: var(--font-mono); background: var(--color-surface); padding: 1px 5px; border-radius: 4px; }
+.gh-form-submit { margin-top: var(--space-4); width: 100%; justify-content: center; }
+.gh-form-status { font-size: var(--text-xs); color: var(--color-text-muted); min-height: 1em; margin: var(--space-2) 0 0; }
+
+.gh-connected-state { display: flex; flex-direction: column; gap: var(--space-4); }
+.gh-connected-row { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); border-radius: var(--radius-md); background: var(--color-surface); }
+.gh-connected-row img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: var(--color-bg-elevated); }
+.gh-connected-name { font-weight: 700; font-size: var(--text-base); }
+.gh-connected-meta { font-size: var(--text-xs); color: var(--color-success); font-family: var(--font-mono); }
+.gh-connected-state .glass-btn { width: 100%; justify-content: center; }

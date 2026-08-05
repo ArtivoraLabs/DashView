@@ -4,7 +4,7 @@
  * This is a static site with no backend, so there's no real account
  * system here — no password is stored or checked anywhere. What
  * this DOES do is exactly what the sign-in modal implies for users:
- * gate the AI features (the assistant panel and AI Studio) behind a
+ * gate the AI Assistant page behind a
  * sign-in / create-account step before they can be used, with a
  * "Continue as guest" escape hatch. The "session" is just a flag in
  * sessionStorage — it's a UX gate, not authentication.
@@ -52,7 +52,7 @@
       '  </button>' +
       '  <p class="modal-eyebrow">AI Access</p>' +
       '  <h3 class="modal-title" id="authModalTitle">Sign in to use the AI</h3>' +
-      '  <p class="modal-sub" id="authModalSub">Create a free account or sign in to chat with the assistant and use AI Studio.</p>' +
+      '  <p class="modal-sub" id="authModalSub">Create a free account or sign in to chat with the AI Assistant.</p>' +
       '  <div class="auth-tabs" role="tablist">' +
       '    <button type="button" class="auth-tab active" id="authTabSignin" role="tab" aria-selected="true">Sign in</button>' +
       '    <button type="button" class="auth-tab" id="authTabSignup" role="tab" aria-selected="false">Create account</button>' +
@@ -104,8 +104,8 @@
       nameField.style.display = isSignup ? 'block' : 'none';
       title.textContent = isSignup ? 'Create your account' : 'Sign in to use the AI';
       sub.textContent = isSignup
-        ? 'Set up a free account to chat with the assistant and use AI Studio.'
-        : 'Sign in to chat with the assistant and use AI Studio.';
+        ? 'Set up a free account to chat with the AI Assistant.'
+        : 'Sign in to chat with the AI Assistant.';
       submitBtn.textContent = isSignup ? 'Create account' : 'Sign in';
       passwordInput.setAttribute('autocomplete', isSignup ? 'new-password' : 'current-password');
     }

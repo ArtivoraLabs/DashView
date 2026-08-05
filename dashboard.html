@@ -24,7 +24,6 @@
 <link rel="stylesheet" href="css/glass.css" />
 <link rel="stylesheet" href="css/navbar.css" />
 <link rel="stylesheet" href="css/dashboard.css" />
-<link rel="stylesheet" href="css/ai-assistant.css" />
 </head>
 <body class="dash-body">
 
@@ -118,16 +117,18 @@
       <button class="dash-nav-item" id="navSearch"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-search"/></svg></span><span class="dash-nav-label">Search</span><span class="dash-nav-kbd">⌘K</span></button>
       <button class="dash-nav-item" id="navExport"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-download"/></svg></span><span class="dash-nav-label">Export CSV</span></button>
       <button class="dash-nav-item" id="navShortcuts"><span class="dash-nav-icon"><svg viewBox="0 0 24 24"><use href="#di-keyboard"/></svg></span><span class="dash-nav-label">Shortcuts</span><span class="dash-nav-kbd">?</span></button>
+      <a class="dash-nav-item" href="ai.html"><span class="dash-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg></span><span class="dash-nav-label">AI Assistant</span></a>
     </div>
 
     <div class="dash-sb-foot">
-      <div class="dash-org-card">
-        <div class="dash-org-av">NK</div>
+      <button class="dash-org-card dash-org-card-btn" id="ghConnectTrigger" type="button">
+        <div class="dash-org-av" id="ghOrgAv">NK</div>
         <div class="dash-org-info">
-          <div class="dash-org-name">acme-corp</div>
-          <div class="dash-org-role">Organization</div>
+          <div class="dash-org-name" id="ghOrgName">acme-corp</div>
+          <div class="dash-org-role" id="ghOrgRole">Demo data</div>
         </div>
-      </div>
+        <span class="dash-org-dot" id="ghOrgDot" data-state="demo"></span>
+      </button>
     </div>
   </aside>
 
@@ -135,7 +136,7 @@
   <div class="dash-page" id="dashPage">
     <header class="dash-header">
       <div>
-        <div class="dash-hdr-title">acme-corp</div>
+        <div class="dash-hdr-title" id="hdrTitle">acme-corp</div>
         <div class="dash-hdr-sub" id="hdrSub">Workspace intelligence</div>
       </div>
       <div class="dash-hdr-r">
@@ -148,6 +149,10 @@
           <span class="dash-sdot" data-state="loading" id="syncDot"></span>
           <span id="syncLabel">Syncing…</span>
         </div>
+        <button class="dash-btn-github" id="ghConnectBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="14" height="14"><path d="M12 2C6.48 2 2 6.58 2 12.2c0 4.49 2.87 8.3 6.84 9.64.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.89-2.78.62-3.37-1.21-3.37-1.21-.46-1.18-1.11-1.5-1.11-1.5-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.73 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 2.5-.35c.85 0 1.71.12 2.5.35 1.9-1.33 2.74-1.05 2.74-1.05.56 1.42.21 2.47.1 2.73.65.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.8-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.03 10.03 0 0 0 22 12.2C22 6.58 17.52 2 12 2Z"/></svg>
+          <span id="ghConnectBtnLbl">Connect GitHub</span>
+        </button>
         <button class="dash-btn-refresh" id="refreshBtn">
           <svg viewBox="0 0 24 24" class="ri"><use href="#di-refresh"/></svg> Refresh
         </button>
@@ -164,13 +169,13 @@
         <div class="dash-welcome-glow" aria-hidden="true"></div>
         <div class="dash-welcome-text">
           <p class="dash-welcome-eyebrow">Workspace overview</p>
-          <h1 class="dash-welcome-title">Everything happening at <span class="text-gradient">acme-corp</span>, in one view.</h1>
-          <p class="dash-welcome-sub">Live projects, team workload, and repository health — synced automatically.</p>
+          <h1 class="dash-welcome-title">Everything happening at <span class="text-gradient" id="welcomeOrg">acme-corp</span>, in one view.</h1>
+          <p class="dash-welcome-sub" id="welcomeSub">Live projects, team workload, and repository health — synced automatically.</p>
         </div>
-        <button type="button" class="dash-welcome-ai" id="dashAskAi">
+        <a class="dash-welcome-ai" id="dashAskAi" href="ai.html">
           <span class="dash-welcome-ai-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg></span>
           Ask the AI about this workspace
-        </button>
+        </a>
       </div>
 
       <!-- KPI row 1 -->
@@ -362,24 +367,51 @@
   </div>
 </div>
 
+<!-- Connect GitHub -->
+<div class="modal-overlay" id="ghOverlay">
+  <div class="modal-card gh-card glass-panel glass-strong">
+    <button class="modal-close" id="ghModalClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <div class="gh-modal-hdr">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="22" height="22"><path d="M12 2C6.48 2 2 6.58 2 12.2c0 4.49 2.87 8.3 6.84 9.64.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.89-2.78.62-3.37-1.21-3.37-1.21-.46-1.18-1.11-1.5-1.11-1.5-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.73 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 2.5-.35c.85 0 1.71.12 2.5.35 1.9-1.33 2.74-1.05 2.74-1.05.56 1.42.21 2.47.1 2.73.65.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.8-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.03 10.03 0 0 0 22 12.2C22 6.58 17.52 2 12 2Z"/></svg>
+      <div>
+        <h2>Connect GitHub</h2>
+        <p>Pull your real repos, stars, and activity into this dashboard — live.</p>
+      </div>
+    </div>
+
+    <div id="ghConnectedState" class="gh-connected-state" hidden>
+      <div class="gh-connected-row">
+        <img id="ghConnectedAvatar" alt="" />
+        <div>
+          <div class="gh-connected-name" id="ghConnectedName">—</div>
+          <div class="gh-connected-meta">Connected · live data</div>
+        </div>
+      </div>
+      <button class="glass-btn" id="ghDisconnectBtn" type="button">Disconnect</button>
+    </div>
+
+    <form id="ghConnectForm" class="gh-form">
+      <label class="form-label" for="ghLoginInput">GitHub username or organization</label>
+      <input class="form-input" id="ghLoginInput" type="text" placeholder="e.g. torvalds or vercel" autocomplete="off" required />
+
+      <label class="form-label" for="ghTokenInput">Personal access token <span>(optional)</span></label>
+      <input class="form-input" id="ghTokenInput" type="password" placeholder="Leave blank for public data" autocomplete="off" />
+      <p class="gh-form-hint">
+        Only used to call the GitHub API directly from your browser and stored in this browser's <code>localStorage</code> — never sent anywhere else. Public accounts work with no token (60 requests/hour). Add a fine‑grained token (Contents: Read‑only) for a higher limit or your full contribution calendar.
+      </p>
+
+      <button type="submit" class="glass-btn glass-btn-solid gh-form-submit">Connect &amp; sync</button>
+      <p class="gh-form-status" id="ghFormStatus"></p>
+    </form>
+  </div>
+</div>
+
 <div class="toast-stack" id="toastStack" aria-live="polite"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.js" integrity="sha384-zuFoHkJ6+XzUchVtS39qBWxb+LvdA7aQ/ze8jYdufBf/A1jeuKGDBg4crfxvZAr8" crossorigin="anonymous"></script>
 <script src="js/dashboard-data.js"></script>
+<script src="js/github-live.js"></script>
 <script src="js/dashboard.js"></script>
 <script src="js/auth.js"></script>
-<script src="js/ai-assistant.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    var askBtn = document.getElementById('dashAskAi');
-    if (askBtn) {
-      askBtn.addEventListener('click', function () {
-        if (window.NKAssistant) {
-          window.NKAssistant.open('Summarize what needs my attention in this workspace right now');
-        }
-      });
-    }
-  });
-</script>
 </body>
 </html>
