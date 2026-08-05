@@ -186,8 +186,13 @@
     const s = getSettings();
     const badge = $('aiKeyBadge');
     if (!badge) return;
-    if (s.apiKey) { badge.textContent = 'API key connected'; badge.setAttribute('data-state', 'set'); }
-    else { badge.textContent = 'API key not set'; badge.setAttribute('data-state', 'unset'); }
+    if (s.provider === 'github') {
+      if (s.githubToken) { badge.textContent = 'GitHub token connected'; badge.setAttribute('data-state', 'set'); }
+      else { badge.textContent = 'GitHub token not set'; badge.setAttribute('data-state', 'unset'); }
+    } else {
+      if (s.apiKey) { badge.textContent = 'API key connected'; badge.setAttribute('data-state', 'set'); }
+      else { badge.textContent = 'API key not set'; badge.setAttribute('data-state', 'unset'); }
+    }
   }
 
   // ── Workspace context ──────────────────────────────────────────
@@ -252,12 +257,48 @@
     return textBlock ? textBlock.text : '(No text in response.)';
   }
 
+  // ── GitHub Models (OpenAI-compatible, auth'd with a GitHub PAT) ──
+  const GITHUB_MODELS_URL = 'https://models.github.ai/inference/chat/completions';
+  function githubModelId(settings) {
+    return settings.githubModel === 'github-custom'
+      ? (settings.githubCustomModel || 'openai/gpt-4o-mini')
+      : (settings.githubModel || 'openai/gpt-4o-mini');
+  }
+  async function callGithubModels(messages, settings) {
+    const chatMessages = messages.map((m) => ({ role: m.role, content: m.content }));
+    if (settings.systemPrompt) chatMessages.unshift({ role: 'system', content: settings.systemPrompt });
+    const ctx = buildWorkspaceContext();
+    if (ctx) chatMessages.unshift({ role: 'system', content: ctx });
+
+    const res = await fetch(GITHUB_MODELS_URL, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + settings.githubToken,
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+      body: JSON.stringify({ model: githubModelId(settings), messages: chatMessages }),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const msg = json?.error?.message || json?.message || ('Request failed with status ' + res.status);
+      throw new Error(msg);
+    }
+    return json?.choices?.[0]?.message?.content || '(No text in response.)';
+  }
+
+  async function callAI(messages, settings) {
+    return settings.provider === 'github' ? callGithubModels(messages, settings) : callClaude(messages, settings);
+  }
+
   async function sendMessage(text) {
     text = (text || '').trim();
     if (!text || sending) return;
     const settings = getSettings();
-    if (!settings.apiKey) {
-      showToast('Add your Anthropic API key in Settings first');
+    const ready = settings.provider === 'github' ? !!settings.githubToken : !!settings.apiKey;
+    if (!ready) {
+      showToast(settings.provider === 'github' ? 'Add your GitHub token in Settings first' : 'Add your Anthropic API key in Settings first');
       openSettings();
       return;
     }
@@ -275,7 +316,7 @@
     appendTyping();
 
     try {
-      const reply = await callClaude(convo.messages, settings);
+      const reply = await callAI(convo.messages, settings);
       removeTyping();
       convo.messages.push({ role: 'assistant', content: reply });
       convo.updatedAt = Date.now();
@@ -283,10 +324,10 @@
       renderThread();
     } catch (e) {
       removeTyping();
-      convo.messages.push({ role: 'assistant', content: 'Something went wrong talking to the Claude API: ' + e.message, error: true });
+      convo.messages.push({ role: 'assistant', content: 'Something went wrong talking to the AI provider: ' + e.message, error: true });
       saveConvos(convos);
       renderThread();
-      showToast('Request failed - check your API key and model in Settings');
+      showToast('Request failed - check your key/token and model in Settings');
     } finally {
       sending = false;
       updateSendState();
@@ -312,13 +353,31 @@
   }
 
   // ── Settings modal ──────────────────────────────────────────
+  function toggleProviderFields() {
+    const provider = $('aiProviderSelect')?.value || 'anthropic';
+    $('aiAnthropicFields').style.display = provider === 'anthropic' ? 'block' : 'none';
+    $('aiGithubFields').style.display = provider === 'github' ? 'block' : 'none';
+    $('anthropicHint').style.display = provider === 'anthropic' ? 'block' : 'none';
+    const modelPicker = document.querySelector('.ai-model-picker');
+    if (modelPicker) modelPicker.style.display = provider === 'anthropic' ? '' : 'none';
+  }
+  function toggleGithubCustomModelField() {
+    const isCustom = $('aiGithubModelSelect')?.value === 'github-custom';
+    $('aiGithubCustomModelInput').style.display = isCustom ? 'block' : 'none';
+  }
   function openSettings() {
     const s = getSettings();
+    $('aiProviderSelect').value = s.provider || 'anthropic';
     $('aiApiKeyInput').value = s.apiKey || '';
+    $('aiGithubTokenInput').value = s.githubToken || '';
+    $('aiGithubModelSelect').value = s.githubModel || 'openai/gpt-4o-mini';
+    $('aiGithubCustomModelInput').value = s.githubCustomModel || '';
     $('aiSystemPromptInput').value = s.systemPrompt || '';
     const modelSelect = $('aiModelSelect');
     if (modelSelect) modelSelect.value = s.model || 'claude-sonnet-4-5';
     toggleCustomModelField();
+    toggleProviderFields();
+    toggleGithubCustomModelField();
     if (s.model === 'custom') $('aiCustomModelInput').value = s.customModel || '';
     $('aiSettingsOverlay').classList.add('open');
   }
@@ -335,13 +394,30 @@
     on($('aiSettingsClose'), 'click', closeSettings);
     on($('aiSettingsOverlay'), 'click', (e) => { if (e.target.id === 'aiSettingsOverlay') closeSettings(); });
     on($('aiModelSelect'), 'change', () => { toggleCustomModelField(); const s = getSettings(); s.model = $('aiModelSelect').value; setSettings(s); });
+    on($('aiProviderSelect'), 'change', toggleProviderFields);
+    on($('aiGithubModelSelect'), 'change', toggleGithubCustomModelField);
+    on($('aiUseDashboardToken'), 'click', () => {
+      try {
+        const gh = JSON.parse(localStorage.getItem('nk_github_connection') || 'null');
+        if (gh && gh.token) {
+          $('aiGithubTokenInput').value = gh.token;
+          showToast('Copied the token from your Dashboard connection');
+        } else {
+          showToast('No token found - connect GitHub on the Dashboard first, or paste one here that has the "models" scope');
+        }
+      } catch (e) { showToast('Could not read the Dashboard connection'); }
+    });
 
     on($('aiSettingsForm'), 'submit', (e) => {
       e.preventDefault();
       const s = getSettings();
+      s.provider = $('aiProviderSelect').value;
       s.apiKey = $('aiApiKeyInput').value.trim();
       s.model = $('aiModelSelect').value;
       s.customModel = $('aiCustomModelInput').value.trim();
+      s.githubToken = $('aiGithubTokenInput').value.trim();
+      s.githubModel = $('aiGithubModelSelect').value;
+      s.githubCustomModel = $('aiGithubCustomModelInput').value.trim();
       s.systemPrompt = $('aiSystemPromptInput').value.trim();
       setSettings(s);
       updateKeyBadge(); updateWorkspaceBadge();

@@ -115,7 +115,7 @@
           <svg viewBox="0 0 24 24"><use href="#ai-i-send"/></svg>
         </button>
       </form>
-      <p class="ai-composer-hint">The AI can make mistakes. Your API key stays in this browser and is never sent anywhere but Anthropic's API.</p>
+      <p class="ai-composer-hint">The AI can make mistakes. Your key/token stays in this browser and is only ever sent to the provider you chose in Settings.</p>
     </div>
   </div>
 </div>
@@ -124,20 +124,48 @@
 <div class="modal-overlay" id="aiSettingsOverlay">
   <div class="modal-card ai-settings-card glass-panel glass-strong">
     <button class="modal-close" id="aiSettingsClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-    <h2>Connect the Claude API</h2>
-    <p class="ai-settings-sub">This page calls <code>api.anthropic.com</code> directly from your browser using your own key.</p>
+    <h2>Connect an AI provider</h2>
+    <p class="ai-settings-sub">Use your own Anthropic key, or your GitHub token via GitHub Models - either way, calls go straight from your browser to the provider.</p>
 
     <form id="aiSettingsForm">
-      <label class="form-label" for="aiApiKeyInput">Anthropic API key</label>
-      <input class="form-input" id="aiApiKeyInput" type="password" placeholder="sk-ant-…" autocomplete="off" />
+      <label class="form-label" for="aiProviderSelect">Provider</label>
+      <select class="form-input" id="aiProviderSelect">
+        <option value="anthropic">Anthropic (Claude API key)</option>
+        <option value="github">GitHub Models (your GitHub token)</option>
+      </select>
 
-      <label class="form-label" for="aiCustomModelInput" id="aiCustomModelLabel" style="display:none;">Custom model ID</label>
-      <input class="form-input" id="aiCustomModelInput" type="text" placeholder="claude-…" autocomplete="off" style="display:none;" />
+      <div id="aiAnthropicFields">
+        <label class="form-label" for="aiApiKeyInput">Anthropic API key</label>
+        <input class="form-input" id="aiApiKeyInput" type="password" placeholder="sk-ant-…" autocomplete="off" />
+
+        <label class="form-label" for="aiCustomModelInput" id="aiCustomModelLabel" style="display:none;">Custom model ID</label>
+        <input class="form-input" id="aiCustomModelInput" type="text" placeholder="claude-…" autocomplete="off" style="display:none;" />
+      </div>
+
+      <div id="aiGithubFields" style="display:none;">
+        <label class="form-label" for="aiGithubTokenInput">GitHub personal access token</label>
+        <input class="form-input" id="aiGithubTokenInput" type="password" placeholder="ghp_… or github_pat_…" autocomplete="off" />
+        <button type="button" class="glass-btn" id="aiUseDashboardToken" style="margin:6px 0 2px;">Use the token I already connected on the Dashboard</button>
+
+        <label class="form-label" for="aiGithubModelSelect">Model</label>
+        <select class="form-input" id="aiGithubModelSelect">
+          <option value="openai/gpt-4.1">GPT-4.1 (openai/gpt-4.1)</option>
+          <option value="openai/gpt-4o">GPT-4o (openai/gpt-4o)</option>
+          <option value="openai/gpt-4o-mini">GPT-4o mini (openai/gpt-4o-mini)</option>
+          <option value="meta/Meta-Llama-3.1-405B-Instruct">Llama 3.1 405B (meta/…)</option>
+          <option value="deepseek/DeepSeek-V3">DeepSeek V3 (deepseek/DeepSeek-V3)</option>
+          <option value="github-custom">Custom model ID…</option>
+        </select>
+        <input class="form-input" id="aiGithubCustomModelInput" type="text" placeholder="publisher/model-name" autocomplete="off" style="display:none; margin-top:8px;" />
+        <p class="gh-form-hint">
+          Create a token at <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">github.com/settings/tokens</a> with the <code>models</code> scope (classic token) or <code>models: read</code> permission (fine-grained token). Calls go to <code>models.github.ai</code>, GitHub's own free inference API - no Anthropic key needed.
+        </p>
+      </div>
 
       <label class="form-label" for="aiSystemPromptInput">System prompt <span>(optional)</span></label>
       <textarea class="form-input ai-settings-textarea" id="aiSystemPromptInput" placeholder="e.g. You are a helpful assistant for the NeuralKinetics team."></textarea>
 
-      <p class="gh-form-hint">
+      <p class="gh-form-hint" id="anthropicHint">
         Get a key at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>. Stored only in this browser's <code>localStorage</code>. Because this is a static site, the key is visible in your browser's network requests - don't paste a key with billing you're not comfortable exposing on a device you don't control.
       </p>
 
