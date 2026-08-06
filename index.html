@@ -3,749 +3,302 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>NeuralKinetics - One Intelligence. Infinite Possibilities.</title>
-<meta name="description" content="NeuralKinetics is an adaptive AI operating system built to reason, create, code, analyze, and assist across every workflow." />
-
-<!-- Canonical URL - replace with your real deployed domain before launch -->
-<link rel="canonical" href="https://your-domain.example.com/" />
-
-<!-- Open Graph / social preview -->
-<meta property="og:type" content="website" />
-<meta property="og:site_name" content="NeuralKinetics" />
-<meta property="og:title" content="NeuralKinetics - One Intelligence. Infinite Possibilities." />
-<meta property="og:description" content="An adaptive AI operating system built to reason, create, code, analyze, and assist across every workflow." />
-<meta property="og:url" content="https://your-domain.example.com/" />
-<meta property="og:image" content="https://your-domain.example.com/assets/og-image.png" />
-<meta property="og:image:width" content="1200" />
-<meta property="og:image:height" content="630" />
-
-<!-- Twitter card -->
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="NeuralKinetics - One Intelligence. Infinite Possibilities." />
-<meta name="twitter:description" content="An adaptive AI operating system built to reason, create, code, analyze, and assist across every workflow." />
-<meta name="twitter:image" content="https://your-domain.example.com/assets/og-image.png" />
-
-<meta name="theme-color" content="#ffffff" />
-<link rel="manifest" href="manifest.json" />
-
-<!-- Favicons -->
-<link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
-<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png" />
-<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png" />
-<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
-
-<!-- Resource hints: fonts and the hero video CDN both load on first paint -->
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="preconnect" href="https://db.onlinewebfonts.com" />
-<link rel="preconnect" href="https://d8j0ntlcm91z4.cloudfront.net" />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
-<link rel="stylesheet" href="https://db.onlinewebfonts.com/c/9d4d074c9335825a23cce178ee03b498?family=P22+Mackinac+W01+Book" />
-
-<link rel="stylesheet" href="css/globals.css" />
-<link rel="stylesheet" href="css/glass.css" />
-<link rel="stylesheet" href="css/navbar.css" />
-<link rel="stylesheet" href="css/hero.css" />
-<link rel="stylesheet" href="css/workspace.css" />
-<link rel="stylesheet" href="css/responsive.css" />
+<title>Northbeam — Autonomous engineering, on signal</title>
+<meta name="description" content="Northbeam is an autonomous coding agent that plans, writes, tests and ships code straight into your GitHub repos — with a live dashboard tracking every change." />
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="css/base.css" />
+<link rel="stylesheet" href="css/components.css" />
+<link rel="stylesheet" href="css/landing.css" />
 </head>
 <body>
 
-<!-- Ambient background field -->
-<div class="ambient-field" aria-hidden="true">
-  <span class="ambient-orb o1"></span>
-  <span class="ambient-orb o2"></span>
-  <span class="ambient-orb o3"></span>
-</div>
-<div class="cursor-spotlight" aria-hidden="true"></div>
-<div class="toast-stack" id="toastStack" aria-live="polite"></div>
+<a href="#main" class="visually-hidden">Skip to content</a>
 
-<div id="app">
+<!-- ══════════════════════ NAV ══════════════════════ -->
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="nav-brand">
+      <svg class="nav-brand-mark" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#0e7c66" stroke-width="1.6"/><path d="M7 13l3-5 2 3 2-4 3 6" stroke="#0e7c66" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Northbeam
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="#features">Capabilities</a>
+      <a href="#tour">Product tour</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="ai.html">AI Assistant</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="btn btn-outline btn-sm" id="loginBtn">Sign in</button>
+      <button class="btn btn-primary btn-sm" id="waitlistBtn">Request access</button>
+      <button class="nav-menu-btn" id="navMenuBtn" aria-label="Toggle menu" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
 
-  <!-- ══════════════════════════════════════════════════════
-       NAVBAR
-  ══════════════════════════════════════════════════════ -->
-  <nav class="navbar" id="navbar" aria-label="Main navigation">
-    <div class="navbar-inner">
+<main id="main">
 
-      <div class="navbar-left" id="navMenuWrap">
-        <button class="navbar-logo" data-nav="hero" aria-label="Go to top">
-          <svg class="navbar-logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <circle cx="16" cy="16" r="14" stroke="rgba(15, 23, 42, 0.15)" stroke-width="1"/>
-            <circle cx="16" cy="16" r="8" stroke="rgba(15, 23, 42, 0.25)" stroke-width="1"/>
-            <circle cx="16" cy="16" r="2.5" fill="rgba(15, 23, 42, 0.9)"/>
-            <line x1="16" y1="2" x2="16" y2="8" stroke="rgba(15, 23, 42, 0.5)" stroke-width="1.2" stroke-linecap="round"/>
-            <line x1="16" y1="24" x2="16" y2="30" stroke="rgba(15, 23, 42, 0.5)" stroke-width="1.2" stroke-linecap="round"/>
-            <line x1="2" y1="16" x2="8" y2="16" stroke="rgba(15, 23, 42, 0.5)" stroke-width="1.2" stroke-linecap="round"/>
-            <line x1="24" y1="16" x2="30" y2="16" stroke="rgba(15, 23, 42, 0.5)" stroke-width="1.2" stroke-linecap="round"/>
-            <line x1="6.3" y1="6.3" x2="10" y2="10" stroke="rgba(15, 23, 42, 0.25)" stroke-width="0.8" stroke-linecap="round"/>
-            <line x1="22" y1="22" x2="25.7" y2="25.7" stroke="rgba(15, 23, 42, 0.25)" stroke-width="0.8" stroke-linecap="round"/>
-            <line x1="25.7" y1="6.3" x2="22" y2="10" stroke="rgba(15, 23, 42, 0.25)" stroke-width="0.8" stroke-linecap="round"/>
-            <line x1="10" y1="22" x2="6.3" y2="25.7" stroke="rgba(15, 23, 42, 0.25)" stroke-width="0.8" stroke-linecap="round"/>
-          </svg>
-          <span class="navbar-brand">NeuralKinetics</span>
-        </button>
+  <!-- ══════════════════════ HERO ══════════════════════ -->
+  <section class="hero">
+    <svg class="hero-trace-bg" viewBox="0 0 1200 90" preserveAspectRatio="none">
+      <path class="signal-trace-path" d="M0 45 L120 45 L150 15 L180 75 L210 45 L1200 45" fill="none" stroke="#0e7c66" stroke-width="1" stroke-dasharray="5 8" opacity="0.25"/>
+    </svg>
+    <div class="container hero-grid">
+      <div class="reveal in">
+        <p class="eyebrow hero-eyebrow">Now onboarding design partners</p>
+        <h1>Autonomous engineering,<br /><em>on signal.</em></h1>
+        <p class="hero-sub">Describe the change in plain English. Northbeam plans it, writes the code, runs the tests, and opens a pull request — while you track every step on a live dashboard.</p>
+        <div class="hero-cta">
+          <button class="btn btn-signal btn-lg" id="heroWaitlistBtn">Request early access</button>
+          <a href="#tour" class="btn btn-outline btn-lg">Watch it work</a>
+        </div>
+        <div class="hero-proof">
+          <span><strong id="statRepos">0</strong> repos connected</span>
+          <span><strong id="statPrs">0</strong> PRs shipped weekly</span>
+          <span><strong id="statUptime">0.0</strong>% uptime</span>
+        </div>
+      </div>
 
-        <div class="navbar-menu-wrap">
-          <button class="navbar-menu-pill" id="navMenuPill" aria-label="Open menu" aria-expanded="false">
-            <span class="glass-circle-btn" style="width:20px;height:20px;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-            </span>
-          </button>
+      <div class="hero-panel reveal in">
+        <div class="hero-panel-bar">
+          <div class="hero-panel-dots"><span></span><span></span><span></span></div>
+          <span class="hero-panel-title">agent · live session</span>
+        </div>
+        <div class="hero-panel-body" id="heroTerminal"></div>
+      </div>
+    </div>
+  </section>
 
-          <div class="glass-panel navbar-dropdown" id="navDropdown" role="menu">
-            <button class="navbar-dropdown-link" role="menuitem" data-nav="hero">Overview</button>
-            <button class="navbar-dropdown-link" role="menuitem" data-nav="capabilities">Capabilities</button>
-            <button class="navbar-dropdown-link" role="menuitem" data-nav="tour">Product Tour</button>
-            <a class="navbar-dropdown-link" href="dashboard.html" role="menuitem">Dashboard</a>
-            <a class="navbar-dropdown-link" href="ai.html" role="menuitem">AI Assistant</a>
-            <a class="navbar-dropdown-link navbar-dropdown-link-external" href="https://github.com" target="_blank" rel="noopener noreferrer" role="menuitem">
-              View on GitHub
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M7 7h10v10"/></svg>
+  <!-- ══════════════════════ STAT STRIP ══════════════════════ -->
+  <section class="stat-strip">
+    <div class="container stat-grid">
+      <div><p class="stat-num"><span>12k+</span></p><p class="stat-label">Pull requests merged</p></div>
+      <div><p class="stat-num">340</p><p class="stat-label">Engineering teams</p></div>
+      <div><p class="stat-num">99.97%</p><p class="stat-label">Pipeline uptime</p></div>
+      <div><p class="stat-num">4.2m</p><p class="stat-label">Lines reviewed / mo</p></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════ CAPABILITIES ══════════════════════ -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow">Capabilities</p>
+        <h2>Everything a senior engineer would check, automated.</h2>
+        <p>Northbeam doesn't just generate code — it reasons about your repo, runs your test suite, and stops to ask when something's ambiguous.</p>
+      </div>
+      <div class="feature-grid reveal">
+        <div class="feature-card">
+          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg></div>
+          <h3>Plans before it codes</h3>
+          <p>Breaks a task into a reviewable step-by-step plan before touching a single file.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 18l-6-6 6-6M15 6l6 6-6 6"/></svg></div>
+          <h3>Ships real pull requests</h3>
+          <p>Opens PRs with commit-level history, not a single squashed diff you can't review.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <h3>Runs your test suite</h3>
+          <p>Executes existing tests and writes new ones for the code it adds — every time.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div>
+          <h3>Live observability</h3>
+          <p>Every action streams to a dashboard your whole team can watch and audit.</p>
+        </div>
+        <div class="feature-icon" style="display:none;"></div>
+        <div class="feature-card">
+          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73M12 2c5.52 0 10 4.58 10 10.25 0 4.53-2.87 8.37-6.84 9.73"/><path d="M12 2v20"/></svg></div>
+          <h3>Repo-aware context</h3>
+          <p>Reads your existing patterns and conventions instead of writing generic boilerplate.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+          <h3>Human approval gates</h3>
+          <p>Nothing merges to your default branch without a reviewer signing off.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════ PRODUCT TOUR (single, tabbed) ══════════════════════ -->
+  <section class="section" id="tour" style="background:var(--paper-soft);">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow">See it live</p>
+        <h2>One task, start to finish.</h2>
+        <p>Follow a single request through planning, the workspace, GitHub, and the dashboard that tracks it all.</p>
+      </div>
+
+      <div class="reveal">
+        <div class="tour-tabs" role="tablist">
+          <button class="tour-tab active" data-tab="plan" role="tab" aria-selected="true"><span class="num">01</span> Agent plan</button>
+          <button class="tour-tab" data-tab="workspace" role="tab" aria-selected="false"><span class="num">02</span> Workspace</button>
+          <button class="tour-tab" data-tab="github" role="tab" aria-selected="false"><span class="num">03</span> GitHub</button>
+          <button class="tour-tab" data-tab="dashboard" role="tab" aria-selected="false"><span class="num">04</span> Dashboard</button>
+        </div>
+
+        <!-- Panel 1: Agent plan -->
+        <div class="tour-panel active" data-panel="plan">
+          <div class="tour-layout">
+            <div>
+              <p class="tag" style="margin-bottom:var(--sp-4);">"Add rate limiting to the API"</p>
+              <div class="tour-steps" id="tourSteps"></div>
+            </div>
+            <div class="tour-visual">
+              <div class="tv-bar"><span class="dot"></span> reasoning trace</div>
+              <div class="tv-body" id="tourPlanTrace"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 2: Workspace -->
+        <div class="tour-panel" data-panel="workspace">
+          <div class="tour-layout" style="grid-template-columns: 1fr 1.3fr;">
+            <div class="tour-visual">
+              <div class="tv-bar"><span class="dot"></span> src/middleware/</div>
+              <div class="tv-body">
+                <div style="color:var(--paper-on-navy-40)">├─ auth.ts</div>
+                <div style="color:var(--signal-bright)">├─ rateLimiter.ts <span class="tag" style="margin-left:6px;padding:1px 6px;">new</span></div>
+                <div style="color:var(--paper-on-navy-40)">├─ logger.ts</div>
+                <div style="color:var(--beacon)">└─ index.ts <span class="tag" style="margin-left:6px;padding:1px 6px;">modified</span></div>
+              </div>
+            </div>
+            <div class="tour-visual">
+              <div class="tv-bar"><span class="dot"></span> rateLimiter.ts</div>
+              <div class="tv-body" id="tourCode"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 3: GitHub -->
+        <div class="tour-panel" data-panel="github">
+          <div class="tour-layout" style="grid-template-columns: 1fr 1fr;">
+            <div class="tour-visual">
+              <div class="tv-bar"><span class="dot"></span> acme/platform-api · branches</div>
+              <div style="padding: var(--sp-3) var(--sp-5);">
+                <div class="gh-row"><div class="gh-branch"><span style="color:var(--paper-on-navy-40);font-family:var(--f-mono);font-size:12px;">main</span></div><span style="font-family:var(--f-mono);font-size:11px;color:var(--paper-on-navy-40);">312 commits</span></div>
+                <div class="gh-row"><div class="gh-branch"><span style="color:var(--signal-bright);font-family:var(--f-mono);font-size:12px;">feat/rate-limit</span></div><span class="gh-badge">ahead 6</span></div>
+                <div class="gh-row"><div class="gh-branch"><span style="color:var(--paper-on-navy-40);font-family:var(--f-mono);font-size:12px;">fix/pagination</span></div><span style="font-family:var(--f-mono);font-size:11px;color:var(--paper-on-navy-40);">2 commits</span></div>
+              </div>
+            </div>
+            <div class="tour-visual">
+              <div class="tv-bar"><span class="dot"></span> pull request #482</div>
+              <div class="tv-body">
+                <div style="color:var(--paper-on-navy);font-weight:600;margin-bottom:8px;">feat: add sliding-window rate limiter</div>
+                <div style="color:var(--paper-on-navy-40);font-size:11.5px;margin-bottom:14px;">opened by northbeam-agent · 3 files changed</div>
+                <div class="gh-row"><span style="color:var(--paper-on-navy-60);">✓ tests / unit</span><span style="color:var(--signal-bright)">passed</span></div>
+                <div class="gh-row"><span style="color:var(--paper-on-navy-60);">✓ tests / integration</span><span style="color:var(--signal-bright)">passed</span></div>
+                <div class="gh-row"><span style="color:var(--paper-on-navy-60);">◐ review requested</span><span style="color:var(--beacon)">pending</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 4: Dashboard -->
+        <div class="tour-panel" data-panel="dashboard">
+          <div class="tour-visual" style="min-height:auto;">
+            <div class="tv-bar"><span class="dot"></span> dashboard · acme-corp</div>
+            <div class="tv-kpi-row">
+              <div class="tv-kpi"><p class="tv-kpi-label">Active tasks</p><p class="tv-kpi-val">14</p><p class="tv-kpi-delta">+3 today</p></div>
+              <div class="tv-kpi"><p class="tv-kpi-label">PRs this week</p><p class="tv-kpi-val">47</p><p class="tv-kpi-delta">+12%</p></div>
+              <div class="tv-kpi"><p class="tv-kpi-label">Avg review time</p><p class="tv-kpi-val">1.8h</p><p class="tv-kpi-delta">−22%</p></div>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:var(--sp-8);">
+            <a href="dashboard.html" class="btn btn-primary btn-lg">Open the full dashboard
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
             </a>
           </div>
         </div>
-
-        <div class="navbar-tags">
-          <span class="glass-tag">Advanced Bionics</span>
-          <span class="glass-tag">Cognitive AI</span>
-        </div>
       </div>
-
-      <div class="navbar-right">
-        <a class="navbar-right-pill navbar-link-dashboard" href="dashboard.html">
-          <span class="navbar-right-label">Dashboard</span>
-        </a>
-        <a class="navbar-right-pill navbar-link-ai" href="ai.html">
-          <span class="navbar-right-label">AI Assistant</span>
-          <span class="glass-circle-btn" style="width:20px;height:20px;">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg>
-          </span>
-        </a>
-        <button class="navbar-right-pill" data-nav="tour" aria-label="Adaptive Systems - jump to product tour">
-          <span class="navbar-right-label">Adaptive Systems</span>
-          <span class="glass-circle-btn" style="width:22px;height:22px;">
-            <span class="icon-grid-4" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
-          </span>
-        </button>
-      </div>
-
-      <div class="navbar-progress"><div class="navbar-progress-fill" id="navProgressFill"></div></div>
     </div>
-  </nav>
+  </section>
 
-  <main>
-    <!-- ══════════════════════════════════════════════════════
-         HERO
-    ══════════════════════════════════════════════════════ -->
-    <section id="hero" class="hero" aria-label="Hero section">
-
-      <div class="hero-video-wrapper" id="heroBoomerangWrap">
-        <div class="hero-video-scale">
-          <video class="hero-video" id="heroBoomerangVideo" muted playsinline preload="auto" crossorigin="anonymous" aria-hidden="true"
-            onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'hero-video-fallback'}))">
-            <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260715_090628_7052d8a6-a094-4341-a4a2-ad58493a67a9.mp4" type="video/mp4" />
-          </video>
-          <canvas class="hero-video hero-video-canvas" id="heroBoomerangCanvas" aria-hidden="true" style="display:none;"></canvas>
-        </div>
-      </div>
-
-      <div class="hero-overlay" aria-hidden="true"></div>
-
-      <div class="hero-content">
-        <div class="hero-eyebrow">
-          <span class="hero-eyebrow-dot" aria-hidden="true"></span>
-          <span class="hero-eyebrow-text">Neural Intelligence Platform</span>
-        </div>
-
-        <h1 class="hero-title">
-          <span class="hero-title-line">One Intelligence.</span>
-          <span class="hero-title-line">Infinite Possibilities.</span>
-        </h1>
-
-        <p class="hero-subtitle">
-          An adaptive AI system built to reason, create, code, analyze, and assist across every workflow.
-        </p>
-
-        <div class="hero-cta-row">
-          <button class="glass-btn glass-btn-solid" data-open-waitlist>
-            Request early access
-          </button>
-          <button class="glass-btn" data-nav="tour">
-            See product tour
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-          </button>
-        </div>
-
-        <div class="hero-ai-wrapper">
-          <div class="ai-input-wrapper">
-            <form class="glass-input glass-shine" id="aiInputForm" style="border-radius: var(--radius-2xl);">
-              <div class="ai-input-container">
-                <span class="ai-input-icon">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg>
-                </span>
-                <input type="text" class="ai-input-field" id="aiInputField" aria-label="AI command input" autocomplete="off" />
-                <span class="ai-input-prompt" id="aiInputPrompt" aria-hidden="true"></span>
-                <button type="submit" class="ai-input-send-btn" id="aiSendBtn" aria-label="Send">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-                </button>
-              </div>
-            </form>
-
-            <div class="ai-prompts" role="list">
-              <button type="button" class="ai-prompt-chip" role="listitem">Build a React app</button>
-              <button type="button" class="ai-prompt-chip" role="listitem">Explain quantum computing</button>
-              <button type="button" class="ai-prompt-chip" role="listitem">Debug my code</button>
-              <button type="button" class="ai-prompt-chip" role="listitem">Analyze documents</button>
-              <button type="button" class="ai-prompt-chip" role="listitem">Write marketing copy</button>
-              <button type="button" class="ai-prompt-chip" role="listitem">Plan a project</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ══════════════════════════════════════════════════════
-         STAT STRIP
-    ══════════════════════════════════════════════════════ -->
-    <section class="stat-strip" aria-label="Platform statistics">
-      <div class="container">
-        <div class="stat-strip-grid reveal-stagger">
-          <div>
-            <p class="stat-value" data-target="12">0</p>
-            <p class="stat-label">Intelligence modules</p>
-          </div>
-          <div>
-            <p class="stat-value" data-target="30" data-suffix="+">0</p>
-            <p class="stat-label">Languages supported</p>
-          </div>
-          <div>
-            <p class="stat-value" data-target="99.9" data-suffix="%">0</p>
-            <p class="stat-label">Uptime SLA</p>
-          </div>
-          <div>
-            <p class="stat-value" data-target="248">0</p>
-            <p class="stat-label">Commits automated</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ══════════════════════════════════════════════════════
-         CAPABILITY CARDS
-    ══════════════════════════════════════════════════════ -->
-    <section id="capabilities" class="capabilities-section" aria-labelledby="capabilities-heading">
-      <div class="container">
-
-        <div class="capabilities-header reveal">
-          <p class="section-label">Platform Capabilities</p>
-          <h2 class="section-title" id="capabilities-heading">Built for every challenge</h2>
-          <p class="section-sub" style="margin:0 auto;">
-            Twelve core intelligence modules working in concert - from raw reasoning
-            to autonomous execution across your entire workflow stack.
-          </p>
-        </div>
-
-        <div class="capabilities-toolbar reveal">
-          <label class="glass-panel capability-filter" for="capabilityFilter">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-            <input type="text" id="capabilityFilter" placeholder="Search capabilities…" autocomplete="off" />
-          </label>
-        </div>
-
-        <div class="capabilities-grid reveal-stagger" id="capabilitiesGrid">
-
-          <div class="glass-card capability-card glass-shine" data-search="advanced reasoning multi-step logical inference causal analysis">
-            <div class="capability-icon-wrap"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.5H7a2.5 2.5 0 0 1 0-5H6a2.5 2.5 0 0 1 0-5h.5A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.5H17a2.5 2.5 0 0 0 0-5h1a2.5 2.5 0 0 0 0-5h-.5A2.5 2.5 0 0 0 14.5 2Z"/></svg></div>
-            <div><p class="capability-title">Advanced Reasoning</p><p class="capability-desc">Multi-step logical inference and causal analysis across complex domains.</p></div>
-          </div>
-
-          <div class="glass-card capability-card glass-shine" data-search="autonomous planning goal-oriented task decomposition strategy">
-            <div class="capability-icon-wrap"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="2"/><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="19" cy="18" r="2"/><path d="M12 10V8M10.5 10.8 7 7.6M13.5 10.8 17 7.6M10.5 13.2 7 16.4M13.5 13.2 17 16.4"/></svg></div>
-            <div><p class="capability-title">Autonomous Planning</p><p class="capability-desc">Goal-oriented task decomposition with adaptive strategy formulation.</p></div>
-          </div>
-
-          <div class="glass-card capability-card glass-shine" data-search="neural processing high throughput inference transformer">
-            <div class="capability-icon-wrap"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg></div>
-            <div><p class="capability-title">Neural Processing</p><p class="capability-desc">High-throughput inference with transformer-based architecture at scale.</p></div>
-          </div>
-
-          <div class="glass-card capability-card glass-shine" data-search="multimodal ai text images code structured data">
-            <div class="capability-icon-wrap"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg></div>
-            <div><p class="capability-title">Multimodal AI</p><p class="capability-desc">Unified understanding across text, images, code, and structured data.</p></div>
-          </div>
-
-          <div class="glass-card capability-card glass-shine" data-search="vision intelligence pixel scene ocr visual reasoning">
-            <div class="capability-icon-wrap"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div>
-            <div><p class="capability-title">Vision Intelligence</p><p class="capability-desc">Pixel-level scene understanding, OCR, and visual reasoning pipelines.</p></div>
-          </div>
-
-          <div class="glass-card capability-card glass-shine" data-search="code generation production-ready languages frameworks">
-            <div class="capability-icon-wrap"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m8 6-6 6 6 6M16 6l6 6-6 6"/></svg></div>
-            <div><p class="capability-title">Code Generation</p><p class="capability-desc">Production-ready code synthesis across 30+ languages and frameworks.</p></div>
-          </div>
-
-          <div class="glass-card capability-card glass-shine" data-search="research assistant web retrieval synthesis citation report">
-            <div class="capability-icon-wrap"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>
-            <div><p class="capability-title">Research Assistant</p><p class="capability-desc">Deep web retrieval, synthesis, and citation-grounded report generation.</p></div>
-          </div>
-
-          <div class="glass-card capability-card glass-shine" data-search="data analysis statistical modeling anomaly detection insight">
-            <div class="capability-icon-wrap"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg></div>
-            <div><p class="capability-title">Data Analysis</p><p class="capability-desc">Statistical modeling, anomaly detection, and insight extraction at scale.</p></div>
-          </div>
-
-          <div class="glass-card capability-card glass-shine" data-search="creative generation narrative writing ideation brand content">
-            <div class="capability-icon-wrap"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 22a9.7 9.7 0 0 0 6-2c1.5-1.3 3-3.5 3-7A9 9 0 0 0 12 4a9 9 0 0 0-9 9c0 1 .5 2 1 2 1 0 1-1 2-1s1 1 2 2-1 2 0 3 2-1 3 0-1 2 0 3 2 0 3 0Z"/></svg></div>
-            <div><p class="capability-title">Creative Generation</p><p class="capability-desc">Narrative writing, ideation, and brand-aligned content creation.</p></div>
-          </div>
-
-          <div class="glass-card capability-card glass-shine" data-search="business strategy market analysis competitive intelligence">
-            <div class="capability-icon-wrap"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m23 6-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg></div>
-            <div><p class="capability-title">Business Strategy</p><p class="capability-desc">Market analysis, competitive intelligence, and strategic planning.</p></div>
-          </div>
-
-          <div class="glass-card capability-card glass-shine" data-search="workflow automation process orchestration integrations">
-            <div class="capability-icon-wrap"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div>
-            <div><p class="capability-title">Workflow Automation</p><p class="capability-desc">End-to-end process orchestration with conditional logic and integrations.</p></div>
-          </div>
-
-          <div class="glass-card capability-card glass-shine" data-search="real-time analysis live stream processing alert generation">
-            <div class="capability-icon-wrap"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
-            <div><p class="capability-title">Real-Time Analysis</p><p class="capability-desc">Live stream processing with sub-second inference and alert generation.</p></div>
-          </div>
-
-        </div>
-
-        <p class="capabilities-empty" id="capabilitiesEmpty">No capabilities match your search.</p>
-      </div>
-    </section>
-
-    <!-- ══════════════════════════════════════════════════════
-         PRODUCT TOUR - agent, workspace, GitHub and dashboard
-         consolidated into one tabbed section (previously four
-         separate, overlapping "here's our product" blocks).
-    ══════════════════════════════════════════════════════ -->
-    <section id="tour" class="tour-section" aria-labelledby="tour-heading">
-      <div class="container">
-        <div class="reveal tour-head">
-          <p class="section-label">See It Live</p>
-          <h2 class="section-title" id="tour-heading">One workspace. Everything connected.</h2>
-          <p class="section-sub" style="max-width:620px;">
-            Describe a task in plain language and the agent plans it, writes the code,
-            runs it, and opens a pull request - inside the same workspace, repository,
-            and dashboard you can explore below.
-          </p>
-        </div>
-
-        <div class="tour-tabs reveal" id="tourTabs" role="tablist" aria-label="Product tour sections">
-          <button type="button" class="tour-tab active" data-tour-tab="agent" role="tab" aria-selected="true" aria-controls="tourPanel-agent">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
-            Autonomous Agent
-          </button>
-          <button type="button" class="tour-tab" data-tour-tab="workspace" role="tab" aria-selected="false" aria-controls="tourPanel-workspace">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>
-            Workspace
-          </button>
-          <button type="button" class="tour-tab" data-tour-tab="github" role="tab" aria-selected="false" aria-controls="tourPanel-github">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.03-.01-1.87-2.78.62-3.37-1.22-3.37-1.22-.46-1.19-1.11-1.51-1.11-1.51-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.32 9.32 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
-            GitHub
-          </button>
-          <button type="button" class="tour-tab" data-tour-tab="dashboard" role="tab" aria-selected="false" aria-controls="tourPanel-dashboard">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/></svg>
-            Dashboard
-          </button>
-        </div>
-
-        <div class="tour-panels reveal">
-
-          <!-- Panel: Autonomous Agent -->
-          <div class="tour-panel active" id="tourPanel-agent" data-tour-panel="agent" role="tabpanel">
-            <div class="tour-panel-grid">
-              <div class="task-message-wrap">
-                <div class="task-user-bubble">"Add authentication to my React app"</div>
-
-                <div class="glass-panel" style="padding: var(--space-5);">
-                  <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-3);">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--brand-1)" stroke-width="1.8"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
-                    <span style="font-size:var(--text-xs);font-weight:600;color:var(--color-text-secondary);">NeuralKinetics Agent</span>
-                  </div>
-                  <p style="font-size:var(--text-xs);color:var(--color-text-muted);line-height:1.6;">
-                    Scanning your project structure. I found a React + Vite app with
-                    Supabase already installed. I'll implement JWT-based auth with
-                    protected routes and session persistence.
-                  </p>
-                </div>
-              </div>
-
-              <div class="glass-panel" style="padding: var(--space-2);">
-                <div style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border); margin-bottom: var(--space-2);">
-                  <span style="font-size:var(--text-xs);font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.06em;">AI Process</span>
-                </div>
-                <div class="workflow-steps" id="workflowSteps">
-                  <div class="workflow-step">
-                    <div class="workflow-step-line"></div>
-                    <div class="workflow-step-dot">1</div>
-                    <div class="workflow-step-info"><p class="workflow-step-title">Scanning project files</p><p class="workflow-step-status">47 files analyzed</p></div>
-                  </div>
-                  <div class="workflow-step">
-                    <div class="workflow-step-line"></div>
-                    <div class="workflow-step-dot">2</div>
-                    <div class="workflow-step-info"><p class="workflow-step-title">Understanding architecture</p><p class="workflow-step-status">React + Vite detected</p></div>
-                  </div>
-                  <div class="workflow-step">
-                    <div class="workflow-step-line"></div>
-                    <div class="workflow-step-dot">3</div>
-                    <div class="workflow-step-info"><p class="workflow-step-title">Planning implementation</p><p class="workflow-step-status">Auth strategy chosen</p></div>
-                  </div>
-                  <div class="workflow-step">
-                    <div class="workflow-step-line"></div>
-                    <div class="workflow-step-dot">4</div>
-                    <div class="workflow-step-info"><p class="workflow-step-title">Creating components</p><p class="workflow-step-status">Generating Auth.jsx...</p></div>
-                  </div>
-                  <div class="workflow-step">
-                    <div class="workflow-step-line"></div>
-                    <div class="workflow-step-dot">5</div>
-                    <div class="workflow-step-info"><p class="workflow-step-title">Updating code</p><p class="workflow-step-status">App.jsx, routes</p></div>
-                  </div>
-                  <div class="workflow-step">
-                    <div class="workflow-step-line"></div>
-                    <div class="workflow-step-dot">6</div>
-                    <div class="workflow-step-info"><p class="workflow-step-title">Running tests</p><p class="workflow-step-status">jest --coverage</p></div>
-                  </div>
-                  <div class="workflow-step">
-                    <div class="workflow-step-line"></div>
-                    <div class="workflow-step-dot">7</div>
-                    <div class="workflow-step-info"><p class="workflow-step-title">Fixing errors</p><p class="workflow-step-status">Auto-lint + typecheck</p></div>
-                  </div>
-                  <div class="workflow-step">
-                    <div class="workflow-step-dot">8</div>
-                    <div class="workflow-step-info"><p class="workflow-step-title">Feature completed</p><p class="workflow-step-status">PR ready to merge</p></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Panel: Workspace -->
-          <div class="tour-panel" id="tourPanel-workspace" data-tour-panel="workspace" role="tabpanel" hidden>
-            <div class="workspace-layout" style="margin-top:0;">
-              <div class="workspace-column">
-
-                <div class="glass-panel workspace-panel">
-                  <div class="panel-header">
-                    <span class="panel-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg>Explorer</span>
-                    <span class="status-dot amber" title="Modified files"></span>
-                  </div>
-                  <div class="panel-body">
-                    <div class="file-tree" id="fileTree">
-                      <div class="file-item" style="padding-left:8px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.25)" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1.6"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg><span class="file-name">src</span></div>
-                      <div class="file-item" style="padding-left:22px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.25)" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1.6"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg><span class="file-name">components</span></div>
-                      <button type="button" class="file-item active modified" data-file="Auth.jsx" data-clickable style="padding-left:36px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg><span class="file-name">Auth.jsx</span></button>
-                      <button type="button" class="file-item" data-file="Layout.jsx" data-clickable style="padding-left:36px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg><span class="file-name">Layout.jsx</span></button>
-                      <div class="file-item" style="padding-left:22px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.25)" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1.6"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg><span class="file-name">hooks</span></div>
-                      <button type="button" class="file-item modified" data-file="useAuth.js" data-clickable style="padding-left:36px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg><span class="file-name">useAuth.js</span></button>
-                      <div class="file-item" style="padding-left:22px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.25)" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1.6"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg><span class="file-name">styles</span></div>
-                      <div class="file-item" style="padding-left:36px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.35)" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg><span class="file-name">globals.css</span></div>
-                      <div class="file-item" style="padding-left:8px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg><span class="file-name">package.json</span></div>
-                      <div class="file-item" style="padding-left:8px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.35)" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg><span class="file-name">.env</span></div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="glass-panel workspace-panel">
-                  <div class="panel-header">
-                    <span class="panel-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg><span id="codeEditorTitle">Auth.jsx</span></span>
-                    <span class="glass-tag" style="padding:1px 6px;font-size:10px;">AI Generated</span>
-                  </div>
-                  <div class="panel-body code-editor-wrap">
-                    <button type="button" class="code-copy-btn" id="codeCopyBtn">
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                      Copy
-                    </button>
-                    <div class="code-block" id="codeBlock"></div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="workspace-column">
-                <div class="glass-panel workspace-panel">
-                  <div class="panel-header">
-                    <span class="panel-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m4 17 6-5-6-5M12 19h8"/></svg>Terminal</span>
-                    <span class="status-dot" title="Running"></span>
-                  </div>
-                  <div class="panel-body">
-                    <div class="terminal-wrap" id="terminalWrap"></div>
-                  </div>
-                </div>
-
-                <div class="glass-panel workspace-panel">
-                  <div class="panel-header">
-                    <span class="panel-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>Git Changes</span>
-                    <span style="font-size:var(--text-xs);color:var(--color-text-muted);">5 files</span>
-                  </div>
-                  <div class="panel-body">
-                    <div class="git-changes">
-                      <div class="git-file-item"><span class="git-status A">A</span><span style="color:var(--color-text-secondary);overflow:hidden;text-overflow:ellipsis;">src/components/Auth.jsx</span></div>
-                      <div class="git-file-item"><span class="git-status A">A</span><span style="color:var(--color-text-secondary);overflow:hidden;text-overflow:ellipsis;">src/hooks/useAuth.js</span></div>
-                      <div class="git-file-item"><span class="git-status M">M</span><span style="color:var(--color-text-secondary);overflow:hidden;text-overflow:ellipsis;">src/components/Layout.jsx</span></div>
-                      <div class="git-file-item"><span class="git-status M">M</span><span style="color:var(--color-text-secondary);overflow:hidden;text-overflow:ellipsis;">src/App.jsx</span></div>
-                      <div class="git-file-item"><span class="git-status M">M</span><span style="color:var(--color-text-secondary);overflow:hidden;text-overflow:ellipsis;">package.json</span></div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="glass-panel workspace-panel">
-                  <div class="panel-header">
-                    <span class="panel-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>AI Task Timeline</span>
-                    <span class="status-dot blue" title="In progress"></span>
-                  </div>
-                  <div class="panel-body">
-                    <div class="ai-timeline">
-                      <div class="timeline-item"><span class="timeline-dot done"></span><div class="timeline-content"><p class="timeline-content-title">Project scanned</p><p class="timeline-content-detail">47 files indexed</p></div></div>
-                      <div class="timeline-item"><span class="timeline-dot done"></span><div class="timeline-content"><p class="timeline-content-title">Dependencies resolved</p><p class="timeline-content-detail">+supabase, +jwt</p></div></div>
-                      <div class="timeline-item"><span class="timeline-dot done"></span><div class="timeline-content"><p class="timeline-content-title">Components generated</p><p class="timeline-content-detail">Auth.jsx, useAuth.js</p></div></div>
-                      <div class="timeline-item"><span class="timeline-dot active"></span><div class="timeline-content"><p class="timeline-content-title">Tests running</p><p class="timeline-content-detail">jest --coverage</p></div></div>
-                      <div class="timeline-item"><span class="timeline-dot pending"></span><div class="timeline-content"><p class="timeline-content-title">PR ready</p><p class="timeline-content-detail">feature/auth-system</p></div></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Panel: GitHub -->
-          <div class="tour-panel" id="tourPanel-github" data-tour-panel="github" role="tabpanel" hidden>
-            <div class="github-layout">
-              <!-- Left: Main GitHub panel -->
-              <div class="glass-panel github-panel">
-                <div class="github-repo-header">
-                  <div class="github-repo-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.03-.01-1.87-2.78.62-3.37-1.22-3.37-1.22-.46-1.19-1.11-1.51-1.11-1.51-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.32 9.32 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
-                  </div>
-                  <div class="github-repo-info">
-                    <p class="github-repo-name github-repo-static" id="githubRepoStatic">
-                      <span id="githubRepoName">acme-corp/platform-v2 </span>
-                      <button type="button" class="github-repo-edit-btn" id="githubRepoEditBtn" aria-label="Edit repository name">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
-                      </button>
-                    </p>
-                    <form class="github-repo-form" id="githubRepoForm">
-                      <input type="text" class="github-repo-input" id="githubRepoInput" aria-label="Repository name" placeholder="owner/repo" />
-                      <button type="submit" class="github-repo-confirm" aria-label="Save repository name">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
-                      </button>
-                    </form>
-                    <p class="github-repo-meta">private · TypeScript · 2.4k stars</p>
-                  </div>
-                  <div class="github-connected-badge"><span class="status-dot"></span>Connected</div>
-                </div>
-
-                <div>
-                  <p class="github-actions-title">Available Actions</p>
-                  <div class="github-actions-grid" id="githubActionsGrid"></div>
-                </div>
-
-                <div>
-                  <p class="github-actions-title">Branches</p>
-                  <div class="github-branches">
-                    <button type="button" class="branch-item selected"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1.6"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg><span class="branch-name">main</span><span style="color:rgba(15, 23, 42, 0.25);font-size:10px;">248 commits</span><span class="branch-badge current">current</span></button>
-                    <button type="button" class="branch-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1.6"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg><span class="branch-name">feature/auth-system</span><span style="color:rgba(15, 23, 42, 0.25);font-size:10px;">12 commits</span><span class="branch-badge ahead">ahead</span></button>
-                    <button type="button" class="branch-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1.6"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg><span class="branch-name">fix/dashboard-perf</span><span style="color:rgba(15, 23, 42, 0.25);font-size:10px;">3 commits</span></button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Right: Activity log + commit history -->
-              <div style="display:flex;flex-direction:column;gap:var(--space-4);">
-                <div class="glass-panel" style="padding: var(--space-5);">
-                  <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-4);">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.35)" stroke-width="1.6"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="m7 9 3 3-3 3M12 15h5"/></svg>
-                    <p class="github-actions-title" style="margin-bottom:0;">Live Activity</p>
-                  </div>
-                  <p class="activity-log-empty" id="activityLogEmpty">Run an action above to see live output here.</p>
-                  <div class="activity-log" id="activityLog"></div>
-                </div>
-
-                <div class="glass-panel" style="padding: var(--space-5);">
-                  <p class="github-actions-title" style="margin-bottom: var(--space-4);">Recent Commits</p>
-                  <div>
-                    <div class="commit-row">
-                      <button type="button" class="commit-hash">a3f9d1c</button>
-                      <div class="commit-body"><p class="commit-msg">feat: add auth system with JWT</p><p class="commit-meta">AI Agent · 2m ago</p></div>
-                      <span class="commit-ai-badge">AI</span>
-                    </div>
-                    <div class="commit-row">
-                      <button type="button" class="commit-hash">b7e2f45</button>
-                      <div class="commit-body"><p class="commit-msg">fix: resolve hydration mismatch</p><p class="commit-meta">dev · 18m ago</p></div>
-                    </div>
-                    <div class="commit-row">
-                      <button type="button" class="commit-hash">c1d8a03</button>
-                      <div class="commit-body"><p class="commit-msg">chore: update dependencies</p><p class="commit-meta">dev · 1h ago</p></div>
-                    </div>
-                    <div class="commit-row" style="border-bottom:none;">
-                      <button type="button" class="commit-hash">d4c6b91</button>
-                      <div class="commit-body"><p class="commit-msg">feat: dashboard analytics v2</p><p class="commit-meta">AI Agent · 3h ago</p></div>
-                      <span class="commit-ai-badge">AI</span>
-                    </div>
-                  </div>
-                  <div class="commit-stats">
-                    <div class="commit-stat"><p class="commit-stat-value">248</p><p class="commit-stat-label">Commits</p></div>
-                    <div class="commit-stat"><p class="commit-stat-value">31</p><p class="commit-stat-label">PRs merged</p></div>
-                    <div class="commit-stat"><p class="commit-stat-value">47</p><p class="commit-stat-label">AI commits</p></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Panel: Dashboard -->
-          <div class="tour-panel" id="tourPanel-dashboard" data-tour-panel="dashboard" role="tabpanel" hidden>
-            <div class="showcase-frame-wrap">
-              <div class="showcase-glow" aria-hidden="true"></div>
-              <div class="browser-frame">
-                <div class="browser-chrome">
-                  <div class="browser-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
-                  <div class="browser-url"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>neuralkinetics.ai/dashboard</div>
-                  <div class="browser-actions"><span></span><span></span><span></span></div>
-                </div>
-                <img src="assets/dashboard-preview.png" alt="NeuralKinetics dashboard showing KPIs, team workload, project progress, a contribution activity heatmap, and language breakdown for the acme-corp organization" class="browser-shot" width="1760" height="1100" loading="lazy" />
-              </div>
-
-              <div class="showcase-badges">
-                <div class="showcase-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h4l2.5-7L14 19l2.5-7H21"/></svg>Live activity log</div>
-                <div class="showcase-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>⌘K command palette</div>
-                <div class="showcase-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Real Chart.js analytics</div>
-              </div>
-
-              <div style="text-align:center;margin-top:var(--space-8);">
-                <a class="glass-btn glass-btn-solid" href="dashboard.html">
-                  Open the full dashboard
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-                </a>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- ══════════════════════════════════════════════════════
-       FOOTER
-  ══════════════════════════════════════════════════════ -->
-  <footer class="footer" aria-label="Site footer">
+  <!-- ══════════════════════ CTA ══════════════════════ -->
+  <section class="section">
     <div class="container">
-      <div class="footer-inner">
-        <div class="footer-brand">
-          <svg viewBox="0 0 24 24" fill="none" width="20" height="20" aria-hidden="true">
-            <circle cx="12" cy="12" r="10" stroke="rgba(15, 23, 42, 0.2)" stroke-width="1"/>
-            <circle cx="12" cy="12" r="5" stroke="rgba(15, 23, 42, 0.35)" stroke-width="1"/>
-            <circle cx="12" cy="12" r="2" fill="rgba(15, 23, 42, 0.7)"/>
-            <line x1="12" y1="2" x2="12" y2="7" stroke="rgba(15, 23, 42, 0.35)" stroke-width="1" stroke-linecap="round"/>
-            <line x1="12" y1="17" x2="12" y2="22" stroke="rgba(15, 23, 42, 0.35)" stroke-width="1" stroke-linecap="round"/>
-            <line x1="2" y1="12" x2="7" y2="12" stroke="rgba(15, 23, 42, 0.35)" stroke-width="1" stroke-linecap="round"/>
-            <line x1="17" y1="12" x2="22" y2="12" stroke="rgba(15, 23, 42, 0.35)" stroke-width="1" stroke-linecap="round"/>
-          </svg>
-          <span class="footer-brand-name">NeuralKinetics</span>
-          <span class="footer-copy">© <span id="footerYear"></span></span>
-        </div>
-
-        <nav class="footer-links" aria-label="Footer navigation">
-          <button type="button" class="footer-link" data-nav="hero">Platform</button>
-          <button type="button" class="footer-link" data-nav="capabilities">Capabilities</button>
-          <button type="button" class="footer-link" data-nav="tour">Product Tour</button>
-          <a href="ai.html" class="footer-link">AI Assistant</a>
-          <a class="footer-link" href="dashboard.html">Dashboard</a>
-          <a class="footer-link" href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
-        </nav>
-      </div>
-
-      <div class="footer-newsletter">
-        <form class="glass-panel newsletter-input-wrap" id="newsletterForm">
-          <input type="email" id="newsletterEmail" placeholder="Get product updates - your email" aria-label="Email for updates" autocomplete="off" />
-          <button type="submit" class="newsletter-submit" aria-label="Subscribe">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-          </button>
-        </form>
-        <span class="newsletter-status" id="newsletterStatus"></span>
+      <div class="cta-band reveal">
+        <h2>Give your backlog a signal.</h2>
+        <p>Join the design-partner group shipping production PRs with Northbeam every week.</p>
+        <button class="btn btn-signal btn-lg" id="ctaWaitlistBtn">Request early access</button>
       </div>
     </div>
-  </footer>
+  </section>
 
-</div><!-- /#app -->
+</main>
 
-<!-- ══════════════════════════════════════════════════════
-     REQUEST EARLY ACCESS MODAL
-══════════════════════════════════════════════════════ -->
-<div class="modal-overlay" id="waitlistModal" role="dialog" aria-modal="true" aria-labelledby="waitlistTitle">
-  <div class="glass-panel glass-strong modal-card">
-    <button type="button" class="modal-close" id="waitlistClose" aria-label="Close dialog">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 6 6 18M6 6l12 12"/></svg>
+<!-- ══════════════════════ FOOTER ══════════════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand-col">
+        <a href="index.html" class="nav-brand">
+          <svg class="nav-brand-mark" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#0e7c66" stroke-width="1.6"/><path d="M7 13l3-5 2 3 2-4 3 6" stroke="#0e7c66" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Northbeam
+        </a>
+        <p>An autonomous coding agent that plans, ships, and reports on its own work — so your team reviews outcomes, not busywork.</p>
+        <div class="footer-social">
+          <a href="https://github.com" aria-label="GitHub" target="_blank" rel="noopener"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.03-.01-1.87-2.78.62-3.37-1.22-3.37-1.22-.46-1.19-1.11-1.51-1.11-1.51-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.32 9.32 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg></a>
+          <a href="https://x.com" aria-label="X" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-7.2l-5.6-7.3L4 22H1l8.1-9.3L1 2h7.4l5.1 6.7L18.9 2Z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Product</h5>
+        <a href="#features">Capabilities</a>
+        <a href="#tour">Product tour</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="ai.html">AI Assistant</a>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a href="#">About</a>
+        <a href="#">Careers</a>
+        <a href="#">Blog</a>
+        <a href="#">Security</a>
+      </div>
+      <div class="footer-col">
+        <h5>Get started</h5>
+        <button type="button" id="footerWaitlistBtn">Request access</button>
+        <a href="#">Documentation</a>
+        <a href="#">Contact sales</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Northbeam. All rights reserved.</span>
+      <span>Built for engineering teams that ship.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════════════════ WAITLIST MODAL ══════════════════════ -->
+<div class="modal-overlay" id="waitlistModal">
+  <div class="modal-card">
+    <button class="modal-close" id="modalCloseBtn" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
     </button>
-
-    <p class="modal-eyebrow">Early Access</p>
-    <h3 class="modal-title" id="waitlistTitle">Request access to NeuralKinetics</h3>
-    <p class="modal-sub">Join the private beta. We onboard a new cohort every week.</p>
-
-    <div class="form-body" id="waitlistFormBody">
-      <form id="waitlistForm" novalidate>
-        <div class="form-field">
-          <label class="form-label" for="waitlistName">Name</label>
-          <input type="text" class="form-input" id="waitlistName" placeholder="Ada Lovelace" autocomplete="name" />
-        </div>
-        <div class="form-field">
-          <label class="form-label" for="waitlistEmail">Work email</label>
-          <input type="email" class="form-input" id="waitlistEmail" placeholder="ada@company.com" autocomplete="email" />
-          <p class="form-error" id="waitlistEmailError">Enter a valid email address.</p>
-        </div>
-        <button type="submit" class="glass-btn glass-btn-solid form-submit" id="waitlistSubmit">Request early access</button>
-      </form>
-    </div>
-
-    <div class="form-success" id="waitlistSuccess">
-      <div class="form-success-icon">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
-      </div>
-      <h4 style="font-size: var(--text-md); font-weight: 600; margin-bottom: var(--space-2);">You're on the list</h4>
-      <p style="font-size: var(--text-sm); color: rgba(15, 23, 42, 0.45); line-height:1.6;">We'll email you as soon as a spot opens up.</p>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);">Early access</p>
+    <h3>Request access to Northbeam</h3>
+    <p>We're onboarding design partners in small batches. Tell us where to reach you.</p>
+    <form class="modal-form" id="waitlistForm">
+      <div class="field"><label for="wlName">Full name</label><input type="text" id="wlName" required /></div>
+      <div class="field"><label for="wlEmail">Work email</label><input type="email" id="wlEmail" required /></div>
+      <button type="submit" class="btn btn-primary btn-block btn-lg">Join the waitlist</button>
+    </form>
+    <div class="modal-success" id="modalSuccess">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/></svg>
+      <h3>You're on the list</h3>
+      <p>We'll email you as soon as a spot opens up.</p>
     </div>
   </div>
 </div>
 
-<!-- Back to top -->
-<button type="button" class="back-to-top" id="backToTop" aria-label="Back to top">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-</button>
+<div class="toast-stack" id="toastStack"></div>
 
-<script src="js/github-config.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/boomerang-video.js"></script>
-<script src="js/main.js"></script>
-<script>
-/* Product Tour tab switcher - new in this redesign, self-contained
-   so it doesn't touch any existing demo logic in main.js/studio.js. */
-document.addEventListener('DOMContentLoaded', function () {
-  var tabs = document.querySelectorAll('.tour-tab');
-  var panels = document.querySelectorAll('.tour-panel');
-  if (!tabs.length) return;
-  tabs.forEach(function (tab) {
-    tab.addEventListener('click', function () {
-      var key = tab.getAttribute('data-tour-tab');
-      tabs.forEach(function (t) {
-        var active = t === tab;
-        t.classList.toggle('active', active);
-        t.setAttribute('aria-selected', active ? 'true' : 'false');
-      });
-      panels.forEach(function (p) {
-        var match = p.getAttribute('data-tour-panel') === key;
-        p.classList.toggle('active', match);
-        if (match) { p.removeAttribute('hidden'); } else { p.setAttribute('hidden', ''); }
-      });
-    });
-  });
-});
-</script>
+<script src="js/app.js"></script>
+<script src="js/landing.js"></script>
 </body>
 </html>
