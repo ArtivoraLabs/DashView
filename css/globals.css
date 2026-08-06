@@ -10,72 +10,77 @@
    scanner immediately, in parallel with everything else. */
 
 :root {
-  /* Colors - light theme. Ink-on-white instead of white-on-black;
-     every surface/text/border token below is still driven from one
-     place, so downstream files that reference var(--color-*) just
-     work. */
+  /* ============================================================
+     Design system v2 - "Northbeam" professional palette.
+     Same variable names as before, so every downstream file that
+     references var(--color-*), var(--glass-*), var(--brand-*) keeps
+     working - only the values change, which is what carries the
+     redesign through the whole product without touching every file.
+     ============================================================ */
+
+  /* Surfaces - crisp, flat, layered with real shadow instead of
+     translucency + blur. */
   --color-bg: #ffffff;
-  --color-bg-deep: #f7f8fa;
-  --color-bg-elevated: #eef0f4;
-  --color-surface: rgba(15, 23, 42, 0.035);
-  --color-surface-hover: rgba(15, 23, 42, 0.06);
-  --color-surface-active: rgba(15, 23, 42, 0.09);
-  --color-border: rgba(15, 23, 42, 0.10);
-  --color-border-bright: rgba(15, 23, 42, 0.18);
-  --color-text-primary: #191919;
-  --color-text-secondary: rgba(25, 25, 25, 0.7);
-  --color-text-muted: rgba(25, 25, 25, 0.4);
-  --color-accent: #191919;
-  --color-accent-glow: rgba(25, 25, 25, 0.05);
-  --color-panel-muted: #F4F3F3;
+  --color-bg-deep: #f6f7fb;
+  --color-bg-elevated: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f8f9fc;
+  --color-surface-active: #f1f2f8;
+  --color-border: rgba(20, 24, 38, 0.09);
+  --color-border-bright: rgba(20, 24, 38, 0.16);
+  --color-text-primary: #10121c;
+  --color-text-secondary: rgba(16, 18, 28, 0.64);
+  --color-text-muted: rgba(16, 18, 28, 0.44);
+  --color-accent: #3730a3;
+  --color-accent-glow: rgba(55, 48, 163, 0.14);
+  --color-panel-muted: #f5f6fa;
 
-  /* Semantic colors - defined once, referenced everywhere via var().
-     An -rgb companion is provided for every semantic/brand color so
-     translucent fills and glows (rgba(var(--x-rgb), 0.12)) stay in
-     lockstep with the solid color instead of drifting out of sync. */
-  --color-success: #059669;
-  --color-success-rgb: 5, 150, 105;
-  --color-warning: #d97706;
-  --color-warning-rgb: 217, 119, 6;
-  --color-info: #2563eb;
-  --color-info-rgb: 37, 99, 235;
-  --color-danger: #e11d48;
-  --color-danger-rgb: 225, 29, 72;
-  --color-violet: #7c3aed;
-  --color-violet-rgb: 124, 58, 237;
-  --color-cyan: #0891b2;
-  --color-cyan-rgb: 8, 145, 178;
+  /* Semantic colors */
+  --color-success: #0d9488;
+  --color-success-rgb: 13, 148, 136;
+  --color-warning: #b45309;
+  --color-warning-rgb: 180, 83, 9;
+  --color-info: #3730a3;
+  --color-info-rgb: 55, 48, 163;
+  --color-danger: #be123c;
+  --color-danger-rgb: 190, 18, 60;
+  --color-violet: #6d28d9;
+  --color-violet-rgb: 109, 40, 217;
+  --color-cyan: #0e7490;
+  --color-cyan-rgb: 14, 116, 144;
 
-  /* Brand - ink monochrome. One neutral tone standing in for what
-     used to be an indigo→violet→cyan sweep: same variable names so
-     every downstream file that references var(--brand-*) still
-     works, just rendered as ink-on-white instead of a color gradient. */
-  --brand-1: #191919;
-  --brand-1-rgb: 25, 25, 25;
-  --brand-2: #191919;
-  --brand-2-rgb: 25, 25, 25;
-  --brand-3: #454545;
-  --brand-3-rgb: 69, 69, 69;
-  --gradient-brand: linear-gradient(120deg, var(--brand-1) 0%, var(--brand-3) 100%);
-  --gradient-brand-soft: linear-gradient(120deg, rgba(var(--brand-1-rgb), 0.06) 0%, rgba(var(--brand-3-rgb), 0.05) 100%);
-  --gradient-brand-text: var(--color-text-primary);
-  --shadow-brand: 0 8px 30px rgba(var(--brand-1-rgb), 0.16);
+  /* Brand - a deliberate indigo → violet sweep used sparingly for
+     CTAs, active states and accent text, on top of an otherwise
+     neutral ink-on-white product. */
+  --brand-1: #3730a3;
+  --brand-1-rgb: 55, 48, 163;
+  --brand-2: #5b21b6;
+  --brand-2-rgb: 91, 33, 182;
+  --brand-3: #4f46e5;
+  --brand-3-rgb: 79, 70, 229;
+  --gradient-brand: linear-gradient(120deg, var(--brand-1) 0%, var(--brand-2) 100%);
+  --gradient-brand-soft: linear-gradient(120deg, rgba(var(--brand-1-rgb), 0.08) 0%, rgba(var(--brand-2-rgb), 0.06) 100%);
+  --gradient-brand-text: var(--brand-1);
+  --shadow-brand: 0 12px 28px -8px rgba(var(--brand-1-rgb), 0.45);
 
-  /* Glass - frosted panels on a light backdrop: a faint dark tint
-     for the fill, a bright inset rim to keep the "catching light"
-     glass highlight legible on white. */
-  --glass-bg: rgba(15, 23, 42, 0.035);
-  --glass-bg-strong: rgba(15, 23, 42, 0.06);
-  --glass-blur: blur(20px);
-  --glass-blur-light: blur(10px);
-  --glass-border: 1px solid rgba(15, 23, 42, 0.08);
-  --glass-border-bright: 1px solid rgba(15, 23, 42, 0.16);
-  --glass-shadow: 0 8px 32px rgba(15, 23, 42, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.7);
-  --glass-shadow-lg: 0 20px 60px rgba(15, 23, 42, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  /* "Glass" tokens - kept for compatibility with every file that
+     still references var(--glass-*), now rendered as solid surfaces
+     with a real, restrained elevation shadow instead of frosted
+     blur. No backdrop-filter anywhere in the redesigned system. */
+  --glass-bg: #ffffff;
+  --glass-bg-strong: #ffffff;
+  --glass-blur: none;
+  --glass-blur-light: none;
+  --glass-border: 1px solid var(--color-border);
+  --glass-border-bright: 1px solid var(--color-border-bright);
+  --glass-shadow: 0 1px 2px rgba(16, 18, 28, 0.04), 0 6px 16px -4px rgba(16, 18, 28, 0.08);
+  --glass-shadow-lg: 0 2px 6px rgba(16, 18, 28, 0.05), 0 24px 48px -12px rgba(16, 18, 28, 0.16);
 
-  /* Typography */
+  /* Typography - one professional grotesk throughout. The former
+     serif display token now points at Inter with tighter tracking
+     so headline elements keep their weight without breaking. */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-serif: 'P22 Mackinac W01 Book', Georgia, serif;
+  --font-serif: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
 
   /* Type Scale */
@@ -87,9 +92,9 @@
   --text-xl: 1.375rem;
   --text-2xl: 1.75rem;
   --text-3xl: 2.25rem;
-  --text-4xl: 3rem;
-  --text-5xl: 4rem;
-  --text-6xl: 5rem;
+  --text-4xl: 2.75rem;
+  --text-5xl: 3.5rem;
+  --text-6xl: 4.5rem;
 
   /* Spacing */
   --space-1: 0.25rem;
@@ -106,18 +111,18 @@
   --space-20: 5rem;
   --space-24: 6rem;
 
-  /* Border Radius */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --radius-2xl: 28px;
+  /* Border Radius - tightened; nothing blobby. */
+  --radius-sm: 5px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 14px;
+  --radius-2xl: 18px;
   --radius-full: 9999px;
 
   /* Transitions */
   --transition-fast: 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-base: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-slow: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-base: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   --ease-glass: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* Z-Index */
@@ -166,16 +171,16 @@ body {
 .ambient-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.35;
-  background: radial-gradient(circle at 30% 30%, rgba(var(--brand-1-rgb), 0.07), rgba(var(--brand-1-rgb), 0) 70%);
-  animation: drift 26s ease-in-out infinite;
+  filter: blur(90px);
+  opacity: 0.16;
+  background: radial-gradient(circle at 30% 30%, rgba(var(--brand-1-rgb), 0.16), rgba(var(--brand-1-rgb), 0) 70%);
+  animation: drift 34s ease-in-out infinite;
   will-change: transform;
 }
 
-.ambient-orb.o1 { width: 620px; height: 620px; top: -12%; left: -8%; animation-duration: 30s; }
-.ambient-orb.o2 { width: 520px; height: 520px; top: 40%; right: -10%; animation-duration: 34s; animation-delay: -8s; }
-.ambient-orb.o3 { width: 460px; height: 460px; bottom: -14%; left: 20%; animation-duration: 28s; animation-delay: -16s; }
+.ambient-orb.o1 { width: 560px; height: 560px; top: -14%; left: -10%; animation-duration: 38s; }
+.ambient-orb.o2 { width: 460px; height: 460px; top: 44%; right: -12%; animation-duration: 42s; animation-delay: -8s; }
+.ambient-orb.o3 { width: 420px; height: 420px; bottom: -16%; left: 22%; animation-duration: 36s; animation-delay: -16s; }
 
 @keyframes drift {
   0%, 100% { transform: translate(0, 0) scale(1); }
@@ -187,11 +192,11 @@ body {
 .cursor-spotlight {
   position: fixed;
   z-index: var(--z-cursor);
-  width: 480px;
-  height: 480px;
+  width: 420px;
+  height: 420px;
   border-radius: 50%;
   pointer-events: none;
-  background: radial-gradient(circle, rgba(var(--brand-2-rgb), 0.045) 0%, rgba(var(--brand-2-rgb), 0) 70%);
+  background: radial-gradient(circle, rgba(var(--brand-2-rgb), 0.025) 0%, rgba(var(--brand-2-rgb), 0) 70%);
   transform: translate(-50%, -50%);
   left: var(--cursor-x, 50%);
   top: var(--cursor-y, 50%);
@@ -297,16 +302,16 @@ main > div.workflow-demo {
   align-items: center;
   gap: var(--space-2);
   font-size: var(--text-xs);
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--brand-1);
   margin-bottom: var(--space-4);
 }
 .section-label::before {
   content: "";
-  width: 14px;
-  height: 2px;
+  width: 7px;
+  height: 7px;
   border-radius: var(--radius-full);
   background: var(--gradient-brand);
   flex-shrink: 0;
@@ -315,9 +320,9 @@ main > div.workflow-demo {
 .section-title {
   font-family: var(--font-serif);
   font-size: var(--text-3xl);
-  font-weight: 400;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
   color: var(--color-text-primary);
   margin-bottom: var(--space-5);
 }
@@ -327,7 +332,7 @@ main > div.workflow-demo {
   font-weight: 400;
   color: var(--color-text-secondary);
   max-width: 540px;
-  line-height: 1.7;
+  line-height: 1.65;
 }
 
 /* ── Gradient text utility ─────────────────────────────────── */

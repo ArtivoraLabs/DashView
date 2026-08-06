@@ -25,24 +25,18 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--space-2) var(--space-3) var(--space-2) var(--space-4);
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #ffffff;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-full);
-  box-shadow:
-    0 4px 20px rgba(15, 23, 42, 0.08),
-    0 1px 0 rgba(255, 255, 255, 0.9) inset;
+  box-shadow: 0 2px 4px rgba(16, 18, 28, 0.03), 0 12px 28px -14px rgba(16, 18, 28, 0.14);
   gap: var(--space-3);
   transition: box-shadow var(--transition-base), border-color var(--transition-base), background var(--transition-base);
 }
 
 .navbar.scrolled .navbar-inner {
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow:
-    0 8px 28px rgba(15, 23, 42, 0.12),
-    0 1px 0 rgba(255, 255, 255, 0.9) inset;
-  border-color: rgba(15, 23, 42, 0.12);
+  background: #ffffff;
+  box-shadow: 0 4px 10px rgba(16, 18, 28, 0.05), 0 18px 36px -16px rgba(16, 18, 28, 0.2);
+  border-color: var(--color-border-bright);
 }
 
 /* ── Left Section ──────────────────────────────────────────── */
@@ -216,11 +210,12 @@ a.navbar-right-pill { text-decoration: none; color: inherit; }
 /* AI Assistant - the site's flagship feature, so it gets a filled,
    higher-contrast pill instead of blending in with the rest. */
 .navbar-link-ai {
-  background: #17181c;
-  border-color: #17181c;
+  background: var(--gradient-brand);
+  border-color: transparent;
 }
 .navbar-link-ai .navbar-right-label { color: #fff; }
-.navbar-link-ai:hover { background: #2c2d33; border-color: #2c2d33; }
+.navbar-link-ai .glass-circle-btn { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.3); }
+.navbar-link-ai:hover { filter: brightness(1.08); }
 
 .navbar-right-label {
   font-size: var(--text-xs);

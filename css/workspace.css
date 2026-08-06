@@ -691,3 +691,54 @@
   .showcase-badges { gap: var(--space-2); }
   .showcase-badge { font-size: 11px; padding: var(--space-1-5) var(--space-3); }
 }
+
+/* ── Product Tour (consolidated agent / workspace / GitHub / dashboard) ── */
+.tour-section { padding: var(--space-20) 0 var(--space-24); }
+.tour-head { max-width: 640px; margin-bottom: var(--space-10); }
+
+.tour-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-8);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--space-4);
+}
+
+.tour-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2-5, 0.625rem) var(--space-4);
+  background: var(--color-panel-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.tour-tab:hover { border-color: var(--color-border-bright); color: var(--color-text-primary); }
+.tour-tab.active {
+  background: var(--gradient-brand);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: var(--shadow-brand);
+}
+
+.tour-panel { animation: tour-panel-in 0.35s var(--ease-glass); }
+@keyframes tour-panel-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .tour-panel { animation: none; } }
+
+.tour-panel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-10);
+  align-items: center;
+}
+
+@media (max-width: 860px) {
+  .tour-tabs { border-bottom: none; padding-bottom: 0; }
+  .tour-panel-grid { grid-template-columns: 1fr; gap: var(--space-6); }
+}

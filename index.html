@@ -96,9 +96,7 @@
           <div class="glass-panel navbar-dropdown" id="navDropdown" role="menu">
             <button class="navbar-dropdown-link" role="menuitem" data-nav="hero">Overview</button>
             <button class="navbar-dropdown-link" role="menuitem" data-nav="capabilities">Capabilities</button>
-            <button class="navbar-dropdown-link" role="menuitem" data-nav="agent-demo">Agent Demo</button>
-            <button class="navbar-dropdown-link" role="menuitem" data-nav="workspace">Workspace</button>
-            <button class="navbar-dropdown-link" role="menuitem" data-nav="github">GitHub</button>
+            <button class="navbar-dropdown-link" role="menuitem" data-nav="tour">Product Tour</button>
             <a class="navbar-dropdown-link" href="dashboard.html" role="menuitem">Dashboard</a>
             <a class="navbar-dropdown-link" href="ai.html" role="menuitem">AI Assistant</a>
             <a class="navbar-dropdown-link navbar-dropdown-link-external" href="https://github.com" target="_blank" rel="noopener noreferrer" role="menuitem">
@@ -124,7 +122,7 @@
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg>
           </span>
         </a>
-        <button class="navbar-right-pill" data-nav="workspace" aria-label="Adaptive Systems - jump to workspace">
+        <button class="navbar-right-pill" data-nav="tour" aria-label="Adaptive Systems - jump to product tour">
           <span class="navbar-right-label">Adaptive Systems</span>
           <span class="glass-circle-btn" style="width:22px;height:22px;">
             <span class="icon-grid-4" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
@@ -173,18 +171,10 @@
           <button class="glass-btn glass-btn-solid" data-open-waitlist>
             Request early access
           </button>
-          <button class="glass-btn" data-nav="capabilities">
-            Explore capabilities
+          <button class="glass-btn" data-nav="tour">
+            See product tour
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
           </button>
-          <a class="glass-btn" href="ai.html">
-            Open AI Assistant
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-          </a>
-          <a class="glass-btn" href="dashboard.html">
-            View dashboard
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-          </a>
         </div>
 
         <div class="hero-ai-wrapper">
@@ -332,326 +322,311 @@
     </section>
 
     <!-- ══════════════════════════════════════════════════════
-         AUTONOMOUS WORKFLOW DEMO
+         PRODUCT TOUR - agent, workspace, GitHub and dashboard
+         consolidated into one tabbed section (previously four
+         separate, overlapping "here's our product" blocks).
     ══════════════════════════════════════════════════════ -->
-    <div id="agent-demo" class="workflow-demo">
+    <section id="tour" class="tour-section" aria-labelledby="tour-heading">
       <div class="container">
-        <div class="reveal">
-          <p class="section-label">Autonomous Building</p>
-          <h2 class="section-title">Watch AI build features</h2>
-          <p class="section-sub">
-            Describe what you need. The AI scans your codebase, plans the
-            implementation, generates code, runs tests, and opens a PR -
-            all without leaving your workflow.
+        <div class="reveal tour-head">
+          <p class="section-label">See It Live</p>
+          <h2 class="section-title" id="tour-heading">One workspace. Everything connected.</h2>
+          <p class="section-sub" style="max-width:620px;">
+            Describe a task in plain language and the agent plans it, writes the code,
+            runs it, and opens a pull request - inside the same workspace, repository,
+            and dashboard you can explore below.
           </p>
         </div>
 
-        <div class="workflow-demo-inner" style="margin-top: var(--space-12);">
-          <div class="task-message-wrap">
-            <div class="task-user-bubble reveal">"Add authentication to my React app"</div>
-
-            <div class="glass-panel reveal" style="padding: var(--space-5);">
-              <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-3);">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.5)" stroke-width="1.8"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
-                <span style="font-size:var(--text-xs);font-weight:600;color:rgba(15, 23, 42, 0.5);">NeuralKinetics Agent</span>
-              </div>
-              <p style="font-size:var(--text-xs);color:rgba(15, 23, 42, 0.4);line-height:1.6;">
-                Scanning your project structure. I found a React + Vite app with
-                Supabase already installed. I'll implement JWT-based auth with
-                protected routes and session persistence.
-              </p>
-            </div>
-          </div>
-
-          <div class="glass-panel reveal" style="padding: var(--space-2);">
-            <div style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid rgba(15, 23, 42, 0.06); margin-bottom: var(--space-2);">
-              <span style="font-size:var(--text-xs);font-weight:600;color:rgba(15, 23, 42, 0.45);text-transform:uppercase;letter-spacing:0.06em;">AI Process</span>
-            </div>
-            <div class="workflow-steps" id="workflowSteps">
-              <div class="workflow-step">
-                <div class="workflow-step-line"></div>
-                <div class="workflow-step-dot">1</div>
-                <div class="workflow-step-info"><p class="workflow-step-title">Scanning project files</p><p class="workflow-step-status">47 files analyzed</p></div>
-              </div>
-              <div class="workflow-step">
-                <div class="workflow-step-line"></div>
-                <div class="workflow-step-dot">2</div>
-                <div class="workflow-step-info"><p class="workflow-step-title">Understanding architecture</p><p class="workflow-step-status">React + Vite detected</p></div>
-              </div>
-              <div class="workflow-step">
-                <div class="workflow-step-line"></div>
-                <div class="workflow-step-dot">3</div>
-                <div class="workflow-step-info"><p class="workflow-step-title">Planning implementation</p><p class="workflow-step-status">Auth strategy chosen</p></div>
-              </div>
-              <div class="workflow-step">
-                <div class="workflow-step-line"></div>
-                <div class="workflow-step-dot">4</div>
-                <div class="workflow-step-info"><p class="workflow-step-title">Creating components</p><p class="workflow-step-status">Generating Auth.jsx...</p></div>
-              </div>
-              <div class="workflow-step">
-                <div class="workflow-step-line"></div>
-                <div class="workflow-step-dot">5</div>
-                <div class="workflow-step-info"><p class="workflow-step-title">Updating code</p><p class="workflow-step-status">App.jsx, routes</p></div>
-              </div>
-              <div class="workflow-step">
-                <div class="workflow-step-line"></div>
-                <div class="workflow-step-dot">6</div>
-                <div class="workflow-step-info"><p class="workflow-step-title">Running tests</p><p class="workflow-step-status">jest --coverage</p></div>
-              </div>
-              <div class="workflow-step">
-                <div class="workflow-step-line"></div>
-                <div class="workflow-step-dot">7</div>
-                <div class="workflow-step-info"><p class="workflow-step-title">Fixing errors</p><p class="workflow-step-status">Auto-lint + typecheck</p></div>
-              </div>
-              <div class="workflow-step">
-                <div class="workflow-step-dot">8</div>
-                <div class="workflow-step-info"><p class="workflow-step-title">Feature completed</p><p class="workflow-step-status">PR ready to merge</p></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════════
-         DEVELOPER WORKSPACE
-    ══════════════════════════════════════════════════════ -->
-    <section id="workspace" class="workspace-section" aria-labelledby="workspace-heading">
-      <div class="container">
-        <div class="reveal">
-          <p class="section-label">AI Developer Environment</p>
-          <h2 class="section-title" id="workspace-heading">Full-stack workspace</h2>
-          <p class="section-sub">
-            A complete AI-native development environment. File explorer, code
-            editor, terminal, and Git - all controlled by a single intelligent agent.
-          </p>
+        <div class="tour-tabs reveal" id="tourTabs" role="tablist" aria-label="Product tour sections">
+          <button type="button" class="tour-tab active" data-tour-tab="agent" role="tab" aria-selected="true" aria-controls="tourPanel-agent">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
+            Autonomous Agent
+          </button>
+          <button type="button" class="tour-tab" data-tour-tab="workspace" role="tab" aria-selected="false" aria-controls="tourPanel-workspace">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>
+            Workspace
+          </button>
+          <button type="button" class="tour-tab" data-tour-tab="github" role="tab" aria-selected="false" aria-controls="tourPanel-github">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.03-.01-1.87-2.78.62-3.37-1.22-3.37-1.22-.46-1.19-1.11-1.51-1.11-1.51-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.32 9.32 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
+            GitHub
+          </button>
+          <button type="button" class="tour-tab" data-tour-tab="dashboard" role="tab" aria-selected="false" aria-controls="tourPanel-dashboard">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/></svg>
+            Dashboard
+          </button>
         </div>
 
-        <div class="workspace-layout reveal" style="margin-top: var(--space-12);">
-          <!-- Left column -->
-          <div class="workspace-column">
+        <div class="tour-panels reveal">
 
-            <div class="glass-panel workspace-panel">
-              <div class="panel-header">
-                <span class="panel-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg>Explorer</span>
-                <span class="status-dot amber" title="Modified files"></span>
-              </div>
-              <div class="panel-body">
-                <div class="file-tree" id="fileTree">
-                  <div class="file-item" style="padding-left:8px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.25)" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1.6"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg><span class="file-name">src</span></div>
-                  <div class="file-item" style="padding-left:22px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.25)" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1.6"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg><span class="file-name">components</span></div>
-                  <button type="button" class="file-item active modified" data-file="Auth.jsx" data-clickable style="padding-left:36px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg><span class="file-name">Auth.jsx</span></button>
-                  <button type="button" class="file-item" data-file="Layout.jsx" data-clickable style="padding-left:36px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg><span class="file-name">Layout.jsx</span></button>
-                  <div class="file-item" style="padding-left:22px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.25)" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1.6"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg><span class="file-name">hooks</span></div>
-                  <button type="button" class="file-item modified" data-file="useAuth.js" data-clickable style="padding-left:36px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg><span class="file-name">useAuth.js</span></button>
-                  <div class="file-item" style="padding-left:22px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.25)" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1.6"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg><span class="file-name">styles</span></div>
-                  <div class="file-item" style="padding-left:36px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.35)" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg><span class="file-name">globals.css</span></div>
-                  <div class="file-item" style="padding-left:8px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg><span class="file-name">package.json</span></div>
-                  <div class="file-item" style="padding-left:8px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.35)" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg><span class="file-name">.env</span></div>
+          <!-- Panel: Autonomous Agent -->
+          <div class="tour-panel active" id="tourPanel-agent" data-tour-panel="agent" role="tabpanel">
+            <div class="tour-panel-grid">
+              <div class="task-message-wrap">
+                <div class="task-user-bubble">"Add authentication to my React app"</div>
+
+                <div class="glass-panel" style="padding: var(--space-5);">
+                  <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-3);">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--brand-1)" stroke-width="1.8"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
+                    <span style="font-size:var(--text-xs);font-weight:600;color:var(--color-text-secondary);">NeuralKinetics Agent</span>
+                  </div>
+                  <p style="font-size:var(--text-xs);color:var(--color-text-muted);line-height:1.6;">
+                    Scanning your project structure. I found a React + Vite app with
+                    Supabase already installed. I'll implement JWT-based auth with
+                    protected routes and session persistence.
+                  </p>
                 </div>
               </div>
-            </div>
 
-            <div class="glass-panel workspace-panel">
-              <div class="panel-header">
-                <span class="panel-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg><span id="codeEditorTitle">Auth.jsx</span></span>
-                <span class="glass-tag" style="padding:1px 6px;font-size:10px;">AI Generated</span>
-              </div>
-              <div class="panel-body code-editor-wrap">
-                <button type="button" class="code-copy-btn" id="codeCopyBtn">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                  Copy
-                </button>
-                <div class="code-block" id="codeBlock"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right column -->
-          <div class="workspace-column">
-            <div class="glass-panel workspace-panel">
-              <div class="panel-header">
-                <span class="panel-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m4 17 6-5-6-5M12 19h8"/></svg>Terminal</span>
-                <span class="status-dot" title="Running"></span>
-              </div>
-              <div class="panel-body">
-                <div class="terminal-wrap" id="terminalWrap"></div>
-              </div>
-            </div>
-
-            <div class="glass-panel workspace-panel">
-              <div class="panel-header">
-                <span class="panel-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>Git Changes</span>
-                <span style="font-size:var(--text-xs);color:rgba(15, 23, 42, 0.3);">5 files</span>
-              </div>
-              <div class="panel-body">
-                <div class="git-changes">
-                  <div class="git-file-item"><span class="git-status A">A</span><span style="color:rgba(15, 23, 42, 0.55);overflow:hidden;text-overflow:ellipsis;">src/components/Auth.jsx</span></div>
-                  <div class="git-file-item"><span class="git-status A">A</span><span style="color:rgba(15, 23, 42, 0.55);overflow:hidden;text-overflow:ellipsis;">src/hooks/useAuth.js</span></div>
-                  <div class="git-file-item"><span class="git-status M">M</span><span style="color:rgba(15, 23, 42, 0.55);overflow:hidden;text-overflow:ellipsis;">src/components/Layout.jsx</span></div>
-                  <div class="git-file-item"><span class="git-status M">M</span><span style="color:rgba(15, 23, 42, 0.55);overflow:hidden;text-overflow:ellipsis;">src/App.jsx</span></div>
-                  <div class="git-file-item"><span class="git-status M">M</span><span style="color:rgba(15, 23, 42, 0.55);overflow:hidden;text-overflow:ellipsis;">package.json</span></div>
+              <div class="glass-panel" style="padding: var(--space-2);">
+                <div style="padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border); margin-bottom: var(--space-2);">
+                  <span style="font-size:var(--text-xs);font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.06em;">AI Process</span>
                 </div>
-              </div>
-            </div>
-
-            <div class="glass-panel workspace-panel">
-              <div class="panel-header">
-                <span class="panel-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>AI Task Timeline</span>
-                <span class="status-dot blue" title="In progress"></span>
-              </div>
-              <div class="panel-body">
-                <div class="ai-timeline">
-                  <div class="timeline-item"><span class="timeline-dot done"></span><div class="timeline-content"><p class="timeline-content-title">Project scanned</p><p class="timeline-content-detail">47 files indexed</p></div></div>
-                  <div class="timeline-item"><span class="timeline-dot done"></span><div class="timeline-content"><p class="timeline-content-title">Dependencies resolved</p><p class="timeline-content-detail">+supabase, +jwt</p></div></div>
-                  <div class="timeline-item"><span class="timeline-dot done"></span><div class="timeline-content"><p class="timeline-content-title">Components generated</p><p class="timeline-content-detail">Auth.jsx, useAuth.js</p></div></div>
-                  <div class="timeline-item"><span class="timeline-dot active"></span><div class="timeline-content"><p class="timeline-content-title">Tests running</p><p class="timeline-content-detail">jest --coverage</p></div></div>
-                  <div class="timeline-item"><span class="timeline-dot pending"></span><div class="timeline-content"><p class="timeline-content-title">PR ready</p><p class="timeline-content-detail">feature/auth-system</p></div></div>
+                <div class="workflow-steps" id="workflowSteps">
+                  <div class="workflow-step">
+                    <div class="workflow-step-line"></div>
+                    <div class="workflow-step-dot">1</div>
+                    <div class="workflow-step-info"><p class="workflow-step-title">Scanning project files</p><p class="workflow-step-status">47 files analyzed</p></div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="workflow-step-line"></div>
+                    <div class="workflow-step-dot">2</div>
+                    <div class="workflow-step-info"><p class="workflow-step-title">Understanding architecture</p><p class="workflow-step-status">React + Vite detected</p></div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="workflow-step-line"></div>
+                    <div class="workflow-step-dot">3</div>
+                    <div class="workflow-step-info"><p class="workflow-step-title">Planning implementation</p><p class="workflow-step-status">Auth strategy chosen</p></div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="workflow-step-line"></div>
+                    <div class="workflow-step-dot">4</div>
+                    <div class="workflow-step-info"><p class="workflow-step-title">Creating components</p><p class="workflow-step-status">Generating Auth.jsx...</p></div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="workflow-step-line"></div>
+                    <div class="workflow-step-dot">5</div>
+                    <div class="workflow-step-info"><p class="workflow-step-title">Updating code</p><p class="workflow-step-status">App.jsx, routes</p></div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="workflow-step-line"></div>
+                    <div class="workflow-step-dot">6</div>
+                    <div class="workflow-step-info"><p class="workflow-step-title">Running tests</p><p class="workflow-step-status">jest --coverage</p></div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="workflow-step-line"></div>
+                    <div class="workflow-step-dot">7</div>
+                    <div class="workflow-step-info"><p class="workflow-step-title">Fixing errors</p><p class="workflow-step-status">Auto-lint + typecheck</p></div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="workflow-step-dot">8</div>
+                    <div class="workflow-step-info"><p class="workflow-step-title">Feature completed</p><p class="workflow-step-status">PR ready to merge</p></div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- ══════════════════════════════════════════════════════
-         GITHUB INTEGRATION
-    ══════════════════════════════════════════════════════ -->
-    <section id="github" class="github-section" aria-labelledby="github-heading">
-      <div class="container">
-        <div class="reveal">
-          <p class="section-label">GitHub Integration</p>
-          <h2 class="section-title" id="github-heading">Repository connected</h2>
-          <p class="section-sub">
-            Clone, branch, commit, push, and open pull requests - all from natural
-            language. The AI understands your Git workflow end-to-end.
-          </p>
-          <a class="glass-btn glass-btn-solid" href="dashboard.html" style="margin-top: var(--space-5); display: inline-flex;">
-            Open full dashboard
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-          </a>
-        </div>
+          <!-- Panel: Workspace -->
+          <div class="tour-panel" id="tourPanel-workspace" data-tour-panel="workspace" role="tabpanel" hidden>
+            <div class="workspace-layout" style="margin-top:0;">
+              <div class="workspace-column">
 
-        <div class="github-layout reveal">
-          <!-- Left: Main GitHub panel -->
-          <div class="glass-panel github-panel">
-            <div class="github-repo-header">
-              <div class="github-repo-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.03-.01-1.87-2.78.62-3.37-1.22-3.37-1.22-.46-1.19-1.11-1.51-1.11-1.51-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.32 9.32 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
+                <div class="glass-panel workspace-panel">
+                  <div class="panel-header">
+                    <span class="panel-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg>Explorer</span>
+                    <span class="status-dot amber" title="Modified files"></span>
+                  </div>
+                  <div class="panel-body">
+                    <div class="file-tree" id="fileTree">
+                      <div class="file-item" style="padding-left:8px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.25)" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1.6"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg><span class="file-name">src</span></div>
+                      <div class="file-item" style="padding-left:22px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.25)" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1.6"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg><span class="file-name">components</span></div>
+                      <button type="button" class="file-item active modified" data-file="Auth.jsx" data-clickable style="padding-left:36px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg><span class="file-name">Auth.jsx</span></button>
+                      <button type="button" class="file-item" data-file="Layout.jsx" data-clickable style="padding-left:36px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg><span class="file-name">Layout.jsx</span></button>
+                      <div class="file-item" style="padding-left:22px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.25)" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1.6"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg><span class="file-name">hooks</span></div>
+                      <button type="button" class="file-item modified" data-file="useAuth.js" data-clickable style="padding-left:36px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg><span class="file-name">useAuth.js</span></button>
+                      <div class="file-item" style="padding-left:22px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.25)" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1.6"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg><span class="file-name">styles</span></div>
+                      <div class="file-item" style="padding-left:36px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.35)" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg><span class="file-name">globals.css</span></div>
+                      <div class="file-item" style="padding-left:8px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg><span class="file-name">package.json</span></div>
+                      <div class="file-item" style="padding-left:8px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.35)" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg><span class="file-name">.env</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="glass-panel workspace-panel">
+                  <div class="panel-header">
+                    <span class="panel-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg><span id="codeEditorTitle">Auth.jsx</span></span>
+                    <span class="glass-tag" style="padding:1px 6px;font-size:10px;">AI Generated</span>
+                  </div>
+                  <div class="panel-body code-editor-wrap">
+                    <button type="button" class="code-copy-btn" id="codeCopyBtn">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                      Copy
+                    </button>
+                    <div class="code-block" id="codeBlock"></div>
+                  </div>
+                </div>
               </div>
-              <div class="github-repo-info">
-                <p class="github-repo-name github-repo-static" id="githubRepoStatic">
-                  <span id="githubRepoName">acme-corp/platform-v2 </span>
-                  <button type="button" class="github-repo-edit-btn" id="githubRepoEditBtn" aria-label="Edit repository name">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
-                  </button>
-                </p>
-                <form class="github-repo-form" id="githubRepoForm">
-                  <input type="text" class="github-repo-input" id="githubRepoInput" aria-label="Repository name" placeholder="owner/repo" />
-                  <button type="submit" class="github-repo-confirm" aria-label="Save repository name">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
-                  </button>
-                </form>
-                <p class="github-repo-meta">private · TypeScript · 2.4k stars</p>
-              </div>
-              <div class="github-connected-badge"><span class="status-dot"></span>Connected</div>
-            </div>
 
-            <div>
-              <p class="github-actions-title">Available Actions</p>
-              <div class="github-actions-grid" id="githubActionsGrid"></div>
-            </div>
+              <div class="workspace-column">
+                <div class="glass-panel workspace-panel">
+                  <div class="panel-header">
+                    <span class="panel-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m4 17 6-5-6-5M12 19h8"/></svg>Terminal</span>
+                    <span class="status-dot" title="Running"></span>
+                  </div>
+                  <div class="panel-body">
+                    <div class="terminal-wrap" id="terminalWrap"></div>
+                  </div>
+                </div>
 
-            <div>
-              <p class="github-actions-title">Branches</p>
-              <div class="github-branches">
-                <button type="button" class="branch-item selected"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1.6"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg><span class="branch-name">main</span><span style="color:rgba(15, 23, 42, 0.25);font-size:10px;">248 commits</span><span class="branch-badge current">current</span></button>
-                <button type="button" class="branch-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1.6"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg><span class="branch-name">feature/auth-system</span><span style="color:rgba(15, 23, 42, 0.25);font-size:10px;">12 commits</span><span class="branch-badge ahead">ahead</span></button>
-                <button type="button" class="branch-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1.6"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg><span class="branch-name">fix/dashboard-perf</span><span style="color:rgba(15, 23, 42, 0.25);font-size:10px;">3 commits</span></button>
+                <div class="glass-panel workspace-panel">
+                  <div class="panel-header">
+                    <span class="panel-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>Git Changes</span>
+                    <span style="font-size:var(--text-xs);color:var(--color-text-muted);">5 files</span>
+                  </div>
+                  <div class="panel-body">
+                    <div class="git-changes">
+                      <div class="git-file-item"><span class="git-status A">A</span><span style="color:var(--color-text-secondary);overflow:hidden;text-overflow:ellipsis;">src/components/Auth.jsx</span></div>
+                      <div class="git-file-item"><span class="git-status A">A</span><span style="color:var(--color-text-secondary);overflow:hidden;text-overflow:ellipsis;">src/hooks/useAuth.js</span></div>
+                      <div class="git-file-item"><span class="git-status M">M</span><span style="color:var(--color-text-secondary);overflow:hidden;text-overflow:ellipsis;">src/components/Layout.jsx</span></div>
+                      <div class="git-file-item"><span class="git-status M">M</span><span style="color:var(--color-text-secondary);overflow:hidden;text-overflow:ellipsis;">src/App.jsx</span></div>
+                      <div class="git-file-item"><span class="git-status M">M</span><span style="color:var(--color-text-secondary);overflow:hidden;text-overflow:ellipsis;">package.json</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="glass-panel workspace-panel">
+                  <div class="panel-header">
+                    <span class="panel-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>AI Task Timeline</span>
+                    <span class="status-dot blue" title="In progress"></span>
+                  </div>
+                  <div class="panel-body">
+                    <div class="ai-timeline">
+                      <div class="timeline-item"><span class="timeline-dot done"></span><div class="timeline-content"><p class="timeline-content-title">Project scanned</p><p class="timeline-content-detail">47 files indexed</p></div></div>
+                      <div class="timeline-item"><span class="timeline-dot done"></span><div class="timeline-content"><p class="timeline-content-title">Dependencies resolved</p><p class="timeline-content-detail">+supabase, +jwt</p></div></div>
+                      <div class="timeline-item"><span class="timeline-dot done"></span><div class="timeline-content"><p class="timeline-content-title">Components generated</p><p class="timeline-content-detail">Auth.jsx, useAuth.js</p></div></div>
+                      <div class="timeline-item"><span class="timeline-dot active"></span><div class="timeline-content"><p class="timeline-content-title">Tests running</p><p class="timeline-content-detail">jest --coverage</p></div></div>
+                      <div class="timeline-item"><span class="timeline-dot pending"></span><div class="timeline-content"><p class="timeline-content-title">PR ready</p><p class="timeline-content-detail">feature/auth-system</p></div></div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Right: Activity log + commit history -->
-          <div style="display:flex;flex-direction:column;gap:var(--space-4);">
-            <div class="glass-panel" style="padding: var(--space-5);">
-              <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-4);">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.35)" stroke-width="1.6"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="m7 9 3 3-3 3M12 15h5"/></svg>
-                <p class="github-actions-title" style="margin-bottom:0;">Live Activity</p>
-              </div>
-              <p class="activity-log-empty" id="activityLogEmpty">Run an action above to see live output here.</p>
-              <div class="activity-log" id="activityLog"></div>
-            </div>
+          <!-- Panel: GitHub -->
+          <div class="tour-panel" id="tourPanel-github" data-tour-panel="github" role="tabpanel" hidden>
+            <div class="github-layout">
+              <!-- Left: Main GitHub panel -->
+              <div class="glass-panel github-panel">
+                <div class="github-repo-header">
+                  <div class="github-repo-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.03-.01-1.87-2.78.62-3.37-1.22-3.37-1.22-.46-1.19-1.11-1.51-1.11-1.51-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.32 9.32 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
+                  </div>
+                  <div class="github-repo-info">
+                    <p class="github-repo-name github-repo-static" id="githubRepoStatic">
+                      <span id="githubRepoName">acme-corp/platform-v2 </span>
+                      <button type="button" class="github-repo-edit-btn" id="githubRepoEditBtn" aria-label="Edit repository name">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                      </button>
+                    </p>
+                    <form class="github-repo-form" id="githubRepoForm">
+                      <input type="text" class="github-repo-input" id="githubRepoInput" aria-label="Repository name" placeholder="owner/repo" />
+                      <button type="submit" class="github-repo-confirm" aria-label="Save repository name">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+                      </button>
+                    </form>
+                    <p class="github-repo-meta">private · TypeScript · 2.4k stars</p>
+                  </div>
+                  <div class="github-connected-badge"><span class="status-dot"></span>Connected</div>
+                </div>
 
-            <div class="glass-panel" style="padding: var(--space-5);">
-              <p class="github-actions-title" style="margin-bottom: var(--space-4);">Recent Commits</p>
-              <div>
-                <div class="commit-row">
-                  <button type="button" class="commit-hash">a3f9d1c</button>
-                  <div class="commit-body"><p class="commit-msg">feat: add auth system with JWT</p><p class="commit-meta">AI Agent · 2m ago</p></div>
-                  <span class="commit-ai-badge">AI</span>
+                <div>
+                  <p class="github-actions-title">Available Actions</p>
+                  <div class="github-actions-grid" id="githubActionsGrid"></div>
                 </div>
-                <div class="commit-row">
-                  <button type="button" class="commit-hash">b7e2f45</button>
-                  <div class="commit-body"><p class="commit-msg">fix: resolve hydration mismatch</p><p class="commit-meta">dev · 18m ago</p></div>
-                </div>
-                <div class="commit-row">
-                  <button type="button" class="commit-hash">c1d8a03</button>
-                  <div class="commit-body"><p class="commit-msg">chore: update dependencies</p><p class="commit-meta">dev · 1h ago</p></div>
-                </div>
-                <div class="commit-row" style="border-bottom:none;">
-                  <button type="button" class="commit-hash">d4c6b91</button>
-                  <div class="commit-body"><p class="commit-msg">feat: dashboard analytics v2</p><p class="commit-meta">AI Agent · 3h ago</p></div>
-                  <span class="commit-ai-badge">AI</span>
+
+                <div>
+                  <p class="github-actions-title">Branches</p>
+                  <div class="github-branches">
+                    <button type="button" class="branch-item selected"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1.6"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg><span class="branch-name">main</span><span style="color:rgba(15, 23, 42, 0.25);font-size:10px;">248 commits</span><span class="branch-badge current">current</span></button>
+                    <button type="button" class="branch-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1.6"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg><span class="branch-name">feature/auth-system</span><span style="color:rgba(15, 23, 42, 0.25);font-size:10px;">12 commits</span><span class="branch-badge ahead">ahead</span></button>
+                    <button type="button" class="branch-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.3)" stroke-width="1.6"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg><span class="branch-name">fix/dashboard-perf</span><span style="color:rgba(15, 23, 42, 0.25);font-size:10px;">3 commits</span></button>
+                  </div>
                 </div>
               </div>
-              <div class="commit-stats">
-                <div class="commit-stat"><p class="commit-stat-value">248</p><p class="commit-stat-label">Commits</p></div>
-                <div class="commit-stat"><p class="commit-stat-value">31</p><p class="commit-stat-label">PRs merged</p></div>
-                <div class="commit-stat"><p class="commit-stat-value">47</p><p class="commit-stat-label">AI commits</p></div>
+
+              <!-- Right: Activity log + commit history -->
+              <div style="display:flex;flex-direction:column;gap:var(--space-4);">
+                <div class="glass-panel" style="padding: var(--space-5);">
+                  <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-4);">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(15, 23, 42, 0.35)" stroke-width="1.6"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="m7 9 3 3-3 3M12 15h5"/></svg>
+                    <p class="github-actions-title" style="margin-bottom:0;">Live Activity</p>
+                  </div>
+                  <p class="activity-log-empty" id="activityLogEmpty">Run an action above to see live output here.</p>
+                  <div class="activity-log" id="activityLog"></div>
+                </div>
+
+                <div class="glass-panel" style="padding: var(--space-5);">
+                  <p class="github-actions-title" style="margin-bottom: var(--space-4);">Recent Commits</p>
+                  <div>
+                    <div class="commit-row">
+                      <button type="button" class="commit-hash">a3f9d1c</button>
+                      <div class="commit-body"><p class="commit-msg">feat: add auth system with JWT</p><p class="commit-meta">AI Agent · 2m ago</p></div>
+                      <span class="commit-ai-badge">AI</span>
+                    </div>
+                    <div class="commit-row">
+                      <button type="button" class="commit-hash">b7e2f45</button>
+                      <div class="commit-body"><p class="commit-msg">fix: resolve hydration mismatch</p><p class="commit-meta">dev · 18m ago</p></div>
+                    </div>
+                    <div class="commit-row">
+                      <button type="button" class="commit-hash">c1d8a03</button>
+                      <div class="commit-body"><p class="commit-msg">chore: update dependencies</p><p class="commit-meta">dev · 1h ago</p></div>
+                    </div>
+                    <div class="commit-row" style="border-bottom:none;">
+                      <button type="button" class="commit-hash">d4c6b91</button>
+                      <div class="commit-body"><p class="commit-msg">feat: dashboard analytics v2</p><p class="commit-meta">AI Agent · 3h ago</p></div>
+                      <span class="commit-ai-badge">AI</span>
+                    </div>
+                  </div>
+                  <div class="commit-stats">
+                    <div class="commit-stat"><p class="commit-stat-value">248</p><p class="commit-stat-label">Commits</p></div>
+                    <div class="commit-stat"><p class="commit-stat-value">31</p><p class="commit-stat-label">PRs merged</p></div>
+                    <div class="commit-stat"><p class="commit-stat-value">47</p><p class="commit-stat-label">AI commits</p></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- ══════════════════════════════════════════════════════
-         DASHBOARD SHOWCASE
-    ══════════════════════════════════════════════════════ -->
-    <section id="dashboard-showcase" class="showcase-section" aria-labelledby="showcase-heading">
-      <div class="container">
-        <div class="reveal showcase-head">
-          <p class="section-label">Workspace Intelligence</p>
-          <h2 class="section-title" id="showcase-heading">Every repo, project, and teammate - one screen.</h2>
-          <p class="section-sub">
-            KPIs, live analytics, a GitHub-style contribution graph, and a command
-            palette that finds anything in a keystroke. This isn't a mockup -
-            it's the actual dashboard, live.
-          </p>
-          <a class="glass-btn glass-btn-solid" href="dashboard.html">
-            Open the dashboard
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-          </a>
-        </div>
+          <!-- Panel: Dashboard -->
+          <div class="tour-panel" id="tourPanel-dashboard" data-tour-panel="dashboard" role="tabpanel" hidden>
+            <div class="showcase-frame-wrap">
+              <div class="showcase-glow" aria-hidden="true"></div>
+              <div class="browser-frame">
+                <div class="browser-chrome">
+                  <div class="browser-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+                  <div class="browser-url"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>neuralkinetics.ai/dashboard</div>
+                  <div class="browser-actions"><span></span><span></span><span></span></div>
+                </div>
+                <img src="assets/dashboard-preview.png" alt="NeuralKinetics dashboard showing KPIs, team workload, project progress, a contribution activity heatmap, and language breakdown for the acme-corp organization" class="browser-shot" width="1760" height="1100" loading="lazy" />
+              </div>
 
-        <div class="showcase-frame-wrap reveal">
-          <div class="showcase-glow" aria-hidden="true"></div>
-          <div class="browser-frame">
-            <div class="browser-chrome">
-              <div class="browser-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
-              <div class="browser-url"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>neuralkinetics.ai/dashboard</div>
-              <div class="browser-actions"><span></span><span></span><span></span></div>
+              <div class="showcase-badges">
+                <div class="showcase-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h4l2.5-7L14 19l2.5-7H21"/></svg>Live activity log</div>
+                <div class="showcase-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>⌘K command palette</div>
+                <div class="showcase-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Real Chart.js analytics</div>
+              </div>
+
+              <div style="text-align:center;margin-top:var(--space-8);">
+                <a class="glass-btn glass-btn-solid" href="dashboard.html">
+                  Open the full dashboard
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                </a>
+              </div>
             </div>
-            <img src="assets/dashboard-preview.png" alt="NeuralKinetics dashboard showing KPIs, team workload, project progress, a contribution activity heatmap, and language breakdown for the acme-corp organization" class="browser-shot" width="1760" height="1100" loading="lazy" />
           </div>
 
-          <div class="showcase-badges">
-            <div class="showcase-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h4l2.5-7L14 19l2.5-7H21"/></svg>Live activity log</div>
-            <div class="showcase-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>⌘K command palette</div>
-            <div class="showcase-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Real Chart.js analytics</div>
-          </div>
         </div>
       </div>
     </section>
@@ -680,9 +655,8 @@
         <nav class="footer-links" aria-label="Footer navigation">
           <button type="button" class="footer-link" data-nav="hero">Platform</button>
           <button type="button" class="footer-link" data-nav="capabilities">Capabilities</button>
+          <button type="button" class="footer-link" data-nav="tour">Product Tour</button>
           <a href="ai.html" class="footer-link">AI Assistant</a>
-          <button type="button" class="footer-link" data-nav="agent-demo">Agent Demo</button>
-          <button type="button" class="footer-link" data-nav="workspace">Workspace</button>
           <a class="footer-link" href="dashboard.html">Dashboard</a>
           <a class="footer-link" href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
         </nav>
@@ -749,5 +723,29 @@
 <script src="js/auth.js"></script>
 <script src="js/boomerang-video.js"></script>
 <script src="js/main.js"></script>
+<script>
+/* Product Tour tab switcher - new in this redesign, self-contained
+   so it doesn't touch any existing demo logic in main.js/studio.js. */
+document.addEventListener('DOMContentLoaded', function () {
+  var tabs = document.querySelectorAll('.tour-tab');
+  var panels = document.querySelectorAll('.tour-panel');
+  if (!tabs.length) return;
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      var key = tab.getAttribute('data-tour-tab');
+      tabs.forEach(function (t) {
+        var active = t === tab;
+        t.classList.toggle('active', active);
+        t.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      panels.forEach(function (p) {
+        var match = p.getAttribute('data-tour-panel') === key;
+        p.classList.toggle('active', match);
+        if (match) { p.removeAttribute('hidden'); } else { p.setAttribute('hidden', ''); }
+      });
+    });
+  });
+});
+</script>
 </body>
 </html>
