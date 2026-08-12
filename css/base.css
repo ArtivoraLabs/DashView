@@ -64,10 +64,21 @@
   --shadow-sm: 0 1px 2px rgba(18,20,28,0.05);
   --shadow-md: 0 8px 24px -8px rgba(18,20,28,0.14);
   --shadow-lg: 0 24px 56px -16px rgba(18,20,28,0.22);
+  --shadow-xl: 0 32px 80px -20px rgba(18,20,28,0.28), 0 2px 6px rgba(18,20,28,0.06);
+  --shadow-signal: 0 24px 64px -16px rgba(14,124,102,0.32);
+  --shadow-card-hover: 0 20px 40px -18px rgba(18,20,28,0.24);
 
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --t-fast: 0.15s var(--ease);
   --t-base: 0.25s var(--ease);
+}
+
+/* Faint dot-grid texture — reused behind the hero and the CTA band so the
+   flat paper surface reads as engineered rather than empty. Pure CSS,
+   no images. */
+.dot-grid {
+  background-image: radial-gradient(var(--line-strong) 1px, transparent 1px);
+  background-size: 22px 22px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }

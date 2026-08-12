@@ -20,6 +20,15 @@ function on(el, evt, fn) { if (el) el.addEventListener(evt, fn); }
   qsa('a', links).forEach((a) => on(a, 'click', () => links.classList.remove('open')));
 })();
 
+/* ── Nav scroll shadow ─────────────────────────────────────────────────── */
+(function initNavScroll() {
+  const nav = qs('.nav');
+  if (!nav) return;
+  const update = () => nav.classList.toggle('scrolled', window.scrollY > 4);
+  update();
+  window.addEventListener('scroll', update, { passive: true });
+})();
+
 /* ── Reveal on scroll ──────────────────────────────────────────────────── */
 (function initReveal() {
   const items = qsa('.reveal');

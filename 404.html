@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Page not found - NeuralKinetics</title>
-<meta name="description" content="This page doesn't exist. Head back to the NeuralKinetics homepage." />
+<title>Page not found — Northbeam</title>
+<meta name="description" content="This page doesn't exist. Head back to the Northbeam homepage." />
 <meta name="robots" content="noindex" />
 
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
@@ -12,13 +12,8 @@
 <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
 <meta name="theme-color" content="#ffffff" />
 
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
-
-<link rel="stylesheet" href="css/globals.css" />
-<link rel="stylesheet" href="css/glass.css" />
-<link rel="stylesheet" href="css/responsive.css" />
+<link rel="stylesheet" href="css/base.css" />
+<link rel="stylesheet" href="css/components.css" />
 
 <style>
   .notfound-page {
@@ -26,48 +21,53 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: var(--space-6);
+    padding: var(--sp-6);
+    position: relative;
+    overflow: hidden;
+  }
+  .notfound-page::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(var(--line) 1px, transparent 1px);
+    background-size: 26px 26px;
+    -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 40%, #000 0%, transparent 75%);
+    mask-image: radial-gradient(ellipse 60% 60% at 50% 40%, #000 0%, transparent 75%);
+    pointer-events: none;
   }
   .notfound-card {
+    position: relative;
     text-align: center;
-    max-width: 480px;
-    padding: var(--space-12) var(--space-8);
+    max-width: 460px;
+    padding: var(--sp-12) var(--sp-8);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-xl);
   }
-  .notfound-code {
-    font-family: var(--font-mono);
-    font-size: var(--text-sm);
-    letter-spacing: 0.14em;
-    color: rgba(15, 23, 42, 0.4);
-    margin-bottom: var(--space-4);
-  }
+  .notfound-code { margin-bottom: var(--sp-5); justify-content: center; }
   .notfound-title {
+    font-family: var(--f-display);
     font-size: clamp(1.6rem, 4vw, 2.2rem);
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    margin-bottom: var(--space-3);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: var(--sp-3);
   }
   .notfound-sub {
-    font-size: var(--text-md);
-    color: rgba(15, 23, 42, 0.5);
+    font-size: var(--fs-md);
+    color: var(--ink-50);
     line-height: 1.6;
-    margin-bottom: var(--space-8);
+    margin-bottom: var(--sp-8);
   }
 </style>
 </head>
 <body>
 
-<div class="ambient-field" aria-hidden="true">
-  <span class="ambient-orb o1"></span>
-  <span class="ambient-orb o2"></span>
-  <span class="ambient-orb o3"></span>
-</div>
-
 <div class="notfound-page">
-  <div class="glass-panel glass-strong notfound-card">
-    <p class="notfound-code">ERROR · 404</p>
+  <div class="notfound-card">
+    <p class="eyebrow notfound-code">Error · 404</p>
     <h1 class="notfound-title">This page doesn't exist.</h1>
     <p class="notfound-sub">The page you're looking for may have moved or never existed. Let's get you back on track.</p>
-    <a class="glass-btn glass-btn-solid" href="index.html">Back to homepage</a>
+    <a class="btn btn-signal btn-lg" href="index.html">Back to homepage</a>
   </div>
 </div>
 

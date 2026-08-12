@@ -8,7 +8,17 @@
   background: rgba(255,255,255,0.92);
   border-bottom: 1px solid var(--line);
   backdrop-filter: none;
+  transition: box-shadow var(--t-base), border-color var(--t-base);
 }
+.nav.scrolled { box-shadow: 0 1px 0 rgba(18,20,28,0.02), var(--shadow-sm); border-bottom-color: var(--line-strong); }
+
+/* ── Logo / social-proof strip ────────────────────────────────────────── */
+.logo-strip { padding: var(--sp-8) 0; border-bottom: 1px solid var(--line); }
+.logo-strip-label { text-align: center; font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-30); margin-bottom: var(--sp-6); }
+.logo-strip-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: var(--sp-10); }
+.logo-strip-row span { font-family: var(--f-display); font-weight: 600; font-size: var(--fs-lg); letter-spacing: -0.01em; color: var(--ink-30); transition: color var(--t-fast); margin: 0 var(--sp-5); }
+.logo-strip-row span:hover { color: var(--ink-70); }
+@media (max-width: 720px) { .logo-strip-row { gap: var(--sp-6) var(--sp-8); } }
 .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 68px; }
 .nav-brand { display: flex; align-items: center; gap: 9px; font-family: var(--f-display); font-weight: 700; font-size: 1.05rem; letter-spacing: -0.02em; }
 .nav-brand-mark { width: 26px; height: 26px; flex-shrink: 0; }

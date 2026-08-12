@@ -14,7 +14,7 @@ body.dash-body { background: var(--paper-alt); }
 .dash-nav-link { display: flex; align-items: center; gap: 11px; padding: 9px var(--sp-3); border-radius: var(--r-sm); font-size: var(--fs-sm); color: var(--paper-on-navy-60); margin-bottom: 2px; transition: background var(--t-fast), color var(--t-fast); }
 .dash-nav-link svg { width: 17px; height: 17px; flex-shrink: 0; }
 .dash-nav-link:hover { background: var(--navy-raised); color: var(--paper-on-navy); }
-.dash-nav-link.active { background: var(--signal-20); color: var(--signal-bright); }
+.dash-nav-link.active { background: var(--signal-20); color: var(--signal-bright); box-shadow: inset 2px 0 0 var(--signal-bright); }
 .dash-nav-link .badge { margin-left: auto; font-family: var(--f-mono); font-size: 10px; background: var(--navy-raised); padding: 1px 7px; border-radius: var(--r-full); color: var(--paper-on-navy-60); }
 .dash-side-foot { padding: var(--sp-4); border-top: 1px solid var(--navy-line); display: flex; align-items: center; gap: 10px; }
 .dash-side-user { width: 32px; height: 32px; border-radius: 50%; background: var(--signal); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
@@ -23,7 +23,7 @@ body.dash-body { background: var(--paper-alt); }
 
 /* ── Main column ───────────────────────────────────────────────────────── */
 .dash-main { min-width: 0; }
-.dash-topbar { position: sticky; top: 0; z-index: 20; background: var(--paper); border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; padding: var(--sp-3) var(--sp-6); gap: var(--sp-4); }
+.dash-topbar { position: sticky; top: 0; z-index: 20; background: var(--paper); border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; padding: var(--sp-3) var(--sp-6); gap: var(--sp-4); box-shadow: 0 1px 0 rgba(18,20,28,0.02), var(--shadow-sm); }
 .dash-search { display: flex; align-items: center; gap: 9px; background: var(--paper-soft); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 9px 14px; width: 340px; color: var(--ink-30); }
 .dash-search input { background: none; border: none; outline: none; font-size: var(--fs-sm); width: 100%; color: var(--ink); }
 .dash-search kbd { font-family: var(--f-mono); font-size: 10px; border: 1px solid var(--line-strong); border-radius: 4px; padding: 1px 5px; color: var(--ink-30); }
@@ -40,7 +40,8 @@ body.dash-body { background: var(--paper-alt); }
 
 /* ── KPI cards ─────────────────────────────────────────────────────────── */
 .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); margin-bottom: var(--sp-6); }
-.kpi-card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--sp-5); }
+.kpi-card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--sp-5); transition: transform var(--t-base), box-shadow var(--t-base), border-color var(--t-base); }
+.kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card-hover); border-color: var(--line-strong); }
 .kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-3); }
 .kpi-label { font-size: var(--fs-xs); color: var(--ink-50); font-weight: 600; }
 .kpi-icon { width: 28px; height: 28px; border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; }
@@ -55,7 +56,8 @@ body.dash-body { background: var(--paper-alt); }
 
 /* ── Panel grid ────────────────────────────────────────────────────────── */
 .dash-grid { display: grid; grid-template-columns: 2fr 1fr; gap: var(--sp-4); margin-bottom: var(--sp-4); }
-.panel { background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--sp-5); }
+.panel { background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--sp-5); transition: box-shadow var(--t-base), border-color var(--t-base); }
+.panel:hover { box-shadow: var(--shadow-sm); border-color: var(--line-strong); }
 .panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-5); }
 .panel-head h3 { font-size: var(--fs-md); }
 .panel-head .tag { cursor: pointer; }
