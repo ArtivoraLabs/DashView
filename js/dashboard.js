@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NORTHBEAM — dashboard interactivity
+   ARTIVORALABS — dashboard interactivity
    Renders from real GitHub data (js/github-live.js) when an account is
    connected, and falls back to the deterministic demo dataset
    (js/dashboard-data.js) otherwise. Custom projects are user-added rows
@@ -8,7 +8,7 @@
 'use strict';
 
 (function () {
-  const CUSTOM_KEY = 'nk_custom_projects';
+  const CUSTOM_KEY = 'al_custom_projects';
 
   function esc(str) {
     return String(str).replace(/[&<>"']/g, (c) => ({
@@ -83,9 +83,9 @@
 
   /* ── Data loading ───────────────────────────────────────────────────── */
   async function loadData() {
-    if (window.NK_GITHUB_LIVE && NK_GITHUB_LIVE.isConnected()) {
+    if (window.AL_GITHUB_LIVE && AL_GITHUB_LIVE.isConnected()) {
       try {
-        const data = await NK_GITHUB_LIVE.fetchData();
+        const data = await AL_GITHUB_LIVE.fetchData();
         source = 'live';
         return data;
       } catch (e) {
@@ -93,7 +93,7 @@
       }
     }
     source = 'demo';
-    return window.NK_DASHBOARD_DATA ? NK_DASHBOARD_DATA.generate() : null;
+    return window.AL_DASHBOARD_DATA ? AL_DASHBOARD_DATA.generate() : null;
   }
 
   /* ── KPIs ───────────────────────────────────────────────────────────── */
@@ -338,11 +338,11 @@
   function openGhModal() {
     const modal = qs('#ghModal');
     if (!modal) return;
-    const connected = window.NK_GITHUB_LIVE && NK_GITHUB_LIVE.isConnected();
+    const connected = window.AL_GITHUB_LIVE && AL_GITHUB_LIVE.isConnected();
     const disc = qs('#ghDisconnectBtn');
     if (disc) disc.style.display = connected ? 'flex' : 'none';
     if (connected) {
-      const cfg = NK_GITHUB_LIVE.getConfig();
+      const cfg = AL_GITHUB_LIVE.getConfig();
       qs('#ghLogin').value = cfg.login || '';
       qs('#ghToken').value = cfg.token || '';
     }
@@ -368,13 +368,13 @@
     const originalLabel = submitBtn.textContent;
     submitBtn.textContent = 'Connecting…';
     submitBtn.disabled = true;
-    NK_GITHUB_LIVE.setConfig({ login, token });
+    AL_GITHUB_LIVE.setConfig({ login, token });
     try {
       await refresh();
       closeGhModal();
       showToast('Connected to GitHub as ' + login + '.');
     } catch (err) {
-      NK_GITHUB_LIVE.clearConfig();
+      AL_GITHUB_LIVE.clearConfig();
       showToast(err.message || 'Could not connect to that GitHub account.');
       await refresh();
     } finally {
@@ -383,19 +383,19 @@
     }
   });
   on(qs('#ghDisconnectBtn'), 'click', async () => {
-    if (window.NK_GITHUB_LIVE) NK_GITHUB_LIVE.clearConfig();
+    if (window.AL_GITHUB_LIVE) AL_GITHUB_LIVE.clearConfig();
     closeGhModal();
     showToast('Disconnected — showing demo data.');
     await refresh();
   });
 
   function updateConnectUi() {
-    const connected = window.NK_GITHUB_LIVE && NK_GITHUB_LIVE.isConnected();
+    const connected = window.AL_GITHUB_LIVE && AL_GITHUB_LIVE.isConnected();
     const label = qs('#ghConnectLabel');
     const dot = qs('#ghConnectDot');
     const sub = qs('#dashSubhead');
     if (connected) {
-      const cfg = NK_GITHUB_LIVE.getConfig();
+      const cfg = AL_GITHUB_LIVE.getConfig();
       if (label) label.textContent = '@' + cfg.login;
       if (dot) dot.classList.add('live');
       if (sub) sub.textContent = "Here's what's happening across " + cfg.login + "'s public GitHub — live.";

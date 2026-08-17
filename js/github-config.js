@@ -1,5 +1,5 @@
 /**
- * NeuralKinetics - GitHub API configuration
+ * ArtivoraLabs - GitHub API configuration
  * ---------------------------------------------------------------
  * Paste your details below to make the GitHub panel on the
  * homepage (#github) show a REAL repository instead of demo data.
@@ -40,7 +40,7 @@
  *      into a repo you push publicly by mistake.
  * ---------------------------------------------------------------
  */
-window.NK_GITHUB_CONFIG = {
+window.AL_GITHUB_CONFIG = {
   // The repository to display, as "owner/repo".
   repo: '',
 

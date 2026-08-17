@@ -14,7 +14,7 @@
   function fmtMoney(n) { return '$' + (Number(n) || 0).toLocaleString(undefined, { maximumFractionDigits: 2 }); }
   function fmtDate(iso) { return iso ? new Date(iso).toLocaleString() : '—'; }
 
-  const SELECTED_KEY = 'nk_selected_project';
+  const SELECTED_KEY = 'al_selected_project';
   let projects = [];
   let ordersCache = [];
   let revenueChart = null;
@@ -30,8 +30,8 @@
     overlay.innerHTML =
       '<div class="glass-panel glass-strong modal-card">' +
       '  <button type="button" class="modal-close" id="nkApiAuthClose" aria-label="Close">×</button>' +
-      '  <p class="modal-eyebrow">DashView backend</p>' +
-      '  <h3 class="modal-title">Connect your organization</h3>' +
+      '  <p class="modal-eyebrow">ArtivoraLabs Backend</p>' +
+      '  <h3 class="modal-title">Connect your ArtivoraLabs organization</h3>' +
       '  <div class="auth-tabs" role="tablist">' +
       '    <button type="button" class="auth-tab active" id="nkApiTabSignin">Sign in</button>' +
       '    <button type="button" class="auth-tab" id="nkApiTabSignup">Create organization</button>' +
@@ -60,9 +60,9 @@
       const password = qs('#nkApiPassword').value;
       try {
         if (mode === 'signup') {
-          await NK_API.register(qs('#nkApiOrgName').value.trim(), qs('#nkApiName').value.trim(), email, password);
+          await AL_API.register(qs('#nkApiOrgName').value.trim(), qs('#nkApiName').value.trim(), email, password);
         } else {
-          await NK_API.login(email, password);
+          await AL_API.login(email, password);
         }
         overlay.classList.remove('open');
         await init();
@@ -74,18 +74,18 @@
   }
 
   function updateConnectUi() {
-    const connected = window.NK_API && NK_API.isConnected();
+    const connected = window.AL_API && AL_API.isConnected();
     const label = qs('#nkApiConnectLabel');
     const dot = qs('#nkApiConnectDot');
     const panel = qs('#orgPanel');
-    if (label) label.textContent = connected ? (NK_API.user() ? NK_API.user().name : 'Connected') : 'Connect DashView';
+    if (label) label.textContent = connected ? (AL_API.user() ? AL_API.user().name : 'Connected') : 'Connect ArtivoraLabs';
     if (dot) dot.classList.toggle('live', !!connected);
     if (panel) panel.style.display = connected ? '' : 'none';
   }
 
   qs('#nkApiConnectBtn') && qs('#nkApiConnectBtn').addEventListener('click', () => {
-    if (window.NK_API && NK_API.isConnected()) {
-      NK_API.disconnect();
+    if (window.AL_API && AL_API.isConnected()) {
+      AL_API.disconnect();
       updateConnectUi();
       return;
     }
@@ -157,7 +157,7 @@
     if (!name) return;
     const slug = name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     try {
-      await NK_API.createProject(name, slug);
+      await AL_API.createProject(name, slug);
       await init();
     } catch (e) {
       alert('Could not create project: ' + e.message);
@@ -167,10 +167,10 @@
   /* ── Orchestration ─────────────────────────────────────────────────── */
   async function loadProject(projectId) {
     const [summary, revenue, activity, orders] = await Promise.all([
-      NK_API.getProjectSummary(projectId),
-      NK_API.getRevenue(projectId, 30),
-      NK_API.getActivity(projectId),
-      NK_API.getOrders(projectId),
+      AL_API.getProjectSummary(projectId),
+      AL_API.getRevenue(projectId, 30),
+      AL_API.getActivity(projectId),
+      AL_API.getOrders(projectId),
     ]);
     renderKpis(summary);
     renderRevenueChart(revenue);
@@ -180,12 +180,12 @@
 
   async function init() {
     updateConnectUi();
-    if (!window.NK_API || !NK_API.isConnected()) return;
+    if (!window.AL_API || !AL_API.isConnected()) return;
     try {
-      projects = await NK_API.getProjects();
+      projects = await AL_API.getProjects();
     } catch (e) {
       // Token invalid/expired - drop back to signed-out state.
-      NK_API.disconnect();
+      AL_API.disconnect();
       updateConnectUi();
       return;
     }

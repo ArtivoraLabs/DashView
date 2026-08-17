@@ -1,5 +1,5 @@
 /**
- * NeuralKinetics - AI access gate (demo auth)
+ * ArtivoraLabs - AI access gate (demo auth)
  * ---------------------------------------------------------------
  * This is a static site with no backend, so there's no real account
  * system here - no password is stored or checked anywhere. What
@@ -14,13 +14,13 @@
  * gate on its response instead of just setting the local flag.
  *
  * Usage from other scripts:
- *   window.NKAuth.requireAccess(() => openTheAiThing());
+ *   window.ALAuth.requireAccess(() => openTheAiThing());
  * ---------------------------------------------------------------
  */
 (function () {
   'use strict';
 
-  const SESSION_KEY = 'nk_demo_session';
+  const SESSION_KEY = 'al_demo_session';
   let mode = 'signin'; // 'signin' | 'signup'
   let pendingCallback = null;
   let built = false;
@@ -188,5 +188,5 @@
     openModal();
   }
 
-  window.NKAuth = { requireAccess, isSignedIn };
+  window.ALAuth = { requireAccess, isSignedIn };
 })();

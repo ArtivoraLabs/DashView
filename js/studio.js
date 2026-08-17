@@ -1,5 +1,5 @@
 /* ============================================================
-   NeuralKinetics — AI Studio
+   ArtivoraLabs — AI Studio
    Image Generator · Code Debugger · Report Studio
    All three run fully client-side. No backend, no API key.
    ============================================================ */
@@ -281,7 +281,7 @@
         if (galleryItems.length > 12) galleryItems.length = 12;
         refreshGallery();
       };
-      if (window.NKAuth) window.NKAuth.requireAccess(run); else run();
+      if (window.ALAuth) window.ALAuth.requireAccess(run); else run();
     });
 
     on(promptInput, 'keydown', (e) => {
@@ -291,7 +291,7 @@
     on(qs('#studioDownloadSvg'), 'click', () => {
       if (!currentSvgString) return;
       const blob = new Blob([currentSvgString], { type: 'image/svg+xml' });
-      triggerDownload(blob, 'neuralkinetics-image.svg');
+      triggerDownload(blob, 'artivoralabs-image.svg');
     });
 
     on(qs('#studioDownloadPng'), 'click', () => {
@@ -306,7 +306,7 @@
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         URL.revokeObjectURL(url);
         canvas.toBlob((blob) => {
-          if (blob) triggerDownload(blob, 'neuralkinetics-image.png');
+          if (blob) triggerDownload(blob, 'artivoralabs-image.png');
         }, 'image/png');
       };
       img.onerror = () => { URL.revokeObjectURL(url); showToast('Could not rasterize image — try SVG download instead.'); };
@@ -515,7 +515,7 @@
         else findings = analyzeJavaScript(code);
         renderDebugResults(findings);
       };
-      if (window.NKAuth) window.NKAuth.requireAccess(run); else run();
+      if (window.ALAuth) window.ALAuth.requireAccess(run); else run();
     });
   }
 
@@ -561,7 +561,7 @@
 
   function getReportFormData() {
     const title = (qs('#studioReportTitle') || {}).value || 'Untitled Report';
-    const author = (qs('#studioReportAuthor') || {}).value || 'NeuralKinetics User';
+    const author = (qs('#studioReportAuthor') || {}).value || 'ArtivoraLabs User';
     const summary = (qs('#studioReportSummary') || {}).value || '';
     const pointsRaw = (qs('#studioReportPoints') || {}).value || '';
     const points = pointsRaw.split('\n').map((l) => l.trim()).filter(Boolean);

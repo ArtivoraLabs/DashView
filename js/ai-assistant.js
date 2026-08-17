@@ -1,5 +1,5 @@
 /* ============================================================
-   NeuralKinetics — AI Assistant
+   ArtivoraLabs — AI Assistant
    A site-wide, multi-turn chat widget. Everything runs client-
    side (same philosophy as the AI Studio tools) — it holds real
    conversation history, shows a genuine typing state, and can
@@ -50,7 +50,7 @@
     launcher.type = 'button';
     launcher.className = 'nk-assist-launcher';
     launcher.id = 'nkAssistLauncher';
-    launcher.setAttribute('aria-label', 'Open the NeuralKinetics AI assistant');
+    launcher.setAttribute('aria-label', 'Open the ArtivoraLabs AI assistant');
     launcher.innerHTML =
       '<svg class="nk-icon-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.4 0-2.7-.3-3.9-.9L3 21l1.9-5.6A8.5 8.5 0 1 1 21 11.5Z"/></svg>' +
       '<svg class="nk-icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>' +
@@ -60,12 +60,12 @@
     panel.className = 'nk-assist-panel';
     panel.id = 'nkAssistPanel';
     panel.setAttribute('role', 'dialog');
-    panel.setAttribute('aria-label', 'NeuralKinetics AI assistant chat');
+    panel.setAttribute('aria-label', 'ArtivoraLabs AI assistant chat');
     panel.innerHTML =
       '<div class="nk-assist-head">' +
         '<div class="nk-assist-head-id">' +
           '<span class="nk-assist-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg></span>' +
-          '<div><p class="nk-assist-name">NeuralKinetics AI</p><p class="nk-assist-status"><span class="dot"></span>Online — ready to help</p></div>' +
+          '<div><p class="nk-assist-name">ArtivoraLabs AI</p><p class="nk-assist-status"><span class="dot"></span>Online — ready to help</p></div>' +
         '</div>' +
         '<div class="nk-assist-head-actions">' +
           '<button type="button" class="nk-assist-icon-btn" id="nkAssistClear" aria-label="Start a new chat" title="New chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14Z"/></svg></button>' +
@@ -95,7 +95,7 @@
     const wrap = document.createElement('div');
     wrap.className = 'nk-assist-welcome';
     wrap.innerHTML =
-      '<h4>Hey, I\'m the NeuralKinetics assistant 👋</h4>' +
+      '<h4>Hey, I\'m the ArtivoraLabs assistant 👋</h4>' +
       '<p>Ask me to explain something, plan something, or create something — code, a checklist, a palette, even a small graphic — and I\'ll build it right here in the chat.</p>' +
       '<div class="nk-assist-suggest" id="nkAssistSuggest"></div>';
     bodyEl.appendChild(wrap);
@@ -318,9 +318,9 @@
      Conversational reply library (for non-"create" turns)
   ------------------------------------------------------------ */
   const REPLY_LIBRARY = [
-    { keywords: ['hello', 'hi', 'hey'], reply: "Hey there! I'm the NeuralKinetics assistant. Tell me what you're working on, or ask me to create something." },
+    { keywords: ['hello', 'hi', 'hey'], reply: "Hey there! I'm the ArtivoraLabs assistant. Tell me what you're working on, or ask me to create something." },
     { keywords: ['thank'], reply: "Anytime. Want me to take it a step further, or start on something new?" },
-    { keywords: ['who are you', 'what are you'], reply: "I'm the in-browser AI assistant for NeuralKinetics — I can explain concepts, plan things out, and generate code, checklists, palettes, and small graphics live in this chat." },
+    { keywords: ['who are you', 'what are you'], reply: "I'm the in-browser AI assistant for ArtivoraLabs — I can explain concepts, plan things out, and generate code, checklists, palettes, and small graphics live in this chat." },
     { keywords: ['react', 'component', 'app'], reply: "For a React build, I'd scaffold it as a Vite project, split the UI into small composable components, and wire up state with hooks before touching styling. Want me to generate a starting component?" },
     { keywords: ['quantum'], reply: "At a high level, quantum computing uses qubits that hold superpositions of 0 and 1, and entanglement to correlate them — letting certain problems be explored far more efficiently than classical bits allow." },
     { keywords: ['transformer', 'attention', 'neural network'], reply: "Transformers process a whole sequence at once using self-attention — each token learns which other tokens matter most to it — which is what lets them model long-range context so well." },
@@ -373,7 +373,7 @@
   // instead of the local keyword-matched simulation. Falls back to the
   // simulation on any error so the widget never breaks with no backend.
   function liveProjectId() {
-    try { return window.NK_API && NK_API.isConnected() ? localStorage.getItem('nk_selected_project') : null; }
+    try { return window.AL_API && AL_API.isConnected() ? localStorage.getItem('al_selected_project') : null; }
     catch (e) { return null; }
   }
 
@@ -406,7 +406,7 @@
     const projectId = liveProjectId();
     if (projectId) {
       const apiHistory = history.map((h) => ({ role: h.role, content: h.text }));
-      NK_API.aiChat(projectId, apiHistory).then((res) => {
+      AL_API.aiChat(projectId, apiHistory).then((res) => {
         const typingEl = qs('#nkTypingMsg');
         if (typingEl) typingEl.remove();
         const block = formatStructuredBlock(res);
@@ -483,8 +483,8 @@
 
   function togglePanel() {
     if (panelOpen) { closePanel(); return; }
-    if (window.NKAuth) {
-      window.NKAuth.requireAccess(openPanel);
+    if (window.ALAuth) {
+      window.ALAuth.requireAccess(openPanel);
     } else {
       openPanel();
     }
@@ -521,11 +521,11 @@
     window.NKAssistant = {
       open: function (text) {
         const run = () => { openPanel(); if (text) sendMessage(text); };
-        if (window.NKAuth) window.NKAuth.requireAccess(run); else run();
+        if (window.ALAuth) window.ALAuth.requireAccess(run); else run();
       },
       prefill: function (text) {
         const run = () => openPanel(text);
-        if (window.NKAuth) window.NKAuth.requireAccess(run); else run();
+        if (window.ALAuth) window.ALAuth.requireAccess(run); else run();
       },
     };
   }

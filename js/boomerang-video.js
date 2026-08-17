@@ -1,5 +1,5 @@
 /* ============================================================
-   NeuralKinetics - Boomerang hero video background
+   ArtivoraLabs - Boomerang hero video background
    Plays the source clip once, capturing every frame to small
    offscreen canvases as it goes. Once the clip ends, switches to
    a display canvas that ping-pongs those frames forward→reverse

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NORTHBEAM — shared app logic (nav, reveal, modal, toast)
+   ARTIVORALABS — shared app logic (nav, reveal, modal, toast)
    ========================================================================== */
 'use strict';
 

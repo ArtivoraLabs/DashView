@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NORTHBEAM — AI Assistant
+   ARTIVORALABS — AI Assistant
    ========================================================================== */
 body.ai-body { background: var(--paper); height: 100vh; overflow: hidden; }
 .ai-shell { display: grid; grid-template-columns: 272px 1fr; height: 100vh; }

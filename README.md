@@ -1,4 +1,4 @@
-# NeuralKinetics - AI Platform Landing Page
+# ArtivoraLabs - AI Platform Landing Page
 
 A fully static, dependency-free landing page for an AI platform, built with
 plain **HTML, CSS, and JavaScript** - no build step, no framework, no
@@ -155,7 +155,7 @@ Then open `http://localhost:8080`.
    ```bash
    git init
    git add .
-   git commit -m "Initial commit - NeuralKinetics landing page"
+   git commit -m "Initial commit - ArtivoraLabs landing page"
    git branch -M main
    git remote add origin https://github.com/<your-username>/<your-repo>.git
    git push -u origin main
@@ -173,7 +173,7 @@ configuration needed.
 ### Using a custom domain
 
 Add a `CNAME` file at the project root containing your domain
-(e.g. `neuralkinetics.ai`), then point your DNS `A`/`CNAME` records at GitHub
+(e.g. `artivoralabs.ai`), then point your DNS `A`/`CNAME` records at GitHub
 Pages per [GitHub's custom domain docs](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site).
 
 ## 🎨 Customizing

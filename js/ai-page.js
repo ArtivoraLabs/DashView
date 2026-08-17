@@ -1,5 +1,5 @@
 /**
- * NeuralKinetics - AI Assistant page
+ * ArtivoraLabs - AI Assistant page
  * ---------------------------------------------------------------
  * A standalone, Claude-style chat page. Unlike the old floating
  * widget this replaces, every reply here comes from the real
@@ -25,9 +25,9 @@
     return String(str == null ? '' : str).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
-  const SETTINGS_KEY = 'nk_ai_settings';
-  const CONVOS_KEY = 'nk_ai_conversations';
-  const ACTIVE_KEY = 'nk_ai_active_id';
+  const SETTINGS_KEY = 'al_ai_settings';
+  const CONVOS_KEY = 'al_ai_conversations';
+  const ACTIVE_KEY = 'al_ai_active_id';
   const API_URL = 'https://api.anthropic.com/v1/messages';
   const ANTHROPIC_VERSION = '2023-06-01';
 
@@ -206,18 +206,18 @@
   function buildWorkspaceContext() {
     const parts = [];
     try {
-      const gh = JSON.parse(localStorage.getItem('nk_github_connection') || 'null');
+      const gh = JSON.parse(localStorage.getItem('al_github_connection') || 'null');
       if (gh && gh.login) parts.push(`The user has connected the GitHub account/org "${gh.login}" to their dashboard.`);
     } catch (e) {}
     try {
-      const own = JSON.parse(localStorage.getItem('nk_own_projects') || '[]');
+      const own = JSON.parse(localStorage.getItem('al_own_projects') || '[]');
       if (own.length) {
         const list = own.slice(0, 8).map((p) => `- "${p.title}" (#${p.number}, ${p.stats.open} open / ${p.stats.closed} closed, ${p.stats.pct}% complete${p.url && p.url !== '#' ? ', ' + p.url : ''})`).join('\n');
         parts.push(`The user's own tracked projects on their dashboard:\n${list}`);
       }
     } catch (e) {}
     if (!parts.length) return '';
-    return 'Workspace context (from the NeuralKinetics dashboard, for background only - only mention it if relevant to what the user asks):\n' + parts.join('\n\n');
+    return 'Workspace context (from the ArtivoraLabs dashboard, for background only - only mention it if relevant to what the user asks):\n' + parts.join('\n\n');
   }
   function updateWorkspaceBadge() {
     const badge = $('aiWorkspaceBadge');
@@ -398,7 +398,7 @@
     on($('aiGithubModelSelect'), 'change', toggleGithubCustomModelField);
     on($('aiUseDashboardToken'), 'click', () => {
       try {
-        const gh = JSON.parse(localStorage.getItem('nk_github_connection') || 'null');
+        const gh = JSON.parse(localStorage.getItem('al_github_connection') || 'null');
         if (gh && gh.token) {
           $('aiGithubTokenInput').value = gh.token;
           showToast('Copied the token from your Dashboard connection');
@@ -502,6 +502,6 @@
         window.history.replaceState({}, '', 'ai.html');
       }
     };
-    if (window.NKAuth) window.NKAuth.requireAccess(run); else run();
+    if (window.ALAuth) window.ALAuth.requireAccess(run); else run();
   });
 })();

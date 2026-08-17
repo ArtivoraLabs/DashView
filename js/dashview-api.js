@@ -7,18 +7,18 @@
  * everything degrades gracefully back to the existing demo data /
  * local assistant when the backend isn't configured or unreachable.
  *
- * Configure the backend URL in one place: window.NK_API_BASE below,
+ * Configure the backend URL in one place: window.AL_API_BASE below,
  * or leave it and it defaults to http://localhost:4000/api for local
  * dev. Nothing here ever holds a provider API key - those stay
  * server-side (see /server/.env.example).
  * ---------------------------------------------------------------
  */
-window.NK_API_BASE = window.NK_API_BASE || 'http://localhost:4000/api';
+window.AL_API_BASE = window.AL_API_BASE || 'http://localhost:4000/api';
 
 (function () {
   'use strict';
-  const TOKEN_KEY = 'nk_api_token';
-  const USER_KEY = 'nk_api_user';
+  const TOKEN_KEY = 'al_api_token';
+  const USER_KEY = 'al_api_user';
 
   function token() { try { return localStorage.getItem(TOKEN_KEY); } catch (e) { return null; } }
   function user() { try { return JSON.parse(localStorage.getItem(USER_KEY) || 'null'); } catch (e) { return null; } }
@@ -29,7 +29,7 @@ window.NK_API_BASE = window.NK_API_BASE || 'http://localhost:4000/api';
     const headers = Object.assign({ 'Content-Type': 'application/json' }, opts.headers || {});
     const t = token();
     if (t) headers.Authorization = 'Bearer ' + t;
-    const resp = await fetch(window.NK_API_BASE + path, Object.assign({}, opts, { headers }));
+    const resp = await fetch(window.AL_API_BASE + path, Object.assign({}, opts, { headers }));
     const data = await resp.json().catch(() => ({}));
     if (!resp.ok) throw new Error(data.error || ('Request failed (' + resp.status + ')'));
     return data;
@@ -71,7 +71,7 @@ window.NK_API_BASE = window.NK_API_BASE || 'http://localhost:4000/api';
     body: JSON.stringify(Object.assign({ history }, opts || {})),
   });
 
-  window.NK_API = {
+  window.AL_API = {
     isConnected, user, register, login, disconnect,
     getProjects, createProject, getProjectSummary, getProjectStats, getUsers, getOrders,
     getRevenue, getActivity, searchProject, getReport, getAiProviders, aiChat,

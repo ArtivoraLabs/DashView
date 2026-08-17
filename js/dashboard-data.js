@@ -1,5 +1,5 @@
 /**
- * NeuralKinetics Dashboard - demo data layer
+ * ArtivoraLabs Dashboard - demo data layer
  * ---------------------------------------------------------------
  * This site is intentionally static (see README) so there is no
  * live backend here by default. This module generates a realistic,
@@ -13,7 +13,7 @@
  *      GET /api/dashboard (a Node/Express server querying GitHub's
  *      GraphQL API is one option - see CHANGELOG.md).
  *   2. In js/dashboard.js, replace the call to
- *      `window.NK_DASHBOARD_DATA.generate()` with a `fetch(API_URL)`
+ *      `window.AL_DASHBOARD_DATA.generate()` with a `fetch(API_URL)`
  *      that resolves to the same shape. Everything downstream
  *      (renderKPIs, renderActivity, the command palette index, …)
  *      already consumes this shape as data - no rendering code
@@ -50,7 +50,7 @@
   ];
 
   const REPO_DEFS = [
-    { name: 'platform-v2', desc: 'Core NeuralKinetics platform - API, orchestration, model routing.', lang: 0 },
+    { name: 'platform-v2', desc: 'Core ArtivoraLabs platform - API, orchestration, model routing.', lang: 0 },
     { name: 'ai-studio', desc: 'Image generation, code analysis and report export tools.', lang: 0 },
     { name: 'auth-service', desc: 'Authentication, sessions and org/team permissions.', lang: 1 },
     { name: 'design-system', desc: 'Shared glass component library and design tokens.', lang: 0 },
@@ -304,7 +304,7 @@
     const contributions = buildContributionCalendar();
     const languages = buildLanguageBreakdown(repos);
     return {
-      org: { name: 'acme-corp', login: 'acme-corp', description: 'NeuralKinetics workspace' },
+      org: { name: 'acme-corp', login: 'acme-corp', description: 'ArtivoraLabs workspace' },
       members, projects, repositories: repos, milestones, activity, kpis, contributions, languages,
       fetchedAt: new Date().toISOString(),
     };
@@ -323,5 +323,5 @@
     return { type, title: 'Deployed ' + repo.name + ' to production', author: author.name, repo: repo.name, repoUrl: repo.url, date, url: repo.url, state: 'success' };
   }
 
-  window.NK_DASHBOARD_DATA = { generate, nextLiveEvent, LANGS };
+  window.AL_DASHBOARD_DATA = { generate, nextLiveEvent, LANGS };
 })();

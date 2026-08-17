@@ -1,5 +1,5 @@
 /* ============================================================
-   NeuralKinetics - Application Logic (Vanilla JS)
+   ArtivoraLabs - Application Logic (Vanilla JS)
    ============================================================ */
 'use strict';
 
@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /* ------------------------------------------------------------
    Hero AI Command Bar - rotating placeholders, submits into
-   the global NeuralKinetics AI Assistant (js/ai-assistant.js)
+   the global ArtivoraLabs AI Assistant (js/ai-assistant.js)
 ------------------------------------------------------------ */
 const PROMPTS = [
   'Build a React application',
@@ -565,7 +565,7 @@ const GITHUB_ACTIONS = [
    is unreachable, or the API rate-limits the request.
 ------------------------------------------------------------ */
 async function fetchRealGitHubData() {
-  const cfg = window.NK_GITHUB_CONFIG;
+  const cfg = window.AL_GITHUB_CONFIG;
   if (!cfg || !cfg.repo) return null;
 
   const headers = { Accept: 'application/vnd.github+json' };
@@ -586,7 +586,7 @@ async function fetchRealGitHubData() {
 
     return { repo, branches, commits };
   } catch (err) {
-    console.warn('[NeuralKinetics] Live GitHub data unavailable, showing demo data instead:', err.message);
+    console.warn('[ArtivoraLabs] Live GitHub data unavailable, showing demo data instead:', err.message);
     return null;
   }
 }
@@ -853,7 +853,7 @@ function initWaitlistModal() {
       successView.classList.add('show');
       submitBtn.disabled = false;
       submitBtn.textContent = 'Request early access';
-      showToast('You are on the NeuralKinetics early access list');
+      showToast('You are on the ArtivoraLabs early access list');
     }, 900);
   });
 }

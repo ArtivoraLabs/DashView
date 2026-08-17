@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NORTHBEAM — AI assistant chat logic
+   ARTIVORALABS — AI assistant chat logic
    Runs entirely client-side: a small local knowledge base scores the
    message against a set of topics (keyword matching, no network calls,
    no external API/model) and returns a tailored, structured reply.
@@ -69,7 +69,7 @@
   const liveHistory = [];
 
   function liveProjectId() {
-    try { return window.NK_API && NK_API.isConnected() ? localStorage.getItem('nk_selected_project') : null; }
+    try { return window.AL_API && AL_API.isConnected() ? localStorage.getItem('al_selected_project') : null; }
     catch (e) { return null; }
   }
 
@@ -96,7 +96,7 @@
     const projectId = liveProjectId();
     if (projectId) {
       liveHistory.push({ role: 'user', content: text });
-      NK_API.aiChat(projectId, liveHistory).then((res) => {
+      AL_API.aiChat(projectId, liveHistory).then((res) => {
         typingEl.remove();
         addMessage('assistant', renderStructured(res));
         liveHistory.push({ role: 'assistant', content: res.message || '' });

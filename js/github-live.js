@@ -1,5 +1,5 @@
 /**
- * NeuralKinetics Dashboard - live GitHub connection
+ * ArtivoraLabs Dashboard - live GitHub connection
  * ---------------------------------------------------------------
  * Lets a visitor connect their own GitHub account (or org) from
  * the dashboard UI itself - no file editing required. Once
@@ -18,7 +18,7 @@
 (function () {
   'use strict';
 
-  const STORAGE_KEY = 'nk_github_connection';
+  const STORAGE_KEY = 'al_github_connection';
   const API = 'https://api.github.com';
 
   function getConfig() {
@@ -268,5 +268,5 @@
     }
   }
 
-  window.NK_GITHUB_LIVE = { isConnected, getConfig, setConfig, clearConfig, fetchData };
+  window.AL_GITHUB_LIVE = { isConnected, getConfig, setConfig, clearConfig, fetchData };
 })();

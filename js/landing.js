@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NORTHBEAM — landing page interactivity
+   ARTIVORALABS — landing page interactivity
    ========================================================================== */
 'use strict';
 

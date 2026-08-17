@@ -1,5 +1,5 @@
 /* ============================================================
-   NeuralKinetics - Global Styles
+   ArtivoraLabs - Global Styles
    Base CSS variables, resets, and typography
    ============================================================ */
 
@@ -11,7 +11,7 @@
 
 :root {
   /* ============================================================
-     Design system v2 - "Northbeam" professional palette.
+     Design system v2 - "ArtivoraLabs" professional palette.
      Same variable names as before, so every downstream file that
      references var(--color-*), var(--glass-*), var(--brand-*) keeps
      working - only the values change, which is what carries the

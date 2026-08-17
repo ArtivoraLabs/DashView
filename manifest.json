@@ -1,12 +1,12 @@
 {
-  "name": "NeuralKinetics - Neural Intelligence Platform",
-  "short_name": "NeuralKinetics",
-  "description": "An adaptive AI operating system built to reason, create, code, analyze, and assist across every workflow.",
+  "name": "ArtivoraLabs — Autonomous Engineering",
+  "short_name": "ArtivoraLabs",
+  "description": "Autonomous coding agent that plans, writes, tests and ships code straight into your GitHub repos — with a live dashboard tracking every change.",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "theme_color": "#0e7c66",
   "icons": [
     {
       "src": "assets/favicon-32x32.png",
