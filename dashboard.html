@@ -22,8 +22,8 @@
     <nav class="dash-nav">
       <p class="dash-nav-label">Workspace</p>
       <a href="#" class="dash-nav-link active"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>Overview</a>
-      <a href="#" class="dash-nav-link"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg>Projects<span class="badge">9</span></a>
-      <a href="#" class="dash-nav-link"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>Agent tasks<span class="badge">14</span></a>
+      <a href="#" class="dash-nav-link"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg>Projects<span class="badge" id="navProjectsBadge">0</span></a>
+      <a href="#" class="dash-nav-link"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>Agent tasks<span class="badge" id="navTasksBadge">0</span></a>
       <a href="#" class="dash-nav-link"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.03-.01-1.87-2.78.62-3.37-1.22-3.37-1.22-.46-1.19-1.11-1.51-1.11-1.51-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.32 9.32 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>Repositories</a>
       <a href="#" class="dash-nav-link"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Team</a>
       <p class="dash-nav-label">Insights</p>
@@ -46,10 +46,17 @@
       </button>
       <div class="dash-search">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" placeholder="Search projects, PRs, people…" />
+        <input type="text" placeholder="Search projects, repos, people…" id="dashSearchInput" />
         <kbd>⌘K</kbd>
       </div>
       <div class="dash-top-actions">
+        <div class="gh-connect" id="ghConnect">
+          <button class="btn btn-outline btn-sm" id="ghConnectBtn" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.03-.01-1.87-2.78.62-3.37-1.22-3.37-1.22-.46-1.19-1.11-1.51-1.11-1.51-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.32 9.32 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
+            <span id="ghConnectLabel">Connect GitHub</span>
+          </button>
+          <span class="gh-connect-dot" id="ghConnectDot" aria-hidden="true"></span>
+        </div>
         <button class="dash-icon-btn" aria-label="Notifications">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           <span class="dot"></span>
@@ -64,34 +71,34 @@
       <div class="dash-head">
         <div>
           <h1>Good morning, Amara.</h1>
-          <p>Here's what Northbeam shipped across acme-corp since you last checked in.</p>
+          <p id="dashSubhead">Here's what Northbeam shipped across acme-corp since you last checked in.</p>
         </div>
-        <button class="btn btn-primary" id="newTaskBtn">
+        <button class="btn btn-primary" id="addProjectBtn">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-          New agent task
+          Add project
         </button>
       </div>
 
       <div class="kpi-grid">
         <div class="kpi-card c-signal">
-          <div class="kpi-top"><span class="kpi-label">Active tasks</span><div class="kpi-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg></div></div>
-          <p class="kpi-val" data-count="14">0</p>
-          <p class="kpi-delta up">↑ 3 since yesterday</p>
+          <div class="kpi-top"><span class="kpi-label">Open tasks</span><div class="kpi-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg></div></div>
+          <p class="kpi-val" id="kpiOpenTasks" data-count="0">0</p>
+          <p class="kpi-delta up" id="kpiOpenTasksDelta">—</p>
         </div>
         <div class="kpi-card c-beacon">
-          <div class="kpi-top"><span class="kpi-label">PRs this week</span><div class="kpi-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18l-6-6 6-6M15 6l6 6-6 6"/></svg></div></div>
-          <p class="kpi-val" data-count="47">0</p>
-          <p class="kpi-delta up">↑ 12% vs last week</p>
+          <div class="kpi-top"><span class="kpi-label">Open PRs</span><div class="kpi-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18l-6-6 6-6M15 6l6 6-6 6"/></svg></div></div>
+          <p class="kpi-val" id="kpiOpenPRs" data-count="0">0</p>
+          <p class="kpi-delta up" id="kpiOpenPRsDelta">—</p>
         </div>
         <div class="kpi-card c-ink">
-          <div class="kpi-top"><span class="kpi-label">Avg review time</span><div class="kpi-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div></div>
-          <p class="kpi-val">1.8h</p>
-          <p class="kpi-delta up">↓ 22% faster</p>
+          <div class="kpi-top"><span class="kpi-label">Repo health</span><div class="kpi-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div></div>
+          <p class="kpi-val" id="kpiHealth">—</p>
+          <p class="kpi-delta" id="kpiHealthDelta">—</p>
         </div>
         <div class="kpi-card c-danger">
-          <div class="kpi-top"><span class="kpi-label">Failed checks</span><div class="kpi-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg></div></div>
-          <p class="kpi-val" data-count="3">0</p>
-          <p class="kpi-delta down">↑ 1 needs attention</p>
+          <div class="kpi-top"><span class="kpi-label">Open issues</span><div class="kpi-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg></div></div>
+          <p class="kpi-val" id="kpiOpenIssues" data-count="0">0</p>
+          <p class="kpi-delta down" id="kpiOpenIssuesDelta">—</p>
         </div>
       </div>
 
@@ -99,7 +106,7 @@
         <div class="panel">
           <div class="panel-head">
             <h3>Shipping velocity</h3>
-            <span class="tag">Last 14 days</span>
+            <span class="tag" id="velocityTag">Last 14 days</span>
           </div>
           <div class="chart-wrap"><canvas id="velocityChart"></canvas></div>
         </div>
@@ -112,11 +119,14 @@
       <div class="panel">
         <div class="panel-head">
           <h3>Projects</h3>
-          <span class="tag">9 repositories</span>
+          <div style="display:flex;align-items:center;gap:var(--sp-3);">
+            <span class="tag" id="projectsTag">0 projects</span>
+            <button class="btn btn-ghost btn-sm" id="exportCsvBtn" type="button">Export CSV</button>
+          </div>
         </div>
         <div class="table-wrap">
           <table class="dash-table">
-            <thead><tr><th>Project</th><th>Status</th><th>Progress</th><th>Open PRs</th><th>Contributors</th><th>Updated</th></tr></thead>
+            <thead><tr><th>Project</th><th>Status</th><th>Health</th><th>Open PRs</th><th>Language</th><th>Updated</th><th></th></tr></thead>
             <tbody id="projectsTableBody"></tbody>
           </table>
         </div>
@@ -127,8 +137,56 @@
 
 <div class="toast-stack" id="toastStack"></div>
 
+<!-- ══════════════════════ CONNECT GITHUB MODAL ══════════════════════ -->
+<div class="modal-overlay" id="ghModal">
+  <div class="modal-card">
+    <button class="modal-close" id="ghModalClose" type="button" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);">Live data</p>
+    <h3>Connect a GitHub account</h3>
+    <p>Pull your real repos, issues and activity into this dashboard. Public accounts need no token — you get 60 requests/hour. Nothing leaves your browser except calls to api.github.com.</p>
+    <form class="modal-form" id="ghForm">
+      <div class="field"><label for="ghLogin">GitHub username or org</label><input type="text" id="ghLogin" placeholder="e.g. vercel" required /></div>
+      <div class="field"><label for="ghToken">Personal access token (optional)</label><input type="text" id="ghToken" placeholder="Leave blank for public rate limit" /></div>
+      <button type="submit" class="btn btn-primary btn-block btn-lg" id="ghFormSubmit">Connect</button>
+    </form>
+    <button class="btn btn-ghost btn-block" id="ghDisconnectBtn" type="button" style="margin-top:var(--sp-3);display:none;">Disconnect and use demo data</button>
+  </div>
+</div>
+
+<!-- ══════════════════════ ADD / EDIT PROJECT MODAL ══════════════════════ -->
+<div class="modal-overlay" id="projectModal">
+  <div class="modal-card">
+    <button class="modal-close" id="projectModalClose" type="button" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);" id="projectModalEyebrow">Custom project</p>
+    <h3 id="projectModalTitle">Add a project</h3>
+    <p>Custom projects live only in this browser (localStorage) and sit alongside your GitHub data.</p>
+    <form class="modal-form" id="projectForm">
+      <input type="hidden" id="projectId" />
+      <div class="field"><label for="projectName">Name</label><input type="text" id="projectName" required /></div>
+      <div class="field"><label for="projectStatus">Status</label>
+        <select id="projectStatus" style="width:100%;padding:11px 14px;border:1px solid var(--line-strong);border-radius:var(--r-sm);font-size:var(--fs-sm);background:var(--paper-soft);">
+          <option value="active">Active</option>
+          <option value="review">In review</option>
+          <option value="blocked">Blocked</option>
+        </select>
+      </div>
+      <div class="field"><label for="projectProgress">Progress (%)</label><input type="number" id="projectProgress" min="0" max="100" value="0" required /></div>
+      <div class="field"><label for="projectPRs">Open PRs</label><input type="number" id="projectPRs" min="0" value="0" required /></div>
+      <div class="field"><label for="projectUrl">Link (optional)</label><input type="text" id="projectUrl" placeholder="https://…" /></div>
+      <button type="submit" class="btn btn-primary btn-block btn-lg">Save project</button>
+    </form>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="js/app.js"></script>
+<script src="js/github-config.js"></script>
+<script src="js/github-live.js"></script>
+<script src="js/dashboard-data.js"></script>
 <script src="js/dashboard.js"></script>
 </body>
 </html>

@@ -36,19 +36,29 @@ developer workspace, and a functional GitHub integration panel.
     then export a real downloadable **Word report (.docx)**, **PowerPoint deck (.pptx)**
     with an auto-generated chart slide, or **Excel workbook (.xlsx)** - built client-side
     with `docx`, `pptxgenjs`, and `SheetJS` (loaded from CDN on first use).
-- **Dashboard** (`dashboard.html`) - a full workspace intelligence view, linked from the
-  main nav and the GitHub section:
-  - Collapsible sidebar, command palette (`⌘K` - fuzzy search across repos, projects,
-    members and actions), and a keyboard-shortcut layer (`R` refresh, `E` export, `?`
-    help, `G` then a letter to jump to a section)
-  - KPI rows, per-project sparklines, team workload, and milestone countdowns
-  - Three live Chart.js charts (task activity, status split, per-project progress)
-  - A polished, filterable **live activity log** (commits/issues/PRs/deploys) that
-    keeps streaming new synthetic events in with an insert animation
-  - A sortable/searchable repository table with A–F health grading, a card-view
-    toggle, and CSV export
-  - Runs entirely on realistic generated demo data by default (see
-    `js/dashboard-data.js` for exactly how to point it at a real API instead)
+- **Dashboard** (`dashboard.html`) - a workspace intelligence view, linked from the main
+  nav:
+  - **Connect GitHub** button in the top bar - type a GitHub username or org (public
+    accounts need no token) and the dashboard re-renders from real data: your repos,
+    their language/health grade, open PRs and issues, your recent public events, and
+    a 14-day commit/PR chart. Disconnect any time to fall back to demo data - nothing
+    is ever sent anywhere except `api.github.com`, and the connection only lives in
+    this browser's `localStorage` (see `js/github-live.js`).
+  - **Add project** button - create your own project cards (name, status, progress,
+    open PRs, link) that live in `localStorage` and sit alongside your GitHub-derived
+    rows in the same table, each editable/deletable inline. This works whether or not
+    you're connected to GitHub.
+  - KPI row, a shipping-velocity chart, a live activity feed, and a searchable/
+    exportable (CSV) projects table - all driven by the shape defined in
+    `js/dashboard-data.js` (the demo generator) or `js/github-live.js` (the real
+    fetcher), so the rendering code doesn't care which one is active.
+- **AI Assistant** (`ai.html`) - a chat interface that runs **entirely client-side,
+  with no API key and no network calls**. Your message is scored against a small
+  local topic library (rate limiting, testing/CI, refactors, auth, webhooks,
+  databases, performance, deploys, git/PRs, debugging, code review, docs, security)
+  in `js/assistant.js`, and it replies with a tailored, structured answer for the
+  best-matching topic - including a fallback plan when nothing matches well. Ask it
+  directly ("are you a real AI?") and it will tell you plainly how it works.
 
 ## 📁 Project structure
 
@@ -168,9 +178,14 @@ Pages per [GitHub's custom domain docs](https://docs.github.com/en/pages/configu
 
 ## 🎨 Customizing
 
-- **Colors / spacing / radii** - edit the CSS variables at the top of `css/globals.css`
+- **Colors / spacing / radii** - edit the CSS variables at the top of `css/base.css`
 - **Copy & content** - edit directly in `index.html`
-- **AI demo replies** - edit `RESPONSE_LIBRARY` in `js/main.js`
+- **AI assistant replies** - edit the `TOPICS` array in `js/assistant.js` (keywords +
+  response templates); the matching logic itself (`buildResponse`) doesn't need to
+  change when you just want to add or tweak a topic
+- **Dashboard projects** - use the "Add project" button in the UI (stored in
+  `localStorage`, no file editing needed), or edit `js/dashboard-data.js` to change
+  the demo dataset shown before you connect a real GitHub account
 - **Hero background video** - swap the `<source>` URL inside `.hero-video-wrapper` in `index.html`
 
 ## 🧩 Browser support

@@ -70,6 +70,10 @@ body.dash-body { background: var(--paper-alt); }
 .activity-row.type-commit .activity-dot { background: var(--signal); }
 .activity-row.type-pr .activity-dot { background: var(--beacon); }
 .activity-row.type-alert .activity-dot { background: var(--danger); }
+.activity-row.type-issue .activity-dot { background: var(--beacon); }
+.activity-row.type-deploy .activity-dot { background: var(--ink-50); }
+.lang-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; flex-shrink: 0; }
+.lang-cell { display: flex; align-items: center; font-size: var(--fs-sm); color: var(--ink-70); }
 .activity-body p { font-size: var(--fs-sm); line-height: 1.4; }
 .activity-body span { font-size: 11px; color: var(--ink-30); font-family: var(--f-mono); }
 
@@ -91,6 +95,24 @@ table.dash-table { width: 100%; border-collapse: collapse; font-size: var(--fs-s
 .avatar-stack { display: flex; }
 .avatar-stack .av { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--paper); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: #fff; margin-left: -8px; }
 .avatar-stack .av:first-child { margin-left: 0; }
+
+/* ── GitHub connect control ───────────────────────────────────────────── */
+.gh-connect { display: flex; align-items: center; gap: 8px; position: relative; }
+.gh-connect-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-30); flex-shrink: 0; }
+.gh-connect-dot.live { background: var(--signal); box-shadow: 0 0 0 3px var(--signal-10); }
+
+/* ── Projects table: source badge + row actions ───────────────────────── */
+.source-badge { font-family: var(--f-mono); font-size: 10px; padding: 2px 7px; border-radius: var(--r-full); background: var(--paper-soft); color: var(--ink-30); border: 1px solid var(--line); margin-left: 8px; vertical-align: middle; }
+.source-badge.custom { background: var(--beacon-10); color: var(--beacon); border-color: transparent; }
+.row-actions { display: flex; gap: 4px; justify-content: flex-end; }
+.row-actions button { width: 28px; height: 28px; border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; color: var(--ink-30); }
+.row-actions button:hover { background: var(--paper-soft); color: var(--ink); }
+.row-actions button.danger:hover { color: var(--danger); background: var(--danger-10); }
+.dash-table td.actions-cell { text-align: right; }
+.table-empty { text-align: center; padding: var(--sp-8) 0; color: var(--ink-30); font-size: var(--fs-sm); }
+.proj-name a { color: inherit; }
+.proj-name a:hover { color: var(--signal); }
+.search-hidden { display: none !important; }
 
 @media (max-width: 1080px) {
   .kpi-grid { grid-template-columns: 1fr 1fr; }
