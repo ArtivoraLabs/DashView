@@ -50,6 +50,13 @@
         <kbd>⌘K</kbd>
       </div>
       <div class="dash-top-actions">
+        <div class="gh-connect" id="nkApiConnect">
+          <button class="btn btn-outline btn-sm" id="nkApiConnectBtn" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+            <span id="nkApiConnectLabel">Connect DashView</span>
+          </button>
+          <span class="gh-connect-dot" id="nkApiConnectDot" aria-hidden="true"></span>
+        </div>
         <div class="gh-connect" id="ghConnect">
           <button class="btn btn-outline btn-sm" id="ghConnectBtn" type="button">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.03-.01-1.87-2.78.62-3.37-1.22-3.37-1.22-.46-1.19-1.11-1.51-1.11-1.51-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.32 9.32 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
@@ -77,6 +84,60 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
           Add project
         </button>
+      </div>
+
+      <!-- ═══════════ Organization / Projects (real backend, only shown when connected) ═══════════ -->
+      <div class="panel" id="orgPanel" style="display:none;">
+        <div class="panel-head">
+          <h3>Organization</h3>
+          <div style="display:flex;align-items:center;gap:var(--sp-3);">
+            <select id="orgProjectSelect" class="glass-input" style="min-width:200px;"></select>
+            <button class="btn btn-ghost btn-sm" id="orgNewProjectBtn" type="button">+ New project</button>
+          </div>
+        </div>
+        <div id="orgPanelBody">
+          <div class="kpi-grid" id="orgKpiGrid">
+            <div class="kpi-card c-signal">
+              <div class="kpi-top"><span class="kpi-label">Users</span></div>
+              <p class="kpi-val" id="orgKpiUsers">—</p>
+            </div>
+            <div class="kpi-card c-beacon">
+              <div class="kpi-top"><span class="kpi-label">Orders</span></div>
+              <p class="kpi-val" id="orgKpiOrders">—</p>
+            </div>
+            <div class="kpi-card c-ink">
+              <div class="kpi-top"><span class="kpi-label">Revenue</span></div>
+              <p class="kpi-val" id="orgKpiRevenue">—</p>
+            </div>
+            <div class="kpi-card c-danger">
+              <div class="kpi-top"><span class="kpi-label">Last activity</span></div>
+              <p class="kpi-val" id="orgKpiActivity" style="font-size:14px;">—</p>
+            </div>
+          </div>
+          <div class="dash-grid">
+            <div class="panel">
+              <div class="panel-head"><h3>Revenue (30d)</h3></div>
+              <div class="chart-wrap"><canvas id="orgRevenueChart"></canvas></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Recent activity</h3></div>
+              <div class="activity-list" id="orgActivityList"></div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Orders</h3>
+              <input type="text" id="orgOrdersSearch" class="glass-input" placeholder="Search orders/customers…" style="max-width:240px;" />
+            </div>
+            <div class="table-wrap">
+              <table class="dash-table">
+                <thead><tr><th>Customer</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+                <tbody id="orgOrdersTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div id="orgPanelEmpty" class="table-empty" style="display:none;">No projects yet for this organization.</div>
       </div>
 
       <div class="kpi-grid">
@@ -187,6 +248,8 @@
 <script src="js/github-config.js"></script>
 <script src="js/github-live.js"></script>
 <script src="js/dashboard-data.js"></script>
+<script src="js/dashview-api.js"></script>
+<script src="js/dashview-dashboard.js"></script>
 <script src="js/dashboard.js"></script>
 </body>
 </html>

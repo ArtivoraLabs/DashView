@@ -368,6 +368,28 @@
   /* ------------------------------------------------------------
      Send flow
   ------------------------------------------------------------ */
+  // When the real backend is connected AND a project is selected (set by
+  // the dashboard's project switcher), route through the AI gateway
+  // instead of the local keyword-matched simulation. Falls back to the
+  // simulation on any error so the widget never breaks with no backend.
+  function liveProjectId() {
+    try { return window.NK_API && NK_API.isConnected() ? localStorage.getItem('nk_selected_project') : null; }
+    catch (e) { return null; }
+  }
+
+  function formatStructuredBlock(res) {
+    const parts = [];
+    if (res.insights && res.insights.length) {
+      parts.push('<ul class="nk-ai-insights">' + res.insights.map((i) => '<li>' + esc(i) + '</li>').join('') + '</ul>');
+    }
+    if (res.table && res.table.columns && res.table.rows) {
+      const head = '<tr>' + res.table.columns.map((c) => '<th>' + esc(c) + '</th>').join('') + '</tr>';
+      const rows = res.table.rows.map((r) => '<tr>' + r.map((c) => '<td>' + esc(String(c)) + '</td>').join('') + '</tr>').join('');
+      parts.push('<table class="nk-ai-table">' + head + rows + '</table>');
+    }
+    return parts.join('');
+  }
+
   function sendMessage(text) {
     const trimmed = (text || '').trim();
     if (!trimmed) return;
@@ -380,6 +402,29 @@
 
     clearTimeout(typingTimer);
     appendTyping();
+
+    const projectId = liveProjectId();
+    if (projectId) {
+      const apiHistory = history.map((h) => ({ role: h.role, content: h.text }));
+      NK_API.aiChat(projectId, apiHistory).then((res) => {
+        const typingEl = qs('#nkTypingMsg');
+        if (typingEl) typingEl.remove();
+        const block = formatStructuredBlock(res);
+        appendMessage('assistant', res.message || '(no response)', block);
+        history.push({ role: 'assistant', text: res.message || '' });
+        wireCodeCopyButtons();
+      }).catch((err) => {
+        const typingEl = qs('#nkTypingMsg');
+        if (typingEl) typingEl.remove();
+        appendMessage('assistant', 'The AI backend returned an error: ' + err.message + ' — falling back to the local demo assistant.', '');
+        const { text: replyText, block } = craftReply(trimmed);
+        appendMessage('assistant', replyText, block);
+        history.push({ role: 'assistant', text: replyText });
+        wireCodeCopyButtons();
+      });
+      return;
+    }
+
     typingTimer = setTimeout(() => {
       const typingEl = qs('#nkTypingMsg');
       if (typingEl) typingEl.remove();

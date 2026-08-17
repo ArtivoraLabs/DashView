@@ -65,14 +65,52 @@
     updateSendState();
   });
 
+  // Client-side turn history sent to the real AI gateway when connected.
+  const liveHistory = [];
+
+  function liveProjectId() {
+    try { return window.NK_API && NK_API.isConnected() ? localStorage.getItem('nk_selected_project') : null; }
+    catch (e) { return null; }
+  }
+
+  function renderStructured(res) {
+    let html = '<p>' + escapeHtml(res.message || '(no response)') + '</p>';
+    if (res.insights && res.insights.length) {
+      html += '<ul>' + res.insights.map((i) => '<li>' + escapeHtml(i) + '</li>').join('') + '</ul>';
+    }
+    if (res.table && res.table.columns && res.table.rows) {
+      const head = '<tr>' + res.table.columns.map((c) => '<th>' + escapeHtml(c) + '</th>').join('') + '</tr>';
+      const rows = res.table.rows.map((r) => '<tr>' + r.map((c) => '<td>' + escapeHtml(String(c)) + '</td>').join('') + '</tr>').join('');
+      html += '<table class="ai-table">' + head + rows + '</table>';
+    }
+    return html;
+  }
+
   function submitPrompt(text) {
     empty.style.display = 'none';
     addMessage('user', '<p>' + escapeHtml(text) + '</p>');
     scrollToBottom();
     const typingEl = addTyping();
     scrollToBottom();
-    // A short, length-scaled "thinking" delay — purely cosmetic, makes the
-    // reply feel considered rather than instant, still 100% local.
+
+    const projectId = liveProjectId();
+    if (projectId) {
+      liveHistory.push({ role: 'user', content: text });
+      NK_API.aiChat(projectId, liveHistory).then((res) => {
+        typingEl.remove();
+        addMessage('assistant', renderStructured(res));
+        liveHistory.push({ role: 'assistant', content: res.message || '' });
+        scrollToBottom();
+      }).catch((err) => {
+        typingEl.remove();
+        addMessage('assistant', '<p>The AI backend returned an error (' + escapeHtml(err.message) + '). Showing the local demo assistant instead:</p>' + buildResponse(text));
+        scrollToBottom();
+      });
+      return;
+    }
+
+    // No live backend/project selected — fall back to the original 100%
+    // local, keyword-matched demo reply (unchanged behavior).
     const delay = prefersReducedMotion ? 0 : Math.min(1800, 650 + text.length * 12);
     setTimeout(() => {
       typingEl.remove();
