@@ -1,5 +1,26 @@
 # Changelog
 
+## Role-based dashboard builder + PDF export - 2026-08-18
+
+- **"Create dashboard" from imported data.** After importing a spreadsheet,
+  a new "Create dashboard" button opens a modal to name the dashboard and
+  pick who it's for — **Executive** (a handful of top-line totals, nothing
+  else), **Manager** (totals + a breakdown by whatever category/status
+  column looks most useful + the key columns as a table), or **Analyst**
+  (every column, every row, plus min/avg/max on each numeric column). The
+  logic (`js/dashboard-builder.js`, `generateSpec()`) inspects the imported
+  columns to guess which are numeric/date/text and picks what to feature
+  automatically — no manual column mapping required.
+- **Dashboards are saved.** Each generated dashboard is a snapshot (values
+  computed once, at generation time) stored in `localStorage`
+  (`al_dashboards`), so it stays exactly as it was even if the source import
+  is later cleared. A new "Saved dashboards" panel lists them with Open/
+  Delete actions.
+- **Export as PDF.** The generated dashboard panel has an "Export as PDF"
+  button that uses the browser's own print-to-PDF (`window.print()`) with a
+  dedicated print stylesheet that isolates just that panel — no extra
+  library to load, nothing that can fail from a broken CDN or hash mismatch.
+
 ## AI reliability + Excel import - 2026-08-18
 
 - **AI Assistant is now 100% local, always.** `js/assistant.js` previously

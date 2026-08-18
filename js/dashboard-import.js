@@ -122,6 +122,7 @@
       };
       saveSheet(currentSheet);
       render();
+      document.dispatchEvent(new CustomEvent('al:sheet-imported', { detail: currentSheet }));
       const truncated = json.length > MAX_ROWS ? (' (showing the first ' + MAX_ROWS + ' of ' + json.length + ')') : '';
       showToast('Imported ' + rows.length + ' rows from ' + file.name + truncated + '.');
       panel.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
@@ -145,6 +146,7 @@
     clearSheet();
     render();
     showToast('Imported data cleared.');
+    document.dispatchEvent(new CustomEvent('al:sheet-imported', { detail: null }));
   });
   on(exportBtn, 'click', () => {
     if (!currentSheet || !currentSheet.rows.length) { showToast('Nothing to export yet.'); return; }
@@ -163,4 +165,10 @@
   /* ── Restore on load ──────────────────────────────────────────── */
   currentSheet = loadSheet();
   render();
+
+  /* ── Small public API so other modules (dashboard-builder.js) can
+     read the currently imported sheet without re-reading storage. ── */
+  window.AL_IMPORT = {
+    getSheet: () => currentSheet,
+  };
 })();

@@ -99,6 +99,7 @@
           <h3>Imported data <span class="tag" id="importedMeta"></span></h3>
           <div style="display:flex;align-items:center;gap:var(--sp-3);">
             <input type="text" id="importedSearch" class="glass-input" placeholder="Search imported rows…" style="max-width:220px;" />
+            <button class="btn btn-outline btn-sm" id="createDashboardBtn" type="button">Create dashboard</button>
             <button class="btn btn-ghost btn-sm" id="importedExportBtn" type="button">Export CSV</button>
             <button class="btn btn-ghost btn-sm" id="importedClearBtn" type="button">Clear</button>
           </div>
@@ -109,6 +110,28 @@
             <tbody id="importedTableBody"></tbody>
           </table>
         </div>
+      </div>
+
+      <!-- ═══════════ Generated dashboard (role-based view of imported data) ═══════════ -->
+      <div class="panel" id="builtDashboardPanel" style="display:none;" data-print-target="true">
+        <div class="panel-head">
+          <h3 id="builtDashboardTitle">Dashboard</h3>
+          <div style="display:flex;align-items:center;gap:var(--sp-3);" data-no-print="true">
+            <span class="tag" id="builtDashboardRoleTag"></span>
+            <button class="btn btn-ghost btn-sm" id="exportDashboardPdfBtn" type="button">Export as PDF</button>
+            <button class="btn btn-ghost btn-sm" id="closeBuiltDashboardBtn" type="button">Close</button>
+          </div>
+        </div>
+        <div id="builtDashboardBody"></div>
+      </div>
+
+      <!-- ═══════════ Saved dashboards ═══════════ -->
+      <div class="panel" id="savedDashboardsPanel" style="display:none;">
+        <div class="panel-head">
+          <h3>Saved dashboards</h3>
+          <span class="tag" id="savedDashboardsTag"></span>
+        </div>
+        <div id="savedDashboardsList" class="saved-dash-grid"></div>
       </div>
 
       <!-- ═══════════ Organization / Projects (real backend, only shown when connected) ═══════════ -->
@@ -268,6 +291,39 @@
   </div>
 </div>
 
+<!-- ══════════════════════ CREATE DASHBOARD MODAL ══════════════════════ -->
+<div class="modal-overlay" id="dashboardBuilderModal">
+  <div class="modal-card">
+    <button class="modal-close" id="dashboardBuilderModalClose" type="button" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);">From your imported data</p>
+    <h3>Create a dashboard</h3>
+    <p>Pick who this is for — the layout and the metrics it leads with change based on that.</p>
+    <form class="modal-form" id="dashboardBuilderForm">
+      <div class="field"><label for="dashboardBuilderName">Dashboard name</label><input type="text" id="dashboardBuilderName" placeholder="e.g. Q3 sales review" /></div>
+      <div class="field">
+        <label>Who's this for?</label>
+        <div class="role-pick" id="rolePick">
+          <label class="role-option">
+            <input type="radio" name="dashboardRole" value="executive" checked />
+            <span><strong>Executive</strong><small>Top-line totals only — a handful of big numbers, no clutter.</small></span>
+          </label>
+          <label class="role-option">
+            <input type="radio" name="dashboardRole" value="manager" />
+            <span><strong>Manager</strong><small>Totals plus a breakdown by category/status, and the key columns.</small></span>
+          </label>
+          <label class="role-option">
+            <input type="radio" name="dashboardRole" value="analyst" />
+            <span><strong>Analyst</strong><small>Every column, every row, plus min/avg/max on the numbers.</small></span>
+          </label>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block btn-lg">Generate dashboard</button>
+    </form>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="js/app.js"></script>
 <script src="js/dashboard-import.js"></script>
@@ -277,5 +333,6 @@
 <script src="js/dashview-api.js"></script>
 <script src="js/dashview-dashboard.js"></script>
 <script src="js/dashboard.js"></script>
+<script src="js/dashboard-builder.js"></script>
 </body>
 </html>

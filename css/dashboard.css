@@ -126,3 +126,35 @@ table.dash-table { width: 100%; border-collapse: collapse; font-size: var(--fs-s
   .dash-search { width: 180px; }
   .kpi-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Create-dashboard role picker (modal) ─────────────────────────────── */
+.role-pick { display: flex; flex-direction: column; gap: var(--sp-2); }
+.role-option { display: flex; align-items: flex-start; gap: 10px; padding: var(--sp-3); border: 1px solid var(--line-strong); border-radius: var(--r-sm); cursor: pointer; transition: border-color var(--t-fast), background var(--t-fast); }
+.role-option:hover { background: var(--paper-soft); }
+.role-option input { margin-top: 3px; flex-shrink: 0; }
+.role-option:has(input:checked) { border-color: var(--signal); background: var(--signal-10); }
+.role-option span { display: flex; flex-direction: column; gap: 2px; }
+.role-option strong { font-size: var(--fs-sm); }
+.role-option small { font-size: var(--fs-xs); color: var(--ink-50); }
+
+/* ── Generated dashboard body ─────────────────────────────────────────── */
+.built-dash-section { margin-bottom: var(--sp-5); }
+.built-dash-section:last-child { margin-bottom: 0; }
+.built-dash-section h4 { font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-50); margin-bottom: var(--sp-3); }
+.built-dash-note { font-size: var(--fs-xs); color: var(--ink-30); margin-top: var(--sp-2); }
+
+/* ── Saved dashboards grid ────────────────────────────────────────────── */
+.saved-dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--sp-3); }
+.saved-dash-card { border: 1px solid var(--line); border-radius: var(--r-sm); padding: var(--sp-4); transition: border-color var(--t-fast), box-shadow var(--t-fast); }
+.saved-dash-card:hover { border-color: var(--line-strong); box-shadow: var(--shadow-sm); }
+.saved-dash-card h4 { font-size: var(--fs-sm); margin-bottom: 4px; }
+.saved-dash-card .tag { margin-bottom: var(--sp-3); }
+.saved-dash-card-actions { display: flex; gap: var(--sp-2); margin-top: var(--sp-3); }
+
+/* ── Print (Export as PDF uses the browser's print-to-PDF) ───────────── */
+@media print {
+  body.dash-body * { visibility: hidden; }
+  #builtDashboardPanel, #builtDashboardPanel * { visibility: visible; }
+  #builtDashboardPanel { position: absolute; left: 0; top: 0; width: 100%; border: none; box-shadow: none; }
+  #builtDashboardPanel [data-no-print="true"] { display: none !important; }
+}
