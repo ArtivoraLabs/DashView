@@ -1,10 +1,12 @@
 /* ==========================================================================
    ARTIVORALABS — AI assistant chat logic
-   Runs entirely client-side: a small local knowledge base scores the
-   message against a set of topics (keyword matching, no network calls,
-   no external API/model) and returns a tailored, structured reply.
-   Not a real language model — see respondTo() below for how it decides
-   what to say.
+   Runs 100% client-side, always. Every message is scored against a local
+   topic library (keyword matching) and answered from a fixed rule set —
+   there is NO network call, NO backend gateway, and NO external API/model
+   involved anywhere in this file, by design. That means the reply is
+   always available and always consistent: same input, same reasoning path,
+   every single time, regardless of connectivity, API keys, or backend
+   status. See buildResponse() below for the matching logic.
    ========================================================================== */
 'use strict';
 
@@ -65,27 +67,6 @@
     updateSendState();
   });
 
-  // Client-side turn history sent to the real AI gateway when connected.
-  const liveHistory = [];
-
-  function liveProjectId() {
-    try { return window.AL_API && AL_API.isConnected() ? localStorage.getItem('al_selected_project') : null; }
-    catch (e) { return null; }
-  }
-
-  function renderStructured(res) {
-    let html = '<p>' + escapeHtml(res.message || '(no response)') + '</p>';
-    if (res.insights && res.insights.length) {
-      html += '<ul>' + res.insights.map((i) => '<li>' + escapeHtml(i) + '</li>').join('') + '</ul>';
-    }
-    if (res.table && res.table.columns && res.table.rows) {
-      const head = '<tr>' + res.table.columns.map((c) => '<th>' + escapeHtml(c) + '</th>').join('') + '</tr>';
-      const rows = res.table.rows.map((r) => '<tr>' + r.map((c) => '<td>' + escapeHtml(String(c)) + '</td>').join('') + '</tr>').join('');
-      html += '<table class="ai-table">' + head + rows + '</table>';
-    }
-    return html;
-  }
-
   function submitPrompt(text) {
     empty.style.display = 'none';
     addMessage('user', '<p>' + escapeHtml(text) + '</p>');
@@ -93,24 +74,9 @@
     const typingEl = addTyping();
     scrollToBottom();
 
-    const projectId = liveProjectId();
-    if (projectId) {
-      liveHistory.push({ role: 'user', content: text });
-      AL_API.aiChat(projectId, liveHistory).then((res) => {
-        typingEl.remove();
-        addMessage('assistant', renderStructured(res));
-        liveHistory.push({ role: 'assistant', content: res.message || '' });
-        scrollToBottom();
-      }).catch((err) => {
-        typingEl.remove();
-        addMessage('assistant', '<p>The AI backend returned an error (' + escapeHtml(err.message) + '). Showing the local demo assistant instead:</p>' + buildResponse(text));
-        scrollToBottom();
-      });
-      return;
-    }
-
-    // No live backend/project selected — fall back to the original 100%
-    // local, keyword-matched demo reply (unchanged behavior).
+    // Always answer locally — no network call, no backend, no API key.
+    // Same message always resolves to the same topic/response, so the
+    // assistant behaves consistently every time it's asked.
     const delay = prefersReducedMotion ? 0 : Math.min(1800, 650 + text.length * 12);
     setTimeout(() => {
       typingEl.remove();

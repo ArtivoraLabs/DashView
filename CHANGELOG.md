@@ -1,5 +1,27 @@
 # Changelog
 
+## AI reliability + Excel import - 2026-08-18
+
+- **AI Assistant is now 100% local, always.** `js/assistant.js` previously
+  tried a live backend AI gateway first (`AL_API.aiChat`) when a project was
+  connected, falling back to the local topic-matcher only on error. That
+  live path is removed entirely — every message now goes straight to the
+  local, keyword-matched knowledge base. Same input always produces the same
+  answer, with no dependency on network, backend uptime, or an API key.
+  `js/dashview-api.js` is no longer loaded on `ai.html`.
+- **Import Excel/CSV into the dashboard.** New "Import Excel" button next to
+  "Add project" (`dashboard.html`) opens a file picker for `.xlsx` / `.xls` /
+  `.csv` — the kind of file typically exported from Excel or a Power BI
+  report. Parsing happens fully client-side via SheetJS (loaded from CDN with
+  a pinned version + SRI hash on first use, same pattern as the existing
+  Report Studio export). The parsed rows render in a new "Imported data"
+  panel that reuses the existing `.panel` / `.dash-table` / `.tag` classes,
+  so it stays visually aligned with the rest of the dashboard through future
+  changes without any new CSS. The data is saved to `localStorage`
+  (`al_imported_sheet`) and reloads automatically on your next visit; it's
+  searchable and re-exportable to CSV, and capped at 500 rows for
+  responsiveness. New file: `js/dashboard-import.js`.
+
 ## Visual polish - 2026-08-04
 
 Three additions, all built from scratch (no chart/image libraries beyond the

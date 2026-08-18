@@ -80,10 +80,35 @@
           <h1>Good morning, Amara.</h1>
           <p id="dashSubhead">Here's what ArtivoraLabs shipped across acme-corp since you last checked in.</p>
         </div>
-        <button class="btn btn-primary" id="addProjectBtn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-          Add project
-        </button>
+        <div style="display:flex;align-items:center;gap:var(--sp-3);">
+          <button class="btn btn-outline" id="importExcelBtn" type="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>
+            Import Excel
+          </button>
+          <input type="file" id="importExcelInput" accept=".xlsx,.xls,.csv" style="display:none;" />
+          <button class="btn btn-primary" id="addProjectBtn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            Add project
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══════════ Imported spreadsheet (Excel / CSV, saved locally) ═══════════ -->
+      <div class="panel" id="importedPanel" style="display:none;">
+        <div class="panel-head">
+          <h3>Imported data <span class="tag" id="importedMeta"></span></h3>
+          <div style="display:flex;align-items:center;gap:var(--sp-3);">
+            <input type="text" id="importedSearch" class="glass-input" placeholder="Search imported rows…" style="max-width:220px;" />
+            <button class="btn btn-ghost btn-sm" id="importedExportBtn" type="button">Export CSV</button>
+            <button class="btn btn-ghost btn-sm" id="importedClearBtn" type="button">Clear</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="dash-table" id="importedTable">
+            <thead><tr id="importedTableHead"></tr></thead>
+            <tbody id="importedTableBody"></tbody>
+          </table>
+        </div>
       </div>
 
       <!-- ═══════════ Organization / Projects (real backend, only shown when connected) ═══════════ -->
@@ -245,6 +270,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="js/app.js"></script>
+<script src="js/dashboard-import.js"></script>
 <script src="js/github-config.js"></script>
 <script src="js/github-live.js"></script>
 <script src="js/dashboard-data.js"></script>
