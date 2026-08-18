@@ -1,12 +1,17 @@
 /* ==========================================================================
    ARTIVORALABS — AI assistant chat logic
-   Runs 100% client-side, always. Every message is scored against a local
-   topic library (keyword matching) and answered from a fixed rule set —
-   there is NO network call, NO backend gateway, and NO external API/model
-   involved anywhere in this file, by design. That means the reply is
-   always available and always consistent: same input, same reasoning path,
-   every single time, regardless of connectivity, API keys, or backend
-   status. See buildResponse() below for the matching logic.
+   --------------------------------------------------------------------------
+   Every reply here comes from the real Anthropic Claude API, called
+   directly from this browser with a key you provide in Settings (the gear
+   icon, top right). That means it actually answers the specific thing you
+   asked instead of matching your message against a fixed script.
+
+   This is a static site with no backend, so:
+     - Your API key is stored only in this browser's localStorage.
+     - Requests go straight from your browser to api.anthropic.com using
+       the `anthropic-dangerous-direct-browser-access` header, which
+       Anthropic provides for exactly this kind of client-side use.
+     - Conversations are stored locally, per browser, in localStorage.
    ========================================================================== */
 'use strict';
 
@@ -19,31 +24,122 @@
   const sendBtn = qs('#aiSendBtn');
   if (!thread) return;
 
+  const SETTINGS_KEY = 'al_ai_settings';
+  const CONVOS_KEY = 'al_ai_conversations';
+  const ACTIVE_KEY = 'al_ai_active_id';
+  const API_URL = 'https://api.anthropic.com/v1/messages';
+  const ANTHROPIC_VERSION = '2023-06-01';
+  const DEFAULT_SYSTEM = 'You are the ArtivoraLabs AI assistant, a helpful, direct engineering assistant embedded in a product dashboard. Answer exactly what the user asks — be specific and concrete rather than generic. Use code blocks for code. If a request is ambiguous, make a reasonable assumption, state it briefly, and answer anyway rather than only asking a question back.';
+
+  let sending = false;
+
+  /* ── Settings ─────────────────────────────────────────────────── */
+  function getSettings() {
+    try { return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {}; } catch (e) { return {}; }
+  }
+  function setSettings(s) { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); }
+
+  /* ── Conversations ────────────────────────────────────────────── */
+  function getConvos() {
+    try { return JSON.parse(localStorage.getItem(CONVOS_KEY)) || {}; } catch (e) { return {}; }
+  }
+  function saveConvos(c) { localStorage.setItem(CONVOS_KEY, JSON.stringify(c)); }
+  function getActiveId() { return localStorage.getItem(ACTIVE_KEY); }
+  function setActiveId(id) { localStorage.setItem(ACTIVE_KEY, id); }
+  function newConvoId() { return 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+  let convos = getConvos();
+  let activeId = getActiveId();
+
+  function ensureActiveConvo() {
+    if (activeId && convos[activeId]) return;
+    const id = newConvoId();
+    convos[id] = { title: '', messages: [], updatedAt: Date.now() };
+    activeId = id;
+    setActiveId(id);
+    saveConvos(convos);
+  }
+  ensureActiveConvo();
+
+  /* ── Sidebar: conversation list ───────────────────────────────── */
+  function renderConvoList() {
+    const list = qs('#aiConvoList');
+    if (!list) return;
+    const ids = Object.keys(convos).sort((a, b) => (convos[b].updatedAt || 0) - (convos[a].updatedAt || 0));
+    if (!ids.length) { list.innerHTML = ''; return; }
+    list.innerHTML = ids.map((id) => {
+      const c = convos[id];
+      const title = c.title || 'New conversation';
+      return '<button type="button" class="ai-convo-item' + (id === activeId ? ' active' : '') + '" data-id="' + esc(id) + '">' +
+        '<span class="ai-convo-item-title">' + esc(title) + '</span>' +
+        '<span class="ai-convo-item-del" data-del="' + esc(id) + '" aria-label="Delete conversation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg></span>' +
+        '</button>';
+    }).join('');
+    qsa('.ai-convo-item', list).forEach((btn) => on(btn, 'click', (e) => {
+      if (e.target.closest('[data-del]')) return;
+      switchConvo(btn.getAttribute('data-id'));
+    }));
+    qsa('[data-del]', list).forEach((btn) => on(btn, 'click', (e) => {
+      e.stopPropagation();
+      deleteConvo(btn.getAttribute('data-del'));
+    }));
+  }
+
+  function updateTopTitle() {
+    const el = qs('#aiTopTitle');
+    if (!el) return;
+    const c = convos[activeId];
+    const title = (c && c.title) || 'New conversation';
+    el.innerHTML = '<span class="dot"></span> ' + esc(title);
+  }
+
+  function switchConvo(id) {
+    if (!convos[id]) return;
+    activeId = id;
+    setActiveId(id);
+    renderConvoList();
+    renderThread();
+    updateTopTitle();
+    if (window.innerWidth <= 820) side.classList.remove('open');
+  }
+
+  function newChat() {
+    const id = newConvoId();
+    convos[id] = { title: '', messages: [], updatedAt: Date.now() };
+    saveConvos(convos);
+    switchConvo(id);
+    input?.focus();
+  }
+
+  function deleteConvo(id) {
+    delete convos[id];
+    saveConvos(convos);
+    if (id === activeId) {
+      const remaining = Object.keys(convos);
+      if (remaining.length) { activeId = remaining[0]; setActiveId(activeId); }
+      else { ensureActiveConvo(); }
+    }
+    renderConvoList();
+    renderThread();
+    updateTopTitle();
+  }
+
   /* Sidebar toggle (mobile) */
   const sideToggleBtn = qs('#aiSideToggle');
   const side = qs('#aiSide');
   on(sideToggleBtn, 'click', () => side.classList.toggle('open'));
-
-  /* New chat */
-  on(qs('#newChatBtn'), 'click', () => {
-    thread.innerHTML = '';
-    empty.style.display = 'block';
-    if (input) input.value = '';
-    updateSendState();
-  });
+  on(qs('#newChatBtn'), 'click', newChat);
 
   /* Suggestion cards */
   qsa('.ai-suggest-card').forEach((card) => {
-    on(card, 'click', () => {
-      const prompt = card.getAttribute('data-prompt');
-      submitPrompt(prompt);
-    });
+    on(card, 'click', () => submitPrompt(card.getAttribute('data-prompt')));
   });
 
   /* Textarea auto-grow + send state */
   function updateSendState() {
     const has = input && input.value.trim().length > 0;
     sendBtn.classList.toggle('ready', !!has);
+    if (sendBtn) sendBtn.disabled = sending;
   }
   on(input, 'input', () => {
     input.style.height = 'auto';
@@ -59,328 +155,212 @@
 
   on(form, 'submit', (e) => {
     e.preventDefault();
-    const val = input.value.trim();
-    if (!val) return;
-    submitPrompt(val);
+    const val = input.value;
+    if (!val.trim() || sending) return;
     input.value = '';
     input.style.height = 'auto';
     updateSendState();
+    submitPrompt(val);
   });
 
-  function submitPrompt(text) {
-    empty.style.display = 'none';
-    addMessage('user', '<p>' + escapeHtml(text) + '</p>');
-    scrollToBottom();
-    const typingEl = addTyping();
-    scrollToBottom();
-
-    // Always answer locally — no network call, no backend, no API key.
-    // Same message always resolves to the same topic/response, so the
-    // assistant behaves consistently every time it's asked.
-    const delay = prefersReducedMotion ? 0 : Math.min(1800, 650 + text.length * 12);
-    setTimeout(() => {
-      typingEl.remove();
-      addMessage('assistant', buildResponse(text));
-      scrollToBottom();
-    }, delay);
+  /* ── Rendering ────────────────────────────────────────────────── */
+  function esc(str) {
+    return String(str == null ? '' : str).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
-  function addMessage(role, html) {
-    const div = document.createElement('div');
-    div.className = 'msg ' + role;
-    const avatar = role === 'user'
-      ? '<div class="msg-avatar">AK</div>'
-      : '<div class="msg-avatar"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg></div>';
-    div.innerHTML = avatar + '<div class="msg-bubble">' + html + '</div>';
-    thread.appendChild(div);
-    return div;
-  }
-
-  function addTyping() {
-    const div = document.createElement('div');
-    div.className = 'msg assistant';
-    div.innerHTML = '<div class="msg-avatar"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg></div><div class="msg-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>';
-    thread.appendChild(div);
-    return div;
+  function mdToHtml(text) {
+    const codeBlocks = [];
+    let src = String(text);
+    src = src.replace(/```(\w*)\n([\s\S]*?)```/g, (m, lang, code) => {
+      codeBlocks.push('<pre><code>' + esc(code.trim()) + '</code></pre>');
+      return '\u0000' + (codeBlocks.length - 1) + '\u0000';
+    });
+    let safe = esc(src);
+    safe = safe.replace(/`([^`]+)`/g, '<code>$1</code>');
+    safe = safe.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    safe = safe.replace(/(^|\s)\*([^*]+)\*/g, '$1<em>$2</em>');
+    safe = safe.replace(/(?:^|\n)((?:- .*(?:\n|$))+)/g, (m, block) => {
+      const items = block.trim().split('\n').map((l) => '<li>' + l.replace(/^- /, '') + '</li>').join('');
+      return '\n<ul>' + items + '</ul>\n';
+    });
+    const paragraphs = safe.split(/\n{2,}/).map((block) => {
+      const t = block.trim();
+      if (/^\u0000\d+\u0000$/.test(t)) return t;
+      if (/^<ul>/.test(t)) return t;
+      const withBreaks = block.replace(/\n/g, '<br>');
+      return '<p>' + withBreaks + '</p>';
+    }).join('');
+    return paragraphs.replace(/\u0000(\d+)\u0000/g, (m, i) => codeBlocks[Number(i)]);
   }
 
   function scrollToBottom() {
     requestAnimationFrame(() => { scroll.scrollTop = scroll.scrollHeight; });
   }
 
-  function escapeHtml(s) {
-    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  function renderThread() {
+    const convo = convos[activeId];
+    thread.innerHTML = '';
+    if (!convo || !convo.messages.length) {
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+    convo.messages.forEach((m) => thread.appendChild(messageEl(m)));
+    scrollToBottom();
   }
 
-  /* ------------------------------------------------------------------
-     Deterministic "which variant" picker — same message always gets the
-     same phrasing, different messages on the same topic get variety.
-  ------------------------------------------------------------------ */
-  function hashString(str) {
-    let h = 2166136261;
-    for (let i = 0; i < str.length; i++) {
-      h ^= str.charCodeAt(i);
-      h = Math.imul(h, 16777619);
+  function messageEl(m) {
+    const div = document.createElement('div');
+    if (m.role === 'user') {
+      div.className = 'msg user';
+      div.innerHTML = '<div class="msg-avatar">AK</div><div class="msg-bubble">' + esc(m.content).replace(/\n/g, '<br>') + '</div>';
+      return div;
     }
-    return Math.abs(h >>> 0);
-  }
-  function pickVariant(arr, seed) {
-    return arr[hashString(seed) % arr.length];
-  }
-
-  /* ------------------------------------------------------------------
-     Local knowledge base. Each topic has keywords (scored against the
-     message) and one or more response builders. No network calls, no
-     external model — this is pattern matching over a fixed rule set.
-  ------------------------------------------------------------------ */
-  const TOPICS = [
-    {
-      id: 'rate-limit',
-      keywords: ['rate limit', 'rate-limit', 'throttle', 'throttling', 'too many requests', '429'],
-      responses: [
-        (p) => '<p>Here\'s how I\'d approach <strong>' + p + '</strong>:</p>' +
-          '<ul>' +
-          '<li>Pick an algorithm — sliding-window or token-bucket both work well per-IP or per-API-key</li>' +
-          '<li>Store counters in Redis (or a similar shared store) so it works across multiple instances</li>' +
-          '<li>Return <code>429 Too Many Requests</code> with a <code>Retry-After</code> header when the limit is hit</li>' +
-          '<li>Add a burst allowance so short spikes don\'t punish normal users</li>' +
-          '</ul>' +
-          '<pre>' + escapeHtml("// sliding-window check, Redis-backed\nasync function allow(key, limit, windowMs) {\n  const now = Date.now();\n  await redis.zremrangebyscore(key, 0, now - windowMs);\n  const count = await redis.zcard(key);\n  if (count >= limit) return false;\n  await redis.zadd(key, now, `${now}-${Math.random()}`);\n  await redis.pexpire(key, windowMs);\n  return true;\n}") + '</pre>' +
-          '<p>Want me to wire this into your middleware and add tests for the 429 path?</p>',
-      ],
-    },
-    {
-      id: 'testing',
-      keywords: ['flaky', 'flaky test', 'ci', 'test fail', 'failing test', 'unit test', 'integration test', 'e2e', 'playwright', 'jest', 'cypress', 'test coverage'],
-      responses: [
-        (p) => '<p>Flaky and failing tests almost always come down to one of a few things — let\'s narrow it down for <strong>' + p + '</strong>:</p>' +
-          '<ul>' +
-          '<li>Timing — an assertion runs before an async action (network call, animation, debounce) finishes</li>' +
-          '<li>Shared state — tests leaking data between runs, or depending on execution order</li>' +
-          '<li>Environment drift — different results locally vs. in CI (timezones, locale, parallelism)</li>' +
-          '</ul>' +
-          '<pre>' + escapeHtml("// prefer explicit waits over fixed delays\nawait expect(page.getByTestId('result')).toBeVisible();\n// not: await page.waitForTimeout(1000);") + '</pre>' +
-          '<p>I\'d start by re-running the failing test in isolation 20x locally to confirm it\'s timing-related, then add an explicit wait at that assertion. Want me to open a PR with the fix?</p>',
-      ],
-    },
-    {
-      id: 'refactor',
-      keywords: ['refactor', 'hook', 'clean up', 'cleanup', 'simplify', 'restructure', 'useauth', 'custom hook'],
-      responses: [
-        (p) => '<p>For <strong>' + p + '</strong>, here\'s a safe refactor sequence:</p>' +
-          '<ul>' +
-          '<li>Write (or confirm) test coverage for current behavior first, so the refactor can\'t silently break anything</li>' +
-          '<li>Extract the logic into a small, focused function or hook with a clear single responsibility</li>' +
-          '<li>Swap call sites over one at a time, running tests after each</li>' +
-          '<li>Delete the old code path only once nothing references it</li>' +
-          '</ul>' +
-          '<pre>' + escapeHtml("export function useAuth() {\n  const [session, setSession] = useState(null);\n  useEffect(() => {\n    const sub = supabase.auth.onAuthStateChange((_e, s) => setSession(s));\n    return () => sub.data.subscription.unsubscribe();\n  }, []);\n  return { session, isAuthed: !!session };\n}") + '</pre>' +
-          '<p>Should I go ahead and draft this as a PR against your current branch?</p>',
-      ],
-    },
-    {
-      id: 'auth',
-      keywords: ['auth', 'authentication', 'login', 'signin', 'sign in', 'jwt', 'session', 'oauth', 'token expir', 'refresh token'],
-      responses: [
-        (p) => '<p>For <strong>' + p + '</strong>, the pattern I\'d reach for:</p>' +
-          '<ul>' +
-          '<li>Short-lived access token (e.g. 15 min) + a long-lived, httpOnly refresh token</li>' +
-          '<li>Refresh silently in the background before the access token expires, not reactively on a 401</li>' +
-          '<li>Rotate the refresh token on every use and revoke it server-side on logout</li>' +
-          '<li>Never store tokens in <code>localStorage</code> if you can avoid it — prefer httpOnly cookies to reduce XSS exposure</li>' +
-          '</ul>' +
-          '<p>Do you want the client-side hook, the server-side refresh endpoint, or both?</p>',
-      ],
-    },
-    {
-      id: 'webhook',
-      keywords: ['webhook', 'payment', 'stripe', 'checkout', 'billing'],
-      responses: [
-        (p) => '<p>Webhook handlers for <strong>' + p + '</strong> tend to break in the same three places:</p>' +
-          '<ul>' +
-          '<li>Signature verification — always verify with the raw request body, before any JSON parsing/middleware touches it</li>' +
-          '<li>Idempotency — the same event can be delivered more than once, so dedupe on the event ID before applying side effects</li>' +
-          '<li>Timeouts — do the slow work (emails, ledger updates) asynchronously and return <code>200</code> fast, or the sender will retry and you\'ll get duplicates</li>' +
-          '</ul>' +
-          '<p>Want me to write the handler with signature verification and an idempotency check included?</p>',
-      ],
-    },
-    {
-      id: 'database',
-      keywords: ['database', 'migration', 'schema', 'sql', 'postgres', 'query slow', 'index', 'n+1'],
-      responses: [
-        (p) => '<p>For <strong>' + p + '</strong>, a few things worth checking in order:</p>' +
-          '<ul>' +
-          '<li>Run <code>EXPLAIN ANALYZE</code> on the slow query first — don\'t guess at the fix</li>' +
-          '<li>Look for missing indexes on columns used in <code>WHERE</code>/<code>JOIN</code>/<code>ORDER BY</code></li>' +
-          '<li>Watch for N+1 queries — one query per row in a loop instead of a single batched query</li>' +
-          '<li>For migrations, make them additive and backwards-compatible so you can deploy code and schema separately</li>' +
-          '</ul>' +
-          '<p>Paste the query or the migration and I can be more specific.</p>',
-      ],
-    },
-    {
-      id: 'performance',
-      keywords: ['performance', 'slow', 'latency', 'optimi', 'cache', 'caching', 'bundle size', 'load time'],
-      responses: [
-        (p) => '<p>For <strong>' + p + '</strong>, I\'d measure before changing anything — but the usual suspects are:</p>' +
-          '<ul>' +
-          '<li>Un-memoized work re-running on every render/request</li>' +
-          '<li>Missing caching at the layer that\'s actually slow (CDN, app-level, or query-level)</li>' +
-          '<li>Large bundles — check for accidental full-library imports instead of tree-shaken ones</li>' +
-          '<li>Sequential calls that could run in parallel (<code>Promise.all</code> instead of awaiting one at a time)</li>' +
-          '</ul>' +
-          '<p>Want me to profile this and come back with the top 3 wins by impact?</p>',
-      ],
-    },
-    {
-      id: 'deploy',
-      keywords: ['deploy', 'deployment', 'ci/cd', 'pipeline', 'release', 'rollback', 'staging', 'production'],
-      responses: [
-        (p) => '<p>For <strong>' + p + '</strong>, here\'s a setup that keeps releases boring (in a good way):</p>' +
-          '<ul>' +
-          '<li>Every merge to <code>main</code> auto-deploys to staging; production deploys are a separate, deliberate step</li>' +
-          '<li>Health-check the new version before routing traffic to it (blue/green or canary)</li>' +
-          '<li>Keep the previous build one click away for an instant rollback</li>' +
-          '<li>Tag releases so "what shipped when" is always answerable from git history</li>' +
-          '</ul>' +
-          '<p>Want me to draft the GitHub Actions workflow for this?</p>',
-      ],
-    },
-    {
-      id: 'git',
-      keywords: ['git ', 'merge conflict', 'rebase', 'pull request', 'pr description', 'branch', 'commit message'],
-      responses: [
-        (p) => '<p>For <strong>' + p + '</strong>:</p>' +
-          '<ul>' +
-          '<li>Keep PRs small and scoped to one change — they get reviewed faster and are safer to revert</li>' +
-          '<li>Rebase feature branches onto <code>main</code> before opening the PR to catch conflicts early</li>' +
-          '<li>Write the PR description as: what changed, why, and how you tested it</li>' +
-          '</ul>' +
-          '<p>Want me to draft a PR description from your current diff?</p>',
-      ],
-    },
-    {
-      id: 'bug',
-      keywords: ['bug', 'error', 'exception', 'crash', 'broken', 'not working', "doesn't work", 'stack trace', 'undefined is not', 'null pointer'],
-      responses: [
-        (p) => '<p>Let\'s track down <strong>' + p + '</strong> systematically:</p>' +
-          '<ul>' +
-          '<li>Reproduce it reliably first — a flaky repro means the fix will be flaky too</li>' +
-          '<li>Bisect: find the last known-good commit, then binary-search forward</li>' +
-          '<li>Add a failing test that captures the bug before touching the fix</li>' +
-          '<li>Fix, confirm the new test passes, and check for the same pattern elsewhere in the codebase</li>' +
-          '</ul>' +
-          '<p>Paste the error message or stack trace and I\'ll narrow it down further.</p>',
-      ],
-    },
-    {
-      id: 'review',
-      keywords: ['code review', 'review this', 'review my', 'feedback on', 'lgtm'],
-      responses: [
-        (p) => '<p>For <strong>' + p + '</strong>, I\'d look at it through four lenses:</p>' +
-          '<ul>' +
-          '<li>Correctness — does it do what it claims, including edge cases and error paths</li>' +
-          '<li>Readability — would someone unfamiliar with this code understand it in 30 seconds</li>' +
-          '<li>Test coverage — are the risky paths actually tested, not just the happy path</li>' +
-          '<li>Blast radius — what breaks if this is wrong, and is that acceptable</li>' +
-          '</ul>' +
-          '<p>Paste the diff and I\'ll go through it line by line.</p>',
-      ],
-    },
-    {
-      id: 'docs',
-      keywords: ['document', 'documentation', 'readme', 'write docs', 'explain how', 'explain the'],
-      responses: [
-        (p) => '<p>For <strong>' + p + '</strong>, good docs usually answer these in order:</p>' +
-          '<ul>' +
-          '<li>What is this and why does it exist (one paragraph, no jargon)</li>' +
-          '<li>How do I get it running in under 5 minutes</li>' +
-          '<li>How does it actually work, for people extending it</li>' +
-          '<li>What are the gotchas — the things that aren\'t obvious from the code</li>' +
-          '</ul>' +
-          '<p>Point me at the module or repo and I\'ll draft the first pass.</p>',
-      ],
-    },
-    {
-      id: 'security',
-      keywords: ['security', 'vulnerab', 'xss', 'csrf', 'sql injection', 'secrets', 'exposed key'],
-      responses: [
-        (p) => '<p>On <strong>' + p + '</strong> — a quick checklist:</p>' +
-          '<ul>' +
-          '<li>Never trust client input — validate and sanitize on the server, every time</li>' +
-          '<li>Parameterize queries; never string-concatenate SQL</li>' +
-          '<li>Escape output by default (most modern frameworks do this — check you haven\'t opted out with a raw/dangerouslySetInnerHTML)</li>' +
-          '<li>Rotate any secret that\'s ever touched a public repo, a log, or a client bundle — treat it as compromised</li>' +
-          '</ul>' +
-          '<p>Tell me more about where this shows up and I can be specific.</p>',
-      ],
-    },
-  ];
-
-  const GREETINGS = ['hi', 'hello', 'hey', 'yo', 'sup', 'good morning', 'good afternoon', 'good evening'];
-  const THANKS = ['thanks', 'thank you', 'thx', 'appreciate it', 'cheers'];
-  const ABOUT = ['what are you', 'are you real', 'are you an ai', 'are you a real ai', 'is this a real api', 'what model', 'gpt', 'chatgpt', 'openai', 'claude', 'are you connected'];
-  const HELP = ['what can you do', 'help me', 'what do you do', 'how do you work', 'what can you help'];
-
-  function containsAny(text, list) {
-    return list.some((k) => text.includes(k));
+    div.className = 'msg assistant';
+    const avatar = '<div class="msg-avatar"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg></div>';
+    const bodyHtml = m.error
+      ? '<p class="ai-msg-error">' + esc(m.content) + '</p>'
+      : mdToHtml(m.content);
+    div.innerHTML = avatar + '<div class="msg-bubble">' + bodyHtml + '</div>';
+    return div;
   }
 
-  function scoreTopic(text, topic) {
-    let score = 0;
-    topic.keywords.forEach((kw) => { if (text.includes(kw)) score += kw.split(' ').length; });
-    return score;
+  function addTyping() {
+    const div = document.createElement('div');
+    div.className = 'msg assistant';
+    div.id = 'aiTypingRow';
+    div.innerHTML = '<div class="msg-avatar"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg></div><div class="msg-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>';
+    thread.appendChild(div);
+    scrollToBottom();
+    return div;
   }
+  function removeTyping() { qs('#aiTypingRow')?.remove(); }
 
-  function buildResponse(promptText) {
-    const p = escapeHtml(promptText);
-    const text = ' ' + promptText.toLowerCase() + ' ';
-
-    if (containsAny(text, ABOUT)) {
-      return '<p>Fair question — I\'m a lightweight assistant built into this page. I match your message against a set of local topics ' +
-        '(rate limiting, testing, auth, deployment, and so on) and reply from a fixed set of responses — everything runs in your ' +
-        'browser, with no external API or language model involved. That\'s intentional: it\'s a working demo of the interface, not a ' +
-        'production AI backend.</p><p>Ask me about something like rate limiting, a flaky test, or a refactor and I\'ll show you what it can do.</p>';
-    }
-    if (containsAny(text, HELP)) {
-      return '<p>I can talk through a fixed set of common engineering topics — try asking about:</p>' +
-        '<ul><li>Rate limiting an API</li><li>A flaky or failing test</li><li>Refactoring a hook or module</li>' +
-        '<li>Auth/session/token design</li><li>Webhook handling (e.g. Stripe)</li><li>Slow queries or database migrations</li>' +
-        '<li>Performance and caching</li><li>Deploys, CI/CD, and rollbacks</li><li>Git/PR workflow</li><li>Debugging an error</li>' +
-        '<li>Code review, docs, or security</li></ul>' +
-        '<p>Describe what you\'re working on and I\'ll match it to the closest topic.</p>';
-    }
-    if (containsAny(text, THANKS)) {
-      return pickVariant([
-        '<p>Anytime — ping me when the next one comes up.</p>',
-        '<p>Happy to help. Let me know what\'s next.</p>',
-      ], promptText);
-    }
-    if (containsAny(text, GREETINGS) && promptText.trim().split(/\s+/).length <= 4) {
-      return '<p>Hey! What are we shipping today — a bug, a feature, a refactor, something else?</p>';
-    }
-
-    let best = null, bestScore = 0;
-    TOPICS.forEach((topic) => {
-      const s = scoreTopic(text, topic);
-      if (s > bestScore) { bestScore = s; best = topic; }
+  /* ── Anthropic API call ──────────────────────────────────────── */
+  async function callClaude(messages, settings) {
+    const body = {
+      model: settings.model || 'claude-sonnet-4-5',
+      max_tokens: 2048,
+      system: settings.systemPrompt ? (DEFAULT_SYSTEM + '\n\n' + settings.systemPrompt) : DEFAULT_SYSTEM,
+      messages: messages.map((m) => ({ role: m.role, content: m.content })),
+    };
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': settings.apiKey,
+        'anthropic-version': ANTHROPIC_VERSION,
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify(body),
     });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const msg = (json && json.error && json.error.message) || ('Request failed with status ' + res.status);
+      throw new Error(msg);
+    }
+    const textBlock = (json.content || []).find((b) => b.type === 'text');
+    return textBlock ? textBlock.text : '(No text in response.)';
+  }
 
-    if (best) {
-      return pickVariant(best.responses, promptText)(p);
+  /* ── Sending ─────────────────────────────────────────────────── */
+  function submitPrompt(text) {
+    text = (text || '').trim();
+    if (!text || sending) return;
+
+    const settings = getSettings();
+    if (!settings.apiKey) {
+      showToast('Add your Anthropic API key in Settings first');
+      openSettings();
+      return;
     }
 
-    // No topic matched well enough — still give a useful, structured plan
-    // rather than a generic "I don't understand".
-    return '<p>Here\'s a plan for <strong>' + p + '</strong>:</p>' +
-      '<ul>' +
-      '<li>Scan the repo for related existing code and conventions</li>' +
-      '<li>Draft a short implementation plan and confirm the approach</li>' +
-      '<li>Write the change, add/update tests, and run the suite</li>' +
-      '<li>Open a pull request with a clear summary for review</li>' +
-      '</ul>' +
-      '<p>That said, I do best with specifics — mention the language, framework, or file involved and I can get more concrete. ' +
-      'I\'m also tuned for topics like rate limiting, testing, auth, deploys, and debugging — ask me "what can you help with" to see the full list.</p>';
+    empty.style.display = 'none';
+    const convo = convos[activeId];
+    convo.messages.push({ role: 'user', content: text });
+    if (!convo.title) convo.title = text.slice(0, 48) + (text.length > 48 ? '…' : '');
+    convo.updatedAt = Date.now();
+    saveConvos(convos);
+    renderConvoList();
+    updateTopTitle();
+    thread.appendChild(messageEl(convo.messages[convo.messages.length - 1]));
+    scrollToBottom();
+
+    sending = true;
+    updateSendState();
+    addTyping();
+
+    callClaude(convo.messages, settings).then((reply) => {
+      removeTyping();
+      convo.messages.push({ role: 'assistant', content: reply });
+      convo.updatedAt = Date.now();
+      saveConvos(convos);
+      renderThread();
+    }).catch((e) => {
+      removeTyping();
+      convo.messages.push({ role: 'assistant', content: 'Something went wrong talking to Claude: ' + e.message, error: true });
+      saveConvos(convos);
+      renderThread();
+      showToast('Request failed — check your API key in Settings');
+    }).finally(() => {
+      sending = false;
+      updateSendState();
+    });
+  }
+
+  /* ── Settings modal ─────────────────────────────────────────── */
+  function updateKeyBadge() {
+    const s = getSettings();
+    const badge = qs('#aiKeyBadge');
+    if (!badge) return;
+    badge.textContent = s.apiKey ? 'API key connected' : 'API key not set';
+  }
+
+  function openSettings() {
+    const s = getSettings();
+    const keyInput = qs('#aiApiKeyInput');
+    const modelSelect = qs('#aiModelSelect');
+    const sysInput = qs('#aiSystemPromptInput');
+    if (keyInput) keyInput.value = s.apiKey || '';
+    if (modelSelect) modelSelect.value = s.model || 'claude-sonnet-4-5';
+    if (sysInput) sysInput.value = s.systemPrompt || '';
+    qs('#aiSettingsOverlay')?.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSettings() {
+    qs('#aiSettingsOverlay')?.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  on(qs('#aiSettingsBtn'), 'click', openSettings);
+  on(qs('#aiSettingsClose'), 'click', closeSettings);
+  on(qs('#aiSettingsOverlay'), 'click', (e) => { if (e.target.id === 'aiSettingsOverlay') closeSettings(); });
+  on(document, 'keydown', (e) => { if (e.key === 'Escape' && qs('#aiSettingsOverlay')?.classList.contains('open')) closeSettings(); });
+
+  on(qs('#aiSettingsForm'), 'submit', (e) => {
+    e.preventDefault();
+    const s = getSettings();
+    s.apiKey = (qs('#aiApiKeyInput')?.value || '').trim();
+    s.model = qs('#aiModelSelect')?.value || 'claude-sonnet-4-5';
+    s.systemPrompt = (qs('#aiSystemPromptInput')?.value || '').trim();
+    setSettings(s);
+    updateKeyBadge();
+    const status = qs('#aiSettingsStatus');
+    if (status) {
+      status.textContent = 'Saved.';
+      setTimeout(() => { status.textContent = ''; closeSettings(); }, 500);
+    } else {
+      closeSettings();
+    }
+  });
+
+  /* ── Init ────────────────────────────────────────────────────── */
+  renderConvoList();
+  renderThread();
+  updateTopTitle();
+  updateKeyBadge();
+  updateSendState();
+  if (!getSettings().apiKey) {
+    setTimeout(() => showToast('Add your Anthropic API key in Settings (top right) to start chatting'), 400);
   }
 })();

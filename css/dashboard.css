@@ -141,6 +141,7 @@ table.dash-table { width: 100%; border-collapse: collapse; font-size: var(--fs-s
 .built-dash-section { margin-bottom: var(--sp-5); }
 .built-dash-section:last-child { margin-bottom: 0; }
 .built-dash-section h4 { font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-50); margin-bottom: var(--sp-3); }
+.chart-card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--sp-5); position: relative; height: 260px; }
 .built-dash-note { font-size: var(--fs-xs); color: var(--ink-30); margin-top: var(--sp-2); }
 
 /* ── Saved dashboards grid ────────────────────────────────────────────── */

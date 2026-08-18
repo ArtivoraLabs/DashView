@@ -118,6 +118,7 @@
           <h3 id="builtDashboardTitle">Dashboard</h3>
           <div style="display:flex;align-items:center;gap:var(--sp-3);" data-no-print="true">
             <span class="tag" id="builtDashboardRoleTag"></span>
+            <button class="btn btn-outline btn-sm" id="reopenDashboardTabBtn" type="button">Open in new tab ↗</button>
             <button class="btn btn-ghost btn-sm" id="exportDashboardPdfBtn" type="button">Export as PDF</button>
             <button class="btn btn-ghost btn-sm" id="closeBuiltDashboardBtn" type="button">Close</button>
           </div>
@@ -317,9 +318,22 @@
             <input type="radio" name="dashboardRole" value="analyst" />
             <span><strong>Analyst</strong><small>Every column, every row, plus min/avg/max on the numbers.</small></span>
           </label>
+          <label class="role-option">
+            <input type="radio" name="dashboardRole" value="finance" />
+            <span><strong>Finance</strong><small>Totals framed for reporting, plus a trend/breakdown chart and key rows.</small></span>
+          </label>
+          <label class="role-option">
+            <input type="radio" name="dashboardRole" value="sales" />
+            <span><strong>Sales</strong><small>A leaderboard chart, a share-of-total chart, plus top rows.</small></span>
+          </label>
+          <label class="role-option">
+            <input type="radio" name="dashboardRole" value="hr" />
+            <span><strong>HR / Operations</strong><small>Headcount-style totals plus a distribution chart by category.</small></span>
+          </label>
         </div>
       </div>
       <button type="submit" class="btn btn-primary btn-block btn-lg">Generate dashboard</button>
+      <p style="font-size:var(--fs-xs);color:var(--ink-30);text-align:center;margin-top:var(--sp-3);">Opens in a new tab, full of charts, and is also saved here.</p>
     </form>
   </div>
 </div>
