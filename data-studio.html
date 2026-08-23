@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Data Studio — ArtivoraLabs</title>
+<meta name="description" content="Import a spreadsheet and DashView reads it, types every column, and builds a full dashboard with charts, KPIs, a pivot table and a drill-down hierarchy — entirely in your browser, no API key required." />
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="css/base.css" />
+<link rel="stylesheet" href="css/components.css" />
+<link rel="stylesheet" href="css/dashboard.css" />
+<link rel="stylesheet" href="css/studio-dash.css" />
+</head>
+<body class="studio-body">
+
+<!-- ══════════════════════ TOP BAR ══════════════════════ -->
+<header class="studio-topbar">
+  <div class="studio-topbar-left">
+    <button class="studio-icon-btn studio-fields-toggle" id="fieldsToggleBtn" type="button" aria-label="Toggle fields panel">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+    <a href="dashboard.html" class="studio-back" aria-label="Back to dashboard" title="Back to dashboard">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </a>
+    <div class="studio-brandmark">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#14b892" stroke-width="1.6"/><path d="M7 13l3-5 2 3 2-4 3 6" stroke="#14b892" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Data Studio</span>
+    </div>
+    <div class="studio-divider-v"></div>
+    <input type="text" id="workbookNameInput" class="studio-workbook-name" value="Untitled workbook" maxlength="80" spellcheck="false" />
+    <span class="studio-save-state" id="saveStateTag">No changes yet</span>
+  </div>
+  <div class="studio-topbar-right">
+    <span class="studio-dataset-tag" id="datasetTag"></span>
+    <div class="studio-dropdown" id="workbooksDropdown">
+      <button class="btn btn-outline btn-sm studio-icon-btn" id="openWorkbooksBtn" type="button" title="My workbooks" aria-label="My workbooks">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
+      </button>
+    </div>
+    <button class="btn btn-outline btn-sm" id="newWorkbookBtn" type="button">New</button>
+    <div class="studio-dropdown" id="exportDropdown">
+      <button class="btn btn-outline btn-sm" id="exportDropdownBtn" type="button">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V3M7 10l5 5 5-5M4 21h16"/></svg>
+        Export
+      </button>
+      <div class="studio-dropdown-menu">
+        <button class="studio-dropdown-item" id="exportCsvBtn" type="button">Data as CSV</button>
+        <button class="studio-dropdown-item" id="exportXlsxBtn" type="button">Workbook as Excel (.xlsx)</button>
+        <div class="studio-dropdown-sep"></div>
+        <button class="studio-dropdown-item" id="exportPdfBtn" type="button">Overview as PDF</button>
+      </div>
+    </div>
+    <button class="studio-icon-btn" id="themeToggleBtn" type="button" title="Toggle dark mode" aria-label="Toggle dark mode">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" id="themeIconMoon"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
+    </button>
+    <button class="btn btn-signal btn-sm" id="topbarImportBtn" type="button">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>
+      Import file
+    </button>
+    <input type="file" id="fileInput" accept=".csv,.tsv,.xlsx,.xls,.json" style="display:none;" />
+  </div>
+</header>
+
+<!-- ══════════════════════ EMPTY STATE ══════════════════════ -->
+<div class="studio-empty" id="emptyState">
+  <div class="studio-dropzone" id="dropzone">
+    <svg class="studio-dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 21h16"/><rect x="4" y="3" width="16" height="0" /></svg>
+    <h2>Drop a spreadsheet here</h2>
+    <p>DashView reads it, types every column, and drafts a full dashboard with KPIs, charts, a pivot table and a drill-down hierarchy — you review the suggestions and pick what stays.</p>
+    <div class="studio-dropzone-actions">
+      <button class="btn btn-primary btn-lg" id="emptyImportBtn" type="button">Choose a file</button>
+      <button class="btn btn-outline btn-lg" id="sampleDataBtn" type="button">Try it with sample data</button>
+    </div>
+    <p class="studio-dropzone-formats">CSV · TSV · XLSX · XLS · JSON</p>
+    <p class="studio-privacy-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+      Parsed entirely in this browser — no file, and no AI API call, ever leaves your machine.
+    </p>
+  </div>
+</div>
+
+<!-- ══════════════════════ MAIN WORKBENCH ══════════════════════ -->
+<div class="studio-main" id="studioMain" style="display:none;">
+
+  <!-- Fields rail -->
+  <aside class="studio-fields-rail" id="fieldsRail">
+    <div class="fields-rail-head">
+      <h4>Fields <span class="tag" id="fieldCountTag" style="font-size:10px;"></span></h4>
+      <input type="text" id="fieldSearchInput" placeholder="Search fields…" />
+    </div>
+    <div class="fields-list" id="fieldsList"></div>
+    <div class="fields-rail-foot">
+      <button class="btn btn-outline btn-sm btn-block" id="addCalcFieldBtn" type="button">ƒx Add calculated column</button>
+      <button class="btn btn-ghost btn-sm btn-block" id="dataHealthBtn" type="button">Data health</button>
+    </div>
+  </aside>
+
+  <!-- Center -->
+  <div class="studio-center">
+
+    <div class="studio-summary-strip">
+      <p id="summaryText"></p>
+      <div class="studio-summary-actions">
+        <button class="btn btn-outline btn-sm" id="reopenSuggestionsBtn" type="button">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg>
+          Suggestions
+        </button>
+      </div>
+    </div>
+
+    <div class="drill-breadcrumb" id="drillBreadcrumb" style="display:none;"></div>
+    <div class="studio-slicer-bar" id="slicerBar"></div>
+
+    <div class="studio-tabs" id="studioTabs">
+      <button class="studio-tab active" data-tab="overview" type="button">Overview</button>
+      <button class="studio-tab" data-tab="data" type="button">Data<span class="badge" id="dataTabBadge"></span></button>
+      <button class="studio-tab" data-tab="pivot" type="button">Pivot table</button>
+      <button class="studio-tab" data-tab="hierarchy" type="button">Hierarchy</button>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="studio-tab-panel studio-print-target" id="panel-overview">
+      <div class="kpi-grid" id="overviewKpiGrid"></div>
+      <div class="widget-grid" id="overviewWidgetGrid"></div>
+    </div>
+
+    <!-- DATA -->
+    <div class="studio-tab-panel" id="panel-data" style="display:none;">
+      <div class="data-toolbar">
+        <div class="data-search grow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" id="dataSearchInput" placeholder="Search all rows…" />
+        </div>
+        <button class="btn btn-outline btn-sm" id="columnsMenuBtn" type="button">Columns</button>
+        <button class="btn btn-outline btn-sm" id="highlightToggleBtn" type="button">Highlight numbers</button>
+        <button class="btn btn-outline btn-sm" id="addRowBtn" type="button">+ Add row</button>
+        <button class="btn btn-ghost btn-sm" id="deleteRowsBtn" type="button" style="display:none;color:var(--danger);">Delete selected</button>
+        <span class="data-count-tag" id="dataCountTag"></span>
+      </div>
+      <div class="grid-scroll"><table class="data-grid" id="dataGridTable"><thead id="dataGridHead"></thead><tbody id="dataGridBody"></tbody></table></div>
+      <div class="data-pagination">
+        <select id="pageSizeSelect">
+          <option value="25">25 rows / page</option>
+          <option value="50" selected>50 rows / page</option>
+          <option value="100">100 rows / page</option>
+          <option value="250">250 rows / page</option>
+        </select>
+        <div class="pager-btns">
+          <button id="pagerFirstBtn" type="button" aria-label="First page">«</button>
+          <button id="pagerPrevBtn" type="button" aria-label="Previous page">‹</button>
+          <span id="pagerInfo">Page 1 of 1</span>
+          <button id="pagerNextBtn" type="button" aria-label="Next page">›</button>
+          <button id="pagerLastBtn" type="button" aria-label="Last page">»</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PIVOT -->
+    <div class="studio-tab-panel" id="panel-pivot" style="display:none;">
+      <div class="pivot-wells">
+        <div class="pivot-well" id="pivotWellFilters" data-well="filters"><div class="pivot-well-title">Filters</div><div class="pivot-well-body"><p class="pivot-well-empty">Add a field from the rail (F)</p></div></div>
+        <div class="pivot-well" id="pivotWellRows" data-well="rows"><div class="pivot-well-title">Rows (nested)</div><div class="pivot-well-body"><p class="pivot-well-empty">Add a field from the rail (R)</p></div></div>
+        <div class="pivot-well" id="pivotWellColumns" data-well="columns"><div class="pivot-well-title">Columns</div><div class="pivot-well-body"><p class="pivot-well-empty">Add a field from the rail (C)</p></div></div>
+        <div class="pivot-well" id="pivotWellValues" data-well="values"><div class="pivot-well-title">Values</div><div class="pivot-well-body"><p class="pivot-well-empty">Add a field from the rail (V)</p></div></div>
+      </div>
+      <div class="studio-summary-strip" style="margin-bottom:var(--sp-3);">
+        <p id="pivotSummaryText">Build a pivot using the wells above.</p>
+        <div class="studio-summary-actions">
+          <button class="btn btn-outline btn-sm" id="pivotExportCsvBtn" type="button">Export CSV</button>
+          <button class="btn btn-primary btn-sm" id="pivotPinBtn" type="button">Pin to Overview</button>
+        </div>
+      </div>
+      <div class="pivot-table-wrap"><table class="pivot-table" id="pivotTable"></table></div>
+    </div>
+
+    <!-- HIERARCHY -->
+    <div class="studio-tab-panel" id="panel-hierarchy" style="display:none;">
+      <div class="hierarchy-controls">
+        <label class="visually-hidden" for="hLevel1">Level 1</label>
+        <select id="hLevel1"></select>
+        <label class="visually-hidden" for="hLevel2">Level 2</label>
+        <select id="hLevel2"></select>
+        <label class="visually-hidden" for="hLevel3">Level 3</label>
+        <select id="hLevel3"></select>
+        <span class="studio-divider-v" style="background:var(--line-strong);"></span>
+        <select id="hMetricField"></select>
+        <select id="hMetricAgg">
+          <option value="sum">Sum</option>
+          <option value="avg">Average</option>
+          <option value="count">Count</option>
+          <option value="min">Min</option>
+          <option value="max">Max</option>
+          <option value="countRows">Row count</option>
+        </select>
+        <button class="btn btn-outline btn-sm" id="hApplyBtn" type="button">Apply</button>
+        <button class="btn btn-primary btn-sm" id="hPinBtn" type="button" style="margin-left:auto;">Pin to Overview</button>
+      </div>
+      <div class="hierarchy-tree-wrap" id="hierarchyTreeWrap"></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<!-- ══════════════════════ SHEET PICKER MODAL ══════════════════════ -->
+<div class="modal-overlay" id="sheetPickerModal">
+  <div class="modal-card">
+    <button class="modal-close" id="sheetPickerClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);">Multiple sheets found</p>
+    <h3>Which sheet should we read?</h3>
+    <p>This workbook has more than one sheet — pick the one with your data.</p>
+    <div class="workbook-list" id="sheetPickerList"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SUGGESTIONS MODAL ══════════════════════ -->
+<div class="modal-overlay" id="suggestionsModal">
+  <div class="modal-card modal-card-lg">
+    <button class="modal-close" id="suggestionsClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);">Read from your data — no API involved</p>
+    <h3>Here's what we found</h3>
+    <p>DashView scored your columns and drafted these. Tick the ones you want, then finish the dashboard — you can always add or remove more later.</p>
+    <div class="suggestion-tabs" id="suggestionTabs">
+      <button class="active" data-kind="all" type="button">All</button>
+      <button data-kind="kpi" type="button">KPIs</button>
+      <button data-kind="chart" type="button">Charts</button>
+      <button data-kind="hierarchy" type="button">Hierarchy</button>
+      <button data-kind="pivot" type="button">Pivot</button>
+    </div>
+    <div class="suggestion-list" id="suggestionList"></div>
+    <div class="suggestion-modal-foot">
+      <span class="suggestion-count-tag" id="suggestionCountTag"></span>
+      <div style="display:flex;gap:var(--sp-2);">
+        <button class="btn btn-ghost btn-sm" id="suggestionSelectAllBtn" type="button">Select all</button>
+        <button class="btn btn-primary" id="suggestionAddBtn" type="button">Add selected & finish</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ CALCULATED FIELD MODAL ══════════════════════ -->
+<div class="modal-overlay" id="calcFieldModal">
+  <div class="modal-card">
+    <button class="modal-close" id="calcFieldClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);">New column, computed per row</p>
+    <h3>Add a calculated column</h3>
+    <p>Reference other columns with square brackets, Excel-style. This adds a real column to your data grid.</p>
+    <div class="field"><label for="calcFieldName">Column name</label><input type="text" id="calcFieldName" placeholder="e.g. Profit" /></div>
+    <div class="field">
+      <label for="calcFieldFormula">Formula</label>
+      <div class="formula-input-row"><span class="formula-fx">fx</span><input type="text" id="calcFieldFormula" placeholder="=[Revenue]-[Cost]" spellcheck="false" /></div>
+      <p class="formula-error" id="calcFieldError" style="display:none;"></p>
+    </div>
+    <details class="formula-help"><summary>Available functions</summary><div class="formula-help-grid" id="calcFieldHelpGrid"></div></details>
+    <button class="btn btn-primary btn-block btn-lg" id="calcFieldSaveBtn" type="button" style="margin-top:var(--sp-5);">Add column</button>
+  </div>
+</div>
+
+<!-- ══════════════════════ ADD WIDGET MODAL ══════════════════════ -->
+<div class="modal-overlay" id="addWidgetModal">
+  <div class="modal-card">
+    <button class="modal-close" id="addWidgetClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);">Added to Overview</p>
+    <h3>Add a widget</h3>
+    <div class="chip-select-row" id="widgetTypeChips" style="margin-bottom:var(--sp-5);">
+      <button class="chip-select active" data-type="kpi" type="button">KPI</button>
+      <button class="chip-select" data-type="chart" type="button">Chart</button>
+      <button class="chip-select" data-type="hierarchy" type="button">Hierarchy</button>
+    </div>
+    <div id="addWidgetFields"></div>
+    <button class="btn btn-primary btn-block btn-lg" id="addWidgetSaveBtn" type="button" style="margin-top:var(--sp-5);">Add to Overview</button>
+  </div>
+</div>
+
+<!-- ══════════════════════ DATA HEALTH MODAL ══════════════════════ -->
+<div class="modal-overlay" id="dataHealthModal">
+  <div class="modal-card">
+    <button class="modal-close" id="dataHealthClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);">Auto-checked on import</p>
+    <h3>Data health</h3>
+    <div id="dataHealthBody"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════ WORKBOOKS MODAL ══════════════════════ -->
+<div class="modal-overlay" id="workbooksModal">
+  <div class="modal-card">
+    <button class="modal-close" id="workbooksClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);">Saved in this browser</p>
+    <h3>My workbooks</h3>
+    <p>Stored locally with <code>localStorage</code> — nothing is uploaded. Clearing your browser data will remove these too.</p>
+    <div class="workbook-list" id="workbookList"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════ CONFIRM MODAL (generic) ══════════════════════ -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-card">
+    <button class="modal-close" id="confirmClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);" id="confirmEyebrow">Please confirm</p>
+    <h3 id="confirmTitle">Are you sure?</h3>
+    <p id="confirmBody"></p>
+    <div style="display:flex;gap:var(--sp-3);margin-top:var(--sp-5);">
+      <button class="btn btn-outline btn-block" id="confirmCancelBtn" type="button">Cancel</button>
+      <button class="btn btn-primary btn-block" id="confirmOkBtn" type="button" style="background:var(--danger);">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="js/app.js"></script>
+<script src="js/studio-core.js"></script>
+<script src="js/studio-ui.js"></script>
+</body>
+</html>

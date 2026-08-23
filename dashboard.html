@@ -27,6 +27,7 @@
       <a href="#" class="dash-nav-link"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.03-.01-1.87-2.78.62-3.37-1.22-3.37-1.22-.46-1.19-1.11-1.51-1.11-1.51-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.32 9.32 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>Repositories</a>
       <a href="#" class="dash-nav-link"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Team</a>
       <p class="dash-nav-label">Insights</p>
+      <a href="data-studio.html" class="dash-nav-link"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Data Studio<span class="badge" style="background:var(--signal-10);color:var(--signal);border-color:transparent;">New</span></a>
       <a href="#" class="dash-nav-link"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Analytics</a>
       <a href="#" class="dash-nav-link"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Audit log</a>
       <p class="dash-nav-label">Settings</p>
@@ -81,12 +82,16 @@
           <p id="dashSubhead">Here's what ArtivoraLabs shipped across acme-corp since you last checked in.</p>
         </div>
         <div style="display:flex;align-items:center;gap:var(--sp-3);">
+          <a href="data-studio.html" class="btn btn-primary" id="openStudioBtn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            Data Studio
+          </a>
           <button class="btn btn-outline" id="importExcelBtn" type="button">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>
             Import Excel
           </button>
           <input type="file" id="importExcelInput" accept=".xlsx,.xls,.csv" style="display:none;" />
-          <button class="btn btn-primary" id="addProjectBtn">
+          <button class="btn btn-outline" id="addProjectBtn">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
             Add project
           </button>
@@ -104,6 +109,9 @@
             <button class="btn btn-ghost btn-sm" id="importedClearBtn" type="button">Clear</button>
           </div>
         </div>
+        <p style="padding:0 var(--sp-5) var(--sp-4);margin-top:calc(var(--sp-4) * -1);font-size:var(--fs-xs);color:var(--ink-50);">
+          Need pivot tables, filters, a drill-down hierarchy or calculated columns? <a href="data-studio.html" style="color:var(--signal);font-weight:600;">Open the full Data Studio →</a>
+        </p>
         <div class="table-wrap">
           <table class="dash-table" id="importedTable">
             <thead><tr id="importedTableHead"></tr></thead>

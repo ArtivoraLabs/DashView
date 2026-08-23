@@ -1,0 +1,14 @@
+{
+  "name": "dashview-data-studio-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Unit tests for js/studio-core.js and a headless DOM smoke test for the Data Studio page.",
+  "scripts": {
+    "test": "npm run test:core && npm run test:ui",
+    "test:core": "node studio-core.test.js",
+    "test:ui": "node studio-ui.smoke.test.js"
+  },
+  "devDependencies": {
+    "jsdom": "^30.0.1"
+  }
+}

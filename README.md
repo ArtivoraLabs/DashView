@@ -52,6 +52,33 @@ developer workspace, and a functional GitHub integration panel.
     exportable (CSV) projects table - all driven by the shape defined in
     `js/dashboard-data.js` (the demo generator) or `js/github-live.js` (the real
     fetcher), so the rendering code doesn't care which one is active.
+- **Data Studio** (`data-studio.html`) - import a spreadsheet and it reads the file,
+  types every column, and drafts a full BI dashboard for you to review and finish -
+  **entirely client-side, no API key and no server involved** (`js/studio-core.js` is
+  the framework-free data engine; `js/studio-ui.js` wires it to the page):
+  - **Import** CSV, TSV, XLSX, XLS or JSON (multi-sheet workbooks prompt you to pick
+    a sheet), or click **"Try it with sample data"** to see it work instantly with a
+    generated retail-sales dataset.
+  - **Auto-analysis & suggestions** - every column is typed (number/currency/percent/
+    date/boolean/text) and profiled, then a rule-based scoring engine drafts KPI,
+    chart, hierarchy and pivot suggestions with live mini-previews. You tick the ones
+    you want and finish the dashboard - nothing is added without your say.
+  - **Hierarchy explorer** - auto-detects a natural drill-down (e.g. Region → City),
+    plus an automatic Year/Quarter/Month date hierarchy, with click-to-drill that
+    cross-filters the whole workbook and a clearable breadcrumb.
+  - **Pivot table** - Excel/Power-BI-style Rows/Columns/Values/Filters wells, nested
+    row groups with expand/collapse and subtotals, six aggregations, a grand total,
+    and CSV export.
+  - **Data grid** - sortable/searchable, inline cell editing, add/delete rows, show/
+    hide columns, and a data-bar (in-cell heatmap) toggle for numeric columns.
+  - **Calculated columns & custom KPI formulas** - a hand-written Excel-style formula
+    parser (not `eval`) supporting `IF`, `AND`/`OR`, text/date/math functions, and
+    aggregate measures like `SUM([Revenue])-SUM([Cost])`.
+  - **Slicers** - shared, cross-filtering chip/date-range filters that narrow every
+    KPI, chart, pivot cell and hierarchy node at once.
+  - **Workbooks** - name, save, reopen, duplicate and delete workbooks from
+    `localStorage`; autosaves as you work. Export to CSV, a real multi-sheet `.xlsx`
+    (via SheetJS), or print the dashboard to PDF. Light/dark theme included.
 - **AI Assistant** (`ai.html`) - a chat interface that runs **entirely client-side,
   with no API key and no network calls**. Your message is scored against a small
   local topic library (rate limiting, testing/CI, refactors, auth, webhooks,
@@ -65,6 +92,7 @@ developer workspace, and a functional GitHub integration panel.
 ```
 ├── index.html              # Landing page markup
 ├── dashboard.html          # Workspace dashboard (KPIs, charts, activity log, repos)
+├── data-studio.html        # Data Studio: import → auto-dashboard, pivot, hierarchy, formulas
 ├── 404.html                # Branded not-found page (GitHub Pages picks this up automatically)
 ├── manifest.json           # Web app manifest (add-to-home-screen)
 ├── robots.txt
@@ -79,12 +107,15 @@ developer workspace, and a functional GitHub integration panel.
 │   ├── studio.css          # AI Studio: image generator, debugger, report builder
 │   ├── dashboard.css       # Dashboard shell, KPIs, charts, activity log, repo table
 │   └── responsive.css
+│   └── studio-dash.css     # Data Studio: rail, slicers, tabs, pivot, hierarchy, dark theme
 ├── js/
 │   ├── github-config.js      # Paste a repo (and optional token) here for a LIVE GitHub panel
 │   ├── main.js               # Core site interactivity (vanilla JS, no dependencies)
 │   ├── studio.js             # AI Studio logic (image gen, code analysis, doc export)
 │   ├── dashboard-data.js     # Deterministic demo-data generator (swap point for a real API)
-│   └── dashboard.js          # Dashboard rendering + interactions (charts, ⌘K, shortcuts, CSV)
+│   ├── dashboard.js          # Dashboard rendering + interactions (charts, ⌘K, shortcuts, CSV)
+│   ├── studio-core.js        # Data Studio engine: typing, stats, formulas, pivot, suggestions
+│   └── studio-ui.js          # Data Studio UI controller (wires studio-core.js to the page)
 ├── assets/
 │   ├── favicon.svg
 │   ├── favicon-16x16.png / favicon-32x32.png / apple-touch-icon.png
