@@ -88,3 +88,21 @@ body.ai-body { background: var(--paper); height: 100vh; overflow: hidden; }
   .ai-suggest-grid { grid-template-columns: 1fr; }
   .msg-bubble { max-width: 88%; }
 }
+
+/* ── Local-only badges + polish (no API key needed anywhere here) ───────── */
+.ai-local-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 600; color: var(--signal); }
+.ai-local-badge svg { flex-shrink: 0; }
+.ai-topic-tag { display: inline-block; margin-top: var(--sp-3); font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.03em; color: var(--signal); background: var(--signal-10); padding: 3px 9px; border-radius: var(--r-full); }
+.ai-about-topics { display: flex; flex-wrap: wrap; gap: 7px; margin-top: var(--sp-4); }
+.ai-about-topics span { font-size: 12px; font-weight: 500; color: var(--ink-70); background: var(--paper-soft); border: 1px solid var(--line); padding: 5px 11px; border-radius: var(--r-full); }
+
+/* ── Motion polish: messages ease in instead of popping ─────────────────── */
+.msg { animation: ai-msg-in 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes ai-msg-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.ai-suggest-card { transition: border-color var(--t-fast), background var(--t-fast), transform var(--t-fast); }
+.ai-suggest-card:hover { transform: translateY(-2px); }
+.ai-send-btn.ready { box-shadow: 0 2px 10px -3px rgba(14,124,102,0.4); }
+.ai-empty-icon { animation: ai-msg-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .msg, .ai-empty-icon { animation: none; }
+}

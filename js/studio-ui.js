@@ -1062,13 +1062,42 @@
     openModal('suggestionsModal');
   }
   function suggestionIcon(kind) { return { kpi: ICON.kpi, chart: ICON.bar, hierarchy: ICON.layers, pivot: ICON.grid }[kind] || ICON.bar; }
+  /** Tiny real-data sparkline/bar preview rendered inline in a suggestion row — built from the actual computed values, not a placeholder. */
+  function miniPreviewSvg(spec) {
+    if (!spec || spec.chartType === 'scatter' || spec.chartType === 'histogram' || spec.chartType === 'stackedBar') return '';
+    try {
+      var rows = getFilteredRows();
+      var w = 92, h = 30, pad = 2, values;
+      if (spec.chartType === 'line') {
+        var trend = Studio.trendSeries(rows, spec.x, spec.y, spec.fn || 'sum');
+        if (!trend || !trend.points || trend.points.length < 2) return '';
+        values = trend.points.map(function (p) { return p.value; });
+      } else {
+        var tn = Studio.topN(rows, spec.x, spec.y, spec.fn || (spec.y ? 'sum' : 'countRows'), 6);
+        if (!tn.length) return '';
+        values = tn.map(function (p) { return p.value; });
+      }
+      var max = Math.max.apply(null, values.concat([0])), min = Math.min.apply(null, values.concat([0]));
+      var range = (max - min) || 1;
+      if (spec.chartType === 'line') {
+        var stepX = (w - pad * 2) / (values.length - 1);
+        var pts = values.map(function (v, i) { var x = pad + i * stepX; var y = h - pad - ((v - min) / range) * (h - pad * 2); return x.toFixed(1) + ',' + y.toFixed(1); }).join(' ');
+        return '<svg viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" height="' + h + '" class="suggestion-preview-svg"><polyline points="' + pts + '" fill="none" stroke="#0e7c66" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      }
+      var slotW = (w - pad * 2) / values.length, barW = Math.max(2, slotW - 2);
+      var bars = values.map(function (v, i) { var bh = Math.max(1.5, ((v - min) / range) * (h - pad * 2)); var x = pad + i * slotW; var y = h - pad - bh; return '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + barW.toFixed(1) + '" height="' + bh.toFixed(1) + '" rx="1" fill="#14b892"/>'; }).join('');
+      return '<svg viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" height="' + h + '" class="suggestion-preview-svg">' + bars + '</svg>';
+    } catch (e) { return ''; }
+  }
   function renderSuggestionList(kindFilter) {
     var list = byId('suggestionList');
     var visible = state.suggestions.filter(function (s) { return kindFilter === 'all' || s.kind === kindFilter; });
     list.innerHTML = visible.map(function (s) {
+      var preview = s.kind === 'chart' ? miniPreviewSvg(s.spec) : '';
       return '<label class="suggestion-item"><input type="checkbox" data-suggestion-id="' + s.id + '" ' + (state.suggestionSelected[s.id] ? 'checked' : '') + ' />'
         + '<span class="suggestion-item-kind">' + suggestionIcon(s.kind) + '</span>'
-        + '<span class="suggestion-item-body"><strong>' + esc(s.title) + '</strong><span>' + esc(s.subtitle) + '</span></span></label>';
+        + '<span class="suggestion-item-body"><strong>' + esc(s.title) + '</strong><span>' + esc(s.subtitle) + '</span></span>'
+        + (preview ? '<span class="suggestion-preview">' + preview + '</span>' : '') + '</label>';
     }).join('') || '<p style="color:var(--ink-30);font-size:13px;">No suggestions in this category.</p>';
     updateSuggestionCount();
   }

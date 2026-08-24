@@ -317,6 +317,8 @@ table.pivot-table { width: 100%; border-collapse: collapse; font-size: var(--fs-
 .suggestion-item-body { flex: 1; min-width: 0; }
 .suggestion-item-body strong { display: block; font-size: var(--fs-sm); }
 .suggestion-item-body span { font-size: 12px; color: var(--ink-30); }
+.suggestion-preview { flex-shrink: 0; display: flex; align-items: center; opacity: 0.85; }
+.suggestion-preview-svg { display: block; }
 .suggestion-modal-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); flex-wrap: wrap; }
 .suggestion-count-tag { font-size: 12.5px; color: var(--ink-50); }
 
@@ -360,3 +362,14 @@ table.pivot-table { width: 100%; border-collapse: collapse; font-size: var(--fs-
 
 .spin { animation: studio-spin 0.8s linear infinite; }
 @keyframes studio-spin { to { transform: rotate(360deg); } }
+
+/* ── Motion polish, matching the rest of the product ─────────────────────── */
+.studio-dropzone { animation: studio-fade-up 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.widget-card, .kpi-card { animation: studio-fade-up 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.suggestion-item { animation: studio-fade-up 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes studio-fade-up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.kpi-card .kpi-value { transition: color var(--t-fast); }
+.slicer-btn, .chip-select, .studio-tab { transition: all var(--t-fast); }
+@media (prefers-reduced-motion: reduce) {
+  .studio-dropzone, .widget-card, .kpi-card, .suggestion-item { animation: none; }
+}

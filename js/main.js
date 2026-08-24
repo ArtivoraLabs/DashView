@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /* ------------------------------------------------------------
    Hero AI Command Bar - rotating placeholders, submits into
-   the global ArtivoraLabs AI Assistant (js/ai-assistant.js)
+   the AI Assistant page (ai.html?q=..., read by js/assistant.js)
 ------------------------------------------------------------ */
 const PROMPTS = [
   'Build a React application',

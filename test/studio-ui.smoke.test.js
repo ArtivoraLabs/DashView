@@ -102,6 +102,12 @@ function check(name, fn) {
     const checked = document.querySelectorAll('#suggestionList input:checked');
     assert.ok(checked.length > 0);
   });
+  check('chart suggestions render a real mini-preview sparkline built from actual data', () => {
+    const svgs = document.querySelectorAll('#suggestionList .suggestion-preview-svg');
+    assert.ok(svgs.length > 0, 'expected at least one chart suggestion to render a mini-preview');
+    const hasShape = Array.from(svgs).some((svg) => svg.querySelector('polyline, rect'));
+    assert.ok(hasShape, 'expected the preview SVG to actually contain a polyline or bars, not be empty');
+  });
 
   console.log('\n== Finish suggestions -> Overview ==');
   click('#suggestionAddBtn');
