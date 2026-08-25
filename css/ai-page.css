@@ -152,9 +152,9 @@
 .ai-composer {
   max-width: 760px; margin: 0 auto; display: flex; align-items: flex-end; gap: var(--space-2);
   background: var(--color-bg); border: 1.5px solid var(--color-border-bright); border-radius: var(--radius-xl);
-  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4); box-shadow: 0 4px 20px rgba(15,23,42,0.06);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4); box-shadow: 0 4px 20px rgba(0,0,0,0.35);
 }
-.ai-composer:focus-within { border-color: rgba(15,23,42,0.32); }
+.ai-composer:focus-within { border-color: rgba(139,92,246,0.45); }
 .ai-composer-input {
   flex: 1; border: none; outline: none; resize: none; background: none; font-family: var(--font-sans);
   font-size: var(--text-base); color: var(--color-text-primary); line-height: 1.5; padding: var(--space-2) 0; max-height: 200px;

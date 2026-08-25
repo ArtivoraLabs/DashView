@@ -4,43 +4,43 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  /* Ink & paper */
-  --ink: #12141c;
-  --ink-70: rgba(18,20,28,0.72);
-  --ink-50: rgba(18,20,28,0.52);
-  --ink-30: rgba(18,20,28,0.32);
-  --paper: #ffffff;
-  --paper-soft: #f4f5f7;
-  --paper-alt: #eef0f3;
-  --line: #e2e4ea;
-  --line-strong: #cdd0d9;
+  /* Ink & paper — inverted for Aurora Noir dark mode */
+  --ink: #eaedf8;
+  --ink-70: rgba(234,237,248,0.72);
+  --ink-50: rgba(234,237,248,0.52);
+  --ink-30: rgba(234,237,248,0.32);
+  --paper: #0e1020;
+  --paper-soft: #131526;
+  --paper-alt: #07090f;
+  --line: rgba(139,92,246,0.13);
+  --line-strong: rgba(139,92,246,0.23);
 
-  /* Signal (primary) & Beacon (secondary) */
-  --signal: #0e7c66;
-  --signal-bright: #14b892;
-  --signal-10: rgba(14,124,102,0.08);
-  --signal-20: rgba(14,124,102,0.16);
-  --beacon: #b8842e;
-  --beacon-10: rgba(184,132,46,0.1);
-  --danger: #c4384b;
-  --danger-10: rgba(196,56,75,0.09);
+  /* Signal (emerald) & Beacon (amber) — vibrant on dark */
+  --signal: #10b981;
+  --signal-bright: #34d399;
+  --signal-10: rgba(16,185,129,0.10);
+  --signal-20: rgba(16,185,129,0.18);
+  --beacon: #f59e0b;
+  --beacon-10: rgba(245,158,11,0.12);
+  --danger: #f43f5e;
+  --danger-10: rgba(244,63,94,0.10);
 
-  /* Dark surfaces (dashboard chrome, code panels) */
-  --navy-deep: #0a0d14;
-  --navy: #10131c;
-  --navy-raised: #171b26;
-  --navy-line: rgba(255,255,255,0.08);
-  --navy-line-bright: rgba(255,255,255,0.14);
-  --paper-on-navy: #eef0f4;
-  --paper-on-navy-60: rgba(238,240,244,0.6);
-  --paper-on-navy-40: rgba(238,240,244,0.4);
+  /* Dark surfaces — deep obsidian layers for the sidebar chrome */
+  --navy-deep: #04050c;
+  --navy: #070910;
+  --navy-raised: #0c0e1c;
+  --navy-line: rgba(139,92,246,0.10);
+  --navy-line-bright: rgba(139,92,246,0.20);
+  --paper-on-navy: #eaedf8;
+  --paper-on-navy-60: rgba(234,237,248,0.60);
+  --paper-on-navy-40: rgba(234,237,248,0.40);
 
   /* Type */
   --f-display: 'Space Grotesk', 'Inter', sans-serif;
   --f-body: 'Inter', -apple-system, sans-serif;
   --f-mono: 'JetBrains Mono', 'SF Mono', monospace;
 
-  /* Scale */
+  /* Scale — unchanged */
   --fs-xs: 0.6875rem;
   --fs-sm: 0.8125rem;
   --fs-base: 0.9375rem;
@@ -52,21 +52,21 @@
   --fs-4xl: 3.75rem;
   --fs-5xl: 4.75rem;
 
-  /* Space */
+  /* Space — unchanged */
   --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 20px;
   --sp-6: 24px; --sp-8: 32px; --sp-10: 40px; --sp-12: 48px; --sp-16: 64px;
   --sp-20: 80px; --sp-24: 96px; --sp-32: 128px;
 
-  /* Radius — small and consistent, no blobby corners */
+  /* Radius — unchanged */
   --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-full: 999px;
 
-  /* Shadow — used sparingly, on paper only */
-  --shadow-sm: 0 1px 2px rgba(18,20,28,0.05);
-  --shadow-md: 0 8px 24px -8px rgba(18,20,28,0.14);
-  --shadow-lg: 0 24px 56px -16px rgba(18,20,28,0.22);
-  --shadow-xl: 0 32px 80px -20px rgba(18,20,28,0.28), 0 2px 6px rgba(18,20,28,0.06);
-  --shadow-signal: 0 24px 64px -16px rgba(14,124,102,0.32);
-  --shadow-card-hover: 0 20px 40px -18px rgba(18,20,28,0.24);
+  /* Shadow — deeper and richer on dark backgrounds */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.28);
+  --shadow-md: 0 8px 28px -8px rgba(0,0,0,0.45);
+  --shadow-lg: 0 24px 60px -16px rgba(0,0,0,0.58);
+  --shadow-xl: 0 32px 80px -20px rgba(0,0,0,0.68), 0 2px 8px rgba(0,0,0,0.30);
+  --shadow-signal: 0 24px 64px -16px rgba(16,185,129,0.32);
+  --shadow-card-hover: 0 20px 48px -16px rgba(124,58,237,0.28);
 
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --t-fast: 0.15s var(--ease);
@@ -125,7 +125,7 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 600; letter-spacing
 .btn-primary { background: var(--ink); color: var(--paper); }
 .btn-primary:hover { background: var(--signal); transform: translateY(-1px); box-shadow: var(--shadow-md); }
 .btn-signal { background: var(--signal); color: #fff; }
-.btn-signal:hover { background: #0b6a56; transform: translateY(-1px); box-shadow: 0 12px 28px -10px rgba(14,124,102,0.5); }
+.btn-signal:hover { background: #0d9e6e; transform: translateY(-1px); box-shadow: 0 12px 28px -10px rgba(16,185,129,0.50); }
 .btn-outline { background: transparent; color: var(--ink); border-color: var(--line-strong); }
 .btn-outline:hover { border-color: var(--ink); background: var(--paper-soft); }
 .btn-ghost { background: transparent; color: var(--ink-70); }

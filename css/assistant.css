@@ -101,7 +101,7 @@ body.ai-body { background: var(--paper); height: 100vh; overflow: hidden; }
 @keyframes ai-msg-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 .ai-suggest-card { transition: border-color var(--t-fast), background var(--t-fast), transform var(--t-fast); }
 .ai-suggest-card:hover { transform: translateY(-2px); }
-.ai-send-btn.ready { box-shadow: 0 2px 10px -3px rgba(14,124,102,0.4); }
+.ai-send-btn.ready { box-shadow: 0 2px 10px -3px rgba(16,185,129,0.45); }
 .ai-empty-icon { animation: ai-msg-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 @media (prefers-reduced-motion: reduce) {
   .msg, .ai-empty-icon { animation: none; }

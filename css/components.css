@@ -5,12 +5,13 @@
 /* ── Navbar ────────────────────────────────────────────────────────────── */
 .nav {
   position: sticky; top: 0; z-index: 200;
-  background: rgba(255,255,255,0.92);
+  background: rgba(10, 12, 22, 0.82);
   border-bottom: 1px solid var(--line);
-  backdrop-filter: none;
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
   transition: box-shadow var(--t-base), border-color var(--t-base);
 }
-.nav.scrolled { box-shadow: 0 1px 0 rgba(18,20,28,0.02), var(--shadow-sm); border-bottom-color: var(--line-strong); }
+.nav.scrolled { box-shadow: 0 1px 0 rgba(0,0,0,0.30), var(--shadow-sm); border-bottom-color: var(--line-strong); }
 
 /* ── Logo / social-proof strip ────────────────────────────────────────── */
 .logo-strip { padding: var(--sp-8) 0; border-bottom: 1px solid var(--line); }

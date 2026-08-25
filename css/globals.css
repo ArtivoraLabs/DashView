@@ -11,74 +11,66 @@
 
 :root {
   /* ============================================================
-     Design system v2 - "ArtivoraLabs" professional palette.
-     Same variable names as before, so every downstream file that
-     references var(--color-*), var(--glass-*), var(--brand-*) keeps
-     working - only the values change, which is what carries the
-     redesign through the whole product without touching every file.
+     Design system v3 — "Aurora Noir" dark theme.
+     Deep obsidian surfaces, aurora violet → cyan brand gradient.
+     All variable names unchanged — only values carry the redesign.
      ============================================================ */
 
-  /* Surfaces - crisp, flat, layered with real shadow instead of
-     translucency + blur. */
-  --color-bg: #ffffff;
-  --color-bg-deep: #f6f7fb;
-  --color-bg-elevated: #ffffff;
-  --color-surface: #ffffff;
-  --color-surface-hover: #f8f9fc;
-  --color-surface-active: #f1f2f8;
-  --color-border: rgba(20, 24, 38, 0.09);
-  --color-border-bright: rgba(20, 24, 38, 0.16);
-  --color-text-primary: #10121c;
-  --color-text-secondary: rgba(16, 18, 28, 0.64);
-  --color-text-muted: rgba(16, 18, 28, 0.44);
-  --color-accent: #3730a3;
-  --color-accent-glow: rgba(55, 48, 163, 0.14);
-  --color-panel-muted: #f5f6fa;
+  /* Surfaces — layered dark with depth via shadow, not border weight */
+  --color-bg: #070910;
+  --color-bg-deep: #040509;
+  --color-bg-elevated: #0c0e1a;
+  --color-surface: #0e1020;
+  --color-surface-hover: #131526;
+  --color-surface-active: #181a2e;
+  --color-border: rgba(139, 92, 246, 0.13);
+  --color-border-bright: rgba(139, 92, 246, 0.24);
+  --color-text-primary: #eaedf8;
+  --color-text-secondary: rgba(234, 237, 248, 0.62);
+  --color-text-muted: rgba(234, 237, 248, 0.36);
+  --color-accent: #8b5cf6;
+  --color-accent-glow: rgba(139, 92, 246, 0.24);
+  --color-panel-muted: #090b15;
 
   /* Semantic colors */
-  --color-success: #0d9488;
-  --color-success-rgb: 13, 148, 136;
-  --color-warning: #b45309;
-  --color-warning-rgb: 180, 83, 9;
-  --color-info: #3730a3;
-  --color-info-rgb: 55, 48, 163;
-  --color-danger: #be123c;
-  --color-danger-rgb: 190, 18, 60;
-  --color-violet: #6d28d9;
-  --color-violet-rgb: 109, 40, 217;
-  --color-cyan: #0e7490;
-  --color-cyan-rgb: 14, 116, 144;
+  --color-success: #10b981;
+  --color-success-rgb: 16, 185, 129;
+  --color-warning: #f59e0b;
+  --color-warning-rgb: 245, 158, 11;
+  --color-info: #22d3ee;
+  --color-info-rgb: 34, 211, 238;
+  --color-danger: #f43f5e;
+  --color-danger-rgb: 244, 63, 94;
+  --color-violet: #a855f7;
+  --color-violet-rgb: 168, 85, 247;
+  --color-cyan: #22d3ee;
+  --color-cyan-rgb: 34, 211, 238;
 
-  /* Brand - a deliberate indigo → violet sweep used sparingly for
-     CTAs, active states and accent text, on top of an otherwise
-     neutral ink-on-white product. */
-  --brand-1: #3730a3;
-  --brand-1-rgb: 55, 48, 163;
-  --brand-2: #5b21b6;
-  --brand-2-rgb: 91, 33, 182;
-  --brand-3: #4f46e5;
-  --brand-3-rgb: 79, 70, 229;
-  --gradient-brand: linear-gradient(120deg, var(--brand-1) 0%, var(--brand-2) 100%);
-  --gradient-brand-soft: linear-gradient(120deg, rgba(var(--brand-1-rgb), 0.08) 0%, rgba(var(--brand-2-rgb), 0.06) 100%);
-  --gradient-brand-text: var(--brand-1);
-  --shadow-brand: 0 12px 28px -8px rgba(var(--brand-1-rgb), 0.45);
+  /* Brand — aurora violet → magenta → cyan sweep.
+     Used on CTAs, active states, and gradient text. */
+  --brand-1: #7c3aed;
+  --brand-1-rgb: 124, 58, 237;
+  --brand-2: #22d3ee;
+  --brand-2-rgb: 34, 211, 238;
+  --brand-3: #a855f7;
+  --brand-3-rgb: 168, 85, 247;
+  --gradient-brand: linear-gradient(135deg, #7c3aed 0%, #a855f7 48%, #22d3ee 100%);
+  --gradient-brand-soft: linear-gradient(135deg, rgba(124, 58, 237, 0.16) 0%, rgba(34, 211, 238, 0.08) 100%);
+  --gradient-brand-text: #c084fc;
+  --shadow-brand: 0 12px 36px -8px rgba(124, 58, 237, 0.58);
 
-  /* "Glass" tokens - kept for compatibility with every file that
-     still references var(--glass-*), now rendered as solid surfaces
-     with a real, restrained elevation shadow instead of frosted
-     blur. No backdrop-filter anywhere in the redesigned system. */
-  --glass-bg: #ffffff;
-  --glass-bg-strong: #ffffff;
-  --glass-blur: none;
-  --glass-blur-light: none;
-  --glass-border: 1px solid var(--color-border);
-  --glass-border-bright: 1px solid var(--color-border-bright);
-  --glass-shadow: 0 1px 2px rgba(16, 18, 28, 0.04), 0 6px 16px -4px rgba(16, 18, 28, 0.08);
-  --glass-shadow-lg: 0 2px 6px rgba(16, 18, 28, 0.05), 0 24px 48px -12px rgba(16, 18, 28, 0.16);
+  /* Glass tokens — real frosted glass on dark surfaces.
+     backdrop-filter works beautifully against dark backgrounds. */
+  --glass-bg: rgba(10, 12, 22, 0.78);
+  --glass-bg-strong: rgba(14, 16, 28, 0.92);
+  --glass-blur: blur(24px) saturate(160%);
+  --glass-blur-light: blur(14px) saturate(140%);
+  --glass-border: 1px solid rgba(139, 92, 246, 0.16);
+  --glass-border-bright: 1px solid rgba(139, 92, 246, 0.28);
+  --glass-shadow: 0 2px 12px rgba(0, 0, 0, 0.40), 0 0 0 1px rgba(124, 58, 237, 0.08);
+  --glass-shadow-lg: 0 8px 48px rgba(0, 0, 0, 0.56), 0 0 0 1px rgba(124, 58, 237, 0.12);
 
-  /* Typography - one professional grotesk throughout. The former
-     serif display token now points at Inter with tighter tracking
-     so headline elements keep their weight without breaking. */
+  /* Typography — same stack, unchanged */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-serif: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
@@ -245,12 +237,12 @@ ul, ol {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(15, 23, 42, 0.16);
+  background: rgba(139, 92, 246, 0.22);
   border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(15, 23, 42, 0.28);
+  background: rgba(139, 92, 246, 0.40);
 }
 
 /* ── Selection ─────────────────────────────────────────────── */

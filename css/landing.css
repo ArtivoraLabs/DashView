@@ -31,7 +31,7 @@
 .hero-panel-wrap::before {
   content: '';
   position: absolute; inset: -14% -10%;
-  background: radial-gradient(closest-side, rgba(14,124,102,0.16), rgba(14,124,102,0) 72%);
+  background: radial-gradient(closest-side, rgba(124,58,237,0.18), rgba(124,58,237,0) 72%);
   z-index: -1;
   filter: blur(6px);
 }
@@ -43,7 +43,7 @@
 .hero-panel-dots span:nth-child(2) { background: #e0b355; }
 .hero-panel-dots span:nth-child(3) { background: var(--signal-bright); }
 .hero-panel-title { font-family: var(--f-mono); font-size: 11px; color: var(--paper-on-navy-60); display: inline-flex; align-items: center; gap: 6px; }
-.hero-panel-title::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--signal-bright); box-shadow: 0 0 0 3px rgba(20,184,146,0.18); }
+.hero-panel-title::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--signal-bright); box-shadow: 0 0 0 3px rgba(52,211,153,0.22); }
 .hero-panel-body { padding: var(--sp-5); font-family: var(--f-mono); font-size: 12.5px; line-height: 1.9; min-height: 260px; }
 .hero-line { display: flex; gap: 10px; color: var(--paper-on-navy-60); opacity: 0; animation: line-in 0.4s var(--ease) forwards; }
 .hero-line .p { color: var(--signal-bright); flex-shrink: 0; }
@@ -128,8 +128,8 @@
   content: '';
   position: absolute; inset: 0;
   background:
-    radial-gradient(ellipse 60% 90% at 15% 0%, rgba(20,184,146,0.28), transparent 60%),
-    radial-gradient(ellipse 50% 80% at 100% 100%, rgba(184,132,46,0.16), transparent 60%);
+    radial-gradient(ellipse 60% 90% at 15% 0%, rgba(124,58,237,0.38), transparent 60%),
+    radial-gradient(ellipse 50% 80% at 100% 100%, rgba(34,211,238,0.22), transparent 60%);
   pointer-events: none;
 }
 .cta-band::after {
@@ -144,5 +144,5 @@
 .cta-band > * { position: relative; z-index: 1; }
 .cta-band h2 { color: #fff; font-size: var(--fs-3xl); margin-bottom: var(--sp-4); }
 .cta-band p { color: rgba(255,255,255,0.6); font-size: var(--fs-md); max-width: 480px; margin: 0 auto var(--sp-8); }
-.cta-band .btn-signal { padding: 15px 30px; box-shadow: 0 16px 36px -12px rgba(20,184,146,0.55); }
+.cta-band .btn-signal { padding: 15px 30px; box-shadow: 0 16px 36px -12px rgba(16,185,129,0.50); }
 @media (max-width: 720px) { .cta-band { padding: var(--sp-12) var(--sp-6); } }

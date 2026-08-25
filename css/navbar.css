@@ -25,17 +25,19 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--space-2) var(--space-3) var(--space-2) var(--space-4);
-  background: #ffffff;
+  background: rgba(10, 12, 22, 0.75);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-full);
-  box-shadow: 0 2px 4px rgba(16, 18, 28, 0.03), 0 12px 28px -14px rgba(16, 18, 28, 0.14);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(139, 92, 246, 0.08);
   gap: var(--space-3);
   transition: box-shadow var(--transition-base), border-color var(--transition-base), background var(--transition-base);
 }
 
 .navbar.scrolled .navbar-inner {
-  background: #ffffff;
-  box-shadow: 0 4px 10px rgba(16, 18, 28, 0.05), 0 18px 36px -16px rgba(16, 18, 28, 0.2);
+  background: rgba(8, 10, 18, 0.88);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.50), 0 0 0 1px rgba(139, 92, 246, 0.12);
   border-color: var(--color-border-bright);
 }
 
@@ -86,8 +88,8 @@
   align-items: center;
   gap: var(--space-2);
   padding: 5px var(--space-2-5, 0.625rem);
-  background: rgba(15, 23, 42, 0.045);
-  border: 1px solid rgba(15, 23, 42, 0.09);
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.16);
   border-radius: var(--radius-full);
   cursor: pointer;
   transition: all var(--transition-base);
@@ -95,8 +97,8 @@
 }
 
 .navbar-menu-pill:hover {
-  background: rgba(15, 23, 42, 0.08);
-  border-color: rgba(15, 23, 42, 0.16);
+  background: rgba(139, 92, 246, 0.14);
+  border-color: rgba(139, 92, 246, 0.28);
 }
 
 .navbar-menu-pill .glass-circle-btn {
@@ -141,7 +143,7 @@
   background: transparent;
   border: none;
   border-radius: var(--radius-lg);
-  color: rgba(15, 23, 42, 0.65);
+  color: rgba(234, 237, 248, 0.65);
   font-family: inherit;
   font-size: var(--text-xs);
   font-weight: 500;
@@ -153,20 +155,20 @@
 }
 
 .navbar-dropdown-link:hover {
-  background: rgba(15, 23, 42, 0.06);
-  color: rgba(15, 23, 42, 0.95);
+  background: rgba(139, 92, 246, 0.10);
+  color: rgba(234, 237, 248, 0.95);
 }
 
 .navbar-dropdown-link.active {
   color: var(--color-text-primary);
-  background: rgba(15, 23, 42, 0.05);
+  background: rgba(139, 92, 246, 0.08);
 }
 
 .navbar-dropdown-link-external {
   margin-top: var(--space-1);
-  border-top: 1px solid rgba(15, 23, 42, 0.07);
+  border-top: 1px solid rgba(139, 92, 246, 0.10);
   padding-top: var(--space-3);
-  color: rgba(15, 23, 42, 0.45);
+  color: rgba(234, 237, 248, 0.40);
 }
 
 /* ── Tags ──────────────────────────────────────────────────── */
@@ -190,16 +192,16 @@
   align-items: center;
   gap: var(--space-2);
   padding: 5px var(--space-2-5, 0.625rem);
-  background: rgba(15, 23, 42, 0.04);
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(139, 92, 246, 0.07);
+  border: 1px solid rgba(139, 92, 246, 0.14);
   border-radius: var(--radius-full);
   cursor: pointer;
   transition: all var(--transition-base);
 }
 
 .navbar-right-pill:hover {
-  background: rgba(15, 23, 42, 0.07);
-  border-color: rgba(15, 23, 42, 0.14);
+  background: rgba(139, 92, 246, 0.13);
+  border-color: rgba(139, 92, 246, 0.26);
 }
 
 a.navbar-right-pill { text-decoration: none; color: inherit; }
@@ -220,7 +222,7 @@ a.navbar-right-pill { text-decoration: none; color: inherit; }
 .navbar-right-label {
   font-size: var(--text-xs);
   font-weight: 500;
-  color: rgba(15, 23, 42, 0.6);
+  color: rgba(234, 237, 248, 0.62);
   letter-spacing: 0.01em;
   white-space: nowrap;
 }
@@ -240,7 +242,7 @@ a.navbar-right-pill { text-decoration: none; color: inherit; }
   width: 5px;
   height: 5px;
   border-radius: 1px;
-  background: rgba(15, 23, 42, 0.7);
+  background: rgba(234, 237, 248, 0.55);
 }
 
 /* ── Scroll progress bar along top of navbar ─────────────────── */
@@ -250,7 +252,7 @@ a.navbar-right-pill { text-decoration: none; color: inherit; }
   left: var(--space-4);
   right: var(--space-4);
   height: 1px;
-  background: rgba(15, 23, 42, 0.06);
+  background: rgba(139, 92, 246, 0.08);
   border-radius: var(--radius-full);
   overflow: hidden;
 }

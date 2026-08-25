@@ -23,7 +23,7 @@ body.dash-body { background: var(--paper-alt); }
 
 /* ── Main column ───────────────────────────────────────────────────────── */
 .dash-main { min-width: 0; }
-.dash-topbar { position: sticky; top: 0; z-index: 20; background: var(--paper); border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; padding: var(--sp-3) var(--sp-6); gap: var(--sp-4); box-shadow: 0 1px 0 rgba(18,20,28,0.02), var(--shadow-sm); }
+.dash-topbar { position: sticky; top: 0; z-index: 20; background: var(--paper); border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; padding: var(--sp-3) var(--sp-6); gap: var(--sp-4); box-shadow: 0 1px 0 rgba(0,0,0,0.25), var(--shadow-sm); }
 .dash-search { display: flex; align-items: center; gap: 9px; background: var(--paper-soft); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 9px 14px; width: 340px; color: var(--ink-30); }
 .dash-search input { background: none; border: none; outline: none; font-size: var(--fs-sm); width: 100%; color: var(--ink); }
 .dash-search kbd { font-family: var(--f-mono); font-size: 10px; border: 1px solid var(--line-strong); border-radius: 4px; padding: 1px 5px; color: var(--ink-30); }

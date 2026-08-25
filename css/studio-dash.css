@@ -14,11 +14,11 @@ body.studio-body { background: var(--paper-alt); min-height: 100vh; }
    btn-outline…) is built on these same custom properties, so overriding
    them here re-themes the whole page without duplicating component CSS. ── */
 html[data-theme="dark"] {
-  --ink: #eef0f4; --ink-70: rgba(238,240,244,0.75); --ink-50: rgba(238,240,244,0.56); --ink-30: rgba(238,240,244,0.36);
-  --paper: #171b26; --paper-soft: #1d222f; --paper-alt: #0d0f16; --line: rgba(255,255,255,0.09); --line-strong: rgba(255,255,255,0.18);
-  --signal-10: rgba(20,184,146,0.14); --signal-20: rgba(20,184,146,0.24); --beacon-10: rgba(184,132,46,0.18); --danger-10: rgba(196,56,75,0.18);
+  --ink: #eaedf8; --ink-70: rgba(234,237,248,0.75); --ink-50: rgba(234,237,248,0.56); --ink-30: rgba(234,237,248,0.36);
+  --paper: #0e1020; --paper-soft: #131526; --paper-alt: #07090f; --line: rgba(139,92,246,0.13); --line-strong: rgba(139,92,246,0.23);
+  --signal-10: rgba(16,185,129,0.14); --signal-20: rgba(16,185,129,0.24); --beacon-10: rgba(245,158,11,0.14); --danger-10: rgba(244,63,94,0.14);
 }
-html[data-theme="dark"] .studio-topbar { background: #0a0d14; }
+html[data-theme="dark"] .studio-topbar { background: #04050c; }
 html[data-theme="dark"] .studio-dropzone { background: var(--paper); }
 html[data-theme="dark"] .chart-card, html[data-theme="dark"] .widget-card { background: var(--paper); }
 
@@ -165,7 +165,7 @@ html[data-theme="dark"] .chart-card, html[data-theme="dark"] .widget-card { back
 
 .drill-breadcrumb { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12.5px; margin-bottom: var(--sp-3); }
 .drill-crumb { display: inline-flex; align-items: center; gap: 6px; background: var(--signal-10); color: var(--signal); border-radius: var(--r-full); padding: 5px 6px 5px 12px; font-weight: 600; }
-.drill-crumb button { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(14,124,102,0.18); }
+.drill-crumb button { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(16,185,129,0.18); }
 .drill-crumb-sep { color: var(--ink-30); }
 
 /* ── Tabs ──────────────────────────────────────────────────────────────── */
@@ -230,7 +230,7 @@ table.data-grid { width: 100%; border-collapse: collapse; font-size: var(--fs-sm
 .data-grid td.editing { padding: 3px 6px; }
 .data-grid td.editing input { width: 100%; padding: 5px 6px; border: 1.5px solid var(--signal); border-radius: 4px; font: inherit; }
 .data-grid td.num-cell { text-align: right; font-family: var(--f-mono); }
-.data-grid td.calc-cell { background: rgba(184,132,46,0.05); }
+.data-grid td.calc-cell { background: rgba(245,158,11,0.06); }
 .data-grid .row-check-cell, .data-grid th.row-check-th { width: 34px; text-align: center; padding: 8px; }
 .databar-track { position: relative; }
 .databar-fill { position: absolute; left: 0; top: 3px; bottom: 3px; background: var(--signal-20); border-radius: 3px; z-index: 0; }

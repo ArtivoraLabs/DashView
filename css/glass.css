@@ -37,7 +37,7 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  box-shadow: 0 1px 2px rgba(16, 18, 28, 0.03);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
   position: relative;
   overflow: hidden;
   transition: border-color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-base);
@@ -47,7 +47,7 @@
 
 .glass-card:hover {
   border-color: rgba(var(--brand-1-rgb), 0.28);
-  box-shadow: 0 12px 28px -10px rgba(16, 18, 28, 0.16);
+  box-shadow: 0 12px 28px -10px rgba(124, 58, 237, 0.22);
   transform: translateY(-2px);
 }
 
@@ -67,7 +67,7 @@
   cursor: pointer;
   transition: all var(--transition-base);
   white-space: nowrap;
-  box-shadow: 0 1px 2px rgba(16, 18, 28, 0.04);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.30);
 }
 
 .glass-btn:hover {
@@ -75,7 +75,7 @@
   border-color: rgba(var(--brand-1-rgb), 0.35);
   color: var(--brand-1);
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px -6px rgba(16, 18, 28, 0.18);
+  box-shadow: 0 6px 16px -6px rgba(124, 58, 237, 0.30);
 }
 
 .glass-btn:active {
@@ -133,13 +133,13 @@
   color: var(--color-text-primary);
   font-family: var(--font-sans);
   transition: all var(--transition-base);
-  box-shadow: 0 1px 2px rgba(16, 18, 28, 0.03), 0 10px 26px -14px rgba(16, 18, 28, 0.18);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.28), 0 10px 26px -14px rgba(0, 0, 0, 0.38);
 }
 
 .glass-input:focus-within {
   outline: none;
   border-color: var(--brand-1);
-  box-shadow: 0 0 0 3px rgba(var(--brand-1-rgb), 0.14), 0 10px 26px -14px rgba(16, 18, 28, 0.18);
+  box-shadow: 0 0 0 3px rgba(var(--brand-1-rgb), 0.14), 0 10px 26px -14px rgba(0, 0, 0, 0.40);
 }
 
 /* ── Circle button ─────────────────────────────────────────── */
@@ -169,7 +169,7 @@
 
 /* ── Glow / depth utilities ────────────────────────────────── */
 .glass-glow {
-  box-shadow: 0 0 0 1px var(--color-border), 0 20px 44px -18px rgba(16, 18, 28, 0.22);
+  box-shadow: 0 0 0 1px var(--color-border), 0 20px 44px -18px rgba(0, 0, 0, 0.50);
 }
 
 .glass-depth-1 { background: var(--color-panel-muted); }
@@ -356,7 +356,7 @@
 .auth-tab.active {
   background: var(--color-surface);
   color: var(--color-text-primary);
-  box-shadow: 0 2px 8px rgba(16, 18, 28, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
 .auth-guest-link {
