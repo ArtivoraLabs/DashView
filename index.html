@@ -1,275 +1,469 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ArtivoraLabs — Autonomous engineering, on signal</title>
-<meta name="description" content="ArtivoraLabs is an autonomous coding agent that plans, writes, tests and ships code straight into your GitHub repos — with a live dashboard tracking every change." />
-<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-<link rel="stylesheet" href="css/base.css" />
-<link rel="stylesheet" href="css/components.css" />
-<link rel="stylesheet" href="css/landing.css" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ArtivoraLabs — Autonomous Engineering Platform</title>
+<meta name="description" content="ArtivoraLabs plans, writes, tests and ships code into your GitHub repos with a live analytics dashboard."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#05060e;--surface:#090b18;--elevated:#0e1126;--card:#121428;
+  --border:rgba(139,92,246,.12);--border-b:rgba(139,92,246,.26);
+  --accent:#8b5cf6;--accent2:#22d3ee;--accent3:#a855f7;
+  --text:#eaedf8;--text2:rgba(234,237,248,.65);--text3:rgba(234,237,248,.38);
+  --success:#10b981;--warn:#f59e0b;--danger:#f43f5e;
+  --grad:linear-gradient(135deg,#7c3aed 0%,#a855f7 45%,#22d3ee 100%);
+  --grad-soft:linear-gradient(135deg,rgba(124,58,237,.15) 0%,rgba(34,211,238,.06) 100%);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.3);
+  --shadow-md:0 8px 30px -8px rgba(0,0,0,.5);
+  --shadow-lg:0 24px 64px -16px rgba(0,0,0,.65);
+  --shadow-violet:0 20px 60px -15px rgba(124,58,237,.45);
+  --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:18px;--r-full:9999px;
+  --f-display:'Space Grotesk',sans-serif;
+  --f-body:'Inter',sans-serif;
+  --f-mono:'JetBrains Mono',monospace;
+  --nav-h:64px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--f-body);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;background:none;font-family:inherit}
+img,svg{display:block;max-width:100%}
+
+/* ── Typography ── */
+.t-display{font-family:var(--f-display);font-weight:700;letter-spacing:-.03em;line-height:1.05}
+.t-mono{font-family:var(--f-mono)}
+.grad-text{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* ── Container ── */
+.container{width:100%;max-width:1140px;margin:0 auto;padding:0 24px}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--r-full);font-size:.875rem;font-weight:500;transition:.2s cubic-bezier(.16,1,.3,1);white-space:nowrap}
+.btn-primary{background:var(--grad);color:#fff;box-shadow:var(--shadow-violet)}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 24px 70px -12px rgba(124,58,237,.55)}
+.btn-outline{border:1px solid var(--border-b);color:var(--text2);background:rgba(139,92,246,.06)}
+.btn-outline:hover{border-color:var(--accent);color:var(--text);background:rgba(139,92,246,.1)}
+.btn-lg{padding:13px 28px;font-size:.9375rem}
+.btn-sm{padding:7px 16px;font-size:.8125rem}
+
+/* ── Eyebrow ── */
+.eyebrow{font-size:.75rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);opacity:.9}
+
+/* ══════════ NAV ══════════ */
+.nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);z-index:200;display:flex;align-items:center;transition:.3s}
+.nav.scrolled{background:rgba(5,6,14,.88);backdrop-filter:blur(20px) saturate(150%);border-bottom:1px solid var(--border)}
+.nav-inner{display:flex;align-items:center;gap:0;width:100%;max-width:1140px;margin:0 auto;padding:0 24px}
+.nav-brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:600;font-size:1.0625rem;color:var(--text);flex-shrink:0}
+.nav-logo-ring{width:32px;height:32px;border-radius:8px;background:var(--grad);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(124,58,237,.4)}
+.nav-links{display:flex;align-items:center;gap:4px;margin:0 auto;padding:0 24px}
+.nav-links a{padding:6px 14px;border-radius:var(--r-full);font-size:.875rem;color:var(--text2);transition:.15s}
+.nav-links a:hover{color:var(--text);background:rgba(139,92,246,.08)}
+.nav-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
+
+/* ══════════ HERO ══════════ */
+.hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;padding:var(--nav-h) 0 80px}
+.hero-canvas{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.55}
+.orb-1{width:700px;height:700px;background:radial-gradient(ellipse,#4c1d95,transparent 70%);top:-200px;left:-200px;animation:drift1 18s ease-in-out infinite}
+.orb-2{width:600px;height:600px;background:radial-gradient(ellipse,#0e4f7c,transparent 70%);top:10%;right:-150px;animation:drift2 22s ease-in-out infinite}
+.orb-3{width:500px;height:500px;background:radial-gradient(ellipse,#5b21b6,transparent 70%);bottom:-100px;left:30%;animation:drift3 16s ease-in-out infinite}
+@keyframes drift1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,40px) scale(1.05)}}
+@keyframes drift2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-50px,60px) scale(1.08)}}
+@keyframes drift3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-50px) scale(1.04)}}
+.grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(139,92,246,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(139,92,246,.04) 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 30%,transparent 100%)}
+
+.hero-inner{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;width:100%;max-width:1140px;margin:0 auto;padding:0 24px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:5px 14px 5px 8px;border-radius:var(--r-full);border:1px solid var(--border-b);background:rgba(139,92,246,.07);margin-bottom:28px}
+.hero-badge-dot{width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 8px var(--success);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.hero-badge span{font-size:.75rem;color:var(--text2);font-weight:500}
+.hero-h1{font-family:var(--f-display);font-size:clamp(2.4rem,4.5vw,3.75rem);font-weight:700;letter-spacing:-.04em;line-height:1.06;margin-bottom:24px}
+.hero-h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:1.0625rem;color:var(--text2);line-height:1.65;margin-bottom:36px;max-width:460px}
+.hero-cta{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:48px}
+.hero-social{display:flex;align-items:center;gap:20px}
+.hero-social-item{display:flex;align-items:center;gap:6px;font-size:.8125rem;color:var(--text3)}
+.hero-social-item strong{color:var(--text2)}
+
+/* Terminal panel */
+.hero-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--shadow-lg),0 0 0 1px rgba(139,92,246,.06)}
+.hero-panel-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--elevated)}
+.hp-dots{display:flex;gap:6px}
+.hp-dots span{width:11px;height:11px;border-radius:50%}
+.hp-dots span:nth-child(1){background:#f43f5e}
+.hp-dots span:nth-child(2){background:#f59e0b}
+.hp-dots span:nth-child(3){background:#10b981}
+.hp-title{font-family:var(--f-mono);font-size:.75rem;color:var(--text3);margin-left:4px}
+.hero-panel-body{padding:20px;font-family:var(--f-mono);font-size:.8rem;line-height:1.8;min-height:300px}
+.t-line{display:flex;align-items:flex-start;gap:8px;margin-bottom:4px;opacity:0;transform:translateY(4px)}
+.t-line.show{opacity:1;transform:none;transition:.4s cubic-bezier(.16,1,.3,1)}
+.t-prompt{color:var(--accent);flex-shrink:0}
+.t-cmd{color:var(--text)}
+.t-out{color:var(--text3);margin-left:16px}
+.t-ok{color:var(--success)}
+.t-warn{color:var(--warn)}
+.t-cursor{display:inline-block;width:8px;height:14px;background:var(--accent);animation:blink .9s step-end infinite;vertical-align:-2px;margin-left:2px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ══════════ LOGOS ══════════ */
+.logos{padding:40px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.logos-label{font-size:.75rem;color:var(--text3);text-align:center;letter-spacing:.08em;text-transform:uppercase;margin-bottom:24px}
+.logos-row{display:flex;justify-content:center;align-items:center;gap:40px;flex-wrap:wrap}
+.logos-row span{font-family:var(--f-display);font-size:.9375rem;font-weight:600;color:var(--text3);letter-spacing:-.01em;transition:.15s}
+.logos-row span:hover{color:var(--text2)}
+
+/* ══════════ STATS ══════════ */
+.stats{padding:80px 0}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden}
+.stat-item{padding:36px 32px;background:var(--surface);text-align:center}
+.stat-num{font-family:var(--f-display);font-size:2.5rem;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;margin-bottom:8px}
+.stat-label{font-size:.875rem;color:var(--text3)}
+
+/* ══════════ FEATURES ══════════ */
+.section{padding:100px 0}
+.section-head{text-align:center;max-width:600px;margin:0 auto 64px;display:flex;flex-direction:column;gap:16px;align-items:center}
+.section-head h2{font-family:var(--f-display);font-size:clamp(1.75rem,3vw,2.5rem);font-weight:700;letter-spacing:-.03em;line-height:1.15}
+.section-head p{font-size:1rem;color:var(--text2);line-height:1.65}
+
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden}
+.feat-card{padding:36px;background:var(--surface);transition:.2s}
+.feat-card:hover{background:var(--elevated);transform:translateY(-2px)}
+.feat-icon{width:44px;height:44px;border-radius:var(--r-md);background:rgba(139,92,246,.12);display:flex;align-items:center;justify-content:center;margin-bottom:20px;color:var(--accent)}
+.feat-card h3{font-family:var(--f-display);font-size:1.0625rem;font-weight:600;margin-bottom:10px;letter-spacing:-.02em}
+.feat-card p{font-size:.875rem;color:var(--text2);line-height:1.65}
+
+/* ══════════ TOUR ══════════ */
+.tour-section{padding:100px 0;background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.tour-tabs{display:flex;gap:4px;padding:5px;background:var(--elevated);border:1px solid var(--border);border-radius:var(--r-full);margin-bottom:40px;width:fit-content;margin:0 auto 40px}
+.tour-tab{padding:8px 22px;border-radius:var(--r-full);font-size:.875rem;font-weight:500;color:var(--text3);transition:.2s;display:flex;align-items:center;gap:8px}
+.tour-tab .num{font-family:var(--f-mono);font-size:.7rem;color:var(--text3)}
+.tour-tab.active,.tour-tab:hover{background:rgba(139,92,246,.15);color:var(--text)}
+.tour-tab.active{background:rgba(139,92,246,.2);color:var(--accent)}
+.tour-panel{display:none;animation:fadeIn .3s ease}
+.tour-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.tour-frame{background:var(--card);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--shadow-lg)}
+.tour-frame-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--elevated)}
+.tour-frame-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);opacity:.4}
+.tour-frame-body{padding:24px}
+
+/* KPI cards in tour */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px}
+.kpi-label{font-size:.75rem;color:var(--text3);margin-bottom:8px}
+.kpi-val{font-family:var(--f-display);font-size:1.625rem;font-weight:700;margin-bottom:4px}
+.kpi-delta{font-size:.75rem;display:flex;align-items:center;gap:4px}
+.kpi-delta.up{color:var(--success)}.kpi-delta.down{color:var(--danger)}
+
+/* ══════════ CTA ══════════ */
+.cta-section{padding:100px 0}
+.cta-band{border-radius:var(--r-xl);padding:64px 48px;text-align:center;background:var(--grad-soft);border:1px solid var(--border-b);position:relative;overflow:hidden}
+.cta-band::before{content:'';position:absolute;inset:-1px;border-radius:inherit;background:var(--grad);opacity:.08;pointer-events:none}
+.cta-band h2{font-family:var(--f-display);font-size:clamp(1.75rem,3vw,2.5rem);font-weight:700;letter-spacing:-.03em;margin-bottom:16px}
+.cta-band p{font-size:1rem;color:var(--text2);margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto}
+.cta-email{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.cta-input{flex:1;max-width:300px;padding:12px 18px;border-radius:var(--r-full);border:1px solid var(--border-b);background:var(--surface);color:var(--text);font-size:.9375rem;outline:none;transition:.2s}
+.cta-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(139,92,246,.15)}
+.cta-input::placeholder{color:var(--text3)}
+
+/* ══════════ FOOTER ══════════ */
+.footer{padding:64px 0 32px;border-top:1px solid var(--border)}
+.footer-grid{display:grid;grid-template-columns:1.5fr repeat(3,1fr);gap:48px;margin-bottom:48px}
+.footer-brand p{font-size:.875rem;color:var(--text3);line-height:1.65;margin-top:14px;max-width:240px}
+.footer-col h5{font-family:var(--f-display);font-size:.8125rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:16px}
+.footer-col a,.footer-col button{display:block;font-size:.875rem;color:var(--text2);margin-bottom:10px;transition:.15s;background:none;border:none;text-align:left;padding:0;cursor:pointer}
+.footer-col a:hover,.footer-col button:hover{color:var(--accent)}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:24px;border-top:1px solid var(--border);font-size:.8125rem;color:var(--text3)}
+.footer-social{display:flex;gap:10px;margin-top:16px}
+.footer-social a{width:34px;height:34px;border-radius:var(--r-sm);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text3);transition:.15s}
+.footer-social a:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ══════════ MODAL ══════════ */
+.modal-overlay{position:fixed;inset:0;background:rgba(5,6,14,.8);backdrop-filter:blur(12px);z-index:400;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-card{background:var(--elevated);border:1px solid var(--border-b);border-radius:var(--r-xl);padding:40px;max-width:420px;width:calc(100% - 32px);position:relative;box-shadow:var(--shadow-lg);transform:translateY(16px);transition:.3s cubic-bezier(.16,1,.3,1)}
+.modal-overlay.open .modal-card{transform:translateY(0)}
+.modal-close{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;color:var(--text3);transition:.15s}
+.modal-close:hover{background:rgba(139,92,246,.1);color:var(--text)}
+.modal-card h3{font-family:var(--f-display);font-size:1.375rem;font-weight:700;letter-spacing:-.02em;margin:12px 0 8px}
+.modal-card p{font-size:.9rem;color:var(--text2);line-height:1.6;margin-bottom:24px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:.8125rem;color:var(--text2);margin-bottom:6px;font-weight:500}
+.field input{width:100%;padding:10px 14px;border-radius:var(--r-md);border:1px solid var(--border-b);background:var(--surface);color:var(--text);font-size:.9375rem;outline:none;transition:.2s;font-family:inherit}
+.field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(139,92,246,.15)}
+.btn-block{width:100%;justify-content:center}
+.modal-success{text-align:center;padding:20px 0;display:none}
+.modal-success svg{width:48px;height:48px;color:var(--success);margin:0 auto 16px}
+.modal-success h3{font-family:var(--f-display);font-size:1.25rem;font-weight:600;margin-bottom:8px}
+.modal-success p{font-size:.9rem;color:var(--text2)}
+
+/* ══════════ TOAST ══════════ */
+.toast-stack{position:fixed;bottom:24px;right:24px;z-index:500;display:flex;flex-direction:column;gap:8px}
+.toast{padding:12px 18px;border-radius:var(--r-md);background:var(--elevated);border:1px solid var(--border-b);font-size:.875rem;color:var(--text);box-shadow:var(--shadow-md);animation:slideIn .3s cubic-bezier(.16,1,.3,1);max-width:320px}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+
+/* ══════════ RESPONSIVE ══════════ */
+@media(max-width:900px){
+  .hero-inner{grid-template-columns:1fr}
+  .hero-panel{display:none}
+  .feat-grid{grid-template-columns:1fr 1fr}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .nav-links{display:none}
+}
+@media(max-width:600px){
+  .feat-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .footer-grid{grid-template-columns:1fr}
+  .tour-tabs{flex-wrap:wrap;border-radius:var(--r-xl);width:100%}
+}
+</style>
 </head>
 <body>
 
-<a href="#main" class="visually-hidden">Skip to content</a>
-
-<!-- ══════════════════════ NAV ══════════════════════ -->
-<header class="nav">
-  <div class="container nav-inner">
+<!-- ══════════ NAV ══════════ -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
     <a href="index.html" class="nav-brand">
-      <svg class="nav-brand-mark" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#0e7c66" stroke-width="1.6"/><path d="M7 13l3-5 2 3 2-4 3 6" stroke="#0e7c66" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="nav-logo-ring">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M7 13l3-5 2 3 2-4 3 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
       ArtivoraLabs
     </a>
-    <nav class="nav-links" id="navLinks">
+    <nav class="nav-links">
       <a href="#features">Capabilities</a>
-      <a href="#tour">Product tour</a>
+      <a href="#tour">Product Tour</a>
       <a href="dashboard.html">Dashboard</a>
-      <a href="data-studio.html">Data Studio</a>
       <a href="ai.html">AI Assistant</a>
     </nav>
     <div class="nav-actions">
       <button class="btn btn-outline btn-sm" id="loginBtn">Sign in</button>
-      <button class="btn btn-primary btn-sm" id="waitlistBtn">Request access</button>
-      <button class="nav-menu-btn" id="navMenuBtn" aria-label="Toggle menu" aria-expanded="false">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
-      </button>
+      <button class="btn btn-primary btn-sm" id="waitlistBtn">Get access →</button>
     </div>
   </div>
 </header>
 
-<main id="main">
-
-  <!-- ══════════════════════ HERO ══════════════════════ -->
-  <section class="hero">
-    <svg class="hero-trace-bg" viewBox="0 0 1200 90" preserveAspectRatio="none">
-      <path class="signal-trace-path" d="M0 45 L120 45 L150 15 L180 75 L210 45 L1200 45" fill="none" stroke="#0e7c66" stroke-width="1" stroke-dasharray="5 8" opacity="0.25"/>
-    </svg>
-    <div class="container hero-grid">
-      <div class="reveal in">
-        <p class="eyebrow hero-eyebrow">Now onboarding design partners</p>
-        <h1>Autonomous engineering,<br /><em>on signal.</em></h1>
-        <p class="hero-sub">Describe the change in plain English. ArtivoraLabs plans it, writes the code, runs the tests, and opens a pull request — while you track every step on a live dashboard.</p>
-        <div class="hero-cta">
-          <button class="btn btn-signal btn-lg" id="heroWaitlistBtn">Request early access</button>
-          <a href="#tour" class="btn btn-outline btn-lg">Watch it work</a>
-        </div>
-        <div class="hero-proof">
-          <span><strong id="statRepos">0</strong> repos connected</span>
-          <span><strong id="statPrs">0</strong> PRs shipped weekly</span>
-          <span><strong id="statUptime">0.0</strong>% uptime</span>
-        </div>
+<!-- ══════════ HERO ══════════ -->
+<section class="hero">
+  <div class="hero-canvas">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="grid-bg"></div>
+  </div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        <span>Now onboarding design partners — limited spots</span>
       </div>
-
-      <div class="hero-panel-wrap reveal in">
-        <div class="hero-panel">
-          <div class="hero-panel-bar">
-            <div class="hero-panel-dots"><span></span><span></span><span></span></div>
-            <span class="hero-panel-title">agent · live session</span>
-          </div>
-          <div class="hero-panel-body" id="heroTerminal"></div>
-        </div>
+      <h1 class="hero-h1">Autonomous<br/>engineering,<br/><em>on signal.</em></h1>
+      <p class="hero-sub">Describe what you need in plain English. ArtivoraLabs plans it, writes the code, runs your tests, opens a PR — while a live dashboard tracks every move.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary btn-lg" id="heroWaitlistBtn">Request early access →</button>
+        <a href="#tour" class="btn btn-outline btn-lg">See it work</a>
+      </div>
+      <div class="hero-social">
+        <span class="hero-social-item"><strong id="statRepos">0</strong> repos connected</span>
+        <span class="hero-social-item"><strong id="statPRs">0</strong> PRs shipped</span>
+        <span class="hero-social-item"><strong>99.97%</strong> uptime</span>
       </div>
     </div>
-  </section>
+    <div class="hero-panel">
+      <div class="hero-panel-bar">
+        <div class="hp-dots"><span></span><span></span><span></span></div>
+        <span class="hp-title">agent · live session · acme-corp/api</span>
+      </div>
+      <div class="hero-panel-body" id="terminal"></div>
+    </div>
+  </div>
+</section>
 
-  <!-- ══════════════════════ LOGO STRIP ══════════════════════ -->
-  <section class="logo-strip">
-    <div class="container">
-      <p class="logo-strip-label">Trusted by engineering teams at</p>
-      <div class="logo-strip-row" aria-label="Companies using ArtivoraLabs">
-        <span>Vertica</span>
-        <span>Halyard</span>
-        <span>Corsair Labs</span>
-        <span>Fieldstone</span>
-        <span>Amberline</span>
-        <span>Tessera</span>
+<!-- ══════════ LOGOS ══════════ -->
+<section class="logos">
+  <div class="container">
+    <p class="logos-label">Trusted by engineering teams at</p>
+    <div class="logos-row">
+      <span>Vertica</span><span>Halyard</span><span>Corsair Labs</span>
+      <span>Fieldstone</span><span>Amberline</span><span>Tessera</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ STATS ══════════ -->
+<section class="stats">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item"><p class="stat-num" data-target="12400">0</p><p class="stat-label">Pull requests merged</p></div>
+      <div class="stat-item"><p class="stat-num" data-target="340">0</p><p class="stat-label">Engineering teams</p></div>
+      <div class="stat-item"><p class="stat-num">99.97%</p><p class="stat-label">Pipeline uptime</p></div>
+      <div class="stat-item"><p class="stat-num" data-target="4200000">0</p><p class="stat-label">Lines reviewed / mo</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ FEATURES ══════════ -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Capabilities</p>
+      <h2>Everything a senior engineer would do, automated.</h2>
+      <p>ArtivoraLabs reasons about your repo, runs your tests, and stops to ask when something's ambiguous — just like a teammate.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="feat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg></div>
+        <h3>Plans before it codes</h3>
+        <p>Breaks tasks into a reviewable step-by-step plan before touching a single file. You approve, it executes.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 18l-6-6 6-6M15 6l6 6-6 6"/></svg></div>
+        <h3>Ships real pull requests</h3>
+        <p>Opens PRs with commit-level history — not a single squashed diff you can't review or reason about.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <h3>Runs your test suite</h3>
+        <p>Executes existing tests and writes new ones for every feature it adds. Green CI before a PR opens.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 20V10M12 20V4M20 20v-7"/></svg></div>
+        <h3>Live observability</h3>
+        <p>Every action streams to a dashboard your whole team can watch and audit in real-time.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73M12 2c5.52 0 10 4.58 10 10.25 0 4.53-2.87 8.37-6.84 9.73"/><path d="M12 2v20"/></svg></div>
+        <h3>Repo-aware context</h3>
+        <p>Reads your existing patterns and conventions instead of generating generic boilerplate.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <h3>Human approval gates</h3>
+        <p>Nothing merges to your default branch without a reviewer signing off. You stay in control.</p>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- ══════════════════════ STAT STRIP ══════════════════════ -->
-  <section class="stat-strip">
-    <div class="container stat-grid">
-      <div><p class="stat-num"><span>12k+</span></p><p class="stat-label">Pull requests merged</p></div>
-      <div><p class="stat-num">340</p><p class="stat-label">Engineering teams</p></div>
-      <div><p class="stat-num">99.97%</p><p class="stat-label">Pipeline uptime</p></div>
-      <div><p class="stat-num">4.2m</p><p class="stat-label">Lines reviewed / mo</p></div>
+<!-- ══════════ TOUR ══════════ -->
+<section class="tour-section" id="tour">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">See it live</p>
+      <h2>One task, start to finish.</h2>
+      <p>Follow a single request through planning, execution, GitHub, and the dashboard that tracks it all.</p>
     </div>
-  </section>
-
-  <!-- ══════════════════════ CAPABILITIES ══════════════════════ -->
-  <section class="section" id="features">
-    <div class="container">
-      <div class="section-head reveal">
-        <p class="eyebrow">Capabilities</p>
-        <h2>Everything a senior engineer would check, automated.</h2>
-        <p>ArtivoraLabs doesn't just generate code — it reasons about your repo, runs your test suite, and stops to ask when something's ambiguous.</p>
-      </div>
-      <div class="feature-grid reveal">
-        <div class="feature-card">
-          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg></div>
-          <h3>Plans before it codes</h3>
-          <p>Breaks a task into a reviewable step-by-step plan before touching a single file.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 18l-6-6 6-6M15 6l6 6-6 6"/></svg></div>
-          <h3>Ships real pull requests</h3>
-          <p>Opens PRs with commit-level history, not a single squashed diff you can't review.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 6 9 17l-5-5"/></svg></div>
-          <h3>Runs your test suite</h3>
-          <p>Executes existing tests and writes new ones for the code it adds — every time.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div>
-          <h3>Live observability</h3>
-          <p>Every action streams to a dashboard your whole team can watch and audit.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73M12 2c5.52 0 10 4.58 10 10.25 0 4.53-2.87 8.37-6.84 9.73"/><path d="M12 2v20"/></svg></div>
-          <h3>Repo-aware context</h3>
-          <p>Reads your existing patterns and conventions instead of writing generic boilerplate.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
-          <h3>Human approval gates</h3>
-          <p>Nothing merges to your default branch without a reviewer signing off.</p>
-        </div>
-      </div>
+    <div class="tour-tabs" role="tablist">
+      <button class="tour-tab active" data-tab="plan">Agent plan</button>
+      <button class="tour-tab" data-tab="dash">Dashboard</button>
+      <button class="tour-tab" data-tab="ai">AI Chat</button>
     </div>
-  </section>
-
-  <!-- ══════════════════════ PRODUCT TOUR (single, tabbed) ══════════════════════ -->
-  <section class="section" id="tour" style="background:var(--paper-soft);">
-    <div class="container">
-      <div class="section-head reveal">
-        <p class="eyebrow">See it live</p>
-        <h2>One task, start to finish.</h2>
-        <p>Follow a single request through planning, the workspace, GitHub, and the dashboard that tracks it all.</p>
-      </div>
-
-      <div class="reveal">
-        <div class="tour-tabs" role="tablist">
-          <button class="tour-tab active" data-tab="plan" role="tab" aria-selected="true"><span class="num">01</span> Agent plan</button>
-          <button class="tour-tab" data-tab="workspace" role="tab" aria-selected="false"><span class="num">02</span> Workspace</button>
-          <button class="tour-tab" data-tab="github" role="tab" aria-selected="false"><span class="num">03</span> GitHub</button>
-          <button class="tour-tab" data-tab="dashboard" role="tab" aria-selected="false"><span class="num">04</span> Dashboard</button>
+    <div class="tour-panel active" data-panel="plan">
+      <div class="tour-frame">
+        <div class="tour-frame-bar">
+          <span class="tour-frame-dot"></span>
+          <span style="font-family:var(--f-mono);font-size:.75rem;color:var(--text3);margin-left:8px">agent · planning "Add rate limiting to the API"</span>
         </div>
-
-        <!-- Panel 1: Agent plan -->
-        <div class="tour-panel active" data-panel="plan">
-          <div class="tour-layout">
+        <div class="tour-frame-body">
+          <div style="display:grid;grid-template-columns:1fr 1.2fr;gap:24px">
             <div>
-              <p class="tag" style="margin-bottom:var(--sp-4);">"Add rate limiting to the API"</p>
-              <div class="tour-steps" id="tourSteps"></div>
+              <p style="font-size:.75rem;color:var(--text3);margin-bottom:14px">EXECUTION PLAN · 6 steps</p>
+              <div id="planSteps"></div>
             </div>
-            <div class="tour-visual">
-              <div class="tv-bar"><span class="dot"></span> reasoning trace</div>
-              <div class="tv-body" id="tourPlanTrace"></div>
+            <div style="background:var(--surface);border-radius:var(--r-md);border:1px solid var(--border);padding:16px;font-family:var(--f-mono);font-size:.78rem;line-height:1.9;color:var(--text3)">
+              <p style="color:var(--accent);margin-bottom:8px">▸ reasoning trace</p>
+              <p>Scanning middleware directory...</p>
+              <p style="color:var(--text2)">Found: auth.ts, logger.ts, index.ts</p>
+              <p>Checking existing rate limit patterns...</p>
+              <p style="color:var(--success)">No conflicts detected ✓</p>
+              <p>Selecting algorithm: sliding window</p>
+              <p style="color:var(--warn)">Considering Redis vs in-memory...</p>
+              <p style="color:var(--text2)">Decision: Redis (cluster config found)</p>
+              <p style="color:var(--success)">Plan ready. Awaiting approval.</p>
             </div>
-          </div>
-        </div>
-
-        <!-- Panel 2: Workspace -->
-        <div class="tour-panel" data-panel="workspace">
-          <div class="tour-layout" style="grid-template-columns: 1fr 1.3fr;">
-            <div class="tour-visual">
-              <div class="tv-bar"><span class="dot"></span> src/middleware/</div>
-              <div class="tv-body">
-                <div style="color:var(--paper-on-navy-40)">├─ auth.ts</div>
-                <div style="color:var(--signal-bright)">├─ rateLimiter.ts <span class="tag" style="margin-left:6px;padding:1px 6px;">new</span></div>
-                <div style="color:var(--paper-on-navy-40)">├─ logger.ts</div>
-                <div style="color:var(--beacon)">└─ index.ts <span class="tag" style="margin-left:6px;padding:1px 6px;">modified</span></div>
-              </div>
-            </div>
-            <div class="tour-visual">
-              <div class="tv-bar"><span class="dot"></span> rateLimiter.ts</div>
-              <div class="tv-body" id="tourCode"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Panel 3: GitHub -->
-        <div class="tour-panel" data-panel="github">
-          <div class="tour-layout" style="grid-template-columns: 1fr 1fr;">
-            <div class="tour-visual">
-              <div class="tv-bar"><span class="dot"></span> acme/platform-api · branches</div>
-              <div style="padding: var(--sp-3) var(--sp-5);">
-                <div class="gh-row"><div class="gh-branch"><span style="color:var(--paper-on-navy-40);font-family:var(--f-mono);font-size:12px;">main</span></div><span style="font-family:var(--f-mono);font-size:11px;color:var(--paper-on-navy-40);">312 commits</span></div>
-                <div class="gh-row"><div class="gh-branch"><span style="color:var(--signal-bright);font-family:var(--f-mono);font-size:12px;">feat/rate-limit</span></div><span class="gh-badge">ahead 6</span></div>
-                <div class="gh-row"><div class="gh-branch"><span style="color:var(--paper-on-navy-40);font-family:var(--f-mono);font-size:12px;">fix/pagination</span></div><span style="font-family:var(--f-mono);font-size:11px;color:var(--paper-on-navy-40);">2 commits</span></div>
-              </div>
-            </div>
-            <div class="tour-visual">
-              <div class="tv-bar"><span class="dot"></span> pull request #482</div>
-              <div class="tv-body">
-                <div style="color:var(--paper-on-navy);font-weight:600;margin-bottom:8px;">feat: add sliding-window rate limiter</div>
-                <div style="color:var(--paper-on-navy-40);font-size:11.5px;margin-bottom:14px;">opened by artivoralabs-agent · 3 files changed</div>
-                <div class="gh-row"><span style="color:var(--paper-on-navy-60);">✓ tests / unit</span><span style="color:var(--signal-bright)">passed</span></div>
-                <div class="gh-row"><span style="color:var(--paper-on-navy-60);">✓ tests / integration</span><span style="color:var(--signal-bright)">passed</span></div>
-                <div class="gh-row"><span style="color:var(--paper-on-navy-60);">◐ review requested</span><span style="color:var(--beacon)">pending</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Panel 4: Dashboard -->
-        <div class="tour-panel" data-panel="dashboard">
-          <div class="tour-visual" style="min-height:auto;">
-            <div class="tv-bar"><span class="dot"></span> dashboard · acme-corp</div>
-            <div class="tv-kpi-row">
-              <div class="tv-kpi"><p class="tv-kpi-label">Active tasks</p><p class="tv-kpi-val">14</p><p class="tv-kpi-delta">+3 today</p></div>
-              <div class="tv-kpi"><p class="tv-kpi-label">PRs this week</p><p class="tv-kpi-val">47</p><p class="tv-kpi-delta">+12%</p></div>
-              <div class="tv-kpi"><p class="tv-kpi-label">Avg review time</p><p class="tv-kpi-val">1.8h</p><p class="tv-kpi-delta">−22%</p></div>
-            </div>
-          </div>
-          <div style="text-align:center;margin-top:var(--sp-8);">
-            <a href="dashboard.html" class="btn btn-primary btn-lg">Open the full dashboard
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-            </a>
           </div>
         </div>
       </div>
     </div>
-  </section>
-
-  <!-- ══════════════════════ CTA ══════════════════════ -->
-  <section class="section">
-    <div class="container">
-      <div class="cta-band reveal">
-        <h2>Give your backlog a signal.</h2>
-        <p>Join the design-partner group shipping production PRs with ArtivoraLabs every week.</p>
-        <button class="btn btn-signal btn-lg" id="ctaWaitlistBtn">Request early access</button>
+    <div class="tour-panel" data-panel="dash">
+      <div class="tour-frame">
+        <div class="tour-frame-bar">
+          <span class="tour-frame-dot"></span>
+          <span style="font-family:var(--f-mono);font-size:.75rem;color:var(--text3);margin-left:8px">dashboard · acme-corp</span>
+        </div>
+        <div class="tour-frame-body">
+          <div class="kpi-row">
+            <div class="kpi-card"><p class="kpi-label">Total Revenue</p><p class="kpi-val">$284.5k</p><p class="kpi-delta up">↑ 12.4% vs last month</p></div>
+            <div class="kpi-card"><p class="kpi-label">Active Tasks</p><p class="kpi-val">14</p><p class="kpi-delta up">↑ 3 today</p></div>
+            <div class="kpi-card"><p class="kpi-label">PRs Shipped</p><p class="kpi-val">47</p><p class="kpi-delta up">↑ 12% this week</p></div>
+            <div class="kpi-card"><p class="kpi-label">Avg Review Time</p><p class="kpi-val">1.8h</p><p class="kpi-delta down">↓ 22% faster</p></div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:20px;text-align:center;color:var(--text3);font-size:.875rem">
+            📊 Full interactive charts available in <a href="dashboard.html" style="color:var(--accent)">Dashboard →</a>
+          </div>
+        </div>
       </div>
     </div>
-  </section>
+    <div class="tour-panel" data-panel="ai">
+      <div class="tour-frame">
+        <div class="tour-frame-bar">
+          <span class="tour-frame-dot"></span>
+          <span style="font-family:var(--f-mono);font-size:.75rem;color:var(--text3);margin-left:8px">AI Assistant · Claude-powered</span>
+        </div>
+        <div class="tour-frame-body">
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="display:flex;gap:12px"><div style="width:32px;height:32px;border-radius:50%;background:rgba(139,92,246,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.75rem;color:var(--accent);font-weight:600">AK</div><div style="background:var(--elevated);border:1px solid var(--border);border-radius:0 var(--r-lg) var(--r-lg) var(--r-lg);padding:12px 16px;font-size:.875rem;color:var(--text2);max-width:380px">What's our best performing product category this quarter?</div></div>
+            <div style="display:flex;gap:12px;justify-content:flex-end"><div style="background:rgba(139,92,246,.12);border:1px solid var(--border);border-radius:var(--r-lg) 0 var(--r-lg) var(--r-lg);padding:12px 16px;font-size:.875rem;color:var(--text2);max-width:420px"><strong style="color:var(--accent)">Electronics leads at $94.2k (+18% QoQ)</strong>, followed by Home ($67.8k) and Beauty ($51.3k). Electronics growth is driven by Q3 back-to-school demand — recommend increasing inventory allocation by ~15% heading into Q4.</div><div style="width:32px;height:32px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M7 13l3-5 2 3 2-4 3 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+          </div>
+          <div style="margin-top:20px;text-align:center"><a href="ai.html" class="btn btn-outline btn-sm">Open AI Assistant →</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-</main>
+<!-- ══════════ CTA ══════════ -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-band">
+      <p class="eyebrow" style="margin-bottom:16px">Give your backlog a signal</p>
+      <h2>Ready to ship faster?</h2>
+      <p>Join engineering teams already shipping production PRs with ArtivoraLabs every week.</p>
+      <div class="cta-email">
+        <input class="cta-input" type="email" placeholder="your@email.com" id="ctaEmail"/>
+        <button class="btn btn-primary" id="ctaSubmitBtn">Request access →</button>
+      </div>
+    </div>
+  </div>
+</section>
 
-<!-- ══════════════════════ FOOTER ══════════════════════ -->
+<!-- ══════════ FOOTER ══════════ -->
 <footer class="footer">
   <div class="container">
-    <div class="footer-top">
-      <div class="footer-brand-col">
-        <a href="index.html" class="nav-brand">
-          <svg class="nav-brand-mark" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#0e7c66" stroke-width="1.6"/><path d="M7 13l3-5 2 3 2-4 3 6" stroke="#0e7c66" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-brand" style="margin-bottom:4px">
+          <div class="nav-logo-ring"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M7 13l3-5 2 3 2-4 3 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
           ArtivoraLabs
         </a>
         <p>An autonomous coding agent that plans, ships, and reports on its own work — so your team reviews outcomes, not busywork.</p>
         <div class="footer-social">
-          <a href="https://github.com" aria-label="GitHub" target="_blank" rel="noopener"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.03-.01-1.87-2.78.62-3.37-1.22-3.37-1.22-.46-1.19-1.11-1.51-1.11-1.51-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.32 9.32 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg></a>
-          <a href="https://x.com" aria-label="X" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-7.2l-5.6-7.3L4 22H1l8.1-9.3L1 2h7.4l5.1 6.7L18.9 2Z"/></svg></a>
+          <a href="#" aria-label="GitHub"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.03-.01-1.87-2.78.62-3.37-1.22-3.37-1.22-.46-1.19-1.11-1.51-1.11-1.51-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.32 9.32 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg></a>
+          <a href="#" aria-label="X"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-7.2l-5.6-7.3L4 22H1l8.1-9.3L1 2h7.4l5.1 6.7L18.9 2Z"/></svg></a>
         </div>
       </div>
       <div class="footer-col">
         <h5>Product</h5>
         <a href="#features">Capabilities</a>
-        <a href="#tour">Product tour</a>
         <a href="dashboard.html">Dashboard</a>
-        <a href="data-studio.html">Data Studio</a>
         <a href="ai.html">AI Assistant</a>
+        <a href="#">Data Studio</a>
       </div>
       <div class="footer-col">
         <h5>Company</h5>
@@ -280,9 +474,10 @@
       </div>
       <div class="footer-col">
         <h5>Get started</h5>
-        <button type="button" id="footerWaitlistBtn">Request access</button>
+        <button id="footerWaitlistBtn">Request access</button>
         <a href="#">Documentation</a>
         <a href="#">Contact sales</a>
+        <a href="#">Status</a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -292,31 +487,188 @@
   </div>
 </footer>
 
-<!-- ══════════════════════ WAITLIST MODAL ══════════════════════ -->
+<!-- ══════════ MODAL ══════════ -->
 <div class="modal-overlay" id="waitlistModal">
   <div class="modal-card">
-    <button class="modal-close" id="modalCloseBtn" aria-label="Close">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
-    </button>
-    <p class="eyebrow" style="margin-bottom:var(--sp-2);">Early access</p>
-    <h3>Request access to ArtivoraLabs</h3>
+    <button class="modal-close" id="modalCloseBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="eyebrow">Early access</p>
+    <h3>Join the waitlist</h3>
     <p>We're onboarding design partners in small batches. Tell us where to reach you.</p>
-    <form class="modal-form" id="waitlistForm">
-      <div class="field"><label for="wlName">Full name</label><input type="text" id="wlName" required /></div>
-      <div class="field"><label for="wlEmail">Work email</label><input type="email" id="wlEmail" required /></div>
-      <button type="submit" class="btn btn-primary btn-block btn-lg">Join the waitlist</button>
-    </form>
-    <div class="modal-success" id="modalSuccess">
+    <div id="waitlistFormWrap">
+      <div class="field"><label>Full name</label><input type="text" id="wlName" placeholder="Jane Smith"/></div>
+      <div class="field"><label>Work email</label><input type="email" id="wlEmail" placeholder="jane@company.com"/></div>
+      <button class="btn btn-primary btn-block btn-lg" id="wlSubmitBtn">Request access →</button>
+    </div>
+    <div class="modal-success" id="wlSuccess">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/></svg>
-      <h3>You're on the list</h3>
-      <p>We'll email you as soon as a spot opens up.</p>
+      <h3>You're on the list!</h3>
+      <p>We'll reach out as soon as a spot opens up.</p>
     </div>
   </div>
 </div>
 
 <div class="toast-stack" id="toastStack"></div>
 
-<script src="js/app.js"></script>
-<script src="js/landing.js"></script>
+<script>
+// ── Helpers ──
+const qs = s => document.querySelector(s);
+const on = (el, ev, fn) => el?.addEventListener(ev, fn);
+
+// ── Nav scroll effect ──
+on(window, 'scroll', () => {
+  qs('#nav').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// ── Counter animation ──
+function animateCounter(el, target) {
+  const start = Date.now();
+  const dur = 2000;
+  const fmt = n => {
+    if (target >= 1000000) return (n/1000000).toFixed(1)+'m';
+    if (target >= 1000) return (n/1000).toFixed(0)+'k+';
+    return Math.round(n).toLocaleString();
+  };
+  const tick = () => {
+    const prog = Math.min((Date.now()-start)/dur, 1);
+    const ease = 1 - Math.pow(1-prog, 3);
+    el.textContent = fmt(target * ease);
+    if (prog < 1) requestAnimationFrame(tick);
+    else el.textContent = fmt(target);
+  };
+  tick();
+}
+
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    const t = +e.target.dataset.target;
+    if (t) animateCounter(e.target, t);
+    io.unobserve(e.target);
+  });
+}, {threshold: 0.3});
+
+document.querySelectorAll('[data-target]').forEach(el => io.observe(el));
+
+// ── Hero stat counters ──
+setTimeout(() => {
+  let r = 0, p = 0;
+  const ri = setInterval(() => { qs('#statRepos').textContent = ++r; if(r>=48)clearInterval(ri); }, 40);
+  const pi = setInterval(() => { qs('#statPRs').textContent = ++p; if(p>=320)clearInterval(pi); }, 6); 
+}, 600);
+
+// ── Terminal animation ──
+const LINES = [
+  {type:'prompt', cmd:'analyze repo acme/platform-api'},
+  {type:'out', txt:'Scanning 847 files...'},
+  {type:'out', txt:'Found: 12 middleware files, 43 route handlers'},
+  {type:'ok', txt:'Context indexed ✓'},
+  {type:'prompt', cmd:'plan task "Add sliding-window rate limiter"'},
+  {type:'out', txt:'Checking existing patterns...'},
+  {type:'out', txt:'Selecting implementation: Redis + sliding window'},
+  {type:'ok', txt:'Plan ready — 6 steps, 3 files'},
+  {type:'prompt', cmd:'execute plan --auto-test'},
+  {type:'out', txt:'[1/6] Creating rateLimiter.ts'},
+  {type:'ok', txt:'[2/6] Tests written (coverage: 94%)'},
+  {type:'out', txt:'[3/6] Running CI...'},
+  {type:'ok', txt:'[6/6] PR #482 opened ↗'},
+];
+
+const terminal = qs('#terminal');
+let li = 0;
+function addLine() {
+  if (li >= LINES.length) { li = 0; terminal.innerHTML=''; }
+  const l = LINES[li++];
+  const div = document.createElement('div');
+  div.className = 't-line';
+  if (l.type === 'prompt') {
+    div.innerHTML = `<span class="t-prompt">▸</span><span class="t-cmd">${l.cmd}</span>`;
+  } else if (l.type === 'ok') {
+    div.innerHTML = `<span class="t-out t-ok">${l.txt}</span>`;
+  } else {
+    div.innerHTML = `<span class="t-out">${l.txt}</span>`;
+  }
+  terminal.appendChild(div);
+  requestAnimationFrame(() => div.classList.add('show'));
+  terminal.scrollTop = terminal.scrollHeight;
+  setTimeout(addLine, l.type === 'prompt' ? 1200 : 600);
+}
+setTimeout(addLine, 800);
+
+// ── Plan steps ──
+const steps = [
+  'Analyze existing middleware structure',
+  'Design sliding-window algorithm',
+  'Create rateLimiter.ts with Redis integration',
+  'Add route-level decorators',
+  'Write unit & integration tests',
+  'Open pull request with diff',
+];
+const planEl = qs('#planSteps');
+if (planEl) {
+  planEl.innerHTML = steps.map((s,i) => `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <span style="width:22px;height:22px;border-radius:50%;background:rgba(139,92,246,.15);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--accent);flex-shrink:0;font-family:var(--f-mono)">${i+1}</span>
+      <span style="font-size:.85rem;color:var(--text2)">${s}</span>
+    </div>
+  `).join('');
+}
+
+// ── Tour tabs ──
+document.querySelectorAll('.tour-tab').forEach(btn => {
+  on(btn, 'click', () => {
+    document.querySelectorAll('.tour-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tour-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    qs(`[data-panel="${btn.dataset.tab}"]`)?.classList.add('active');
+  });
+});
+
+// ── Modal logic ──
+function openModal() {
+  qs('#waitlistModal').classList.add('open');
+  qs('#wlName')?.focus();
+}
+function closeModal() { qs('#waitlistModal').classList.remove('open'); }
+
+['loginBtn','waitlistBtn','heroWaitlistBtn','footerWaitlistBtn'].forEach(id => {
+  on(qs('#'+id), 'click', openModal);
+});
+on(qs('#modalCloseBtn'), 'click', closeModal);
+on(qs('#waitlistModal'), 'click', e => { if(e.target===e.currentTarget) closeModal(); });
+
+on(qs('#wlSubmitBtn'), 'click', () => {
+  const name = qs('#wlName')?.value.trim();
+  const email = qs('#wlEmail')?.value.trim();
+  if (!name || !email) { toast('Please fill in both fields.'); return; }
+  qs('#waitlistFormWrap').style.display = 'none';
+  qs('#wlSuccess').style.display = 'block';
+  setTimeout(closeModal, 3000);
+});
+
+on(qs('#ctaSubmitBtn'), 'click', () => {
+  const email = qs('#ctaEmail')?.value.trim();
+  if (!email) return;
+  toast('You\'re on the list! We\'ll be in touch.');
+  qs('#ctaEmail').value = '';
+});
+
+// ── Toast ──
+function toast(msg, dur=3500) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  qs('#toastStack').appendChild(el);
+  setTimeout(() => el.remove(), dur);
+}
+
+// ── Keyboard ──
+on(document, 'keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    window.location.href = 'dashboard.html';
+  }
+});
+</script>
 </body>
 </html>
