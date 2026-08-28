@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>AI Assistant — ArtivoraLabs</title>
+<title>AI Assistant — DashView</title>
+<meta name="description" content="DashView's built-in AI Assistant — engineering help, real code debugging, and product guidance. Runs entirely in your browser: no API key, no account, no network calls."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
@@ -63,9 +64,6 @@ svg{display:block;flex-shrink:0}
 .sb-api-badge{display:flex;align-items:center;gap:5px;padding:3px 8px;border-radius:var(--r-full);background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.18);margin-top:6px}
 .sb-api-badge svg{color:var(--success)}
 .sb-api-badge span{font-size:.65rem;color:var(--success);font-weight:500}
-.sb-api-badge.unconfigured{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.18)}
-.sb-api-badge.unconfigured svg{color:var(--warn)}
-.sb-api-badge.unconfigured span{color:var(--warn)}
 
 /* ══════════ MAIN ══════════ */
 .main{display:flex;flex-direction:column;height:100vh;overflow:hidden;position:relative}
@@ -114,6 +112,7 @@ svg{display:block;flex-shrink:0}
 .msg-content{padding:14px 18px;border-radius:var(--r-xl);font-size:.9rem;line-height:1.7;word-break:break-word}
 .msg-row.ai .msg-content{background:var(--elevated);border:1px solid var(--border);border-radius:0 var(--r-xl) var(--r-xl) var(--r-xl)}
 .msg-row.user .msg-content{background:rgba(139,92,246,.14);border:1px solid rgba(139,92,246,.2);border-radius:var(--r-xl) 0 var(--r-xl) var(--r-xl);color:var(--text)}
+.ai-topic-tag{display:inline-block;font-size:.65rem;font-weight:600;letter-spacing:.02em;color:var(--accent2);background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.2);padding:2px 9px;border-radius:var(--r-full);margin-bottom:6px}
 .msg-meta{display:flex;align-items:center;gap:8px;margin-top:5px;font-size:.7rem;color:var(--text3)}
 .msg-row.user .msg-meta{justify-content:flex-end}
 .msg-actions{display:flex;gap:4px;opacity:0;transition:.15s}
@@ -187,6 +186,13 @@ textarea#chatInput::placeholder{color:var(--text3)}
 .field input::placeholder{color:var(--text3)}
 .field-hint{font-size:.7rem;color:var(--text3);margin-top:5px}
 .modal-note{font-size:.75rem;color:var(--text3);text-align:center;margin-top:12px;line-height:1.5}
+.modal-card-wide{max-width:520px}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.about-item{display:flex;align-items:flex-start;gap:10px;padding:12px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--border)}
+.about-item-icon{width:28px;height:28px;border-radius:8px;background:rgba(139,92,246,.12);color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.about-item p{font-size:.8125rem;font-weight:600;color:var(--text);margin-bottom:2px}
+.about-item span{font-size:.7rem;color:var(--text3);line-height:1.4;display:block}
+@media(max-width:480px){.about-grid{grid-template-columns:1fr}}
 
 /* ══════════ TOAST ══════════ */
 .toast-stack{position:fixed;bottom:24px;right:24px;z-index:600;display:flex;flex-direction:column;gap:8px}
@@ -213,7 +219,7 @@ textarea#chatInput::placeholder{color:var(--text3)}
     <div class="sb-head">
       <a href="index.html" class="sb-brand">
         <div class="sb-logo"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M7 13l3-5 2 3 2-4 3 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        ArtivoraLabs
+        DashView
       </a>
       <button class="new-chat-btn" id="newChatBtn">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
@@ -229,14 +235,14 @@ textarea#chatInput::placeholder{color:var(--text3)}
     <p class="sb-section-label">Recent</p>
     <div class="convo-list" id="convoList"></div>
     <div class="sb-footer">
-      <div class="sb-user" id="apiConfigBtn" title="Configure API">
+      <div class="sb-user" id="aboutBtn" title="About this AI">
         <div class="avatar">AK</div>
         <div class="sb-user-info">
           <p>Amara Khan</p>
           <span>acme-corp</span>
-          <div class="sb-api-badge unconfigured" id="apiBadge">
-            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
-            <span id="apiBadgeText">API key needed</span>
+          <div class="sb-api-badge" id="apiBadge">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+            <span>Local engine · always on</span>
           </div>
         </div>
       </div>
@@ -256,10 +262,14 @@ textarea#chatInput::placeholder{color:var(--text3)}
         <span id="convTitleText">New conversation</span>
       </div>
       <div class="top-actions">
-        <button class="btn btn-outline btn-sm" id="configKeyBtn">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-          API Key
+        <button class="btn btn-outline btn-sm" id="aboutTopBtn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+          About
         </button>
+        <a href="data-studio.html" class="btn btn-outline btn-sm">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
+          Data Studio
+        </a>
         <a href="dashboard.html" class="btn btn-outline btn-sm">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
           Dashboard
@@ -267,7 +277,7 @@ textarea#chatInput::placeholder{color:var(--text3)}
         <button class="icon-btn" id="clearChatBtn" title="Clear conversation">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
         </button>
-        <button class="icon-btn" title="Export chat">
+        <button class="icon-btn" id="exportChatBtn" title="Export chat">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>
         </button>
       </div>
@@ -282,23 +292,23 @@ textarea#chatInput::placeholder{color:var(--text3)}
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M7 13l3-5 2 3 2-4 3 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
           <h2>What can I help you with?</h2>
-          <p>Powered by Claude. Ask anything about your sales data, engineering tasks, code reviews, or analysis. I'll give you a straight answer.</p>
+          <p>Local intelligence engine — no API key, no account, nothing leaves this tab. Paste code to debug, ask about an engineering topic, ask how a DashView feature works, or just tell me how things are going.</p>
           <div class="suggest-grid">
-            <button class="suggest-card" data-prompt="Analyze our best performing product categories this quarter and suggest inventory strategies">
-              <p>Analyze top categories</p>
-              <span>Product & inventory insights</span>
+            <button class="suggest-card" data-prompt="Debug this function — something's wrong with it:\n\n```js\nfunction getRevenue(orders) {\n  var total = 0\n  for (var i=0; i<orders.length; i++ {\n    total += orders[i].price * orders[i].qty\n  }\n  return total\n}\n```">
+              <p>Debug my code</p>
+              <span>Real static analysis, not a guess</span>
             </button>
-            <button class="suggest-card" data-prompt="Review this Python function and suggest optimizations:\n\ndef get_revenue(orders):\n    total = 0\n    for order in orders:\n        total = total + order['price'] * order['qty']\n    return total">
-              <p>Review my code</p>
-              <span>Python function optimization</span>
+            <button class="suggest-card" data-prompt="How does the auto-suggest engine in Data Studio decide which charts and KPIs to recommend?">
+              <p>How does Data Studio work?</p>
+              <span>Column typing & auto-suggest</span>
             </button>
-            <button class="suggest-card" data-prompt="Write a SQL query to find the top 10 customers by revenue in the last 30 days from an orders table with columns: order_id, customer_id, revenue, created_at">
-              <p>Generate SQL query</p>
-              <span>Top customers by revenue</span>
+            <button class="suggest-card" data-prompt="What's the safest way to roll out a risky deploy and roll it back if something breaks?">
+              <p>Deploys & rollbacks</p>
+              <span>Feature flags, canaries, rollback</span>
             </button>
-            <button class="suggest-card" data-prompt="Explain the difference between Redis sliding-window rate limiting vs fixed-window, with a code example in Node.js">
-              <p>Rate limiting strategies</p>
-              <span>Redis vs fixed-window explained</span>
+            <button class="suggest-card" data-prompt="Honestly, I'm feeling pretty overwhelmed with everything on my plate right now.">
+              <p>Just need to talk something through</p>
+              <span>I'll actually listen</span>
             </button>
           </div>
         </div>
@@ -310,7 +320,7 @@ textarea#chatInput::placeholder{color:var(--text3)}
       <div class="composer-inner">
         <div class="composer-box">
           <div class="composer-top">
-            <textarea id="chatInput" placeholder="Message ArtivoraLabs AI…" rows="1"></textarea>
+            <textarea id="chatInput" placeholder="Message DashView AI…" rows="1"></textarea>
             <div class="composer-actions">
               <button class="attach-btn" title="Attach file">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84L9.41 17.41a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
@@ -322,20 +332,20 @@ textarea#chatInput::placeholder{color:var(--text3)}
           </div>
           <div class="composer-footer">
             <div class="composer-hints">
-              <button class="hint-chip" data-prompt="Summarize the key trends in our Q3 sales data">
+              <button class="hint-chip" data-prompt="What's a good strategy for handling a slow database query?">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
-                Sales trends
+                Slow query
               </button>
               <button class="hint-chip" data-prompt="What refactoring patterns should I use to improve this codebase?">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l-6-6 6-6M15 6l6 6-6 6"/></svg>
-                Code review
+                Refactoring
               </button>
-              <button class="hint-chip" data-prompt="Generate a weekly engineering report template with KPIs and action items">
+              <button class="hint-chip" data-prompt="How do calculated columns and formulas work in Data Studio?">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                Weekly report
+                Formulas
               </button>
             </div>
-            <span class="composer-info">Claude · <span id="modelLabel">claude-sonnet-4-6</span></span>
+            <span class="composer-info">DashView AI · <span id="modelLabel">local engine</span></span>
           </div>
         </div>
       </div>
@@ -344,32 +354,45 @@ textarea#chatInput::placeholder{color:var(--text3)}
   </div>
 </div>
 
-<!-- ══════════ API KEY MODAL ══════════ -->
-<div class="modal-overlay" id="apiModal">
-  <div class="modal-card">
-    <button class="modal-close" id="apiModalClose">
+<!-- ══════════ ABOUT THIS AI MODAL ══════════ -->
+<div class="modal-overlay" id="aboutModal">
+  <div class="modal-card modal-card-wide">
+    <button class="modal-close" id="aboutModalClose">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
     </button>
     <div class="modal-icon">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
     </div>
-    <h3>Connect Claude AI</h3>
-    <p>Enter your Anthropic API key to enable real AI responses. Your key is stored locally in this browser and never sent to our servers.</p>
-    <div class="field">
-      <label>Anthropic API Key</label>
-      <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-…"/>
-      <p class="field-hint">Get your key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">console.anthropic.com</a></p>
+    <h3>About this AI</h3>
+    <p>This isn't a live language model — it's a fast, deterministic engine that runs entirely in this browser tab. Your message is matched against a local knowledge base, and pasted code is run through real static analysis. No API key, no account, no server round-trip, nothing you type ever leaves this tab.</p>
+    <div class="about-grid">
+      <div class="about-item">
+        <div class="about-item-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 16 4-4-4-4M6 8l-4 4 4 4M14.5 4l-5 16"/></svg></div>
+        <div><p>Real code debugging</p><span>Genuine syntax/structure checks for JS, JSON, HTML & Python</span></div>
+      </div>
+      <div class="about-item">
+        <div class="about-item-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+        <div><p>24 engineering topics</p><span>Auth, testing, deploys, caching, scaling, security & more</span></div>
+      </div>
+      <div class="about-item">
+        <div class="about-item-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h6"/></svg></div>
+        <div><p>DashView product help</p><span>Import, cleaning, auto-suggest, pivots, hierarchy, formulas</span></div>
+      </div>
+      <div class="about-item">
+        <div class="about-item-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg></div>
+        <div><p>A steady ear</p><span>Not a therapist — but I won't brush past a hard day</span></div>
+      </div>
     </div>
-    <button class="btn btn-primary btn-block" id="saveApiKeyBtn">Save & connect →</button>
-    <p class="modal-note">Your key is stored in <code style="font-size:.7rem;background:rgba(139,92,246,.1);padding:1px 5px;border-radius:3px">sessionStorage</code> — cleared when you close this tab.</p>
+    <p class="modal-note">Answers are deterministic — the same question gets a consistent answer, and I'll say plainly when something's outside what a rule-based engine can do. Type <code style="font-size:.7rem;background:rgba(139,92,246,.1);padding:1px 5px;border-radius:3px">help</code> any time to see the full list.</p>
+    <button class="btn btn-primary btn-block" id="aboutModalGotIt" style="margin-top:16px">Got it →</button>
   </div>
 </div>
 
 <div class="toast-stack" id="toastStack"></div>
 
+<script src="js/ai-engine.js"></script>
 <script>
 // ══════════ STATE ══════════
-let apiKey = sessionStorage.getItem('al_api_key') || '';
 let conversations = JSON.parse(localStorage.getItem('al_convos') || '{}');
 let activeId = null;
 let isStreaming = false;
@@ -391,22 +414,6 @@ function toast(msg, type='default', dur=3500) {
 function genId() { return 'c_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 
 function saveConvos() { localStorage.setItem('al_convos', JSON.stringify(conversations)); }
-
-// ══════════ API BADGE ══════════
-function updateApiBadge() {
-  const badge = qs('#apiBadge');
-  const text = qs('#apiBadgeText');
-  if (apiKey) {
-    badge.classList.remove('unconfigured');
-    text.textContent = 'Claude connected';
-    badge.querySelector('svg').innerHTML = '<path d="M20 6 9 17l-5-5" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
-  } else {
-    badge.classList.add('unconfigured');
-    text.textContent = 'API key needed';
-    badge.querySelector('svg').innerHTML = '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4M12 17h.01"/>';
-  }
-}
-updateApiBadge();
 
 // ══════════ CONVERSATION LIST ══════════
 function renderConvoList(filter='') {
@@ -454,7 +461,7 @@ function loadConvo(id) {
   if (!c.messages || !c.messages.length) {
     inner.appendChild(createEmptyState());
   } else {
-    c.messages.forEach(m => appendMessage(m.role, m.content, false));
+    c.messages.forEach(m => appendMessage(m.role, m.content, false, m.tag));
   }
   renderConvoList();
   scrollBottom();
@@ -487,12 +494,12 @@ function createEmptyState() {
   div.innerHTML = `
     <div class="empty-logo"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M7 13l3-5 2 3 2-4 3 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <h2>What can I help you with?</h2>
-    <p>Powered by Claude. Ask anything about your sales data, engineering tasks, or code. I'll give you a straight answer.</p>
+    <p>Local intelligence engine — no API key, no account, nothing leaves this tab. Paste code to debug, ask about an engineering topic, ask how a DashView feature works, or just tell me how things are going.</p>
     <div class="suggest-grid">
-      <button class="suggest-card" data-prompt="Analyze our best performing product categories this quarter and suggest inventory strategies"><p>Analyze top categories</p><span>Product & inventory insights</span></button>
-      <button class="suggest-card" data-prompt="Review this Python function:\n\ndef get_revenue(orders):\n    total = 0\n    for order in orders:\n        total = total + order['price'] * order['qty']\n    return total"><p>Review my code</p><span>Python function optimization</span></button>
-      <button class="suggest-card" data-prompt="Write a SQL query to find top 10 customers by revenue in the last 30 days from an orders table (order_id, customer_id, revenue, created_at)"><p>Generate SQL query</p><span>Top customers by revenue</span></button>
-      <button class="suggest-card" data-prompt="Explain sliding-window rate limiting vs fixed-window with a Node.js Redis example"><p>Rate limiting strategies</p><span>Redis vs fixed-window</span></button>
+      <button class="suggest-card" data-prompt="Debug this function — something's wrong with it:\n\n\`\`\`js\nfunction getRevenue(orders) {\n  var total = 0\n  for (var i=0; i<orders.length; i++ {\n    total += orders[i].price * orders[i].qty\n  }\n  return total\n}\n\`\`\`"><p>Debug my code</p><span>Real static analysis, not a guess</span></button>
+      <button class="suggest-card" data-prompt="How does the auto-suggest engine in Data Studio decide which charts and KPIs to recommend?"><p>How does Data Studio work?</p><span>Column typing & auto-suggest</span></button>
+      <button class="suggest-card" data-prompt="What's the safest way to roll out a risky deploy and roll it back if something breaks?"><p>Deploys & rollbacks</p><span>Feature flags, canaries, rollback</span></button>
+      <button class="suggest-card" data-prompt="Honestly, I'm feeling pretty overwhelmed with everything on my plate right now."><p>Just need to talk something through</p><span>I'll actually listen</span></button>
     </div>`;
   div.querySelectorAll('.suggest-card').forEach(btn => {
     btn.addEventListener('click', () => sendMessage(btn.dataset.prompt));
@@ -503,6 +510,17 @@ function createEmptyState() {
 // Initialize
 if (!activeId) startNewChat();
 else loadConvo(activeId);
+
+// Deep-link support: ai.html?q=your question here — auto-sends it as the
+// first message (used by "Ask AI" links elsewhere in the app) and cleans
+// the URL afterward so refreshing doesn't resubmit it.
+(function handleQueryHandoff() {
+  const params = new URLSearchParams(window.location.search);
+  const q = params.get('q');
+  if (!q) return;
+  history.replaceState({}, '', window.location.pathname);
+  setTimeout(() => sendMessage(q), 150);
+})();
 
 // ══════════ MARKDOWN RENDERER ══════════
 function renderMarkdown(text) {
@@ -538,7 +556,7 @@ function renderMarkdown(text) {
 }
 
 // ══════════ MESSAGES ══════════
-function appendMessage(role, content, animate=true) {
+function appendMessage(role, content, animate=true, tag=null) {
   const emptyState = qs('#emptyState');
   if (emptyState) emptyState.remove();
 
@@ -548,10 +566,12 @@ function appendMessage(role, content, animate=true) {
   const avatarContent = role === 'ai'
     ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M7 13l3-5 2 3 2-4 3 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
     : initials;
+  const tagHtml = (role === 'ai' && tag) ? `<span class="ai-topic-tag">${esc(tag)}</span>` : '';
 
   row.innerHTML = `
     <div class="msg-avatar ${role}">${avatarContent}</div>
     <div class="msg-bubble">
+      ${tagHtml}
       <div class="msg-content" id="msg-${Date.now()}">${role==='ai'?renderMarkdown(content):esc(content)}</div>
       <div class="msg-meta">
         <span>${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>
@@ -611,15 +631,9 @@ function scrollBottom() {
 }
 
 // ══════════ SEND MESSAGE ══════════
-async function sendMessage(content, isRegen=false) {
+function sendMessage(content, isRegen=false) {
   if (!content?.trim() || isStreaming) return;
   content = content.trim();
-
-  if (!apiKey) {
-    qs('#apiModal').classList.add('open');
-    qs('#apiKeyInput').focus();
-    return;
-  }
 
   isStreaming = true;
   qs('#sendBtn').disabled = true;
@@ -650,56 +664,30 @@ async function sendMessage(content, isRegen=false) {
 
   showTyping();
 
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 2048,
-        system: `You are ArtivoraLabs AI — a sharp, direct assistant embedded in ArtivoraLabs, an autonomous engineering platform. You help engineering teams with code reviews, sales data analysis, refactoring, testing strategies, and technical planning. Be concise, technically precise, and action-oriented. Use markdown formatting for code, lists, and headers when it improves readability.`,
-        messages: c.messages.map(m => ({
-          role: m.role === 'ai' ? 'assistant' : 'user',
-          content: m.content
-        }))
-      })
-    });
-
-    hideTyping();
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      const errMsg = err.error?.message || `API error ${res.status}`;
-      toast(errMsg, 'error', 5000);
-      appendMessage('ai', `**Error:** ${errMsg}\n\nPlease check your API key and try again.`);
-      isStreaming = false;
-      qs('#sendBtn').disabled = false;
-      return;
+  // The local engine is instant and fully synchronous — but replying with
+  // zero delay reads as jarring/robotic, so we pace it slightly, the same
+  // way a human would take a beat before typing a reply.
+  const delay = 380 + Math.random() * 480;
+  setTimeout(() => {
+    let aiContent, aiTag = null;
+    try {
+      const result = DashViewAI.respond(content, { seed: activeId });
+      aiContent = result.content;
+      aiTag = result.tag || null;
+    } catch (err) {
+      aiContent = "Something went wrong generating a reply locally — try rephrasing, or reload the page if this keeps happening.";
     }
 
-    const data = await res.json();
-    const aiContent = data.content?.[0]?.text || 'No response received.';
-
-    appendMessage('ai', aiContent);
-    c.messages.push({ role:'ai', content: aiContent });
+    hideTyping();
+    appendMessage('ai', aiContent, true, aiTag);
+    c.messages.push({ role:'ai', content: aiContent, tag: aiTag });
     c.updatedAt = Date.now();
     saveConvos();
     renderConvoList();
 
-  } catch (err) {
-    hideTyping();
-    const errMsg = err.message || 'Network error';
-    toast('Failed to reach API: ' + errMsg, 'error', 5000);
-    appendMessage('ai', `**Connection error:** ${errMsg}\n\nMake sure your API key is correct and you have network access to api.anthropic.com.`);
-  }
-
-  isStreaming = false;
-  qs('#sendBtn').disabled = !qs('#chatInput').value.trim();
+    isStreaming = false;
+    qs('#sendBtn').disabled = !qs('#chatInput').value.trim();
+  }, delay);
 }
 
 // ══════════ COMPOSER ══════════
@@ -732,26 +720,33 @@ document.querySelectorAll('.hint-chip, .suggest-card').forEach(btn => {
   });
 });
 
-// ══════════ API KEY MODAL ══════════
-function openApiModal() { qs('#apiModal').classList.add('open'); qs('#apiKeyInput').focus(); }
-function closeApiModal() { qs('#apiModal').classList.remove('open'); }
+// ══════════ ABOUT MODAL ══════════
+function openAboutModal() { qs('#aboutModal').classList.add('open'); }
+function closeAboutModal() { qs('#aboutModal').classList.remove('open'); }
 
-on(qs('#apiConfigBtn'), 'click', openApiModal);
-on(qs('#configKeyBtn'), 'click', openApiModal);
-on(qs('#apiModalClose'), 'click', closeApiModal);
-on(qs('#apiModal'), 'click', e => { if(e.target===e.currentTarget) closeApiModal(); });
+on(qs('#aboutBtn'), 'click', openAboutModal);
+on(qs('#aboutTopBtn'), 'click', openAboutModal);
+on(qs('#aboutModalClose'), 'click', closeAboutModal);
+on(qs('#aboutModalGotIt'), 'click', closeAboutModal);
+on(qs('#aboutModal'), 'click', e => { if(e.target===e.currentTarget) closeAboutModal(); });
 
-on(qs('#saveApiKeyBtn'), 'click', () => {
-  const key = qs('#apiKeyInput').value.trim();
-  if (!key || !key.startsWith('sk-')) { toast('Please enter a valid Anthropic API key (starts with sk-)', 'error'); return; }
-  apiKey = key;
-  sessionStorage.setItem('al_api_key', key);
-  updateApiBadge();
-  closeApiModal();
-  toast('Claude AI connected successfully ✓', 'success');
+// ══════════ EXPORT CHAT ══════════
+on(qs('#exportChatBtn'), 'click', () => {
+  const c = conversations[activeId];
+  if (!c?.messages?.length) { toast('Nothing to export yet'); return; }
+  const lines = c.messages.map(m => `${m.role === 'user' ? 'You' : 'DashView AI'}:\n${m.content}\n`);
+  const text = `${c.title || 'Conversation'}\n${'='.repeat((c.title||'Conversation').length)}\n\n` + lines.join('\n');
+  const blob = new Blob([text], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (c.title || 'dashview-conversation').replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  toast('Conversation exported', 'success');
 });
-
-on(qs('#apiKeyInput'), 'keydown', e => { if(e.key==='Enter') qs('#saveApiKeyBtn').click(); });
 
 // ══════════ OTHER CONTROLS ══════════
 on(qs('#newChatBtn'), 'click', startNewChat);
@@ -776,18 +771,18 @@ document.addEventListener('click', e => {
 // Keyboard shortcuts
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
-    closeApiModal();
+    closeAboutModal();
     if (window.innerWidth <= 768) qs('#sidebar').classList.remove('open');
   }
   if ((e.metaKey || e.ctrlKey) && e.key === 'n') { e.preventDefault(); startNewChat(); }
-  if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); openApiModal(); }
+  if ((e.metaKey || e.ctrlKey) && e.key === '/') { e.preventDefault(); openAboutModal(); }
 });
 
-// Show API modal on first load if no key
-if (!apiKey) {
+// Friendly first-load toast — no setup needed, unlike the old API-key flow.
+if (!Object.keys(conversations).length) {
   setTimeout(() => {
-    toast('Enter your API key to enable real AI responses', 'default', 5000);
-  }, 1200);
+    toast('Local AI ready — no API key or account needed', 'success', 4000);
+  }, 900);
 }
 </script>
 </body>

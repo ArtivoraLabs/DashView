@@ -299,6 +299,97 @@ var Studio = (function () {
     return dataset.fields.filter(function (f) { return f.nonBlank === 0; }).map(function (f) { return f.name; });
   }
 
+  /* ---- Data cleaning helpers (Data Health tab) --------------------------
+     Identity fields for duplicate-detection deliberately exclude calculated
+     and virtual (derived) columns, since two rows that are otherwise
+     identical will always share the same computed values too — including
+     them would just double-count the same signal. */
+  function identityFields(dataset) {
+    return dataset.fields.filter(function (f) { return !f.isCalculated && !f.isVirtual; });
+  }
+
+  function rowIdentityKey(row, fields) {
+    return fields.map(function (f) { return row[f.name]; }).join('|');
+  }
+
+  /** Returns { count, rowIndexes } describing duplicate rows (every
+   *  occurrence after the first counts as a duplicate). Read-only. */
+  function findDuplicateRows(dataset) {
+    var fields = identityFields(dataset);
+    var seen = {}, dupIndexes = [], count = 0;
+    dataset.typedRows.forEach(function (row, i) {
+      var key = rowIdentityKey(row, fields);
+      if (seen[key] !== undefined) { dupIndexes.push(i); count++; } else { seen[key] = i; }
+    });
+    return { count: count, rowIndexes: dupIndexes };
+  }
+
+  /** Removes duplicate rows, keeping the first occurrence of each. Mutates
+   *  the dataset and recomputes stats. Returns the number of rows removed. */
+  function dedupeRows(dataset) {
+    var fields = identityFields(dataset);
+    var seen = {}, kept = [], removed = 0;
+    dataset.typedRows.forEach(function (row) {
+      var key = rowIdentityKey(row, fields);
+      if (seen[key]) { removed++; return; }
+      seen[key] = true;
+      kept.push(row);
+    });
+    dataset.typedRows = kept;
+    dataset.rowCount = kept.length;
+    recomputeAllStats(dataset);
+    return removed;
+  }
+
+  /** Names of TEXT fields where at least one value has leading/trailing
+   *  whitespace — cheap to detect, easy to silently break grouping/joins. */
+  function detectUntrimmedFields(dataset) {
+    var offenders = [];
+    dataset.fields.forEach(function (f) {
+      if (f.type !== TYPES.TEXT) return;
+      for (var i = 0; i < dataset.typedRows.length; i++) {
+        var v = dataset.typedRows[i][f.name];
+        if (typeof v === 'string' && v !== v.trim()) { offenders.push(f.name); return; }
+      }
+    });
+    return offenders;
+  }
+
+  /** Trims leading/trailing whitespace from every TEXT field's values.
+   *  Returns the number of individual cells changed. */
+  function trimTextValues(dataset) {
+    var changed = 0;
+    var textFields = dataset.fields.filter(function (f) { return f.type === TYPES.TEXT; });
+    dataset.typedRows.forEach(function (row) {
+      textFields.forEach(function (f) {
+        var v = row[f.name];
+        if (typeof v === 'string') {
+          var trimmed = v.trim();
+          if (trimmed !== v) { row[f.name] = trimmed; changed++; }
+        }
+      });
+    });
+    if (changed) recomputeAllStats(dataset);
+    return changed;
+  }
+
+  /** Fills blank/null cells in a single field with `value`. Returns the
+   *  number of cells filled. Used by the Data Health "Fill blanks" action —
+   *  callers should choose a sensible default for the field's type (0 for
+   *  numeric/currency/percent, "Unknown" for text, false for boolean). */
+  function fillBlanks(dataset, fieldName, value) {
+    var filled = 0;
+    dataset.typedRows.forEach(function (row) {
+      var v = row[fieldName];
+      if (v === null || v === undefined || v === '') { row[fieldName] = value; filled++; }
+    });
+    if (filled) {
+      var field = dataset.fields.filter(function (f) { return f.name === fieldName; })[0];
+      if (field) recomputeFieldStats(dataset, field);
+    }
+    return filled;
+  }
+
   /* ======================================================================
      5. Formula engine — Excel-style expressions
         Two evaluation modes:
@@ -1020,6 +1111,11 @@ var Studio = (function () {
     sanitizeColumns: sanitizeColumns,
     buildDataset: buildDataset,
     emptyColumnNames: emptyColumnNames,
+    findDuplicateRows: findDuplicateRows,
+    dedupeRows: dedupeRows,
+    detectUntrimmedFields: detectUntrimmedFields,
+    trimTextValues: trimTextValues,
+    fillBlanks: fillBlanks,
     Formula: Formula,
     FormulaError: FormulaError,
     addCalculatedField: addCalculatedField,

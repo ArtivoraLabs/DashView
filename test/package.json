@@ -4,9 +4,11 @@
   "private": true,
   "description": "Unit tests for js/studio-core.js, plus headless DOM smoke tests for the Data Studio and AI Assistant pages.",
   "scripts": {
-    "test": "npm run test:core && npm run test:studio && npm run test:assistant",
+    "test": "npm run test:core && npm run test:studio && npm run test:health && npm run test:roles && npm run test:assistant",
     "test:core": "node studio-core.test.js",
     "test:studio": "node studio-ui.smoke.test.js",
+    "test:health": "node data-health.smoke.test.js",
+    "test:roles": "node role-presets.smoke.test.js",
     "test:assistant": "node assistant.smoke.test.js"
   },
   "devDependencies": {

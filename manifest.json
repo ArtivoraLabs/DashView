@@ -1,7 +1,7 @@
 {
-  "name": "ArtivoraLabs — Autonomous Engineering",
-  "short_name": "ArtivoraLabs",
-  "description": "Autonomous coding agent that plans, writes, tests and ships code straight into your GitHub repos — with a live dashboard tracking every change.",
+  "name": "DashView — Autonomous Engineering & BI Platform",
+  "short_name": "DashView",
+  "description": "An autonomous coding agent that plans, writes, tests and ships code into your GitHub repos, plus Data Studio — import a spreadsheet and get a full BI dashboard with charts, KPIs, a pivot table and drill-down hierarchy, entirely in your browser. Includes a local AI assistant with zero API key required.",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",

@@ -1,231 +1,218 @@
-# ArtivoraLabs - AI Platform Landing Page
+# DashView
 
-A fully static, dependency-free landing page for an AI platform, built with
-plain **HTML, CSS, and JavaScript** - no build step, no framework, no
-`node_modules`. Features an Apple-inspired "liquid glass" design system with
-scroll-driven animations, a working AI command-bar demo, a simulated
-developer workspace, and a functional GitHub integration panel.
+A static, dependency-free web app combining a product marketing site, a
+sales dashboard, a full browser-based BI tool (**Data Studio**), and a
+built-in **AI Assistant** — built with plain **HTML, CSS, and JavaScript**.
+No build step, no framework, no backend required to run it.
 
-**Live demo:** deploy in one click with GitHub Pages (see below).
+The defining constraint of this project: **the AI Assistant and Data Studio
+both work with zero API keys, zero accounts, and zero network calls.**
+Everything — column typing, data cleaning, chart suggestions, chat replies,
+even code debugging — runs as deterministic JavaScript in your browser tab.
 
 ---
 
 ## ✨ Features
 
-- **Liquid glass UI system** - blurred glass panels, pointer-tracked highlight, glass buttons/pills/inputs
-- **Animated hero** - video/gradient background, staggered entrance animation, rotating placeholder prompts
-- **Working AI command bar** - type or click a suggestion chip and get a simulated, keyword-matched reply with a "thinking" animation
-- **Live capability search** - filter the 12 capability cards in real time
-- **Animated stat counters** that count up when scrolled into view
-- **Autonomous workflow demo** - self-advancing step tracker
-- **Developer workspace simulation** - clickable file explorer that swaps syntax-highlighted code, a self-typing terminal, git change list, and AI task timeline
-- **GitHub panel** - editable repo name, 9 working action buttons that write to a live activity log, selectable branches, copyable commit hashes
-- **Early-access modal** - validated email form with a success state
-- **Newsletter signup** in the footer
-- **Scrollspy navigation**, scroll progress bar, back-to-top button
-- Fully responsive (mobile / tablet / desktop) and respects `prefers-reduced-motion`
-- **AI Studio** - three genuinely functional, client-side tools (no backend, no API key):
-  - **Image Generator** - type a prompt, pick a style and palette, and get a unique
-    procedurally-generated SVG image (seeded off your prompt text so results are
-    reproducible). Download as real `.svg` or rasterized `.png`.
-  - **Code Debugger** - real static analysis in the browser: genuine JavaScript
-    syntax checking (`new Function`), JSON validation (`JSON.parse`), HTML tag-balance
-    checking (`DOMParser`), and structural heuristics for Python (indentation,
-    bracket balance, missing colons). Produces a code health score and a findings list.
-  - **Report Studio** - fill in a title, summary, bullet points, and a CSV data table,
-    then export a real downloadable **Word report (.docx)**, **PowerPoint deck (.pptx)**
-    with an auto-generated chart slide, or **Excel workbook (.xlsx)** - built client-side
-    with `docx`, `pptxgenjs`, and `SheetJS` (loaded from CDN on first use).
-- **Dashboard** (`dashboard.html`) - a workspace intelligence view, linked from the main
-  nav:
-  - **Connect GitHub** button in the top bar - type a GitHub username or org (public
-    accounts need no token) and the dashboard re-renders from real data: your repos,
-    their language/health grade, open PRs and issues, your recent public events, and
-    a 14-day commit/PR chart. Disconnect any time to fall back to demo data - nothing
-    is ever sent anywhere except `api.github.com`, and the connection only lives in
-    this browser's `localStorage` (see `js/github-live.js`).
-  - **Add project** button - create your own project cards (name, status, progress,
-    open PRs, link) that live in `localStorage` and sit alongside your GitHub-derived
-    rows in the same table, each editable/deletable inline. This works whether or not
-    you're connected to GitHub.
-  - KPI row, a shipping-velocity chart, a live activity feed, and a searchable/
-    exportable (CSV) projects table - all driven by the shape defined in
-    `js/dashboard-data.js` (the demo generator) or `js/github-live.js` (the real
-    fetcher), so the rendering code doesn't care which one is active.
-- **Data Studio** (`data-studio.html`) - import a spreadsheet and it reads the file,
-  types every column, and drafts a full BI dashboard for you to review and finish -
-  **entirely client-side, no API key and no server involved** (`js/studio-core.js` is
-  the framework-free data engine; `js/studio-ui.js` wires it to the page):
-  - **Import** CSV, TSV, XLSX, XLS or JSON (multi-sheet workbooks prompt you to pick
-    a sheet), or click **"Try it with sample data"** to see it work instantly with a
-    generated retail-sales dataset.
-  - **Auto-analysis & suggestions** - every column is typed (number/currency/percent/
-    date/boolean/text) and profiled, then a rule-based scoring engine drafts KPI,
-    chart, hierarchy and pivot suggestions with live mini-previews. You tick the ones
-    you want and finish the dashboard - nothing is added without your say.
-  - **Hierarchy explorer** - auto-detects a natural drill-down (e.g. Region → City),
-    plus an automatic Year/Quarter/Month date hierarchy, with click-to-drill that
-    cross-filters the whole workbook and a clearable breadcrumb.
-  - **Pivot table** - Excel/Power-BI-style Rows/Columns/Values/Filters wells, nested
-    row groups with expand/collapse and subtotals, six aggregations, a grand total,
-    and CSV export.
-  - **Data grid** - sortable/searchable, inline cell editing, add/delete rows, show/
-    hide columns, and a data-bar (in-cell heatmap) toggle for numeric columns.
-  - **Calculated columns & custom KPI formulas** - a hand-written Excel-style formula
-    parser (not `eval`) supporting `IF`, `AND`/`OR`, text/date/math functions, and
-    aggregate measures like `SUM([Revenue])-SUM([Cost])`.
-  - **Slicers** - shared, cross-filtering chip/date-range filters that narrow every
-    KPI, chart, pivot cell and hierarchy node at once.
-  - **Workbooks** - name, save, reopen, duplicate and delete workbooks from
-    `localStorage`; autosaves as you work. Export to CSV, a real multi-sheet `.xlsx`
-    (via SheetJS), or print the dashboard to PDF. Light/dark theme included.
-- **AI Assistant** (`ai.html`) - a chat interface that runs **entirely client-side,
-  with no API key and no network calls**. Your message is scored against a small
-  local topic library (rate limiting, testing/CI, refactors, auth, webhooks,
-  databases, performance, deploys, git/PRs, debugging, code review, docs, security)
-  in `js/assistant.js`, and it replies with a tailored, structured answer for the
-  best-matching topic - including a fallback plan when nothing matches well. Ask it
-  directly ("are you a real AI?") and it will tell you plainly how it works.
+### AI Assistant (`ai.html`)
+A chat interface backed by `js/ai-engine.js` — a local, rule-based engine,
+**not** a live language model, and it says so plainly if you ask. No API
+key, no account, no network calls; every reply is computed in this tab.
+
+- **Real code debugging** — paste a JS/JSON/HTML/Python snippet (a fenced
+  code block, or just paste it with "debug this") and it runs genuine static
+  analysis: syntax parsing (`new Function`), JSON validation, HTML tag-balance
+  checking (`DOMParser`), and structural Python heuristics — then returns a
+  health score and a findings list, not a canned answer.
+- **24 engineering topics** — rate limiting, testing/CI, refactoring, auth,
+  webhooks, databases, performance, deploys, git/code review, debugging,
+  docs, security, API design, caching, containers, microservices,
+  observability, error handling, scaling, code quality, accessibility,
+  frontend state, incident response, and frontend performance.
+- **12 DashView product-help topics** — importing data, column typing, data
+  cleaning, the auto-suggest engine, pivot tables, hierarchy drill-down,
+  formulas, slicers, workbooks, and how the local engine itself works.
+- **Emotional support** — stressed, overwhelmed, burnt out, stuck, proud,
+  imposter syndrome, and more get a validating, non-clinical reply, not a
+  brush-off. A crisis-keyword safety net always takes priority and surfaces
+  real hotline resources.
+- **Utilities** — safe arithmetic evaluation, current date/time.
+- Topic tag chips on replies show *why* you got that answer, conversation
+  history (localStorage), export-to-text, and a `?q=` URL param so any link
+  in the app can deep-link a pre-filled, auto-sent question.
+
+### Data Studio (`data-studio.html`)
+Import a spreadsheet and it reads the file, types every column, checks it
+for problems, and drafts a full BI dashboard for you to review and finish —
+entirely client-side (`js/studio-core.js` is the framework-free data engine;
+`js/studio-ui.js` wires it to the page).
+
+- **Import** CSV, TSV, XLSX, XLS or JSON (multi-sheet workbooks prompt you to
+  pick a sheet), or click **"Try it with sample data"**.
+- **Data health & cleaning** — runs automatically right after import and
+  surfaces *before* suggestions if anything needs attention: empty columns,
+  duplicate rows, untrimmed whitespace, and high-null columns are each
+  flagged with a severity tag and, where it's safe to automate, a one-click
+  fix (Remove duplicates / Trim whitespace / Fill blanks / Remove empty
+  columns). Clean data skips straight to suggestions.
+- **Auto-suggestions** — a rule-based scoring engine drafts KPI, chart,
+  hierarchy, and pivot suggestions with live mini-previews once your data is
+  clean. Tick what you want; nothing is added without your say.
+- **Hierarchy explorer** — auto-detects a natural drill-down (e.g.
+  Region → City) plus an automatic Year/Quarter/Month date hierarchy, with
+  click-to-drill cross-filtering and a clearable breadcrumb.
+- **Pivot table** — Excel/Power BI-style Rows/Columns/Values/Filters wells,
+  nested row groups, six aggregations, grand totals, CSV export.
+- **Data grid** — sortable/searchable, inline cell editing, add/delete rows,
+  show/hide columns, in-cell data-bar heatmaps.
+- **Calculated columns & KPI formulas** — a hand-written Excel-style formula
+  parser (not `eval`): `IF`, `AND`/`OR`, text/date/math functions, and
+  aggregate measures like `SUM([Revenue])-SUM([Cost])`.
+- **Slicers** — shared, cross-filtering chip/date-range filters.
+- **Workbooks** — save/reopen/duplicate/delete from `localStorage`,
+  autosaves as you work. Export CSV, a real multi-sheet `.xlsx` (SheetJS),
+  or print to PDF. Light/dark theme included.
+
+### Dashboard (`dashboard.html`)
+A sales/analytics workspace overview — KPIs, a revenue trend chart, a
+category breakdown, and a command palette (⌘K) — with a **"New dashboard"**
+button that jumps straight into Data Studio's import flow, and a Data
+Studio link in the sidebar nav.
+
+### Landing page (`index.html`)
+The marketing homepage — hero, capability cards, product tour, and nav
+links into the Dashboard, Data Studio, and AI Assistant.
+
+---
 
 ## 📁 Project structure
 
 ```
-├── index.html              # Landing page markup
-├── dashboard.html          # Workspace dashboard (KPIs, charts, activity log, repos)
-├── data-studio.html        # Data Studio: import → auto-dashboard, pivot, hierarchy, formulas
-├── 404.html                # Branded not-found page (GitHub Pages picks this up automatically)
-├── manifest.json           # Web app manifest (add-to-home-screen)
+├── index.html              # Landing page (self-contained: inline CSS + JS)
+├── dashboard.html           # Sales dashboard demo (self-contained)
+├── data-studio.html         # Data Studio: import → clean → auto-dashboard
+├── ai.html                  # AI Assistant chat UI (self-contained)
+├── 404.html                 # Branded not-found page
+├── manifest.json            # Web app manifest (add-to-home-screen)
 ├── robots.txt
 ├── sitemap.xml
-├── CHANGELOG.md            # Production-readiness audit + merge log
 ├── css/
-│   ├── globals.css         # Design tokens, reset, reveal-on-scroll, toasts
-│   ├── glass.css           # Liquid glass component system + modal
-│   ├── navbar.css
-│   ├── hero.css             # Hero, AI input, capability cards, stat strip
-│   ├── workspace.css       # Dev workspace, GitHub panel, footer
-│   ├── studio.css          # AI Studio: image generator, debugger, report builder
-│   ├── dashboard.css       # Dashboard shell, KPIs, charts, activity log, repo table
-│   └── responsive.css
-│   └── studio-dash.css     # Data Studio: rail, slicers, tabs, pivot, hierarchy, dark theme
+│   ├── base.css              # Shared design tokens + reset (Data Studio / 404)
+│   ├── components.css        # Shared component styles (Data Studio / 404)
+│   ├── dashboard.css         # Data Studio topbar/shell pieces it reuses
+│   └── studio-dash.css       # Data Studio: rail, slicers, tabs, pivot, hierarchy
 ├── js/
-│   ├── github-config.js      # Paste a repo (and optional token) here for a LIVE GitHub panel
-│   ├── main.js               # Core site interactivity (vanilla JS, no dependencies)
-│   ├── studio.js             # AI Studio logic (image gen, code analysis, doc export)
-│   ├── dashboard-data.js     # Deterministic demo-data generator (swap point for a real API)
-│   ├── dashboard.js          # Dashboard rendering + interactions (charts, ⌘K, shortcuts, CSV)
-│   ├── studio-core.js        # Data Studio engine: typing, stats, formulas, pivot, suggestions
-│   └── studio-ui.js          # Data Studio UI controller (wires studio-core.js to the page)
+│   ├── ai-engine.js          # Local AI engine — knowledge base, code debugger,
+│   │                         #   emotional support, all zero-network
+│   ├── app.js                 # Small shared boot helper for Data Studio
+│   ├── studio-core.js         # Data Studio engine: typing, stats, formulas,
+│   │                         #   pivot, suggestions, data cleaning
+│   └── studio-ui.js           # Data Studio UI controller
+├── server/                   # Optional Node/Express backend (auth, projects,
+│   │                         #   multi-provider AI gateway). NOT required by
+│   │                         #   any page above — every page here works fully
+│   │                         #   standalone. See server/README or package.json
+│   │                         #   if you want to wire up real accounts/API-backed
+│   │                         #   AI later; it's independent of the local engine.
+├── test/                     # Node test suite — see "Testing" below
 ├── assets/
-│   ├── favicon.svg
-│   ├── favicon-16x16.png / favicon-32x32.png / apple-touch-icon.png
+│   ├── favicon.svg, favicon-16x16.png, favicon-32x32.png, apple-touch-icon.png
 │   ├── icon-192.png / icon-512.png    # manifest.json icons
-│   └── og-image.png                    # Open Graph / Twitter social preview (1200×630)
+│   └── og-image.png                    # Open Graph / Twitter social preview
 └── .github/workflows/static.yml   # Auto-deploy to GitHub Pages
 ```
 
-## ✅ Before you launch
+`index.html`, `dashboard.html`, and `ai.html` are self-contained (their CSS
+and JS are inline in the file) except for `ai.html`, which additionally
+loads `js/ai-engine.js` as its "brain." `data-studio.html` is the one
+modular page, composed from the `css/` and `js/` files listed above.
 
-This project has been through a production-readiness pass - see
-[`CHANGELOG.md`](CHANGELOG.md) for the full list of what was audited and
-fixed. Two things need your input before a real deploy:
+---
 
-1. **Replace the placeholder domain.** `your-domain.example.com` appears in
-   `index.html`'s canonical/Open Graph/Twitter tags, `sitemap.xml`, and
-   `robots.txt`. Search-and-replace it with your real domain once you know it.
-2. **Replace the hero background video.** The current `<source>` URL in
-   `.hero-video-wrapper` points to a CloudFront link from another generation
-   platform - convenient for a demo, but not something you own or control
-   long-term. Swap in a video hosted on your own domain/CDN before launch (the
-   gradient fallback already handles it gracefully either way if the request
-   ever fails).
+## 🧪 Testing
 
-## 🔌 Show a real GitHub repo (optional)
+```bash
+cd test
+npm install
+npm test
+```
 
-The GitHub panel on the homepage (`#github`) ships with demo data. To make
-it live:
+Runs four suites (140 checks total), all headless via `jsdom` — no browser
+needed:
 
-1. Open `js/github-config.js`.
-2. Set `repo: 'owner/repo'` to a real repository.
-3. Leave `token: ''` blank if the repo is public - that's enough for stars,
-   language, branches, and recent commits (60 requests/hour).
-4. Only add a token for the higher rate limit or a private repo - **read
-   the warning comment at the top of that file first.** This is a static
-   site with no backend, so anything in that file is visible to anyone who
-   views the page source.
-
-If the repo field is empty, or the request fails for any reason (rate
-limit, network, typo), the panel just keeps showing the demo data - nothing
-breaks.
+- `studio-core.test.js` — unit tests for the data engine (typing, formulas,
+  suggestions, date hierarchy)
+- `studio-ui.smoke.test.js` — end-to-end DOM tests for Data Studio (import,
+  pivot, hierarchy, widgets, workbook persistence)
+- `data-health.smoke.test.js` — the cleaning flow specifically: dirty data
+  triggers Data Health before Suggestions, every fix action really mutates
+  the dataset, clean data skips straight through
+- `assistant.smoke.test.js` — the AI Assistant: confirms zero `fetch()`
+  calls ever fire, topic matching across every knowledge-base category, real
+  code debugging, identity/greeting/fallback handling, emotional support,
+  and the `?q=` deep-link handoff
 
 ## 🚀 Run it locally
 
 No build step required. Any static file server works:
 
 ```bash
-# Option 1 - Python
+# Option 1 — Python
 python3 -m http.server 8080
 
-# Option 2 - Node
+# Option 2 — Node
 npx serve .
 
-# Option 3 - VS Code
+# Option 3 — VS Code
 # Right-click index.html → "Open with Live Server"
 ```
 
-Then open `http://localhost:8080`.
-
-> Opening `index.html` directly via `file://` also works. A gradient
-> fallback is wired up via the `onerror` handler on the `<video>` tag in
-> case the remote background video can't be reached (e.g. no internet
-> connection, or a strict local network policy).
+Then open `http://localhost:8080`. Opening `index.html` directly via
+`file://` also works for the self-contained pages; Data Studio's modular
+`<script src>` tags need an actual HTTP server (browsers block local script
+loading over `file://`).
 
 ## 🌐 Deploy live with GitHub Pages
 
-1. Create a new GitHub repository and push this project to the `main` branch:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit - ArtivoraLabs landing page"
-   git branch -M main
-   git remote add origin https://github.com/<your-username>/<your-repo>.git
-   git push -u origin main
-   ```
+1. Push this project to the `main` branch of a GitHub repository.
 2. In your repository on GitHub, go to **Settings → Pages**.
 3. Under **Build and deployment → Source**, select **GitHub Actions**.
-4. Push to `main` (or re-run the workflow from the **Actions** tab) - the
-   included workflow at `.github/workflows/static.yml` will build and deploy
+4. Push to `main` (or re-run the workflow from the **Actions** tab) — the
+   included workflow at `.github/workflows/static.yml` builds and deploys
    automatically.
 5. Your site will be live at `https://<your-username>.github.io/<your-repo>/`.
 
-Every subsequent push to `main` redeploys automatically - no extra
-configuration needed.
-
 ### Using a custom domain
 
-Add a `CNAME` file at the project root containing your domain
-(e.g. `artivoralabs.ai`), then point your DNS `A`/`CNAME` records at GitHub
-Pages per [GitHub's custom domain docs](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site).
+Add a `CNAME` file at the project root containing your domain, then point
+your DNS records at GitHub Pages per
+[GitHub's custom domain docs](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site).
+`your-domain.example.com` appears as a placeholder in `index.html`'s
+canonical/Open Graph/Twitter tags, `sitemap.xml`, and `robots.txt` — replace
+it once you know your real domain.
 
 ## 🎨 Customizing
 
-- **Colors / spacing / radii** - edit the CSS variables at the top of `css/base.css`
-- **Copy & content** - edit directly in `index.html`
-- **AI assistant replies** - edit the `TOPICS` array in `js/assistant.js` (keywords +
-  response templates); the matching logic itself (`buildResponse`) doesn't need to
-  change when you just want to add or tweak a topic
-- **Dashboard projects** - use the "Add project" button in the UI (stored in
-  `localStorage`, no file editing needed), or edit `js/dashboard-data.js` to change
-  the demo dataset shown before you connect a real GitHub account
-- **Hero background video** - swap the `<source>` URL inside `.hero-video-wrapper` in `index.html`
+- **Colors / spacing / radii** — CSS variables at the top of `css/base.css`
+  (Data Studio / 404) and in each self-contained page's own `:root` block
+  (`index.html`, `dashboard.html`, `ai.html`)
+- **AI Assistant knowledge base** — edit the `TOPICS` / `EMOTION_TOPICS`
+  arrays in `js/ai-engine.js` (keywords + reply text); the matching engine
+  (`scoreTopic`/`bestTopic`) doesn't need to change when you just want to
+  add or tweak a topic
+- **Data Studio cleaning rules** — `computeDataHealth()` in `js/studio-ui.js`
+  defines what counts as an issue; the actual fix logic lives in
+  `js/studio-core.js` (`dedupeRows`, `trimTextValues`, `fillBlanks`, etc.)
+- **Dashboard demo data** — edit the inline data/Chart.js config directly in
+  `dashboard.html`
 
 ## 🧩 Browser support
 
 Modern evergreen browsers (Chrome, Edge, Firefox, Safari). Uses
-`backdrop-filter` for the glass effect, `IntersectionObserver` for scroll
-reveals, and the Clipboard API for copy buttons - all with graceful
+`backdrop-filter` for glass effects, `IntersectionObserver` for scroll
+reveals, and the Clipboard API for copy buttons — all with graceful
 degradation where unsupported.
 
 ## 📄 License
 
-MIT - see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).

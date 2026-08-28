@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Data Studio — ArtivoraLabs</title>
+<title>Data Studio — DashView</title>
 <meta name="description" content="Import a spreadsheet and DashView reads it, types every column, and builds a full dashboard with charts, KPIs, a pivot table and a drill-down hierarchy — entirely in your browser, no API key required." />
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 <link rel="stylesheet" href="css/base.css" />
@@ -226,6 +226,12 @@
     <p class="eyebrow" style="margin-bottom:var(--sp-2);">Read from your data — no API involved</p>
     <h3>Here's what we found</h3>
     <p>DashView scored your columns and drafted these. Tick the ones you want, then finish the dashboard — you can always add or remove more later.</p>
+    <div class="role-preset-row" id="rolePresetRow">
+      <span class="role-preset-label">Build for:</span>
+      <button class="role-preset-btn" data-role="executive" type="button" title="Just the top-line totals — nothing else">Executive</button>
+      <button class="role-preset-btn" data-role="manager" type="button" title="Totals plus a couple of breakdowns">Manager</button>
+      <button class="role-preset-btn" data-role="analyst" type="button" title="Everything — every KPI, chart, and table">Analyst</button>
+    </div>
     <div class="suggestion-tabs" id="suggestionTabs">
       <button class="active" data-kind="all" type="button">All</button>
       <button data-kind="kpi" type="button">KPIs</button>
@@ -280,11 +286,12 @@
 
 <!-- ══════════════════════ DATA HEALTH MODAL ══════════════════════ -->
 <div class="modal-overlay" id="dataHealthModal">
-  <div class="modal-card">
+  <div class="modal-card modal-card-wide">
     <button class="modal-close" id="dataHealthClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-    <p class="eyebrow" style="margin-bottom:var(--sp-2);">Auto-checked on import</p>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);">Auto-checked on import — clean before you build</p>
     <h3>Data health</h3>
     <div id="dataHealthBody"></div>
+    <div id="dataHealthFooter" style="margin-top:var(--sp-4);"></div>
   </div>
 </div>
 

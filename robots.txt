@@ -1,5 +1,5 @@
-# NeuralKinetics - robots.txt
-# This is a single public marketing page; allow all crawlers.
+# DashView - robots.txt
+# Public marketing + product pages; allow all crawlers.
 
 User-agent: *
 Allow: /
