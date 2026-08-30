@@ -1,10 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8"/>
+<script>(function(){try{var t=localStorage.getItem('dashview-theme');if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>DashView — Autonomous Engineering Platform</title>
 <meta name="description" content="DashView plans, writes, tests and ships code into your GitHub repos with a live analytics dashboard."/>
+<meta name="theme-color" content="#05060e"/>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png"/>
+<link rel="manifest" href="manifest.json"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -16,28 +21,60 @@
   --text:#eaedf8;--text2:rgba(234,237,248,.65);--text3:rgba(234,237,248,.38);
   --success:#10b981;--warn:#f59e0b;--danger:#f43f5e;
   --grad:linear-gradient(135deg,#7c3aed 0%,#a855f7 45%,#22d3ee 100%);
+  --grad-text:linear-gradient(135deg,#8b5cf6 0%,#c084fc 45%,#22d3ee 100%);
   --grad-soft:linear-gradient(135deg,rgba(124,58,237,.15) 0%,rgba(34,211,238,.06) 100%);
   --shadow-sm:0 1px 3px rgba(0,0,0,.3);
   --shadow-md:0 8px 30px -8px rgba(0,0,0,.5);
   --shadow-lg:0 24px 64px -16px rgba(0,0,0,.65);
   --shadow-violet:0 20px 60px -15px rgba(124,58,237,.45);
+  --overlay:rgba(5,6,14,.8);--overlay-soft:rgba(5,6,14,.75);
+  --nav-bg:rgba(5,6,14,.88);
+  --orb1:#4c1d95;--orb2:#0e4f7c;--orb3:#5b21b6;--orb-opacity:.55;
+  --noise-url:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
   --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:18px;--r-full:9999px;
   --f-display:'Space Grotesk',sans-serif;
   --f-body:'Inter',sans-serif;
   --f-mono:'JetBrains Mono',monospace;
   --nav-h:64px;
+  color-scheme:dark;
+}
+/* ── Light theme — same brand, tuned for a bright surface: accents deepen
+   for AA contrast, shadows shift from black to a soft violet tint, and the
+   hero's orbs swap to pastel washes instead of dark glows. ── */
+html[data-theme="light"]{
+  color-scheme:light;
+  --bg:#f6f5fb;--surface:#ffffff;--elevated:#ffffff;--card:#f1eef9;
+  --border:rgba(124,58,237,.10);--border-b:rgba(124,58,237,.20);
+  --accent:#7c3aed;--accent2:#0e7490;--accent3:#7e22ce;
+  --text:#1a1625;--text2:rgba(26,22,37,.62);--text3:rgba(26,22,37,.42);
+  --success:#047857;--warn:#b45309;--danger:#be123c;
+  --grad-text:linear-gradient(135deg,#6d28d9 0%,#9333ea 45%,#0e7490 100%);
+  --grad-soft:linear-gradient(135deg,rgba(124,58,237,.08) 0%,rgba(14,116,144,.05) 100%);
+  --shadow-sm:0 1px 2px rgba(45,25,90,.06);
+  --shadow-md:0 8px 24px -8px rgba(45,25,90,.12);
+  --shadow-lg:0 20px 50px -14px rgba(45,25,90,.16);
+  --shadow-violet:0 16px 40px -12px rgba(124,58,237,.20);
+  --overlay:rgba(23,17,38,.24);--overlay-soft:rgba(23,17,38,.16);
+  --nav-bg:rgba(246,245,251,.86);
+  --orb1:#c4b5fd;--orb2:#a5f3fc;--orb3:#e9d5ff;--orb-opacity:.4;
+  --noise-url:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*,*::before,*::after{transition:background-color .25s ease,border-color .25s ease,color .25s ease}
 html{scroll-behavior:smooth}
-body{font-family:var(--f-body);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{font-family:var(--f-body);background-color:var(--bg);background-image:var(--noise-url);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{text-decoration:none;color:inherit}
 button{cursor:pointer;border:none;background:none;font-family:inherit}
 img,svg{display:block;max-width:100%}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
 
 /* ── Typography ── */
 .t-display{font-family:var(--f-display);font-weight:700;letter-spacing:-.03em;line-height:1.05}
 .t-mono{font-family:var(--f-mono)}
-.grad-text{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.grad-text{background:var(--grad-text);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 
 /* ── Container ── */
 .container{width:100%;max-width:1140px;margin:0 auto;padding:0 24px}
@@ -56,7 +93,7 @@ img,svg{display:block;max-width:100%}
 
 /* ══════════ NAV ══════════ */
 .nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);z-index:200;display:flex;align-items:center;transition:.3s}
-.nav.scrolled{background:rgba(5,6,14,.88);backdrop-filter:blur(20px) saturate(150%);border-bottom:1px solid var(--border)}
+.nav.scrolled{background:var(--nav-bg);backdrop-filter:blur(20px) saturate(150%);border-bottom:1px solid var(--border)}
 .nav-inner{display:flex;align-items:center;gap:0;width:100%;max-width:1140px;margin:0 auto;padding:0 24px}
 .nav-brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:600;font-size:1.0625rem;color:var(--text);flex-shrink:0}
 .nav-logo-ring{width:32px;height:32px;border-radius:8px;background:var(--grad);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(124,58,237,.4)}
@@ -64,14 +101,21 @@ img,svg{display:block;max-width:100%}
 .nav-links a{padding:6px 14px;border-radius:var(--r-full);font-size:.875rem;color:var(--text2);transition:.15s}
 .nav-links a:hover{color:var(--text);background:rgba(139,92,246,.08)}
 .nav-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.theme-toggle{width:36px;height:36px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;color:var(--text2);border:1px solid var(--border);background:var(--surface);position:relative;flex-shrink:0}
+.theme-toggle:hover{border-color:var(--border-b);color:var(--text);background:var(--elevated)}
+.theme-toggle svg{position:absolute;transition:opacity .3s ease,transform .5s cubic-bezier(.16,1,.3,1)}
+.theme-toggle .icon-sun{opacity:0;transform:rotate(-70deg) scale(.4)}
+.theme-toggle .icon-moon{opacity:1;transform:rotate(0) scale(1)}
+html[data-theme="light"] .theme-toggle .icon-sun{opacity:1;transform:rotate(0) scale(1)}
+html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70deg) scale(.4)}
 
 /* ══════════ HERO ══════════ */
 .hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;padding:var(--nav-h) 0 80px}
 .hero-canvas{position:absolute;inset:0;pointer-events:none;overflow:hidden}
-.orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.55}
-.orb-1{width:700px;height:700px;background:radial-gradient(ellipse,#4c1d95,transparent 70%);top:-200px;left:-200px;animation:drift1 18s ease-in-out infinite}
-.orb-2{width:600px;height:600px;background:radial-gradient(ellipse,#0e4f7c,transparent 70%);top:10%;right:-150px;animation:drift2 22s ease-in-out infinite}
-.orb-3{width:500px;height:500px;background:radial-gradient(ellipse,#5b21b6,transparent 70%);bottom:-100px;left:30%;animation:drift3 16s ease-in-out infinite}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:var(--orb-opacity);transition:opacity .4s ease}
+.orb-1{width:700px;height:700px;background:radial-gradient(ellipse,var(--orb1),transparent 70%);top:-200px;left:-200px;animation:drift1 18s ease-in-out infinite}
+.orb-2{width:600px;height:600px;background:radial-gradient(ellipse,var(--orb2),transparent 70%);top:10%;right:-150px;animation:drift2 22s ease-in-out infinite}
+.orb-3{width:500px;height:500px;background:radial-gradient(ellipse,var(--orb3),transparent 70%);bottom:-100px;left:30%;animation:drift3 16s ease-in-out infinite}
 @keyframes drift1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,40px) scale(1.05)}}
 @keyframes drift2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-50px,60px) scale(1.08)}}
 @keyframes drift3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-50px) scale(1.04)}}
@@ -83,7 +127,7 @@ img,svg{display:block;max-width:100%}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 .hero-badge span{font-size:.75rem;color:var(--text2);font-weight:500}
 .hero-h1{font-family:var(--f-display);font-size:clamp(2.4rem,4.5vw,3.75rem);font-weight:700;letter-spacing:-.04em;line-height:1.06;margin-bottom:24px}
-.hero-h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-h1 em{font-style:normal;background:var(--grad-text);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .hero-sub{font-size:1.0625rem;color:var(--text2);line-height:1.65;margin-bottom:36px;max-width:460px}
 .hero-cta{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:48px}
 .hero-social{display:flex;align-items:center;gap:20px}
@@ -110,8 +154,22 @@ img,svg{display:block;max-width:100%}
 .t-cursor{display:inline-block;width:8px;height:14px;background:var(--accent);animation:blink .9s step-end infinite;vertical-align:-2px;margin-left:2px}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 
+/* ══════════ SIGNAL STRIP ══════════
+   Signature motif: a live pulse trace standing in for the section break —
+   a literal read of "ships on signal" rather than a generic hairline. ── */
+.signal-strip{width:100%;height:44px;overflow:hidden;border-bottom:1px solid var(--border);background:var(--surface)}
+.signal-strip svg{width:100%;height:100%;display:block}
+.signal-strip path{fill:none;stroke:url(#signalGrad);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:8 7;animation:signalFlow 3.4s linear infinite;opacity:.65}
+.sg-stop1{stop-color:var(--accent)}
+.sg-stop2{stop-color:var(--accent3)}
+.sg-stop3{stop-color:var(--accent2)}
+@keyframes signalFlow{to{stroke-dashoffset:-150}}
+
 /* ══════════ LOGOS ══════════ */
-.logos{padding:40px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.logos{padding:40px 0;border-bottom:1px solid var(--border)}
+.logos-row span{position:relative;padding-left:16px}
+.logos-row span::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:7px;height:7px;border-radius:2px;background:var(--grad);opacity:.45;transition:.2s}
+.logos-row span:hover::before{opacity:.9;transform:translateY(-50%) rotate(45deg)}
 .logos-label{font-size:.75rem;color:var(--text3);text-align:center;letter-spacing:.08em;text-transform:uppercase;margin-bottom:24px}
 .logos-row{display:flex;justify-content:center;align-items:center;gap:40px;flex-wrap:wrap}
 .logos-row span{font-family:var(--f-display);font-size:.9375rem;font-weight:600;color:var(--text3);letter-spacing:-.01em;transition:.15s}
@@ -121,7 +179,7 @@ img,svg{display:block;max-width:100%}
 .stats{padding:80px 0}
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden}
 .stat-item{padding:36px 32px;background:var(--surface);text-align:center}
-.stat-num{font-family:var(--f-display);font-size:2.5rem;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;margin-bottom:8px}
+.stat-num{font-family:var(--f-display);font-size:2.5rem;font-weight:700;background:var(--grad-text);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;margin-bottom:8px}
 .stat-label{font-size:.875rem;color:var(--text3)}
 
 /* ══════════ FEATURES ══════════ */
@@ -131,9 +189,10 @@ img,svg{display:block;max-width:100%}
 .section-head p{font-size:1rem;color:var(--text2);line-height:1.65}
 
 .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden}
-.feat-card{padding:36px;background:var(--surface);transition:.2s}
-.feat-card:hover{background:var(--elevated);transform:translateY(-2px)}
-.feat-icon{width:44px;height:44px;border-radius:var(--r-md);background:rgba(139,92,246,.12);display:flex;align-items:center;justify-content:center;margin-bottom:20px;color:var(--accent)}
+.feat-card{padding:36px;background:var(--surface);transition:.25s cubic-bezier(.16,1,.3,1);position:relative;z-index:1}
+.feat-card:hover{background:var(--elevated);transform:translateY(-3px);box-shadow:var(--shadow-md);z-index:2}
+.feat-icon{width:44px;height:44px;border-radius:var(--r-md);background:rgba(139,92,246,.12);display:flex;align-items:center;justify-content:center;margin-bottom:20px;color:var(--accent);transition:.25s}
+.feat-card:hover .feat-icon{background:var(--grad);color:#fff}
 .feat-card h3{font-family:var(--f-display);font-size:1.0625rem;font-weight:600;margin-bottom:10px;letter-spacing:-.02em}
 .feat-card p{font-size:.875rem;color:var(--text2);line-height:1.65}
 
@@ -184,7 +243,7 @@ img,svg{display:block;max-width:100%}
 .footer-social a:hover{border-color:var(--accent);color:var(--accent)}
 
 /* ══════════ MODAL ══════════ */
-.modal-overlay{position:fixed;inset:0;background:rgba(5,6,14,.8);backdrop-filter:blur(12px);z-index:400;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.2s}
+.modal-overlay{position:fixed;inset:0;background:var(--overlay);backdrop-filter:blur(12px);z-index:400;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.2s}
 .modal-overlay.open{opacity:1;pointer-events:all}
 .modal-card{background:var(--elevated);border:1px solid var(--border-b);border-radius:var(--r-xl);padding:40px;max-width:420px;width:calc(100% - 32px);position:relative;box-shadow:var(--shadow-lg);transform:translateY(16px);transition:.3s cubic-bezier(.16,1,.3,1)}
 .modal-overlay.open .modal-card{transform:translateY(0)}
@@ -244,6 +303,10 @@ img,svg{display:block;max-width:100%}
       <a href="ai.html">AI Assistant</a>
     </nav>
     <div class="nav-actions">
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+      </button>
       <button class="btn btn-outline btn-sm" id="loginBtn">Sign in</button>
       <button class="btn btn-primary btn-sm" id="waitlistBtn">Get access →</button>
     </div>
@@ -285,6 +348,20 @@ img,svg{display:block;max-width:100%}
     </div>
   </div>
 </section>
+
+<!-- ══════════ SIGNAL STRIP ══════════ -->
+<div class="signal-strip" aria-hidden="true">
+  <svg viewBox="0 0 1200 48" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="signalGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" class="sg-stop1"/>
+        <stop offset="50%" class="sg-stop2"/>
+        <stop offset="100%" class="sg-stop3"/>
+      </linearGradient>
+    </defs>
+    <path d="M0 24 L70 24 L92 8 L114 40 L136 24 L260 24 L282 10 L304 38 L326 24 L520 24 L542 6 L564 42 L586 24 L780 24 L802 12 L824 36 L846 24 L1200 24"/>
+  </svg>
+</div>
 
 <!-- ══════════ LOGOS ══════════ -->
 <section class="logos">
@@ -519,6 +596,25 @@ const on = (el, ev, fn) => el?.addEventListener(ev, fn);
 on(window, 'scroll', () => {
   qs('#nav').classList.toggle('scrolled', window.scrollY > 20);
 });
+
+// ── Theme ──
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  try { localStorage.setItem('dashview-theme', t); } catch (e) {}
+  const meta = qs('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', t === 'light' ? '#f6f5fb' : '#05060e');
+  const btn = qs('#themeToggle');
+  if (btn) btn.setAttribute('aria-label', t === 'light' ? 'Switch to dark theme' : 'Switch to light theme');
+}
+on(qs('#themeToggle'), 'click', () => {
+  applyTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+});
+window.addEventListener('storage', e => {
+  if (e.key === 'dashview-theme' && (e.newValue === 'light' || e.newValue === 'dark')) {
+    document.documentElement.setAttribute('data-theme', e.newValue);
+  }
+});
+applyTheme(document.documentElement.getAttribute('data-theme') || 'dark');
 
 // ── Counter animation ──
 function animateCounter(el, target) {

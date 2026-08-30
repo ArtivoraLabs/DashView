@@ -1,10 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8"/>
+<script>(function(){try{var t=localStorage.getItem('dashview-theme');if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>AI Assistant — DashView</title>
 <meta name="description" content="DashView's built-in AI Assistant — engineering help, real code debugging, and product guidance. Runs entirely in your browser: no API key, no account, no network calls."/>
+<meta name="theme-color" content="#05060e"/>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png"/>
+<link rel="manifest" href="manifest.json"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
@@ -15,12 +20,38 @@
   --text:#eaedf8;--text2:rgba(234,237,248,.65);--text3:rgba(234,237,248,.36);
   --success:#10b981;--warn:#f59e0b;--danger:#f43f5e;
   --grad:linear-gradient(135deg,#7c3aed 0%,#a855f7 45%,#22d3ee 100%);
+  --grad-soft:linear-gradient(135deg,rgba(124,58,237,.15) 0%,rgba(34,211,238,.06) 100%);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.3);
+  --shadow-md:0 8px 30px -8px rgba(0,0,0,.5);
+  --shadow-lg:0 24px 64px -16px rgba(0,0,0,.65);
+  --overlay:rgba(5,6,14,.82);--overlay-soft:rgba(5,6,14,.75);
+  --noise-url:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
   --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:18px;--r-full:9999px;
   --f-display:'Space Grotesk',sans-serif;--f-body:'Inter',sans-serif;--f-mono:'JetBrains Mono',monospace;
   --sidebar-w:260px;
+  color-scheme:dark;
+}
+html[data-theme="light"]{
+  color-scheme:light;
+  --bg:#f6f5fb;--surface:#ffffff;--elevated:#ffffff;--card:#f1eef9;
+  --border:rgba(124,58,237,.10);--border-b:rgba(124,58,237,.20);
+  --accent:#7c3aed;--accent2:#0e7490;--accent3:#7e22ce;
+  --text:#1a1625;--text2:rgba(26,22,37,.62);--text3:rgba(26,22,37,.42);
+  --success:#047857;--warn:#b45309;--danger:#be123c;
+  --grad-soft:linear-gradient(135deg,rgba(124,58,237,.08) 0%,rgba(14,116,144,.05) 100%);
+  --shadow-sm:0 1px 2px rgba(45,25,90,.06);
+  --shadow-md:0 8px 24px -8px rgba(45,25,90,.12);
+  --shadow-lg:0 20px 50px -14px rgba(45,25,90,.16);
+  --overlay:rgba(23,17,38,.26);--overlay-soft:rgba(23,17,38,.16);
+  --noise-url:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--f-body);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;height:100vh;overflow:hidden}
+*,*::before,*::after{transition:background-color .25s ease,border-color .25s ease,color .25s ease}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+body{font-family:var(--f-body);background-color:var(--bg);background-image:var(--noise-url);color:var(--text);-webkit-font-smoothing:antialiased;height:100vh;overflow:hidden}
 a{text-decoration:none;color:inherit}
 button{cursor:pointer;border:none;background:none;font-family:inherit}
 svg{display:block;flex-shrink:0}
@@ -75,8 +106,13 @@ svg{display:block;flex-shrink:0}
 .conv-title-dot{width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 6px var(--success);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .top-actions{display:flex;align-items:center;gap:6px;margin-left:auto}
-.icon-btn{width:32px;height:32px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;color:var(--text3);transition:.15s}
+.icon-btn{width:32px;height:32px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;color:var(--text3);transition:.15s;position:relative}
 .icon-btn:hover{background:rgba(139,92,246,.1);color:var(--text)}
+.theme-toggle svg{position:absolute;transition:opacity .3s ease,transform .5s cubic-bezier(.16,1,.3,1)}
+.theme-toggle .icon-sun{opacity:0;transform:rotate(-70deg) scale(.4)}
+.theme-toggle .icon-moon{opacity:1;transform:rotate(0) scale(1)}
+html[data-theme="light"] .theme-toggle .icon-sun{opacity:1;transform:rotate(0) scale(1)}
+html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70deg) scale(.4)}
 .btn{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:var(--r-full);font-size:.8125rem;font-weight:500;transition:.2s;white-space:nowrap}
 .btn-primary{background:var(--grad);color:#fff}
 .btn-primary:hover{opacity:.9}
@@ -170,9 +206,9 @@ textarea#chatInput::placeholder{color:var(--text3)}
 .composer-info{font-size:.68rem;color:var(--text3)}
 
 /* ══════════ API KEY MODAL ══════════ */
-.modal-overlay{position:fixed;inset:0;background:rgba(5,6,14,.82);backdrop-filter:blur(16px);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.2s}
+.modal-overlay{position:fixed;inset:0;background:var(--overlay);backdrop-filter:blur(16px);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.2s}
 .modal-overlay.open{opacity:1;pointer-events:all}
-.modal-card{background:var(--elevated);border:1px solid var(--border-b);border-radius:var(--r-xl);padding:36px;max-width:440px;width:calc(100% - 32px);position:relative;box-shadow:0 32px 80px rgba(0,0,0,.65);transform:translateY(12px);transition:.3s cubic-bezier(.16,1,.3,1)}
+.modal-card{background:var(--elevated);border:1px solid var(--border-b);border-radius:var(--r-xl);padding:36px;max-width:440px;width:calc(100% - 32px);position:relative;box-shadow:var(--shadow-lg);transform:translateY(12px);transition:.3s cubic-bezier(.16,1,.3,1)}
 .modal-overlay.open .modal-card{transform:none}
 .modal-close{position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;color:var(--text3);transition:.15s}
 .modal-close:hover{background:rgba(139,92,246,.1);color:var(--text)}
@@ -196,7 +232,7 @@ textarea#chatInput::placeholder{color:var(--text3)}
 
 /* ══════════ TOAST ══════════ */
 .toast-stack{position:fixed;bottom:24px;right:24px;z-index:600;display:flex;flex-direction:column;gap:8px}
-.toast{padding:11px 16px;border-radius:var(--r-md);background:var(--elevated);border:1px solid var(--border-b);font-size:.85rem;color:var(--text);box-shadow:0 8px 28px rgba(0,0,0,.5);animation:toastIn .3s cubic-bezier(.16,1,.3,1);display:flex;align-items:center;gap:8px}
+.toast{padding:11px 16px;border-radius:var(--r-md);background:var(--elevated);border:1px solid var(--border-b);font-size:.85rem;color:var(--text);box-shadow:var(--shadow-md);animation:toastIn .3s cubic-bezier(.16,1,.3,1);display:flex;align-items:center;gap:8px}
 @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
 
 /* ══════════ RESPONSIVE ══════════ */
@@ -274,6 +310,10 @@ textarea#chatInput::placeholder{color:var(--text3)}
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
           Dashboard
         </a>
+        <button class="icon-btn theme-toggle" id="themeToggle" type="button" aria-label="Switch to light theme" title="Switch theme">
+          <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+        </button>
         <button class="icon-btn" id="clearChatBtn" title="Clear conversation">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
         </button>
@@ -401,6 +441,25 @@ let isStreaming = false;
 const qs = s => document.querySelector(s);
 const on = (el, ev, fn) => el?.addEventListener(ev, fn);
 const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+// ── Theme ──
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  try { localStorage.setItem('dashview-theme', t); } catch (e) {}
+  const meta = qs('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', t === 'light' ? '#f6f5fb' : '#05060e');
+  const btn = qs('#themeToggle');
+  if (btn) btn.setAttribute('aria-label', t === 'light' ? 'Switch to dark theme' : 'Switch to light theme');
+}
+on(qs('#themeToggle'), 'click', () => {
+  applyTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+});
+window.addEventListener('storage', e => {
+  if (e.key === 'dashview-theme' && (e.newValue === 'light' || e.newValue === 'dark')) {
+    applyTheme(e.newValue);
+  }
+});
+applyTheme(document.documentElement.getAttribute('data-theme') || 'dark');
 
 function toast(msg, type='default', dur=3500) {
   const el = document.createElement('div');

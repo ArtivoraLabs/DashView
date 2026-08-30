@@ -1,9 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8"/>
+<script>(function(){try{var t=localStorage.getItem('dashview-theme');if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Dashboard — DashView</title>
+<meta name="description" content="DashView sales dashboard — live KPIs, revenue trends, category breakdowns and order search in one workspace."/>
+<meta name="theme-color" content="#05060e"/>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png"/>
+<link rel="manifest" href="manifest.json"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -15,12 +21,38 @@
   --text:#eaedf8;--text2:rgba(234,237,248,.65);--text3:rgba(234,237,248,.36);
   --success:#10b981;--warn:#f59e0b;--danger:#f43f5e;
   --grad:linear-gradient(135deg,#7c3aed 0%,#a855f7 45%,#22d3ee 100%);
+  --grad-soft:linear-gradient(135deg,rgba(124,58,237,.15) 0%,rgba(34,211,238,.06) 100%);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.3);
+  --shadow-md:0 8px 30px -8px rgba(0,0,0,.5);
+  --shadow-lg:0 24px 64px -16px rgba(0,0,0,.65);
+  --overlay:rgba(5,6,14,.8);--overlay-soft:rgba(5,6,14,.75);
+  --noise-url:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
   --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:18px;--r-full:9999px;
   --f-display:'Space Grotesk',sans-serif;--f-body:'Inter',sans-serif;--f-mono:'JetBrains Mono',monospace;
   --sidebar-w:240px;
+  color-scheme:dark;
+}
+html[data-theme="light"]{
+  color-scheme:light;
+  --bg:#f6f5fb;--surface:#ffffff;--elevated:#ffffff;--card:#f1eef9;
+  --border:rgba(124,58,237,.10);--border-b:rgba(124,58,237,.20);
+  --accent:#7c3aed;--accent2:#0e7490;--accent3:#7e22ce;
+  --text:#1a1625;--text2:rgba(26,22,37,.62);--text3:rgba(26,22,37,.42);
+  --success:#047857;--warn:#b45309;--danger:#be123c;
+  --grad-soft:linear-gradient(135deg,rgba(124,58,237,.08) 0%,rgba(14,116,144,.05) 100%);
+  --shadow-sm:0 1px 2px rgba(45,25,90,.06);
+  --shadow-md:0 8px 24px -8px rgba(45,25,90,.12);
+  --shadow-lg:0 20px 50px -14px rgba(45,25,90,.16);
+  --overlay:rgba(23,17,38,.24);--overlay-soft:rgba(23,17,38,.16);
+  --noise-url:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--f-body);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+*,*::before,*::after{transition:background-color .25s ease,border-color .25s ease,color .25s ease}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+body{font-family:var(--f-body);background-color:var(--bg);background-image:var(--noise-url);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{text-decoration:none;color:inherit}
 button{cursor:pointer;border:none;background:none;font-family:inherit}
 svg{display:block;flex-shrink:0}
@@ -75,6 +107,11 @@ svg{display:block;flex-shrink:0}
 .topbar-actions{display:flex;align-items:center;gap:6px;margin-left:auto}
 .icon-btn{width:34px;height:34px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;color:var(--text3);transition:.15s;position:relative}
 .icon-btn:hover{background:rgba(139,92,246,.1);color:var(--text)}
+.theme-toggle svg{position:absolute;transition:opacity .3s ease,transform .5s cubic-bezier(.16,1,.3,1)}
+.theme-toggle .icon-sun{opacity:0;transform:rotate(-70deg) scale(.4)}
+.theme-toggle .icon-moon{opacity:1;transform:rotate(0) scale(1)}
+html[data-theme="light"] .theme-toggle .icon-sun{opacity:1;transform:rotate(0) scale(1)}
+html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70deg) scale(.4)}
 .notif-dot{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--accent);border:2px solid var(--bg)}
 .btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--r-full);font-size:.8125rem;font-weight:500;transition:.2s;white-space:nowrap}
 .btn-primary{background:var(--grad);color:#fff}
@@ -104,7 +141,7 @@ svg{display:block;flex-shrink:0}
 /* ══════════ KPI CARDS ══════════ */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
 .kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:20px;transition:.2s;position:relative;overflow:hidden}
-.kpi-card:hover{border-color:var(--border-b);transform:translateY(-1px)}
+.kpi-card:hover{border-color:var(--border-b);transform:translateY(-2px);box-shadow:var(--shadow-md)}
 .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);opacity:0;transition:.2s}
 .kpi-card:hover::before{opacity:1}
 .kpi-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
@@ -177,9 +214,9 @@ tbody td{padding:13px 16px;font-size:.8125rem;color:var(--text2)}
 .page-btn:disabled{opacity:.35;pointer-events:none}
 
 /* ══════════ COMMAND PALETTE ══════════ */
-.cmd-overlay{position:fixed;inset:0;background:rgba(5,6,14,.75);backdrop-filter:blur(16px);z-index:500;display:flex;align-items:flex-start;justify-content:center;padding-top:18vh;opacity:0;pointer-events:none;transition:.15s}
+.cmd-overlay{position:fixed;inset:0;background:var(--overlay-soft);backdrop-filter:blur(16px);z-index:500;display:flex;align-items:flex-start;justify-content:center;padding-top:18vh;opacity:0;pointer-events:none;transition:.15s}
 .cmd-overlay.open{opacity:1;pointer-events:all}
-.cmd-box{background:var(--elevated);border:1px solid var(--border-b);border-radius:var(--r-xl);width:100%;max-width:560px;overflow:hidden;box-shadow:0 32px 80px -16px rgba(0,0,0,.7);transform:translateY(-12px);transition:.2s cubic-bezier(.16,1,.3,1)}
+.cmd-box{background:var(--elevated);border:1px solid var(--border-b);border-radius:var(--r-xl);width:100%;max-width:560px;overflow:hidden;box-shadow:var(--shadow-lg);transform:translateY(-12px);transition:.2s cubic-bezier(.16,1,.3,1)}
 .cmd-overlay.open .cmd-box{transform:translateY(0)}
 .cmd-input-wrap{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border)}
 .cmd-input-wrap svg{color:var(--text3);flex-shrink:0}
@@ -196,7 +233,7 @@ tbody td{padding:13px 16px;font-size:.8125rem;color:var(--text2)}
 .cmd-key{font-family:var(--f-mono);background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1px 6px}
 
 /* ══════════ NOTIFICATION PANEL ══════════ */
-.notif-panel{position:fixed;top:64px;right:16px;width:320px;background:var(--elevated);border:1px solid var(--border-b);border-radius:var(--r-xl);box-shadow:0 24px 64px -16px rgba(0,0,0,.65);z-index:200;overflow:hidden;transform:translateY(-8px) scale(.97);opacity:0;pointer-events:none;transition:.2s cubic-bezier(.16,1,.3,1)}
+.notif-panel{position:fixed;top:64px;right:16px;width:320px;background:var(--elevated);border:1px solid var(--border-b);border-radius:var(--r-xl);box-shadow:var(--shadow-lg);z-index:200;overflow:hidden;transform:translateY(-8px) scale(.97);opacity:0;pointer-events:none;transition:.2s cubic-bezier(.16,1,.3,1)}
 .notif-panel.open{transform:none;opacity:1;pointer-events:all}
 .notif-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)}
 .notif-header h4{font-family:var(--f-display);font-size:.9rem;font-weight:600}
@@ -211,7 +248,7 @@ tbody td{padding:13px 16px;font-size:.8125rem;color:var(--text2)}
 
 /* ══════════ TOAST ══════════ */
 .toast-stack{position:fixed;bottom:24px;right:24px;z-index:600;display:flex;flex-direction:column;gap:8px}
-.toast{padding:12px 18px;border-radius:var(--r-md);background:var(--elevated);border:1px solid var(--border-b);font-size:.875rem;color:var(--text);box-shadow:0 8px 28px rgba(0,0,0,.5);animation:toastIn .3s cubic-bezier(.16,1,.3,1)}
+.toast{padding:12px 18px;border-radius:var(--r-md);background:var(--elevated);border:1px solid var(--border-b);font-size:.875rem;color:var(--text);box-shadow:var(--shadow-md);animation:toastIn .3s cubic-bezier(.16,1,.3,1)}
 @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
 
 /* ══════════ RESPONSIVE ══════════ */
@@ -318,6 +355,10 @@ tbody td{padding:13px 16px;font-size:.8125rem;color:var(--text2)}
           Export CSV
         </button>
         <div class="divider-v"></div>
+        <button class="icon-btn theme-toggle" id="themeToggle" type="button" aria-label="Switch to light theme" title="Switch theme">
+          <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+        </button>
         <button class="icon-btn" id="notifBtn">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           <span class="notif-dot"></span>
@@ -555,15 +596,32 @@ for (let i = 0; i < 120; i++) {
 }
 
 // ── Chart setup ──
-Chart.defaults.color = 'rgba(234,237,248,.5)';
+function chartTheme() {
+  const light = document.documentElement.getAttribute('data-theme') === 'light';
+  return {
+    text: light ? 'rgba(26,22,37,.55)' : 'rgba(234,237,248,.5)',
+    gridY: light ? 'rgba(124,58,237,.07)' : 'rgba(139,92,246,.06)',
+    tooltipBg: light ? 'rgba(255,255,255,.98)' : 'rgba(14,17,38,.95)',
+    tooltipBorder: light ? 'rgba(124,58,237,.18)' : 'rgba(139,92,246,.25)',
+    tooltipTitle: light ? '#1a1625' : 'rgba(234,237,248,.9)',
+    tooltipBody: light ? 'rgba(26,22,37,.68)' : 'rgba(234,237,248,.65)',
+    revenueLine: light ? '#7c3aed' : '#8b5cf6',
+    ordersLine: light ? '#0e7490' : '#22d3ee',
+  };
+}
+let ct = chartTheme();
+Chart.defaults.color = ct.text;
 Chart.defaults.borderColor = 'rgba(139,92,246,.08)';
 Chart.defaults.font.family = "'Inter', sans-serif";
 
 // Revenue chart
 const revCtx = document.getElementById('revenueChart').getContext('2d');
-const gradient = revCtx.createLinearGradient(0,0,0,220);
-gradient.addColorStop(0,'rgba(139,92,246,.25)');
-gradient.addColorStop(1,'rgba(139,92,246,0)');
+function revenueFillGradient() {
+  const g = revCtx.createLinearGradient(0,0,0,220);
+  g.addColorStop(0,'rgba(139,92,246,.25)');
+  g.addColorStop(1,'rgba(139,92,246,0)');
+  return g;
+}
 
 let revenueChart = new Chart(revCtx, {
   type:'line',
@@ -572,18 +630,18 @@ let revenueChart = new Chart(revCtx, {
     datasets:[{
       label:'Revenue',
       data:REVENUE,
-      borderColor:'#8b5cf6',
-      backgroundColor:gradient,
+      borderColor:ct.revenueLine,
+      backgroundColor:revenueFillGradient(),
       borderWidth:2.5,
       tension:.4,
       fill:true,
-      pointBackgroundColor:'#8b5cf6',
+      pointBackgroundColor:ct.revenueLine,
       pointRadius:4,
       pointHoverRadius:6,
     },{
       label:'Orders',
       data:ORDERS_M.map(v=>v*65),
-      borderColor:'#22d3ee',
+      borderColor:ct.ordersLine,
       backgroundColor:'transparent',
       borderWidth:2,
       borderDash:[5,3],
@@ -598,11 +656,11 @@ let revenueChart = new Chart(revCtx, {
     plugins:{
       legend:{display:false},
       tooltip:{
-        backgroundColor:'rgba(14,17,38,.95)',
-        borderColor:'rgba(139,92,246,.25)',
+        backgroundColor:ct.tooltipBg,
+        borderColor:ct.tooltipBorder,
         borderWidth:1,
-        titleColor:'rgba(234,237,248,.9)',
-        bodyColor:'rgba(234,237,248,.65)',
+        titleColor:ct.tooltipTitle,
+        bodyColor:ct.tooltipBody,
         padding:12,
         callbacks:{label:ctx=>{
           if(ctx.datasetIndex===0) return ` Revenue: $${(ctx.raw/1000).toFixed(1)}k`;
@@ -612,14 +670,14 @@ let revenueChart = new Chart(revCtx, {
     },
     scales:{
       x:{grid:{display:false},ticks:{font:{size:11}}},
-      y:{grid:{color:'rgba(139,92,246,.06)'},ticks:{callback:v=>`$${(v/1000).toFixed(0)}k`,font:{size:11}}}
+      y:{grid:{color:ct.gridY},ticks:{callback:v=>`$${(v/1000).toFixed(0)}k`,font:{size:11}}}
     }
   }
 });
 
 // Category donut chart
 const catCtx = document.getElementById('categoryChart').getContext('2d');
-new Chart(catCtx, {
+let categoryChart = new Chart(catCtx, {
   type:'doughnut',
   data:{
     labels:CATS,
@@ -630,14 +688,42 @@ new Chart(catCtx, {
     plugins:{
       legend:{display:false},
       tooltip:{
-        backgroundColor:'rgba(14,17,38,.95)',
-        borderColor:'rgba(139,92,246,.25)',
+        backgroundColor:ct.tooltipBg,
+        borderColor:ct.tooltipBorder,
         borderWidth:1,
+        titleColor:ct.tooltipTitle,
+        bodyColor:ct.tooltipBody,
         callbacks:{label:ctx=>`$${(ctx.raw/1000).toFixed(1)}k · ${((ctx.raw/CAT_REV.reduce((a,b)=>a+b,0))*100).toFixed(1)}%`}
       }
     }
   }
 });
+
+// Re-color both charts when the theme toggles — Chart.js reads plain JS
+// color strings, not CSS variables, so this has to happen in JS too.
+function applyChartTheme() {
+  ct = chartTheme();
+  Chart.defaults.color = ct.text;
+
+  revenueChart.data.datasets[0].borderColor = ct.revenueLine;
+  revenueChart.data.datasets[0].pointBackgroundColor = ct.revenueLine;
+  revenueChart.data.datasets[1].borderColor = ct.ordersLine;
+  if (revenueChart.config.type === 'line') {
+    revenueChart.data.datasets[0].backgroundColor = revenueFillGradient();
+  }
+  Object.assign(revenueChart.options.plugins.tooltip, {
+    backgroundColor: ct.tooltipBg, borderColor: ct.tooltipBorder,
+    titleColor: ct.tooltipTitle, bodyColor: ct.tooltipBody
+  });
+  revenueChart.options.scales.y.grid.color = ct.gridY;
+  revenueChart.update();
+
+  Object.assign(categoryChart.options.plugins.tooltip, {
+    backgroundColor: ct.tooltipBg, borderColor: ct.tooltipBorder,
+    titleColor: ct.tooltipTitle, bodyColor: ct.tooltipBody
+  });
+  categoryChart.update();
+}
 
 // Build category legend
 const catLegend = document.getElementById('catLegend');
@@ -655,9 +741,7 @@ document.querySelectorAll('.chart-type-btn').forEach(btn => {
       revenueChart.data.datasets[0].backgroundColor = CAT_COLORS[0]+'66';
       revenueChart.data.datasets[0].borderRadius = 4;
     } else {
-      const g2 = revCtx.createLinearGradient(0,0,0,220);
-      g2.addColorStop(0,'rgba(139,92,246,.25)');g2.addColorStop(1,'rgba(139,92,246,0)');
-      revenueChart.data.datasets[0].backgroundColor = g2;
+      revenueChart.data.datasets[0].backgroundColor = revenueFillGradient();
     }
     revenueChart.destroy();
     revenueChart = new Chart(revCtx, revenueChart.config);
@@ -737,6 +821,26 @@ document.querySelectorAll('.date-range button').forEach(btn => {
 
 // Date label
 document.getElementById('dateLabel').textContent = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+
+// ── Theme ──
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  try { localStorage.setItem('dashview-theme', t); } catch (e) {}
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', t === 'light' ? '#f6f5fb' : '#05060e');
+  const btn = document.getElementById('themeToggle');
+  if (btn) btn.setAttribute('aria-label', t === 'light' ? 'Switch to dark theme' : 'Switch to light theme');
+  if (typeof applyChartTheme === 'function') applyChartTheme();
+}
+document.getElementById('themeToggle').addEventListener('click', () => {
+  applyTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+});
+window.addEventListener('storage', e => {
+  if (e.key === 'dashview-theme' && (e.newValue === 'light' || e.newValue === 'dark')) {
+    applyTheme(e.newValue);
+  }
+});
+applyTheme(document.documentElement.getAttribute('data-theme') || 'dark');
 
 // ── Sidebar toggle ──
 document.getElementById('sidebarToggle').addEventListener('click', () => {
