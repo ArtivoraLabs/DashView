@@ -1,0 +1,23 @@
+[
+  {
+    "key": "sales_total",
+    "title": "Sales (our definition: invoiced, excl. tax)",
+    "definition": "Posted customer invoices minus credit notes, untaxed, company currency, by invoice date.",
+    "model": "account.move",
+    "domain": [["move_type", "in", ["out_invoice", "out_refund"]], ["state", "=", "posted"]],
+    "date_field": "invoice_date",
+    "date_kind": "date",
+    "measure": "amount_untaxed_signed:sum",
+    "groupable": ["partner_id", "invoice_user_id"],
+    "currency": "company"
+  },
+  {
+    "key": "open_helpdesk_tickets",
+    "title": "Open helpdesk tickets",
+    "definition": "Tickets whose stage is not closed.",
+    "model": "helpdesk.ticket",
+    "domain": [["stage_id.fold", "=", false]],
+    "groupable": ["stage_id", "user_id", "team_id"],
+    "currency": "none"
+  }
+]

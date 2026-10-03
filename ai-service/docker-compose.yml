@@ -1,0 +1,13 @@
+services:
+  api:
+    build: .
+    env_file: .env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      WEB_CONCURRENCY: "2"
+    ports: ["8000:8000"]
+    depends_on: [redis]
+    restart: unless-stopped
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped

@@ -1,0 +1,12 @@
+[
+  {"id": "sales-last-month", "question": "Pichle mahine ki total sales kitni thi?",
+   "truth": {"metric": "sales_total", "period": "last_month", "check": "total"}, "must_use": ["odoo_metric"]},
+  {"id": "top-customers", "question": "Last month ke top 3 customers by sales batao",
+   "truth": {"metric": "sales_total", "period": "last_month", "groupby": "partner_id", "limit": 3, "check": "top_groups"}},
+  {"id": "overdue-ar", "question": "Kitna udhaar overdue hai customers ka?",
+   "truth": {"metric": "receivables_overdue", "check": "total"}, "must_use": ["odoo_metric"]},
+  {"id": "invoiced-ytd", "question": "How much did we invoice this year so far?",
+   "truth": {"metric": "invoiced_net", "period": "this_year", "check": "total"}},
+  {"id": "headcount", "question": "Humare paas kitne employees hain?",
+   "truth": {"metric": "headcount", "check": "total"}}
+]
