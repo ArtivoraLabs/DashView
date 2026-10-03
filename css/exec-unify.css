@@ -1,0 +1,66 @@
+/* ==========================================================================
+   DashView — One colour system for the Executive dashboard  (load LAST)
+   Problem this fixes: KPI cards, charts, legends and status chips each used
+   their own hex values (KPI accents were violet/cyan/green/rose, charts were
+   amber/blue/green/red, "good" was three different greens).
+
+   Rules now:
+     1. CATEGORIES (series, companies, KPI accents) use ONE palette, --dv-c1..10,
+        identical to DVFmt.PALETTE in js/odoo-client.js. Brand amber leads.
+        Red and green are NOT in it.
+     2. VERDICTS (good / bad / warning / info / flat) use --st-*, and only those.
+        So a green or red mark always means "favourable / unfavourable".
+   Both follow the dark / light theme.
+   ========================================================================== */
+:root {
+  --dv-c1: #f2b04a; --dv-c2: #5b9cf5; --dv-c3: #a78bfa; --dv-c4: #2dd4bf; --dv-c5: #f472b6;
+  --dv-c6: #38bdf8; --dv-c7: #fb923c; --dv-c8: #818cf8; --dv-c9: #c8d36a; --dv-c10: #94a3b8;
+  --st-good: #3fbf7f; --st-bad: #f0715e; --st-warn: #f2b04a; --st-info: #5b9cf5; --st-flat: #94a3b8;
+}
+html[data-theme=light] {
+  --dv-c1: #c2710c; --dv-c2: #2563eb; --dv-c3: #7c3aed; --dv-c4: #0d9488; --dv-c5: #db2777;
+  --dv-c6: #0284c7; --dv-c7: #ea580c; --dv-c8: #4f46e5; --dv-c9: #65a30d; --dv-c10: #64748b;
+  --st-good: #15803d; --st-bad: #c62828; --st-warn: #b45309; --st-info: #2563eb; --st-flat: #64748b;
+}
+/* KPI card accents follow the chart palette (they used a separate violet/cyan/green/rose set) */
+:root { --cp-c1: var(--dv-c1); --cp-c2: var(--dv-c2); --cp-c3: var(--dv-c3); --cp-c4: var(--dv-c4); --cp-c5: var(--dv-c5); --cp-c6: var(--dv-c6); }
+
+/* ── Verdict chips ───────────────────────────────────────────────────── */
+.olx-delta.good { color: var(--st-good); background: rgba(63, 191, 127, .14); background: color-mix(in srgb, var(--st-good) 15%, transparent); }
+.olx-delta.bad  { color: var(--st-bad);  background: rgba(240, 113, 94, .14); background: color-mix(in srgb, var(--st-bad) 15%, transparent); }
+.olx-delta.flat { color: var(--st-flat); background: rgba(148, 163, 184, .16); background: color-mix(in srgb, var(--st-flat) 16%, transparent); }
+.olx-xk[data-trend="good"]::before { background: linear-gradient(90deg, var(--st-good), transparent 85%); }
+.olx-xk[data-trend="bad"]::before  { background: linear-gradient(90deg, var(--st-bad), transparent 85%); }
+.olx-kd-c.is-good b { color: var(--st-good); } .olx-kd-c.is-bad b { color: var(--st-bad); }
+
+/* ── Headline tiles, summary columns, section badges ─────────────────── */
+.olx-ht.is-good { border-left-color: var(--st-good); } .olx-ht.is-bad { border-left-color: var(--st-bad); }
+.olx-ht.is-warn { border-left-color: var(--st-warn); } .olx-ht.is-flat, .olx-ht.is-na { border-left-color: var(--st-flat); }
+.olx-ncol.is-good { border-color: var(--st-good); } .olx-ncol.is-watch { border-color: var(--st-warn); } .olx-ncol.is-att { border-color: var(--st-bad); }
+.olx-sbadge.is-good { color: var(--st-good); background: rgba(63, 191, 127, .14); background: color-mix(in srgb, var(--st-good) 15%, transparent); }
+.olx-sbadge.is-warn { color: var(--st-warn); background: rgba(242, 176, 74, .14); background: color-mix(in srgb, var(--st-warn) 15%, transparent); }
+.olx-sbadge.is-bad  { color: var(--st-bad);  background: rgba(240, 113, 94, .14); background: color-mix(in srgb, var(--st-bad) 15%, transparent); }
+
+/* ── Alerts & concentration risk ─────────────────────────────────────── */
+.olx-alert { border-left-color: var(--st-warn); background: rgba(242, 176, 74, .10); background: color-mix(in srgb, var(--st-warn) 11%, transparent); }
+.olx-alert.tone-bad  { border-color: var(--st-bad);  background: rgba(240, 113, 94, .10); background: color-mix(in srgb, var(--st-bad) 11%, transparent); }
+.olx-alert.tone-info { border-color: var(--st-info); background: rgba(91, 156, 245, .10); background: color-mix(in srgb, var(--st-info) 11%, transparent); }
+.olx-alert.is-clear  { border-color: var(--st-good); background: rgba(63, 191, 127, .08); background: color-mix(in srgb, var(--st-good) 9%, transparent); }
+.olx-risk.tone-ok   { border-color: var(--st-good); background: rgba(63, 191, 127, .08); background: color-mix(in srgb, var(--st-good) 9%, transparent); }
+.olx-risk.tone-warn { border-color: var(--st-warn); background: rgba(242, 176, 74, .10); background: color-mix(in srgb, var(--st-warn) 11%, transparent); }
+.olx-risk.tone-bad  { border-color: var(--st-bad);  background: rgba(240, 113, 94, .10); background: color-mix(in srgb, var(--st-bad) 11%, transparent); }
+.olx-risk.tone-ok .olx-gauge u { background: var(--st-good); } .olx-risk.tone-warn .olx-gauge u { background: var(--st-warn); } .olx-risk.tone-bad .olx-gauge u { background: var(--st-bad); }
+
+/* ── Shops & stock movement (exec-retail) ────────────────────────────── */
+.xr-b-up   { background: rgba(63, 191, 127, .16); background: color-mix(in srgb, var(--st-good) 16%, transparent); color: var(--st-good); }
+.xr-b-down { background: rgba(240, 113, 94, .16); background: color-mix(in srgb, var(--st-bad) 16%, transparent); color: var(--st-bad); }
+.xr-p-wait   { background: rgba(242, 176, 74, .18); background: color-mix(in srgb, var(--st-warn) 18%, transparent); color: var(--st-warn); }
+.xr-p-ready  { background: rgba(91, 156, 245, .18); background: color-mix(in srgb, var(--st-info) 18%, transparent); color: var(--st-info); }
+.xr-p-done   { background: rgba(63, 191, 127, .18); background: color-mix(in srgb, var(--st-good) 18%, transparent); color: var(--st-good); }
+.xr-p-cancel { background: rgba(240, 113, 94, .16); background: color-mix(in srgb, var(--st-bad) 16%, transparent); color: var(--st-bad); }
+.xr-kpis .xr-bad .olx-k-val { color: var(--st-bad); }
+.xr-kpis .xr-bad::before { background: linear-gradient(90deg, var(--st-bad), transparent 85%); }
+
+/* ── Company comparison: fallbacks for browsers without color-mix ───── */
+.xc-chip.is-on { background: var(--signal-10); background: color-mix(in srgb, var(--c) 16%, var(--paper-soft)); }
+.xc-all.is-on { background: var(--signal-20); }

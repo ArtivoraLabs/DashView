@@ -1,0 +1,172 @@
+/* ==========================================================================
+   DashView - Chart & detail polish (loaded after visual-polish.css)
+   Cosmetic only: KPI cards, chart panels, legends, deltas, empty states.
+   Delete the <link> to revert.
+   ========================================================================== */
+:root { --cp-c1:#a78bfa; --cp-c2:#38bdf8; --cp-c3:#34d399; --cp-c4:#fbbf24; --cp-c5:#fb7185; --cp-c6:#60a5fa; }
+html[data-theme=light] { --cp-c1:#6d28d9; --cp-c2:#0e7490; --cp-c3:#047857; --cp-c4:#b45309; --cp-c5:#be123c; --cp-c6:#1d4ed8; }
+
+/* ---- KPI cards ---- */
+.olx-kpis { gap: 14px; }
+.olx-kpi {
+  padding: 18px 20px 16px; border-radius: 16px; isolation: isolate;
+  background: linear-gradient(160deg, var(--paper) 0%, var(--paper-soft, var(--paper)) 140%);
+  transition: transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .25s, border-color .25s;
+}
+.olx-kpi::before { height: 3px; background: linear-gradient(90deg, var(--kc, var(--cp-c1)), transparent 85%); }
+.olx-kpi::after { content: ''; position: absolute; z-index: -1; right: -40px; top: -40px; width: 130px; height: 130px; border-radius: 50%;
+  background: radial-gradient(circle, var(--kc, var(--cp-c1)) 0%, transparent 70%); opacity: .13; transition: opacity .3s; }
+.olx-kpi:hover { transform: translateY(-3px); box-shadow: 0 14px 34px -16px rgba(0,0,0,.5); border-color: var(--kc, var(--cp-c1)); }
+.olx-kpi:hover::after { opacity: .24; }
+.olx-kpi:nth-child(6n+1) { --kc: var(--cp-c1); } .olx-kpi:nth-child(6n+2) { --kc: var(--cp-c2); }
+.olx-kpi:nth-child(6n+3) { --kc: var(--cp-c3); } .olx-kpi:nth-child(6n+4) { --kc: var(--cp-c4); }
+.olx-kpi:nth-child(6n+5) { --kc: var(--cp-c5); } .olx-kpi:nth-child(6n+6) { --kc: var(--cp-c6); }
+.olx-k-label { font-size: 11px; letter-spacing: .09em; }
+.olx-k-val { font-size: 30px; line-height: 1.1; margin: 10px 0 6px; font-variant-numeric: tabular-nums; }
+.olx-xk .olx-k-val { font-size: 2rem; }
+.olx-k-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; line-height: 1.4; }
+.olx-spark { height: 52px; margin: 10px -6px -4px; opacity: .95; }
+
+/* ---- Delta chips (period-over-period) ---- */
+.olx-delta { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 999px; font-size: 11.5px; line-height: 1.5; font-variant-numeric: tabular-nums; }
+.olx-delta.good { color: #4ade80; background: rgba(22,163,74,.13); }
+.olx-delta.bad  { color: #fb7185; background: rgba(220,38,38,.13); }
+.olx-delta.flat { color: #64748b; background: rgba(100,116,139,.15); }
+
+/* ---- Chart panels ---- */
+.olx-chart { position: relative; padding: 18px 20px 16px; border-radius: 16px; overflow: hidden;
+  background: linear-gradient(180deg, var(--paper) 0%, var(--paper-soft, var(--paper)) 220%); }
+.olx-chart::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 2px; background: linear-gradient(90deg, var(--cp-c1), var(--cp-c2), transparent 80%); opacity: .75; }
+.olx-chart .chart-header { margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--line, rgba(148,155,190,.16)); }
+.olx-chart h3 { font-size: 14.5px; font-weight: 700; letter-spacing: -.01em; }
+.olx-chart .chart-subtitle { margin: 3px 0 0; font-size: 11.5px; color: var(--ink-50); }
+.olx-chart-body, .ov-canvas { height: 260px; }
+.olx-wide .olx-chart-body { min-height: 320px; }
+.olx-charts { gap: 16px; }
+
+/* ---- Legend rows with share bars ---- */
+.olx-legend { gap: 2px; margin-top: 14px; }
+.olx-leg { position: relative; padding: 7px 8px 9px; margin: 0 -8px; border-radius: 8px; }
+.olx-leg i { width: 10px; height: 10px; border-radius: 3px; box-shadow: 0 0 0 3px color-mix(in srgb, var(--c, currentColor) 22%, transparent); }
+.olx-leg::after { content: ''; position: absolute; left: 27px; right: 8px; bottom: 3px; height: 3px; border-radius: 3px;
+  background: linear-gradient(90deg, var(--c, var(--cp-c1)) var(--p, 0%), rgba(127,127,127,.14) var(--p, 0%)); }
+.olx-leg em { font-weight: 600; color: var(--ink-70); }
+
+/* ---- Empty / loading states ---- */
+.olx-empty-s { gap: 6px; border: 1px dashed var(--line-strong, rgba(148,155,190,.25)); border-radius: 12px; min-height: 140px; }
+.olx-empty-s::before { content: ''; width: 38px; height: 38px; border-radius: 12px; margin: 0 auto 4px;
+  background: linear-gradient(135deg, var(--cp-c1), var(--cp-c2)); opacity: .28;
+  -webkit-mask: linear-gradient(#000 0 0) center/60% 6px no-repeat, linear-gradient(#000 0 0) center/6px 60% no-repeat; mask: none; }
+.olx-skel { border-radius: 12px; }
+
+/* ---- Light theme tuning ---- */
+html[data-theme=light] .olx-kpi:hover { box-shadow: 0 14px 30px -16px rgba(30,30,60,.3); }
+html[data-theme=light] .olx-kpi::after { opacity: .09; }
+
+@media (max-width: 760px) {
+  .olx-kpi { padding: 14px; } .olx-k-val { font-size: 25px; }
+  .olx-chart { padding: 14px; } .olx-chart-body, .ov-canvas { height: 220px; }
+}
+@media print { .olx-kpi::after, .olx-chart::before { display: none; } .olx-kpi:hover { transform: none; box-shadow: none; } }
+
+/* ==========================================================================
+   Executive dashboard detailing
+   ========================================================================== */
+/* clickable KPI cards */
+.olx-xk.is-clickable { cursor: pointer; }
+.olx-xk.is-clickable:focus-visible { outline: 2px solid var(--kc, var(--cp-c1)); outline-offset: 2px; }
+.olx-more { position: absolute; top: 14px; right: 16px; font-size: 11px; font-weight: 600; letter-spacing: .02em; color: var(--ink-50);
+  opacity: 0; transform: translateX(-4px); transition: opacity .2s, transform .2s; }
+.olx-xk.is-clickable:hover .olx-more, .olx-xk.is-clickable:focus-visible .olx-more { opacity: 1; transform: none; }
+@media (hover: none) { .olx-more { opacity: .55; transform: none; } }
+
+/* concentration gauge: bar with the 40% / 60% risk thresholds */
+.olx-gauge { position: relative; display: block; height: 6px; margin: 8px 0 4px; border-radius: 6px; background: rgba(127,127,127,.2); overflow: hidden; }
+.olx-gauge u { position: absolute; inset: 0 auto 0 0; border-radius: 6px; background: #94a3b8; transition: width .6s cubic-bezier(.2,.7,.2,1); }
+.olx-gauge s { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--paper, #fff); opacity: .8; }
+.olx-risk.tone-ok .olx-gauge u { background: #34d399; } .olx-risk.tone-warn .olx-gauge u { background: #fbbf24; } .olx-risk.tone-bad .olx-gauge u { background: #fb7185; }
+html[data-theme=light] .olx-delta.good, html[data-theme=light] .olx-kd-c.is-good b { color: #15803d; }
+html[data-theme=light] .olx-delta.bad, html[data-theme=light] .olx-kd-c.is-bad b { color: #b91c1c; }
+html[data-theme=light] .olx-risk.tone-ok .olx-gauge u { background: #15803d; }
+html[data-theme=light] .olx-risk.tone-warn .olx-gauge u { background: #a16207; }
+html[data-theme=light] .olx-risk.tone-bad .olx-gauge u { background: #b91c1c; }
+
+/* KPI detail drawer */
+.olx-kd { position: fixed; inset: 0; z-index: 2147482500; display: flex; justify-content: flex-end; }
+.olx-kd-back { position: absolute; inset: 0; background: rgba(6,8,16,.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); animation: olxKdFade .2s ease; }
+.olx-kd-panel { position: relative; width: min(480px, 100%); height: 100%; overflow-y: auto; padding: 22px 24px 28px; background: var(--paper, #131726); color: var(--ink, #eef0fa);
+  border-left: 1px solid var(--line-strong, rgba(148,155,190,.25)); box-shadow: -24px 0 60px -20px rgba(0,0,0,.6); animation: olxKdSlide .28s cubic-bezier(.2,.8,.2,1); }
+@keyframes olxKdFade { from { opacity: 0; } } @keyframes olxKdSlide { from { transform: translateX(40px); opacity: 0; } }
+.olx-kd-panel header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+.olx-kd-panel header small { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; color: var(--ink-50); }
+.olx-kd-panel h3 { margin: 4px 0 0; font-size: 20px; letter-spacing: -.02em; }
+.olx-kd-x { flex: none; width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--line, rgba(148,155,190,.25)); background: transparent; color: inherit; cursor: pointer; }
+.olx-kd-hero { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.olx-kd-hero strong { font-size: 38px; line-height: 1.05; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.olx-kd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+.olx-kd-c { padding: 10px 12px; border-radius: 12px; background: var(--paper-soft, rgba(148,155,190,.08)); border: 1px solid var(--line, rgba(148,155,190,.16)); }
+.olx-kd-c span { display: block; font-size: 11px; color: var(--ink-50); text-transform: uppercase; letter-spacing: .06em; }
+.olx-kd-c b { display: block; margin-top: 3px; font-size: 16px; font-variant-numeric: tabular-nums; }
+.olx-kd-c.is-good b { color: #4ade80; } .olx-kd-c.is-bad b { color: #fb7185; } .olx-kd-c.is-flat b, .olx-kd-c.is-na b { color: var(--ink-70); }
+.olx-kd-panel h4 { margin: 18px 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-50); }
+.olx-kd-chart { position: relative; height: 200px; }
+.olx-kd-def { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 13px; }
+.olx-kd-def b { display: inline-block; min-width: 76px; color: var(--ink-50); font-weight: 600; }
+.olx-kd-def code { font: 12px var(--f-mono, ui-monospace, monospace); padding: 1px 6px; border-radius: 6px; background: var(--paper-soft, rgba(148,155,190,.12)); word-break: break-word; }
+.olx-kd-tb { width: 100%; margin-top: 10px; font-size: 12.5px; border-collapse: collapse; }
+.olx-kd-tb th { text-align: left; font-size: 10.5px; padding: 6px 4px; color: var(--ink-50); border-bottom: 1px solid var(--line, rgba(148,155,190,.2)); position: static; }
+.olx-kd-tb td { padding: 6px 4px; border-bottom: 1px solid var(--line, rgba(148,155,190,.12)); font-variant-numeric: tabular-nums; }
+.olx-kd-note { margin: 8px 0 0; font-size: 11px; color: var(--ink-50); }
+.olx-kd-act { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+@media (max-width: 760px) { .olx-kd-panel { padding: 18px 16px 24px; } .olx-kd-hero strong { font-size: 32px; } }
+@media (prefers-reduced-motion: reduce) { .olx-kd-back, .olx-kd-panel { animation: none; } }
+@media print { .olx-kd, .olx-more, #olxRefresh { display: none !important; } }
+
+/* ==========================================================================
+   Line-chart detail strip  (rendered under executive trend charts)
+   ========================================================================== */
+.olx-legend:has(.olx-stats) { margin-top: 12px; }
+.olx-stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1px; border: 1px solid var(--line, rgba(148,155,190,.18)); border-radius: 12px; overflow: hidden;
+  background: var(--line, rgba(148,155,190,.18)); position: relative; }
+.olx-st { min-width: 0; padding: 10px 12px 9px; background: var(--paper, #fff); display: flex; flex-direction: column; gap: 2px; }
+.olx-st span:first-child { font-size: 10px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-50); }
+.olx-st b { font-size: 15px; font-weight: 700; letter-spacing: -.01em; font-variant-numeric: tabular-nums; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.olx-st small { font-size: 11px; color: var(--ink-50); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.olx-st small .olx-delta { padding: 1px 6px; font-size: 10.5px; }
+.olx-st-tg { grid-column: 1 / -1; justify-self: stretch; padding: 7px 12px; border: 0; border-top: 1px solid var(--line, rgba(148,155,190,.18)); background: var(--paper, #fff); color: var(--ink-70);
+  font-size: 11.5px; font-weight: 600; line-height: 1.2; font-family: inherit; letter-spacing: .02em; cursor: pointer; text-align: center; border-radius: 0; transition: background .18s, color .18s; }
+.olx-st-tg::before { content: ''; display: inline-block; width: 16px; height: 0; margin-right: 8px; vertical-align: middle; border-top: 2px dashed currentColor; opacity: .8; }
+.olx-st-tg:hover { background: var(--signal-10, rgba(232,163,61,.1)); color: var(--ink); }
+.olx-st-tg.is-on { color: #80c7e7; background: rgba(91,143,174,.12); }
+html[data-theme=light] .olx-st-tg.is-on { color: #245f7a; }
+.olx-st-tg:focus-visible { outline: 2px solid var(--signal, #e8a33d); outline-offset: -2px; }
+.olx-chart-body { position: relative; }
+.olx-chart-body canvas { display: block; }
+@media (max-width: 900px) { .olx-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .olx-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .olx-st b { font-size: 14px; } }
+@media print { .olx-st-tg { display: none; } .olx-stats { break-inside: avoid; } }
+@media (max-width: 900px) { .olx-st:nth-child(5) { grid-column: span 2; } }
+
+/* v2.4 chart detailing */
+.olx-leg{transition:opacity .15s,background .15s}.olx-legs:hover .olx-leg:not(:hover){opacity:.55}
+.olx-leg i{border-radius:4px;box-shadow:0 0 0 2px color-mix(in srgb,currentColor 0%,transparent)}
+.ov-bar-track{height:8px;border-radius:8px;overflow:hidden;background:rgba(148,155,190,.14)}.ov-bar-track i{display:block;height:100%;border-radius:8px;transform-origin:left;animation:dvBarIn .8s cubic-bezier(.2,.8,.2,1) both}
+@keyframes dvBarIn{from{transform:scaleX(0)}to{transform:none}}
+canvas{outline:none}canvas:focus-visible{outline:2px solid var(--signal,#8b5cf6);outline-offset:4px;border-radius:8px}
+.ov-card h3,.odoo-live-card h3{letter-spacing:-.01em}
+.dv-skel{position:relative;overflow:hidden;background:rgba(148,155,190,.12);border-radius:10px;min-height:140px}
+.dv-skel:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),transparent);animation:dvShim 1.4s infinite}
+@keyframes dvShim{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+@media (prefers-reduced-motion:reduce){.ov-bar-track i,.dv-skel:after{animation:none}}
+
+/* v2.4.1 contrast: legends, labels and captions readable on white and black (WCAG AA) */
+html[data-theme=light]{--chart-ink:#161a24;--chart-sub:#4a5064;--chart-track:rgba(20,24,40,.10)}
+html:not([data-theme=light]){--chart-ink:#f1f3fb;--chart-sub:#b9c0d8;--chart-track:rgba(255,255,255,.14)}
+.olx-leg span,.ai-donut-item,.ov-bar-label,.odoo-live-card h3,.ov-card h3{color:var(--chart-ink)}
+.olx-leg em,.olx-leg b+em,.ov-bar-sub,.ov-card .sub,.odoo-live-card .sub,.olx-sub{color:var(--chart-sub);opacity:1}
+.olx-leg b{color:var(--chart-ink)}
+.ov-bar-track{background:var(--chart-track)}
+html[data-theme=light] .olx-leg i,html[data-theme=light] .ov-bar-track i{box-shadow:0 0 0 1px rgba(0,0,0,.12)}
+html:not([data-theme=light]) .olx-leg i{box-shadow:0 0 0 1px rgba(255,255,255,.18)}
+html[data-theme=light] canvas{color-scheme:light}
+@media (forced-colors:active){.ov-bar-track i,.olx-leg i{forced-color-adjust:none}}

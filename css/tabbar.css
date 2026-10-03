@@ -1,0 +1,176 @@
+/* ==========================================================================
+   DashView — Unified tab bar  (glossy pill + sliding lamp)
+   One design for: sidebar nav, Settings rail, People sub-tabs,
+   Data Studio tabs, Odoo segmented tabs.
+   Load this file LAST. Paired with js/tabbar.js.
+   ========================================================================== */
+
+:root {
+  /* Active pill — deep amber "glass bead" (dark top → bright rim at bottom) */
+  --tb-top:  #150c03;
+  --tb-mid:  #3d2408;
+  --tb-low:  #87520d;
+  --tb-rim:  #f0b04a;
+  --tb-text: #ffe9c2;
+  --tb-icon: #ffc65c;
+  /* Lamp (glow above/beside the active pill) */
+  --tb-lamp-core: #fff1b8;
+  --tb-lamp-mid:  #ffb62e;
+  --tb-lamp-edge: rgba(255, 110, 20, 0.55);
+  --tb-ease: cubic-bezier(0.34, 1.32, 0.64, 1);
+
+  --tb-pill-bg: linear-gradient(180deg, var(--tb-top) 0%, var(--tb-mid) 46%, var(--tb-low) 82%, var(--tb-rim) 100%);
+  --tb-pill-shadow:
+    inset 0 1px 1px rgba(255, 214, 140, 0.22),
+    inset 0 -3px 5px -1px rgba(255, 196, 92, 0.85),
+    inset 3px 0 6px -3px rgba(255, 190, 80, 0.35),
+    inset -3px 0 6px -3px rgba(255, 190, 80, 0.35),
+    0 0 0 1px rgba(20, 10, 2, 0.55),
+    0 8px 14px -9px rgba(135, 82, 13, 0.6);
+}
+
+/* ── Structure ───────────────────────────────────────────────────────────── */
+.dv-tabs { isolation: isolate; }
+.dv-tabs:not(.stg-rail) { position: relative; }        /* .stg-rail stays sticky */
+.dv-tabs .dv-item { position: relative; z-index: 1; }
+
+.dv-pill, .dv-lamp {
+  position: absolute; left: 0; top: 0;
+  pointer-events: none; opacity: 0; z-index: 0;
+}
+.dv-tabs.dv-has > .dv-pill, .dv-tabs.dv-has > .dv-lamp { opacity: 1; }
+
+.dv-pill {
+  width: var(--dv-w, 0px); height: var(--dv-h, 0px);
+  border-radius: var(--tb-r, 14px);
+  background: var(--tb-pill-bg);
+  box-shadow: var(--tb-pill-shadow);
+  transform: translate3d(var(--dv-x, 0px), var(--dv-y, 0px), 0);
+  transition: transform 0.5s var(--tb-ease), width 0.4s var(--tb-ease), height 0.4s var(--tb-ease), opacity 0.2s;
+}
+/* glossy top sheen */
+.dv-pill::after {
+  content: ''; position: absolute; inset: 1px 6% auto 6%; height: 38%;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 226, 170, 0.16), transparent);
+}
+
+.dv-lamp {
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--tb-lamp-core) 0%, var(--tb-lamp-mid) 40%, var(--tb-lamp-edge) 72%, transparent 100%);
+  filter: blur(7px);
+  transition: transform 0.5s var(--tb-ease), opacity 0.2s;
+}
+.dv-tabs[data-dv-o="h"] > .dv-lamp {
+  width: 56px; height: 30px;
+  transform: translate3d(calc(var(--dv-x, 0px) + var(--dv-w, 0px) / 2 - 50%), calc(var(--dv-y, 0px) - 50% + 4px), 0);
+}
+.dv-tabs[data-dv-o="v"] > .dv-lamp {
+  width: 30px; height: 46px;
+  transform: translate3d(calc(var(--dv-x, 0px) - 50% + 4px), calc(var(--dv-y, 0px) + var(--dv-h, 0px) / 2 - 50%), 0);
+}
+.dv-tabs.dv-instant > .dv-pill, .dv-tabs.dv-instant > .dv-lamp { transition: none !important; }
+
+/* ── Active item text (sits above the pill) ──────────────────────────────── */
+html .dv-tabs.dv-has .dv-item.active,
+html .dv-tabs.dv-has .dv-item[aria-selected="true"] {
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--tb-text) !important;
+  font-weight: 600;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+}
+html .dv-tabs.dv-has .dv-item.active svg,
+html .dv-tabs.dv-has .dv-item[aria-selected="true"] svg { color: var(--tb-icon); opacity: 1; }
+html .dv-tabs .dv-item.active::before,
+html .dv-tabs .dv-item.active::after { display: none !important; }
+
+/* Fallback when JS has not placed the pill (still looks right) */
+html .dv-tabs:not(.dv-has) .dv-item.active,
+html .dv-tabs:not(.dv-has) .dv-item[aria-selected="true"] {
+  background: var(--tb-pill-bg) !important;
+  box-shadow: var(--tb-pill-shadow) !important;
+  color: var(--tb-text) !important;
+}
+
+/* Motion off → no slide */
+@media (prefers-reduced-motion: reduce) {
+  .dv-pill, .dv-lamp { transition: none !important; }
+}
+
+/* ── 1. Sidebar (always dark chrome) ─────────────────────────────────────── */
+.dash-nav { --tb-r: 12px; }
+.dash-nav .dash-nav-link { margin-bottom: 2px; border-radius: 12px; }
+.dash-nav .dash-nav-link:hover:not(.active) { background: rgba(255, 233, 194, 0.06); }
+.dash-nav .dash-nav-link.active .badge {
+  background: rgba(255, 233, 194, 0.14); border-color: rgba(255, 214, 140, 0.35); color: var(--tb-text);
+}
+
+/* ── 2. Settings rail (follows theme) ────────────────────────────────────── */
+.stg-rail {
+  --tb-r: 14px;
+  padding: 10px; gap: 2px; border-radius: 22px;
+  background: linear-gradient(180deg, #161b17 0%, #0e120f 100%);
+  border: 1px solid rgba(232, 163, 61, 0.16);
+  box-shadow: 0 18px 34px -18px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 220, 160, 0.06);
+}
+html[data-theme="light"] .stg-rail {
+  background: linear-gradient(180deg, #ffffff 0%, #fdf5e8 100%);
+  border-color: rgba(184, 115, 22, 0.14);
+  box-shadow: 0 18px 34px -18px rgba(120, 70, 10, 0.28), inset 0 1px 0 #fff, inset 0 -1px 0 rgba(184, 115, 22, 0.08);
+}
+.stg-rail .stg-tab { border-radius: 14px; min-height: 42px; }
+.stg-rail .stg-tab:hover:not(.active) { background: rgba(232, 163, 61, 0.08); }
+html[data-theme="light"] .stg-rail .stg-tab:not(.active) { text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7); }
+.stg-rail .stg-tab-status { transition: background 0.2s, box-shadow 0.2s; }
+
+/* ── 3. Capsule tab bars (People sub-nav, Studio tabs, Odoo seg) ─────────── */
+.hr-nav, #view-studio .studio-tabs, .studio-tabs, .seg {
+  --tb-r: 999px;
+  background: linear-gradient(180deg, #161b17 0%, #0e120f 100%);
+  border: 1px solid rgba(232, 163, 61, 0.16);
+  border-radius: 999px;
+  box-shadow: 0 14px 28px -16px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 220, 160, 0.06);
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+}
+html[data-theme="light"] .hr-nav,
+html[data-theme="light"] .studio-tabs,
+html[data-theme="light"] #view-studio .studio-tabs,
+html[data-theme="light"] .seg {
+  background: linear-gradient(180deg, #ffffff 0%, #fdf5e8 100%);
+  border-color: rgba(184, 115, 22, 0.14);
+  box-shadow: 0 14px 28px -16px rgba(120, 70, 10, 0.3), inset 0 1px 0 #fff, inset 0 -1px 0 rgba(184, 115, 22, 0.08);
+}
+.hr-nav { padding: 6px; gap: 2px; }
+.hr-nav .hr-nav-btn { border-radius: 999px; padding: 10px 18px; font-weight: 500; }
+.hr-nav .hr-nav-btn:hover:not([aria-selected="true"]) { background: rgba(232, 163, 61, 0.08); }
+
+#view-studio .studio-tabs, .studio-tabs {
+  display: inline-flex; width: fit-content; max-width: 100%;
+  padding: 6px; gap: 2px; margin-bottom: var(--sp-5);
+}
+#view-studio .studio-tab, .studio-tab {
+  min-height: 40px; padding: 9px 18px; border-radius: 999px; transition: color var(--t-fast), background var(--t-fast);
+}
+.studio-tab:hover:not(.active) { background: rgba(232, 163, 61, 0.08); }
+.studio-tab .badge { margin-left: 8px; }
+
+.seg { padding: 5px; gap: 2px; }
+.seg button { border-radius: 999px; padding: 8px 16px; }
+.seg button:hover:not(.active) { background: rgba(232, 163, 61, 0.08); }
+.seg button.active { background: transparent; }
+
+/* Horizontal bars: keep single line, allow scroll on small screens */
+.hr-nav, .studio-tabs { overflow-x: auto; scrollbar-width: none; }
+.hr-nav::-webkit-scrollbar, .studio-tabs::-webkit-scrollbar { display: none; }
+.hr-nav .hr-nav-btn, .studio-tab, .seg button { white-space: nowrap; }
+
+/* Settings rail on phones: becomes a horizontal, wrapping capsule */
+@media (max-width: 900px) {
+  .stg-rail { border-radius: 20px; --tb-r: 999px; }
+  .stg-rail .stg-tab { flex: 1 1 auto; border-radius: 999px; }
+  .stg-rail .stg-tab.active { box-shadow: none; border-radius: 999px; background: transparent; }
+}
+
+/* status dot stays readable on the dark active pill */
+html .dv-tabs .stg-tab.active .stg-tab-status:not(.live):not(.error) { background: var(--tb-icon); }

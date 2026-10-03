@@ -1,0 +1,305 @@
+/* ==========================================================================
+   DashView — Auth, Odoo, Widget Builder, Share & TV Mode styles
+   Additive stylesheet — reuses existing tokens from css/base.css and the
+   .panel / .btn / .modal-card / .dash-table / .board-tab component classes
+   already defined in css/components.css, css/dashboard.css and
+   css/dashboard-pro.css. Nothing here redefines those.
+   ========================================================================== */
+
+/* ── Sign-in banner (guest state) ───────────────────────────────────────── */
+.dv-signin-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4);
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-md);
+  padding: var(--sp-3) var(--sp-5); margin-bottom: var(--sp-5);
+}
+.dv-signin-banner p { font-size: var(--fs-xs); color: var(--ink-70); margin: 0; }
+.dv-signin-banner p b { color: var(--ink); }
+
+.dv-role-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.dv-role-pill { font-size: 10px; font-weight: 700; border: 1px solid; border-radius: var(--r-full); padding: 1px 7px; }
+.dv-users-modal-card,.dv-password-modal-card { width: min(560px, calc(100vw - 28px)); max-height: min(88vh, 820px); overflow: auto; }
+.dv-users-modal-card h3,.dv-password-modal-card h3 { margin-bottom: 8px; }
+.dv-users-modal-card > p:not(.eyebrow) { color: var(--ink-50); font-size: var(--fs-xs); line-height: 1.55; margin-bottom: var(--sp-4); }
+.dv-users-list { display: grid; gap: 8px; margin: var(--sp-4) 0; }
+.dv-user-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 12px; background: var(--paper-soft); border: 1px solid var(--line); border-radius: var(--r-sm); }
+.dv-user-row strong,.dv-user-row small { display: block; }
+.dv-user-row strong { font-size: var(--fs-xs); }
+.dv-user-row small { color: var(--ink-50); font-size: 11px; overflow-wrap: anywhere; }
+.dv-create-user-form,.dv-password-modal-card form { display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: var(--sp-4); }
+.dv-create-user-form h4 { margin-bottom: 4px; }
+.dv-create-user-form label,.dv-password-modal-card label { font-size: var(--fs-xs); font-weight: 600; color: var(--ink-70); }
+.dv-create-user-form input,.dv-create-user-form select,.dv-password-modal-card input { width: 100%; min-height: 40px; padding: 8px 10px; border: 1px solid var(--line-strong); border-radius: var(--r-sm); color: var(--ink); background: var(--paper); font: inherit; }
+.dv-create-user-form input:focus,.dv-create-user-form select:focus,.dv-password-modal-card input:focus { outline: 2px solid var(--signal); outline-offset: 1px; }
+.dv-create-user-form .settings-note,.dv-password-modal-card .settings-note { font-size: 11px; line-height: 1.5; }
+.formula-error[role="status"] { color: var(--danger,#c7402a); font-size: var(--fs-xs); }
+
+/* ── Account dropdown menu ──────────────────────────────────────────────── */
+.dv-account-menu {
+  position: fixed; z-index: 650; width: 240px; background: var(--paper); border: 1px solid var(--line-strong);
+  border-radius: var(--r-md); box-shadow: var(--shadow-lg); padding: var(--sp-3);
+  opacity: 0; visibility: hidden; transform: translateY(6px); transition: opacity var(--t-fast), transform var(--t-fast), visibility var(--t-fast);
+}
+.dv-account-menu.open { opacity: 1; visibility: visible; transform: translateY(0); }
+.dv-account-menu-head { display: flex; align-items: center; gap: 10px; padding-bottom: var(--sp-3); margin-bottom: var(--sp-2); border-bottom: 1px solid var(--line); }
+.dv-account-menu-head p { font-size: var(--fs-sm); font-weight: 700; color: var(--ink); margin: 0; }
+.dv-account-menu-head span { font-size: 11px; color: var(--ink-30); }
+.dv-account-menu-role { display: flex; align-items: center; gap: 7px; font-size: var(--fs-xs); color: var(--ink-70); padding: 6px 4px; }
+.dv-account-menu-item {
+  display: block; width: 100%; text-align: left; background: none; border: none; color: var(--ink-70);
+  font-size: var(--fs-xs); font-weight: 600; padding: 8px; border-radius: 6px; cursor: pointer;
+}
+.dv-account-menu-item:hover { background: var(--paper-soft); color: var(--ink); }
+
+/* ── Odoo data browser view ─────────────────────────────────────────────── */
+.dv-pill { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-xs); color: var(--ink-50); background: var(--paper-soft); border: 1px solid var(--line); border-radius: var(--r-full); padding: 4px 12px; }
+.dv-pill::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--ink-30); }
+.dv-pill.dv-pill-live { color: var(--emerald,#4fb477); border-color: rgba(79,180,119,.3); }
+.dv-pill.dv-pill-live::before { background: var(--emerald,#4fb477); }
+.dv-odoo-toolbar { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); flex-wrap: wrap; margin-bottom: var(--sp-4); }
+.dv-odoo-search { max-width: 260px; }
+
+.odoo-demo-banner { display: flex; align-items: flex-start; gap: 10px; background: var(--signal-10); border: 1px solid var(--line); border-radius: var(--r-sm); padding: var(--sp-3) var(--sp-4); margin-bottom: var(--sp-5); }
+.odoo-demo-banner svg { width: 15px; height: 15px; color: var(--signal); flex-shrink: 0; margin-top: 2px; }
+.odoo-demo-banner p { font-size: var(--fs-xs); color: var(--ink-70); line-height: 1.5; margin: 0; }
+.odoo-demo-banner a { color: var(--signal-bright); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+.odoo-demo-banner.is-hidden { display: none; }
+
+.board-tab.odoo-model-tab { display: inline-flex; align-items: center; gap: 6px; }
+.board-tab.odoo-model-tab svg { width: 13px; height: 13px; flex-shrink: 0; opacity: .8; }
+
+/* ── Odoo integration — Settings panel ──────────────────────────────────── */
+.odoo-panel-head { align-items: flex-start; }
+.odoo-panel-title { display: flex; align-items: flex-start; gap: var(--sp-3); min-width: 0; }
+.odoo-icon-badge {
+  width: 38px; height: 38px; border-radius: var(--r-sm); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(139,92,246,.12); color: #8b5cf6;
+}
+.odoo-icon-badge svg { width: 18px; height: 18px; }
+.odoo-panel-title h3 { margin-bottom: 2px; }
+.odoo-panel-sub { font-size: var(--fs-xs); color: var(--ink-50); line-height: 1.4; }
+
+/* Generic version of the badge/title/sub trio above, used on the other
+   three Settings cards so the whole tab reads as one consistent system
+   rather than "the Odoo panel got extra design attention." */
+.settings-panel-title { display: flex; align-items: flex-start; gap: var(--sp-3); min-width: 0; }
+.settings-icon-badge {
+  width: 38px; height: 38px; border-radius: var(--r-sm); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: color-mix(in srgb, var(--signal) 14%, transparent); color: var(--signal);
+}
+.settings-icon-badge svg { width: 18px; height: 18px; }
+.settings-panel-title h3 { margin-bottom: 2px; }
+.settings-panel-sub { font-size: var(--fs-xs); color: var(--ink-50); line-height: 1.4; }
+
+.odoo-status-pill {
+  display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-xs); font-weight: 600;
+  color: var(--ink-50); background: var(--paper-soft); border: 1px solid var(--line);
+  border-radius: var(--r-full); padding: 4px 12px; white-space: nowrap; flex-shrink: 0;
+}
+.odoo-status-pill::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--ink-30); flex-shrink: 0; }
+.odoo-status-pill.is-configured { color: var(--signal-bright); border-color: var(--line-strong); }
+.odoo-status-pill.is-configured::before { background: var(--signal); }
+.odoo-status-pill.is-connecting::before { background: var(--signal); animation: pro-live-pulse 1.4s ease-in-out infinite; }
+.odoo-status-pill.is-live { color: var(--emerald,#4fb477); border-color: rgba(79,180,119,.3); }
+.odoo-status-pill.is-live::before { background: var(--emerald,#4fb477); animation: pro-live-pulse 1.4s ease-in-out infinite; }
+
+.odoo-connection-meta {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(130px,1fr)); gap: var(--sp-3);
+  background: var(--paper-alt); border: 1px solid var(--line); border-radius: var(--r-sm);
+  padding: var(--sp-3) var(--sp-4);
+}
+.odoo-connection-meta[hidden] { display: none; }
+.odoo-meta-label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-30); margin-bottom: 3px; }
+.odoo-meta-value { display: block; font-size: var(--fs-xs); color: var(--ink); font-family: var(--f-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.odoo-field-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: var(--sp-3) var(--sp-4); }
+
+.odoo-security-note { display: flex; gap: 10px; background: var(--signal-10); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 10px 12px; }
+.odoo-security-note svg { width: 15px; height: 15px; color: var(--signal); flex-shrink: 0; margin-top: 1px; }
+.odoo-security-note p { font-size: var(--fs-xs); color: var(--ink-70); line-height: 1.55; margin: 0; }
+
+.odoo-steps { display: flex; flex-direction: column; gap: var(--sp-3); }
+.odoo-steps li { display: flex; gap: var(--sp-3); }
+.odoo-step-num {
+  width: 22px; height: 22px; border-radius: 50%; background: var(--paper-soft); border: 1px solid var(--line-strong);
+  color: var(--ink-70); font-family: var(--f-mono); font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+}
+.odoo-steps b { font-size: var(--fs-xs); color: var(--ink); font-weight: 700; display: block; }
+.odoo-steps p { font-size: var(--fs-xs); color: var(--ink-50); line-height: 1.5; margin-top: 2px; }
+
+.odoo-btn-row { align-items: center; }
+
+/* ── Odoo API connectivity checkpoints (critical/tough integration points) ── */
+.odoo-checkpoints { margin-top: var(--sp-4); }
+.odoo-checkpoints-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); flex-wrap: wrap; margin-bottom: var(--sp-3); }
+.odoo-checkpoints-head h4 { font-size: var(--fs-sm); font-weight: 700; color: var(--ink); margin: 0; display: flex; align-items: center; gap: 8px; }
+.odoo-checkpoints-head h4 svg { width: 14px; height: 14px; color: var(--signal); flex-shrink: 0; }
+.odoo-checkpoints-summary { font-size: var(--fs-xs); font-family: var(--f-mono); color: var(--ink-50); white-space: nowrap; }
+.odoo-checkpoints-summary b { color: var(--ink); }
+.odoo-checkpoint-list { display: flex; flex-direction: column; gap: 8px; }
+.odoo-checkpoint {
+  display: grid; grid-template-columns: 20px 1fr auto; align-items: start; gap: var(--sp-3);
+  background: var(--paper-soft); border: 1px solid var(--line); border-radius: var(--r-sm);
+  padding: 10px 12px;
+}
+.odoo-checkpoint-dot {
+  width: 10px; height: 10px; border-radius: 50%; margin-top: 3px; flex-shrink: 0;
+  background: var(--ink-30); border: 1px solid var(--line-strong);
+}
+.odoo-checkpoint.ok .odoo-checkpoint-dot { background: var(--emerald,#4fb477); border-color: rgba(79,180,119,.4); box-shadow: 0 0 0 3px rgba(79,180,119,.12); }
+.odoo-checkpoint.warn .odoo-checkpoint-dot { background: #e8a33d; border-color: rgba(232,163,61,.4); box-shadow: 0 0 0 3px rgba(232,163,61,.12); }
+.odoo-checkpoint.blocked .odoo-checkpoint-dot { background: var(--danger); border-color: var(--danger-10); box-shadow: 0 0 0 3px var(--danger-10); }
+.odoo-checkpoint-body b { font-size: var(--fs-xs); color: var(--ink); font-weight: 700; display: block; }
+.odoo-checkpoint-body p { font-size: var(--fs-xs); color: var(--ink-50); line-height: 1.55; margin-top: 2px; }
+.odoo-checkpoint-body code { font-family: var(--f-mono); font-size: 11px; background: var(--paper-alt); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; }
+.odoo-checkpoint-badges { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.odoo-checkpoint-badge {
+  font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: var(--r-full); white-space: nowrap; border: 1px solid transparent;
+}
+.odoo-checkpoint-badge.sev-critical { color: var(--danger); background: var(--danger-10); border-color: var(--danger-10); }
+.odoo-checkpoint-badge.sev-required { color: #e8a33d; background: rgba(232,163,61,.12); border-color: rgba(232,163,61,.3); }
+.odoo-checkpoint-badge.sev-recommended { color: var(--signal-bright); background: var(--signal-10); border-color: var(--line-strong); }
+.odoo-checkpoint-status { font-size: 10px; font-family: var(--f-mono); color: var(--ink-30); }
+.odoo-checkpoint.ok .odoo-checkpoint-status { color: var(--emerald,#4fb477); }
+.odoo-checkpoint.warn .odoo-checkpoint-status { color: #e8a33d; }
+.odoo-checkpoint.blocked .odoo-checkpoint-status { color: var(--danger); }
+
+/* Compact strip version used inside the Live Odoo view */
+.odoo-checkpoints.compact .odoo-checkpoint-list { flex-direction: row; flex-wrap: wrap; }
+.odoo-checkpoints.compact .odoo-checkpoint { grid-template-columns: 10px auto; padding: 6px 10px; flex: 0 0 auto; }
+.odoo-checkpoints.compact .odoo-checkpoint-body p { display: none; }
+.odoo-checkpoints.compact .odoo-checkpoint-badges { display: none; }
+.odoo-checkpoints.compact .odoo-checkpoint-body b { font-weight: 600; white-space: nowrap; }
+.odoo-checkpoints-toggle {
+  font-size: var(--fs-xs); color: var(--signal-bright); background: none; border: none; cursor: pointer;
+  padding: 0; font-weight: 600; text-decoration: underline; text-underline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .odoo-checkpoint { grid-template-columns: 16px 1fr; }
+  .odoo-checkpoint-badges { grid-column: 1 / -1; flex-direction: row; align-items: center; margin-top: 4px; }
+}
+
+@media (max-width: 480px) {
+  .odoo-connection-meta { grid-template-columns: repeat(2,1fr); }
+}
+
+/* ── Widget Builder ──────────────────────────────────────────────────────── */
+.dv-widget-toolbar { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
+.dv-widget-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--sp-5); }
+.dv-widget-card {
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--sp-5);
+  display: flex; flex-direction: column; min-height: 220px; transition: border-color var(--t-base), box-shadow var(--t-base), opacity var(--t-fast);
+}
+.dv-widget-card:hover { border-color: var(--line-strong); box-shadow: var(--shadow-sm); }
+.dv-widget-card.dragging { opacity: 0.4; }
+.dv-widget-card.drop-target { border-color: var(--signal); }
+.dv-widget-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-2); margin-bottom: var(--sp-4); }
+.dv-widget-head-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.dv-widget-drag-handle { cursor: grab; color: var(--ink-30); flex-shrink: 0; }
+.dv-widget-drag-handle:active { cursor: grabbing; }
+.dv-widget-title { font-size: var(--fs-sm); font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dv-widget-source-tag { font-size: 10px; color: var(--ink-30); font-family: var(--f-mono); display: block; margin-top: 2px; }
+.dv-widget-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.dv-widget-icon-btn {
+  width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 6px;
+  background: transparent; border: none; color: var(--ink-30); cursor: pointer; transition: background var(--t-fast), color var(--t-fast);
+}
+.dv-widget-icon-btn:hover { background: var(--paper-soft); color: var(--ink); }
+.dv-widget-icon-btn.danger:hover { color: var(--danger); }
+.dv-widget-body { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.dv-widget-kpi-value { font-family: var(--f-display); font-size: var(--fs-2xl); font-weight: 800; color: var(--ink); line-height: 1; }
+.dv-widget-kpi-sub { font-size: var(--fs-xs); color: var(--ink-50); margin-top: 6px; }
+.dv-widget-chart-wrap { position: relative; height: 170px; }
+.dv-widget-table-wrap { overflow: auto; max-height: 220px; }
+.dv-widget-loading { color: var(--ink-30); font-size: var(--fs-xs); text-align: center; padding: var(--sp-8) 0; }
+.dv-widget-empty { color: var(--ink-30); font-size: var(--fs-xs); text-align: center; padding: var(--sp-8) var(--sp-4); line-height: 1.6; }
+.dv-widget-live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--emerald,#4fb477); animation: pro-live-pulse 1.4s ease-in-out infinite; flex-shrink: 0; }
+.dv-widget-card.dv-flash { animation: pro-flash 1.1s ease-out; }
+
+/* Size — lets a widget claim more of the grid than the 300px default column,
+   for a director-scale layout where a chart or table can outrank a KPI. */
+.dv-widget-card--md { grid-column: span 1; }
+.dv-widget-card--lg { grid-column: span 2; }
+@media (min-width: 900px) { .dv-widget-card--lg .dv-widget-chart-wrap { height: 230px; } }
+@media (max-width: 700px) { .dv-widget-card--lg { grid-column: span 1; } }
+
+.dv-widget-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); align-items: stretch; }
+.dv-widget-card { min-width: 0; overflow: hidden; }
+.dv-widget-title { display: block; overflow-wrap: anywhere; white-space: normal; }
+.dv-widget-drag-handle { user-select: none; }
+.dv-widget-icon-btn { width: 36px; height: 36px; color: var(--ink-70); }
+.dv-widget-icon-btn:focus-visible,
+#dvWidgetModal button:focus-visible,
+#dvWidgetModal select:focus-visible,
+#dvWidgetModal input:focus-visible {
+  outline: 3px solid var(--signal); outline-offset: 2px;
+}
+.dv-widget-empty { color: var(--ink-70); }
+.dv-widget-error { color: var(--danger); border: 1px solid var(--danger-10); border-radius: var(--r-sm); }
+.dv-widget-form-error { margin: var(--sp-3) 0 0; color: var(--danger); font-size: var(--fs-xs); line-height: 1.5; }
+.dv-widget-form-error[hidden] { display: none; }
+.dv-widget-move-actions { display: flex; gap: 2px; }
+.dv-widget-card .dv-widget-actions { flex-wrap: wrap; justify-content: flex-end; }
+@media (max-width: 700px) {
+  .dv-widget-grid { grid-template-columns: minmax(0, 1fr); gap: var(--sp-3); }
+  .dv-widget-card--lg { grid-column: auto; }
+  .dv-widget-toolbar > * { flex: 1 1 auto; }
+  .dv-widget-icon-btn { width: 40px; height: 40px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dv-widget-card, .dv-widget-card *, .dv-widget-live-dot { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+/* Progress widget — a KPI paired with a target, closing the loop between a
+   number and the goal it's measured against. */
+.dv-widget-progress { display: flex; flex-direction: column; gap: 10px; }
+.dv-widget-progress-top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-2); }
+.dv-widget-progress-val { font-family: var(--f-display); font-size: var(--fs-xl); font-weight: 800; color: var(--ink); }
+.dv-widget-progress-pct { font-family: var(--f-mono); font-size: var(--fs-sm); font-weight: 700; color: var(--signal); }
+.dv-widget-progress-pct.is-done { color: var(--emerald, #4fb477); }
+.dv-widget-progress-track { height: 8px; border-radius: var(--r-full); background: var(--paper-soft); border: 1px solid var(--line); overflow: hidden; }
+.dv-widget-progress-fill { height: 100%; border-radius: var(--r-full); background: linear-gradient(90deg, var(--signal), #f0b95c); transition: width .4s cubic-bezier(.16,1,.3,1); }
+.dv-widget-progress-sub { font-size: var(--fs-xs); color: var(--ink-45); }
+
+/* Add/edit widget modal extras */
+.dv-source-group-label { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-30); margin: var(--sp-3) 0 4px; }
+.dv-widget-live-row { display: flex; align-items: center; gap: var(--sp-3); margin-top: var(--sp-3); }
+.dv-widget-csv-drop {
+  border: 1.5px dashed var(--line-strong); border-radius: var(--r-sm); padding: var(--sp-4); text-align: center;
+  font-size: var(--fs-xs); color: var(--ink-50); cursor: pointer; transition: border-color var(--t-fast), color var(--t-fast);
+}
+.dv-widget-csv-drop:hover { border-color: var(--signal); color: var(--ink); }
+
+/* ── Share modal ─────────────────────────────────────────────────────────── */
+.dv-share-link-row { display: flex; gap: 8px; margin-top: var(--sp-3); }
+.dv-share-link-row input { flex: 1; background: var(--paper-soft); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 10px 12px; color: var(--ink); font-family: var(--f-mono); font-size: 11px; }
+
+/* ── TV Mode ─────────────────────────────────────────────────────────────── */
+.dv-tv-overlay {
+  position: fixed; inset: 0; z-index: 900; background: var(--paper-alt);
+  display: none; flex-direction: column; align-items: center; justify-content: center; padding: var(--sp-16);
+}
+.dv-tv-overlay.open { display: flex; }
+.dv-tv-exit {
+  position: absolute; top: var(--sp-6); right: var(--sp-6); background: var(--paper-soft); border: 1px solid var(--line);
+  color: var(--ink-70); border-radius: var(--r-full); padding: 8px 18px; font-size: var(--fs-xs); font-weight: 700; cursor: pointer;
+}
+.dv-tv-exit:hover { color: var(--ink); border-color: var(--line-strong); }
+.dv-tv-widget { width: min(920px, 90vw); text-align: center; }
+.dv-tv-widget .dv-widget-title { font-size: var(--fs-lg); display: block; margin-bottom: var(--sp-6); white-space: normal; }
+.dv-tv-widget .dv-widget-kpi-value { font-size: var(--fs-5xl); }
+.dv-tv-widget .dv-widget-kpi-sub { font-size: var(--fs-md); margin-top: var(--sp-3); }
+.dv-tv-widget .dv-widget-chart-wrap { height: 380px; }
+.dv-tv-dots { display: flex; gap: 8px; margin-top: var(--sp-10); }
+.dv-tv-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-30); transition: background var(--t-fast), width var(--t-fast); }
+.dv-tv-dot.active { background: var(--signal); width: 22px; border-radius: var(--r-full); }
+.dv-tv-clock { position: absolute; top: var(--sp-6); left: var(--sp-6); font-family: var(--f-mono); color: var(--ink-30); font-size: var(--fs-sm); }
+
+@media (max-width: 700px) {
+  .dv-widget-grid { grid-template-columns: 1fr; }
+  .dv-tv-widget .dv-widget-kpi-value { font-size: var(--fs-3xl); }
+}

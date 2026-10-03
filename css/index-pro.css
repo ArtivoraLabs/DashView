@@ -1,0 +1,352 @@
+/* index-pro.css — design refinement for index.html. Loads after the page's inline styles, so it wins. */
+
+/* Calmer surface: one memorable element (the live terminal), quiet everything else */
+body{background-image:none}
+.grad-text{background:none!important;-webkit-text-fill-color:currentColor!important;color:inherit}
+.hero-glow{opacity:.5}.hero-grid{opacity:.35}
+.hero{min-height:auto;padding:calc(var(--nav-h) + clamp(40px,7vw,88px)) 0 clamp(56px,8vw,96px)}
+.hero-h1{font-size:clamp(2.4rem,5.2vw,4.1rem);letter-spacing:-.035em;line-height:1.04}
+.hero-sub{font-size:1.125rem;max-width:34em}
+.hero-cta{margin-bottom:36px}
+.hero-install{margin:-16px 0 36px;font-size:.875rem;color:var(--text2)}
+.link-btn{color:var(--amber);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+[hidden]{display:none!important}
+
+/* Plain-language labels instead of code-comment chrome */
+.hero-badge,.trust-label,.kicker,.footer-col h5{font-family:var(--f-body);letter-spacing:0}
+.hero-badge{font-size:.8125rem}
+.kicker{font-weight:600;font-size:.875rem}.kicker::before{display:none}
+
+/* Rhythm and readable line length */
+.section{padding:clamp(72px,9vw,112px) 0}
+.section-tight{padding:clamp(56px,7vw,88px) 0}
+.section-head p{max-width:60ch}
+
+/* Buttons and brand: solid accent, no gradient wash */
+.btn{border-radius:10px;min-height:40px}
+.btn-primary{background:var(--amber);box-shadow:none}
+.btn-primary:hover{filter:none;background:var(--amber2);transform:none}
+.nav-logo-ring{background:var(--amber);box-shadow:none}
+
+/* Phone and notch safe areas */
+.nav-inner,.container,.container-wide,.hero-inner{padding-left:max(24px,env(safe-area-inset-left));padding-right:max(24px,env(safe-area-inset-right))}
+.footer{padding-bottom:calc(32px + env(safe-area-inset-bottom))}
+@media(min-width:981px){.footer-grid{grid-template-columns:1.6fr repeat(3,1fr)}}
+@media(pointer:coarse){.btn-sm{min-height:44px}.footer-col a,.footer-col button{padding:10px 0}}
+
+/* Mobile menu (the page had no way to open navigation on phones) */
+.nav-menu-only{display:none}
+.nav-burger{width:40px;height:40px;border:1px solid var(--border);border-radius:10px;background:var(--surface);flex-direction:column;align-items:center;justify-content:center;gap:4px;flex-shrink:0}
+.nav-burger span{width:16px;height:2px;background:var(--text);border-radius:2px;transition:transform .2s,opacity .2s}
+.nav.menu-open .nav-burger span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.nav.menu-open .nav-burger span:nth-child(2){opacity:0}
+.nav.menu-open .nav-burger span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+@media(max-width:1040px){
+  .nav-links{display:none}
+  .nav-burger{display:flex}
+  .nav-actions{margin-left:auto;gap:8px}
+  .nav-menu-only{display:block}
+  html.menu-lock{overflow:hidden}
+  /* backdrop-filter would trap the fixed panel inside the 64px bar, so drop it while open */
+  .nav.menu-open{background:var(--bg);backdrop-filter:none;-webkit-backdrop-filter:none;transition:none}
+  .nav.menu-open .nav-links{display:flex;flex-direction:column;align-items:stretch;gap:0;position:fixed;inset:var(--nav-h) 0 0 0;margin:0;padding:8px max(24px,env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) max(24px,env(safe-area-inset-left));background:var(--bg);overflow-y:auto;border-top:1px solid var(--border)}
+  .nav.menu-open .nav-links a,.nav.menu-open .nav-links button{padding:16px 4px;border-radius:0;border-bottom:1px solid var(--border);font-size:1.0625rem;color:var(--text);text-align:left;background:none}
+}
+
+/* Narrow phones (360px): keep brand, primary action and menu on one row */
+.nav-menu-theme{display:none!important}
+@media(max-width:720px){.nav-inner{gap:12px}#waitlistBtn{padding-inline:12px}#loginBtn{display:none}}
+@media(max-width:420px){.nav-actions .theme-toggle{display:none}.nav-menu-only.nav-menu-theme{display:block!important}}
+
+/* ── Landing page visual system ────────────────────────────────────────── */
+:root{
+  --landing-max:1240px;
+  --landing-radius:18px;
+}
+.container,.container-wide,.hero-inner,.nav-inner{
+  max-width:var(--landing-max);
+}
+.nav{
+  height:72px;
+}
+.nav-inner{
+  min-height:72px;
+}
+.nav.scrolled{
+  box-shadow:0 10px 32px rgba(0,0,0,.14);
+}
+.nav-links{
+  gap:6px;
+}
+.nav-links a{
+  padding:9px 13px;
+  font-size:.8125rem;
+  font-weight:600;
+}
+.nav-actions{
+  gap:8px;
+}
+.hero{
+  min-height:clamp(680px,92vh,860px);
+  padding-top:calc(var(--nav-h) + 76px);
+  padding-bottom:88px;
+}
+.hero-inner{
+  grid-template-columns:minmax(0,1.02fr) minmax(420px,.98fr);
+  gap:clamp(48px,7vw,96px);
+}
+.hero-copy{
+  max-width:600px;
+}
+.hero-badge{
+  letter-spacing:.01em;
+  box-shadow:0 8px 28px rgba(232,163,61,.08);
+}
+.hero-h1{
+  max-width:650px;
+  font-size:clamp(3.35rem,5.6vw,5.25rem);
+  line-height:1.01;
+  letter-spacing:-.055em;
+}
+.hero-sub{
+  max-width:560px;
+  font-size:1.125rem;
+  line-height:1.7;
+}
+.hero-cta{
+  margin-bottom:38px;
+}
+.hero-cta .btn{
+  min-height:48px;
+  padding-inline:22px;
+}
+.hero-proof{
+  max-width:550px;
+  gap:30px;
+}
+.hero-proof-item strong{
+  font-size:1.3rem;
+}
+.hero-panel-wrap{
+  transform:translateY(8px);
+}
+.hero-panel{
+  border-radius:var(--landing-radius);
+  box-shadow:0 30px 80px rgba(0,0,0,.34),0 0 0 1px rgba(232,163,61,.04);
+}
+.hero-panel-bar{
+  padding:14px 18px;
+}
+.hero-panel-body{
+  min-height:340px;
+  padding:24px 26px;
+}
+.diff-divider{
+  min-height:58px;
+  gap:8px;
+  background:linear-gradient(90deg,var(--surface),var(--elevated),var(--surface));
+}
+.diff-divider span{
+  padding-inline:22px;
+}
+.trust{
+  padding:42px 0;
+}
+.trust-label{
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  font-size:.68rem;
+}
+.trust-row{
+  justify-content:space-between;
+  gap:18px 28px;
+}
+.trust-row span{
+  font-size:.98rem;
+}
+.section{
+  padding-block:clamp(86px,10vw,132px);
+}
+.section-tight{
+  padding-block:clamp(66px,8vw,96px);
+}
+.section-head{
+  margin-bottom:48px;
+}
+.section-head h2{
+  max-width:760px;
+  font-size:clamp(2rem,3.5vw,3rem);
+  letter-spacing:-.045em;
+}
+.section-head p{
+  max-width:64ch;
+}
+.compare-grid,.sec-grid,.price-card,.quote-card,.tour-frame,.dash-frame{
+  border-radius:var(--landing-radius);
+}
+.compare-col{
+  padding:34px;
+}
+.step{
+  padding-block:40px;
+}
+.step-num{
+  border-radius:12px;
+  box-shadow:0 6px 18px rgba(0,0,0,.12);
+}
+.step-visual{
+  border-radius:12px;
+  min-height:76px;
+  display:flex;
+  align-items:center;
+  min-width:0;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+.bento{
+  gap:18px;
+}
+.bento-card{
+  border-radius:14px;
+  padding:28px;
+  box-shadow:0 8px 24px rgba(0,0,0,.08);
+}
+.bento-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 18px 34px rgba(0,0,0,.16);
+}
+.bento-icon{
+  border-radius:11px;
+}
+.dash-preview{
+  gap:clamp(40px,7vw,88px);
+}
+.dash-frame{
+  box-shadow:0 22px 54px rgba(0,0,0,.18);
+}
+.int-card,.feature-card{
+  border-radius:14px;
+}
+.price-card{
+  padding:34px;
+}
+.price-card.featured{
+  transform:translateY(-8px);
+}
+.footer{
+  border-top:1px solid var(--border);
+}
+
+@media(max-width:1100px){
+  .hero{
+    min-height:auto;
+  }
+  .hero-inner{
+    grid-template-columns:1fr;
+    gap:54px;
+  }
+  .hero-copy{
+    max-width:760px;
+  }
+  .hero-panel-wrap{
+    max-width:760px;
+    width:100%;
+  }
+  .hero-panel-body{
+    min-height:300px;
+  }
+  .trust-row{
+    justify-content:flex-start;
+  }
+}
+@media(max-width:720px){
+  .nav{
+    height:64px;
+  }
+  .nav-inner{
+    min-height:64px;
+  }
+  .hero{
+    padding-top:calc(var(--nav-h) + 44px);
+    padding-bottom:64px;
+  }
+  .hero-h1{
+    font-size:clamp(2.65rem,10vw,4.2rem);
+  }
+  .hero-sub{
+    font-size:1rem;
+  }
+  .hero-cta{
+    width:100%;
+  }
+  .hero-cta .btn{
+    flex:1 1 190px;
+  }
+  .hero-proof{
+    gap:20px;
+  }
+  .diff-divider{
+    justify-content:flex-start;
+    overflow-x:auto;
+    padding-inline:14px;
+  }
+  .diff-divider span{
+    padding-inline:12px;
+  }
+  .compare-grid{
+    grid-template-columns:1fr;
+  }
+  .step{
+    grid-template-columns:42px 1fr;
+    gap:16px;
+  }
+  .step-body{
+    grid-template-columns:1fr;
+    gap:20px;
+    min-width:0;
+  }
+  .step-text,.step-visual{
+    min-width:0;
+  }
+  .step-visual{
+    min-height:0;
+  }
+  .bento{
+    grid-template-columns:repeat(2,1fr);
+    grid-auto-rows:auto;
+  }
+  .bento-card.b-lg,.bento-card.b-md,.bento-card.b-sm{
+    grid-column:span 2;
+    grid-row:span 1;
+    min-height:190px;
+  }
+  .price-card.featured{
+    transform:none;
+  }
+}
+@media(max-width:480px){
+  .hero-cta .btn{
+    flex-basis:100%;
+  }
+  .hero-proof{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+  }
+  .hero-proof-item strong{
+    font-size:1.05rem;
+  }
+  .hero-proof-item span{
+    font-size:.68rem;
+  }
+  .hero-panel-body{
+    padding:18px;
+    font-size:.72rem;
+  }
+  .bento{
+    grid-template-columns:1fr;
+  }
+  .bento-card.b-lg,.bento-card.b-md,.bento-card.b-sm{
+    grid-column:span 1;
+  }
+}

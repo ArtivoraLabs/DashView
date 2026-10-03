@@ -1,0 +1,455 @@
+/* ==========================================================================
+   DashView — Pro UI Upgrade Layer  (sidebar + settings)
+   Additive — reuses existing tokens, never breaks existing JS IDs.
+   ==========================================================================  */
+
+/* ══════════════════════════════════════════════════════════════════════════
+   1 — SIDEBAR: full enterprise-grade refresh
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Brand bar ── tighter, bolder, with a subtle amber underline */
+.dash-side-brand {
+  gap: 11px;
+  padding: 0 var(--sp-5);
+  border-bottom: 1px solid rgba(232,163,61,0.14);
+  background: linear-gradient(180deg, rgba(232,163,61,0.05) 0%, transparent 100%);
+  letter-spacing: -0.02em;
+}
+.dash-side-brand svg circle { stroke: var(--signal); }
+
+/* Nav section labels ── mono, with a hairline rule */
+.dash-nav-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  color: var(--paper-on-navy-40);
+  padding: 22px var(--sp-3) 6px;
+  user-select: none;
+}
+.dash-nav-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, rgba(232,163,61,0.18), transparent);
+}
+
+/* Nav link base ── roomier, smoother */
+.dash-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 12px;
+  border-radius: var(--r-sm);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--paper-on-navy-60);
+  margin-bottom: 1px;
+  transition: background var(--t-fast), color var(--t-fast);
+  min-height: 38px;
+  position: relative;
+}
+.dash-nav-link svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.7; transition: opacity var(--t-fast); }
+.dash-nav-link:hover { background: rgba(231,237,231,0.06); color: rgba(231,237,231,0.88); }
+.dash-nav-link:hover svg { opacity: 1; }
+
+/* Active state ── gradient fill + glowing amber left bar */
+.dash-nav-link.active {
+  background: linear-gradient(90deg, rgba(232,163,61,0.18) 0%, rgba(232,163,61,0.05) 60%, transparent 100%);
+  color: #f0c06a;
+  font-weight: 600;
+  box-shadow: none;
+}
+.dash-nav-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 7px; bottom: 7px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--signal);
+  box-shadow: 0 0 10px rgba(232,163,61,0.7), 0 0 2px rgba(232,163,61,0.5);
+}
+.dash-nav-link.active svg { opacity: 1; color: var(--signal-bright); }
+
+/* Badges ── tighter, monospace */
+.dash-nav-link .badge {
+  margin-left: auto;
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  background: rgba(231,237,231,0.08);
+  border: 1px solid rgba(231,237,231,0.12);
+  padding: 1px 7px;
+  border-radius: var(--r-full);
+  color: var(--paper-on-navy-60);
+  letter-spacing: 0.04em;
+}
+.dash-nav-link .badge.new {
+  background: rgba(232,163,61,0.14);
+  border-color: rgba(232,163,61,0.28);
+  color: var(--signal-bright);
+}
+/* Live Odoo badge */
+.dash-nav-link .badge.live {
+  background: rgba(79,180,119,0.15);
+  border-color: rgba(79,180,119,0.3);
+  color: #6fe3a5;
+  animation: live-pulse 2s ease-in-out infinite;
+}
+@keyframes live-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(79,180,119,0); }
+  50%       { box-shadow: 0 0 0 3px rgba(79,180,119,0.12); }
+}
+
+/* User block at the bottom ── polished with role badge */
+.dash-side-foot {
+  padding: var(--sp-3) var(--sp-4);
+  border-top: 1px solid rgba(232,163,61,0.12);
+  background: rgba(0,0,0,0.15);
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+.dash-side-user {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--signal), var(--beacon));
+  font-size: 12px; font-weight: 800;
+  letter-spacing: -0.03em;
+  box-shadow: 0 0 0 2px rgba(232,163,61,0.25);
+  flex-shrink: 0;
+}
+.dash-side-user-info { flex: 1; min-width: 0; }
+.dash-side-user-info p { font-size: 0.8125rem; font-weight: 600; color: rgba(231,237,231,0.9); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dash-side-user-info span { font-size: 10.5px; color: rgba(231,237,231,0.38); font-family: var(--f-mono); }
+
+/* Topbar search ── subtle amber focus ring */
+.dash-search:focus-within {
+  border-color: rgba(232,163,61,0.5);
+  box-shadow: 0 0 0 3px rgba(232,163,61,0.10);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   2 — SETTINGS PAGE: enterprise two-column shell
+   ══════════════════════════════════════════════════════════════════════════ */
+
+#view-settings .ov-head { margin-bottom: var(--sp-6); }
+#view-settings .ov-head h1 { font-size: clamp(1.6rem, 2.5vw, var(--fs-2xl)); }
+
+/* Override the old flat grid — replaced by .stg-shell */
+#view-settings .settings-grid { display: none; }
+
+/* Two-column shell */
+.stg-shell {
+  display: grid;
+  grid-template-columns: 224px minmax(0, 1fr);
+  gap: var(--sp-6);
+  align-items: start;
+}
+
+/* Left rail ── sticky nav */
+.stg-rail {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: var(--sp-2);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: sticky;
+  top: calc(var(--nav-h) + var(--sp-5));
+}
+.stg-rail-label {
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-30);
+  padding: var(--sp-3) var(--sp-3) var(--sp-1);
+}
+.stg-tab {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--ink-50);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--t-fast), color var(--t-fast);
+  position: relative;
+  min-height: 38px;
+  width: 100%;
+}
+.stg-tab svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.65; transition: opacity var(--t-fast); }
+.stg-tab:hover { background: var(--paper-soft); color: var(--ink); }
+.stg-tab:hover svg { opacity: 1; }
+.stg-tab.active {
+  background: var(--signal-10);
+  color: var(--signal-bright);
+  font-weight: 600;
+}
+.stg-tab.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 8px; bottom: 8px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--signal);
+}
+.stg-tab.active svg { opacity: 1; color: var(--signal); }
+.stg-tab-status {
+  margin-left: auto;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--ink-30);
+  flex-shrink: 0;
+}
+.stg-tab-status.live { background: #4fb477; box-shadow: 0 0 0 3px rgba(79,180,119,0.2); }
+.stg-tab-status.configured { background: var(--signal); }
+.stg-tab-status.error { background: var(--danger); }
+
+.stg-rail-divider { height: 1px; background: var(--line); margin: var(--sp-2) var(--sp-2); }
+
+/* Right content column */
+.stg-content { display: flex; flex-direction: column; gap: 0; min-width: 0; }
+.stg-panel { display: none; flex-direction: column; gap: var(--sp-5); }
+.stg-panel.active { display: flex; }
+
+/* ── Panel card ────────────────────────────────────────────────────────── */
+.stg-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.stg-card + .stg-card { margin-top: var(--sp-5); }
+
+/* Card header ── icon + title + subtitle + optional tag/badge */
+.stg-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-4);
+  padding: var(--sp-5) var(--sp-6);
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(135deg, rgba(232,163,61,0.04) 0%, transparent 60%);
+}
+.stg-card-icon {
+  width: 42px; height: 42px;
+  border-radius: 11px;
+  background: var(--signal-10);
+  border: 1px solid var(--line-strong);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  color: var(--signal);
+}
+.stg-card-icon svg { width: 20px; height: 20px; }
+.stg-card-head-text { flex: 1; min-width: 0; }
+.stg-card-head-text h3 {
+  font-family: var(--f-display);
+  font-size: var(--fs-md);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+.stg-card-head-text p { font-size: var(--fs-xs); color: var(--ink-50); line-height: 1.45; }
+.stg-card-head-right { flex-shrink: 0; margin-left: var(--sp-3); }
+
+/* Card body */
+.stg-card-body {
+  padding: var(--sp-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+/* ── Form fields ────────────────────────────────────────────────────────── */
+.stg-field { display: flex; flex-direction: column; gap: 6px; }
+.stg-field label {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--ink-70);
+  letter-spacing: 0.01em;
+}
+.stg-field label em { font-style: normal; font-weight: 400; color: var(--ink-30); }
+.stg-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--paper-soft);
+  color: var(--ink);
+  font-size: var(--fs-sm);
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  -webkit-appearance: none;
+}
+.stg-input:focus {
+  outline: none;
+  border-color: var(--signal);
+  box-shadow: 0 0 0 3px rgba(232,163,61,0.14);
+  background: var(--paper);
+}
+.stg-input::placeholder { color: var(--ink-30); }
+.stg-field-help { font-size: 11.5px; color: var(--ink-30); line-height: 1.5; }
+.stg-field-help code {
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  background: var(--paper-alt);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 1px 5px;
+  color: var(--signal-bright);
+}
+
+/* Two-column field grid within a card */
+.stg-field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4);
+}
+.stg-field-grid .stg-field.span-2 { grid-column: 1 / -1; }
+
+/* ── Proxy URL badge in label ───────────────────────────────────────────── */
+.stg-badge-free {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em;
+  background: rgba(79,180,119,0.13);
+  color: #4fb477;
+  border: 1px solid rgba(79,180,119,0.28);
+  border-radius: var(--r-full);
+  padding: 1px 8px;
+  vertical-align: middle;
+}
+.stg-badge-free::before { content: '✓'; font-weight: 800; }
+
+/* ── Connection meta strip ──────────────────────────────────────────────── */
+.stg-conn-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--paper-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+}
+.stg-conn-meta-item { display: flex; flex-direction: column; gap: 3px; }
+.stg-conn-meta-item span:first-child { font-family: var(--f-mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--ink-30); }
+.stg-conn-meta-item span:last-child { font-size: var(--fs-xs); font-weight: 600; color: var(--ink); }
+
+/* ── Odoo status pill ───────────────────────────────────────────────────── */
+.stg-status-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--f-mono);
+  font-size: 11px; font-weight: 600;
+  padding: 4px 11px 4px 9px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--line-strong);
+  color: var(--ink-50);
+  background: var(--paper-soft);
+}
+.stg-status-pill::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--ink-30); flex-shrink: 0; transition: background var(--t-fast); }
+.stg-status-pill.live { color: #4fb477; border-color: rgba(79,180,119,0.35); background: rgba(79,180,119,0.07); }
+.stg-status-pill.live::before { background: #4fb477; box-shadow: 0 0 0 3px rgba(79,180,119,0.2); animation: live-pulse 2s ease-in-out infinite; }
+.stg-status-pill.configured { color: var(--signal-bright); border-color: var(--line-strong); }
+.stg-status-pill.configured::before { background: var(--signal); }
+
+/* ── Security note ──────────────────────────────────────────────────────── */
+.stg-security-note {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: var(--sp-3) var(--sp-4);
+  background: rgba(232,163,61,0.06);
+  border: 1px solid rgba(232,163,61,0.18);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-xs); color: var(--ink-50); line-height: 1.55;
+}
+.stg-security-note svg { width: 15px; height: 15px; flex-shrink: 0; color: var(--signal); margin-top: 1px; }
+.stg-security-note b { color: var(--ink-70); }
+.stg-security-note code { font-family: var(--f-mono); font-size: 10.5px; color: var(--signal-bright); }
+
+/* ── Setup steps ────────────────────────────────────────────────────────── */
+.stg-steps { display: flex; flex-direction: column; gap: var(--sp-3); }
+.stg-step {
+  display: flex; align-items: flex-start; gap: var(--sp-4);
+  padding: var(--sp-4);
+  background: var(--paper-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  transition: border-color var(--t-fast);
+}
+.stg-step:hover { border-color: var(--line-strong); }
+.stg-step-num {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--signal-10);
+  border: 1px solid var(--line-strong);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--f-mono); font-size: 11px; font-weight: 700; color: var(--signal);
+  flex-shrink: 0; margin-top: 1px;
+}
+.stg-step-body { flex: 1; min-width: 0; }
+.stg-step-body b { font-size: var(--fs-sm); font-weight: 600; color: var(--ink); display: block; margin-bottom: 4px; }
+.stg-step-body p { font-size: var(--fs-xs); color: var(--ink-50); line-height: 1.6; }
+.stg-step-body p a { color: var(--signal-bright); text-decoration: underline; text-decoration-color: rgba(240,192,106,0.35); }
+.stg-step-body p a:hover { text-decoration-color: var(--signal); }
+.stg-step-body p code { font-family: var(--f-mono); font-size: 10.5px; color: var(--signal-bright); background: var(--paper-alt); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; }
+
+/* ── Action row at card bottom ──────────────────────────────────────────── */
+.stg-action-row {
+  display: flex; gap: var(--sp-2); flex-wrap: wrap;
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--line);
+  margin-top: var(--sp-1);
+}
+
+/* ── Info list (bullet points) ──────────────────────────────────────────── */
+.stg-info-list { display: flex; flex-direction: column; gap: 7px; }
+.stg-info-list li {
+  display: flex; gap: 10px;
+  font-size: var(--fs-xs); color: var(--ink-70); line-height: 1.55; padding-left: 0;
+}
+.stg-info-list li::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--signal);
+  flex-shrink: 0;
+  margin-top: 7px;
+}
+.stg-info-list li b { color: var(--ink); }
+.stg-info-list li code { font-family: var(--f-mono); font-size: 10.5px; color: var(--signal-bright); background: var(--paper-alt); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; }
+
+/* ── Storage usage bar ──────────────────────────────────────────────────── */
+.stg-storage-bar-wrap { display: flex; flex-direction: column; gap: 6px; }
+.stg-storage-bar-row { display: flex; align-items: center; justify-content: space-between; font-size: var(--fs-xs); color: var(--ink-50); }
+.stg-storage-bar-track { height: 5px; background: var(--paper-alt); border-radius: var(--r-full); overflow: hidden; border: 1px solid var(--line); }
+.stg-storage-bar-fill { height: 100%; background: linear-gradient(to right, var(--signal), var(--beacon)); border-radius: var(--r-full); width: 0%; transition: width 0.6s var(--ease); }
+
+/* ── Checkpoints (Odoo connectivity) ───────────────────────────────────── */
+.stg-checkpoints-wrap:not(:empty) { margin-top: var(--sp-2); }
+
+/* ── Odoo connectivity check placeholder in new structure ───────────────── */
+#stgOdooCheckpoints:not(:empty) { padding-top: var(--sp-2); }
+
+/* Responsive ── collapse to single column below 800px */
+@media (max-width: 900px) {
+  .stg-shell { grid-template-columns: 1fr; }
+  .stg-rail { position: static; flex-direction: row; flex-wrap: wrap; gap: 4px; }
+  .stg-rail-label { display: none; }
+  .stg-rail-divider { display: none; }
+  .stg-tab { flex: 1 1 auto; min-width: fit-content; padding: 8px 12px; }
+  .stg-tab.active::before { display: none; }
+  .stg-tab.active { background: var(--signal-10); box-shadow: inset 0 -3px 0 var(--signal); border-radius: var(--r-sm) var(--r-sm) 0 0; }
+  .stg-field-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .stg-card-head { flex-direction: column; gap: var(--sp-3); }
+  .stg-card-body { padding: var(--sp-4); }
+}

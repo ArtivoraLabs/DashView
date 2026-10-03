@@ -1,0 +1,61 @@
+/* ==========================================================================
+   DashView - Overview charts: clear colours, professional presentation
+   Scoped to #view-overview. Colours themselves come from js/overview-live.js
+   (blue = revenue, amber = orders, violet = CRM, teal = shops/products,
+   invoice status = green / blue / amber / red). Delete the <link> to revert.
+   ========================================================================== */
+#view-overview { --ov-ink: var(--chart-ink, #f1f3fb); --ov-sub: var(--chart-sub, #b9c0d8); --ov-line: rgba(148,163,184,.24); --ov-default-series: #5AA2FF; }
+html[data-theme=light] #view-overview { --ov-line: rgba(20,24,40,.13); --ov-default-series: #1D5FD1; }
+
+/* ---- Overview company lens ---- */
+#view-overview .ov-company-filter { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 14px; padding: 10px 14px; background: var(--paper); border: 1px solid var(--ov-line); border-radius: 12px; }
+#view-overview .ov-company-label { color: var(--ov-sub); font-size: 12px; font-weight: 700; }
+#view-overview .ov-company-select { min-width: 190px; max-width: 100%; padding: 7px 30px 7px 10px; color: var(--ov-ink); background: var(--paper-soft); border: 1px solid var(--ov-line); border-radius: 8px; font: 600 13px var(--f-body); }
+#view-overview .ov-company-select:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+#view-overview .ov-company-note { color: var(--ov-sub); font-size: 12px; }
+#view-overview .ov-company-error, #view-overview .olx-empty-s.is-error { color: var(--danger, #ff6f61); }
+
+/* ---- Chart cards ---- */
+#view-overview .ov-grid > .panel { padding: 20px 22px 18px; border-radius: 16px; border: 1px solid var(--ov-line); }
+#view-overview .ov-grid .chart-header { margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--ov-line); }
+#view-overview .ov-grid .chart-header h3 { font-size: 15px; font-weight: 700; letter-spacing: -.01em; color: var(--ov-ink); }
+#view-overview .ov-grid .chart-subtitle { margin: 3px 0 0; font-size: 12px; color: var(--ov-sub); opacity: 1; }
+
+/* ---- Canvas sizes: enough height that labels never collide ---- */
+#view-overview .ov-canvas { position: relative; height: 280px; }
+#view-overview #ovTrendB .ov-canvas { height: 340px; }
+#view-overview #ovShopsB .ov-canvas { height: 300px; }
+#view-overview #ovCatB .ov-canvas, #view-overview #ovInvB .ov-canvas { height: 230px; }
+
+/* ---- Legend (donuts): swatch | name | amount | share, with a share bar ---- */
+#view-overview .olx-legend { margin-top: 14px; display: grid; gap: 2px; }
+#view-overview .olx-leg { position: relative; display: grid; grid-template-columns: 14px minmax(0, 1fr) auto 44px; align-items: center; gap: 10px;
+  margin: 0 -8px; padding: 8px 8px 12px; border-radius: 8px; font-size: 13px; }
+#view-overview .olx-leg i { width: 12px; height: 12px; border-radius: 4px; box-shadow: 0 0 0 2px color-mix(in srgb, var(--c, var(--ov-default-series)) 28%, transparent); }
+#view-overview .olx-leg span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; color: var(--ov-ink); }
+#view-overview .olx-leg b, #view-overview .olx-leg em { font-variant-numeric: tabular-nums; }
+#view-overview .olx-leg b { font-weight: 700; color: var(--ov-ink); }
+#view-overview .olx-leg em { text-align: right; font-style: normal; font-weight: 700; color: var(--ov-sub); }
+#view-overview .olx-leg::after { left: 32px; right: 8px; bottom: 4px; height: 4px;
+  background: linear-gradient(90deg, var(--c, var(--ov-default-series)) var(--p, 0%), var(--ov-line) var(--p, 0%)); }
+
+/* ---- Ranked bar lists (top customers / best-selling products) ---- */
+#view-overview .ov-bars { gap: 16px; }
+#view-overview .ov-bar-top { font-size: 13px; color: var(--ov-ink); }
+#view-overview .ov-bar-top span { font-weight: 600; }
+#view-overview .ov-bar-top b { font-weight: 700; font-variant-numeric: tabular-nums; }
+#view-overview .ov-bar-track { height: 10px; border-radius: 10px; background: var(--ov-line); }
+#view-overview .ov-bar-track i { border-radius: 10px; }
+#view-overview .ov-rank { color: var(--bc, var(--ov-ink)); background: color-mix(in srgb, var(--bc, var(--ov-default-series)) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--bc, var(--ov-default-series)) 45%, transparent); }
+
+/* ---- Top-shop badge in the subtitle ---- */
+#view-overview .ov-top-shop-badge { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+#view-overview .ov-shop-stat { font-size: 12px; font-weight: 600; color: var(--ov-sub); font-variant-numeric: tabular-nums; }
+
+@media (max-width: 760px) {
+  #view-overview .ov-grid > .panel { padding: 16px 14px; }
+  #view-overview .ov-canvas { height: 240px; } #view-overview #ovTrendB .ov-canvas { height: 280px; }
+  #view-overview .olx-leg { grid-template-columns: 14px minmax(0, 1fr) 40px; } #view-overview .olx-leg b { display: none; }
+}
+@media print { #view-overview * { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }

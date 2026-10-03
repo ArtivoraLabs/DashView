@@ -1,0 +1,100 @@
+/* ==========================================================================
+   DashView — match the Workspace dashboard to the People (HR) dashboard
+   ==========================================================================
+   people.html already re-themes onto the shared tokens (base.css /
+   merged.css) with a glass-card treatment: a translucent background,
+   backdrop blur, a larger corner radius, and pill-shaped buttons /
+   icon-buttons (see .hr-card / .hr-iconbtn / .hr-btn in css/people.css).
+
+   This file brings that same treatment to every view inside the main
+   Workspace dashboard (dashboard.html) — Overview, Data Studio, Projects,
+   Agent tasks, Team, Reports, Widget Builder, Odoo, Odoo (Live), Audit log
+   and Settings — so the whole product reads as one consistent design
+   instead of two different card styles. It only overrides shared classes
+   used by dashboard.html (.panel, .kpi-card, .dash-icon-btn, etc.); it does
+   not touch the marketing site (index.html) or People's own classes.
+   Load this after the other dashboard stylesheets so it wins the cascade.
+   ========================================================================== */
+
+:root {
+  --dv-card-bg: color-mix(in srgb, var(--paper) 70%, transparent);
+  --dv-card-bg-hover: color-mix(in srgb, var(--paper) 82%, transparent);
+  --dv-card-line: var(--line-strong);
+}
+
+/* ── Cards: panels, KPI tiles, Odoo Live tiles → same glass treatment as .hr-card ── */
+.panel,
+.kpi-card,
+.odoo-live-kpi,
+.chart-card,
+.project-card,
+.team-card,
+.report-card {
+  background: var(--dv-card-bg);
+  border-color: var(--dv-card-line);
+  border-radius: var(--r-lg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--t-base), border-color var(--t-base), transform var(--t-base), background-color var(--t-base);
+}
+.panel:hover,
+.kpi-card:hover,
+.odoo-live-kpi:hover,
+.chart-card:hover,
+.project-card:hover,
+.team-card:hover,
+.report-card:hover {
+  background: var(--dv-card-bg-hover);
+  box-shadow: var(--shadow-md);
+  border-color: var(--ink-30, var(--line-strong));
+  transform: translateY(-2px);
+}
+
+/* Headings inside those cards → same light-weight display type as .hr-card-title */
+.panel-head h3 {
+  font-weight: 400;
+  letter-spacing: -0.012em;
+}
+.dash-head h1,
+.ov-head h1 {
+  font-weight: 400;
+  letter-spacing: -0.014em;
+}
+
+/* ── Topbar icon buttons → same pill/glass treatment as .hr-iconbtn ── */
+.dash-icon-btn {
+  width: 42px; height: 42px;
+  border: 1px solid var(--dv-card-line);
+  border-radius: var(--r-full);
+  background: color-mix(in srgb, var(--paper) 66%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: background-color .16s ease, transform .16s ease, border-color .16s ease;
+}
+.dash-icon-btn:hover {
+  background: color-mix(in srgb, var(--paper) 80%, transparent);
+  border-color: var(--ink-30, var(--line-strong));
+  color: var(--ink);
+  transform: translateY(-1px);
+}
+.dash-icon-btn .dot { border-width: 1.5px; }
+
+/* ── Buttons inside the Workspace dashboard → pill shape, same as .hr-btn ── */
+.dash-main .btn {
+  border-radius: var(--r-full);
+}
+
+/* ── Tables → soften corners and align row hover with the glass-card look ── */
+.dash-main .table-wrap,
+.dash-main table.dash-table {
+  border-radius: var(--r-md);
+}
+.dash-main table.dash-table thead th {
+  background: color-mix(in srgb, var(--paper) 55%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel, .kpi-card, .odoo-live-kpi, .chart-card, .project-card, .team-card, .report-card,
+  .dash-icon-btn { transition: none; }
+}

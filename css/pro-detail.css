@@ -1,0 +1,80 @@
+/* ==========================================================================
+   DashView - Pro detailing layer (works on every page; uses only its own tokens
+   plus safe fallbacks). Skeletons, empty states, badges, chart palette, tooltips,
+   status dots, dividers, page entrance, print. Delete the <link> to revert.
+   ========================================================================== */
+:root{
+  /* One chart palette for every page (colour-blind friendlier order) */
+  --dv-c1:#8b5cf6;--dv-c2:#22d3ee;--dv-c3:#10b981;--dv-c4:#f59e0b;
+  --dv-c5:#f43f5e;--dv-c6:#3b82f6;--dv-c7:#ec4899;--dv-c8:#a3e635;
+  --dv-pos:#10b981;--dv-neg:#f43f5e;--dv-warn:#f59e0b;
+  --dv-line:rgba(148,155,190,.16);--dv-ink-2:rgba(230,233,246,.62);
+}
+html[data-theme=light],html.light,body.light{--dv-line:rgba(20,24,40,.12);--dv-ink-2:rgba(20,24,40,.6)}
+
+/* Page entrance: content fades up once, never blocks interaction */
+@keyframes dv-rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+main,.main,.page,.content,#app{animation:dv-rise .45s cubic-bezier(.2,.7,.2,1) both}
+
+/* Skeleton loading: add class "dv-skel" to any placeholder block */
+@keyframes dv-shimmer{to{background-position:-200% 0}}
+.dv-skel,.skeleton{border-radius:10px;min-height:1em;color:transparent!important;pointer-events:none;
+  background:linear-gradient(90deg,rgba(148,155,190,.08) 25%,rgba(148,155,190,.18) 37%,rgba(148,155,190,.08) 63%);
+  background-size:200% 100%;animation:dv-shimmer 1.4s linear infinite}
+
+/* Empty / error states: <div class="dv-empty"><i></i><b>Title</b><p>Hint</p></div> */
+.dv-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:44px 24px;
+  border:1px dashed var(--dv-line);border-radius:16px;color:var(--dv-ink-2)}
+.dv-empty i{width:44px;height:44px;border-radius:50%;margin-bottom:6px;
+  background:radial-gradient(circle at 30% 30%,var(--dv-c1),transparent 70%),rgba(148,155,190,.1)}
+.dv-empty b{font-size:15px;color:inherit;filter:brightness(1.4)}
+.dv-empty p{margin:0;font-size:13px;max-width:44ch}
+
+/* Badges & status dots */
+.dv-badge{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:999px;font-size:11.5px;
+  font-weight:600;letter-spacing:.02em;line-height:1.6;border:1px solid transparent;white-space:nowrap}
+.dv-badge.pos{color:var(--dv-pos);background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.25)}
+.dv-badge.neg{color:var(--dv-neg);background:rgba(244,63,94,.12);border-color:rgba(244,63,94,.25)}
+.dv-badge.warn{color:var(--dv-warn);background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.25)}
+.dv-badge.info{color:var(--dv-c2);background:rgba(34,211,238,.12);border-color:rgba(34,211,238,.25)}
+.dv-dot{width:8px;height:8px;border-radius:50%;background:var(--dv-pos);box-shadow:0 0 0 3px rgba(16,185,129,.2);display:inline-block}
+.dv-dot.off{background:var(--dv-neg);box-shadow:0 0 0 3px rgba(244,63,94,.2)}
+.dv-dot.warn{background:var(--dv-warn);box-shadow:0 0 0 3px rgba(245,158,11,.2)}
+
+/* Trend colouring for deltas */
+.up,.delta.pos,.trend-up{color:var(--dv-pos)}.down,.delta.neg,.trend-down{color:var(--dv-neg)}
+
+/* Tooltips: any element with data-tip */
+[data-tip]{position:relative}
+[data-tip]:hover::after,[data-tip]:focus-visible::after{content:attr(data-tip);position:absolute;z-index:50;left:50%;bottom:calc(100% + 8px);
+  transform:translateX(-50%);padding:6px 10px;border-radius:8px;font-size:12px;font-weight:500;line-height:1.35;white-space:nowrap;
+  background:#0b0d17;color:#eef0fa;box-shadow:0 8px 24px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);pointer-events:none}
+
+/* Hairline section dividers with a fading edge */
+hr{border:0;height:1px;background:linear-gradient(90deg,transparent,var(--dv-line),transparent);margin:1.5rem 0}
+
+/* Charts: consistent series colours when a lib lets CSS win */
+.chart-1{color:var(--dv-c1)}.chart-2{color:var(--dv-c2)}.chart-3{color:var(--dv-c3)}.chart-4{color:var(--dv-c4)}
+.chart-5{color:var(--dv-c5)}.chart-6{color:var(--dv-c6)}
+svg text{font-variant-numeric:tabular-nums}
+
+/* Links inside copy, code and kbd */
+p a,li a{text-underline-offset:3px;text-decoration-thickness:1px}
+code,kbd{font-family:ui-monospace,"JetBrains Mono","IBM Plex Mono",Menlo,monospace;font-size:.88em}
+kbd{padding:1px 6px;border-radius:6px;border:1px solid var(--dv-line);border-bottom-width:2px;background:rgba(148,155,190,.08)}
+
+/* Images and media */
+img{max-width:100%;height:auto}
+img[loading=lazy]{background:rgba(148,155,190,.08)}
+
+/* Text overflow safety so nothing breaks alignment */
+td,th,.card *,[class*="card"] h3{overflow-wrap:anywhere}
+
+/* Print / PDF (board report, exports): clean, ink-friendly */
+@media print{
+  *{animation:none!important;box-shadow:none!important;backdrop-filter:none!important}
+  body{background:#fff!important;color:#111!important}
+  nav,header .actions,.tabbar,.no-print,button{display:none!important}
+  .card,[class*="card"],table{break-inside:avoid;border:1px solid #ddd!important;background:#fff!important}
+  a{color:#111;text-decoration:none}
+}

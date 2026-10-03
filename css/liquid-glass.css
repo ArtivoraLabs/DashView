@@ -1,0 +1,352 @@
+/* ==========================================================================
+   DashView — Liquid Glass  (v3 · professional)
+   --------------------------------------------------------------------------
+   Opt-in surface style (Settings → Appearance → Liquid Glass). Injected as a
+   <link> by settings-pro.js, so it loads after every other stylesheet.
+
+   Design rules
+   1. Neutral glass, not tinted glass.  Brand colour appears only as accent
+      (focus ring, active states, ambient light) - never as the pane colour.
+   2. Three elevations:  e1 cards · e2 menus/drawers/modals · sunken inputs.
+   3. Every pane has a real 1px hairline + a top rim-light, so edges stay
+      crisp on any background.
+   4. Sheen is a background layer, NOT a pseudo-element - so it can never
+      collide with a component's own ::before/::after (KPI accent bars etc.)
+      and can never wash out text.
+   5. Calm motion: short ease-out, 1-2px lift only on clickable cards. No
+      spring overshoot.  No blanket translateZ(0) (it blurs text on some GPUs).
+   6. Nested glass does not blur again (cost + muddy look).
+   7. Graceful fallbacks: no backdrop-filter, reduced transparency, high
+      contrast, reduced motion, print.
+   ========================================================================== */
+
+:root {
+  --lg-blur:        blur(20px) saturate(155%);
+  --lg-blur-strong: blur(30px) saturate(165%);
+  --lg-blur-soft:   blur(12px) saturate(140%);
+
+  /* DARK */
+  --lg-surface:         rgba(25, 28, 27, 0.76);
+  --lg-surface-hover:   rgba(34, 38, 37, 0.84);
+  --lg-surface-strong:  rgba(20, 23, 22, 0.92);
+  --lg-surface-inner:   rgba(231, 237, 231, 0.045);
+  --lg-surface-sunken:  rgba(0, 0, 0, 0.30);
+  --lg-cell:            rgba(22, 25, 24, 0.88);
+  --lg-track:           rgba(150, 168, 215, 0.20);   /* bar/gauge tracks inside charts: never black */
+  --ink-70:             rgba(231, 237, 231, 0.84);
+  --ink-50:             rgba(231, 237, 231, 0.72);
+  --ink-30:             rgba(231, 237, 231, 0.60);
+
+  --lg-sheen:           linear-gradient(180deg, rgba(255,255,255,0.065) 0%, rgba(255,255,255,0.018) 38%, rgba(255,255,255,0) 64%);
+  --lg-edge:            rgba(255, 255, 255, 0.10);
+  --lg-edge-strong:     rgba(255, 255, 255, 0.18);
+  --lg-rim:             inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  --lg-accent-ring:     0 0 0 3px rgba(232, 163, 61, 0.28);
+
+  --lg-e1: 0 1px 2px rgba(0,0,0,0.30), 0 14px 32px -16px rgba(0,0,0,0.52);
+  --lg-e2: 0 2px 6px rgba(0,0,0,0.34), 0 28px 60px -22px rgba(0,0,0,0.68);
+  --lg-e1-hover: 0 2px 4px rgba(0,0,0,0.32), 0 20px 42px -16px rgba(0,0,0,0.60);
+
+  --lg-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --lg-radius: 16px;
+}
+
+html[data-theme="light"] {
+  --ink-70:             rgba(20, 24, 19, 0.88);
+  --ink-50:             rgba(20, 24, 19, 0.74);
+  --ink-30:             rgba(20, 24, 19, 0.62);
+  --lg-surface:         rgba(237, 242, 246, 0.78);
+  --lg-surface-hover:   rgba(243, 247, 250, 0.86);
+  --lg-surface-strong:  rgba(242, 246, 249, 0.94);
+  --lg-surface-inner:   rgba(255, 255, 255, 0.30);
+  --lg-surface-sunken:  rgba(220, 229, 236, 0.48);
+  --lg-cell:            rgba(242, 246, 249, 0.90);
+  --lg-track:           rgba(60, 80, 140, 0.12);
+
+  --lg-sheen:           linear-gradient(180deg, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.12) 40%, rgba(255,255,255,0) 62%);
+  --lg-edge:            rgba(65, 82, 96, 0.16);
+  --lg-edge-strong:     rgba(65, 82, 96, 0.26);
+  --lg-rim:             inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  --lg-accent-ring:     0 0 0 3px rgba(196, 128, 22, 0.22);
+
+  --lg-e1: 0 1px 2px rgba(20,24,19,0.06), 0 14px 30px -16px rgba(20,24,19,0.20);
+  --lg-e2: 0 2px 6px rgba(20,24,19,0.08), 0 28px 56px -22px rgba(20,24,19,0.30);
+  --lg-e1-hover: 0 2px 4px rgba(20,24,19,0.08), 0 20px 40px -16px rgba(20,24,19,0.26);
+}
+
+/* ── 1 · Cards & panels (elevation 1) ───────────────────────────────────── */
+.kpi-card, .panel, .chart-card, .project-card, .team-card, .report-card, .stg-card,
+.widget-card, .saved-dash-card, .role-option, .studio-slicer-bar, .pivot-well,
+.hierarchy-tree-wrap, .notfound-card,
+.olx-kpi, .olx-chart, .olx-headline, .olx-narr, .olx-xattn, .xr-panel {
+  background-color: var(--lg-surface);
+  background-image: var(--lg-sheen);
+  border: 1px solid var(--lg-edge);
+  border-radius: var(--lg-radius);
+  box-shadow: var(--lg-rim), var(--lg-e1);
+  -webkit-backdrop-filter: var(--lg-blur);
+          backdrop-filter: var(--lg-blur);
+  overflow: hidden;
+  overflow: clip;
+  transition: background-color .25s ease, border-color .25s ease, box-shadow .25s ease, transform .25s var(--lg-ease);
+}
+
+/* BUG FIX: these hold dropdowns (slicer menus etc.); clipping cut the menus off */
+.studio-slicer-bar, .pivot-well, .hierarchy-tree-wrap { overflow: visible; }
+
+/* Quiet hover for read-only panels: edge brightens, nothing moves */
+.panel:hover, .chart-card:hover, .olx-chart:hover, .xr-panel:hover, .olx-narr:hover, .olx-xattn:hover {
+  background-color: var(--lg-surface-hover);
+  border-color: var(--lg-edge-strong);
+}
+/* Clickable cards lift 2px */
+.kpi-card:hover, .project-card:hover, .saved-dash-card:hover, .team-card:hover, .report-card:hover, .widget-card:hover,
+.olx-kpi:hover, .olx-xk.is-clickable:hover {
+  background-color: var(--lg-surface-hover);
+  border-color: var(--lg-edge-strong);
+  box-shadow: var(--lg-rim), var(--lg-e1-hover);
+  transform: translateY(-2px);
+}
+.olx-kpi.is-loading, .olx-kpi.is-loading:hover { transform: none; }
+
+/* Nested glass: translucent only, never a second blur */
+:is(.panel, .olx-chart, .olx-kpi, .xr-panel, .olx-narr, .olx-xattn, .chart-card, .widget-card, .kpi-card)
+  :is(.panel, .olx-chart, .olx-kpi, .xr-panel, .olx-narr, .olx-xattn, .chart-card, .widget-card, .kpi-card, .olx-headline) {
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  background-color: var(--lg-surface-inner); background-image: none; box-shadow: none;
+}
+
+/* ── 2 · Chrome: sidebar, top bar, footer ───────────────────────────────── */
+.dash-side, .dash-topbar, .footer, .studio-topbar, .studio-fields-rail, .nav {
+  background-color: var(--lg-surface);
+  background-image: var(--lg-sheen);
+  -webkit-backdrop-filter: var(--lg-blur-strong);
+          backdrop-filter: var(--lg-blur-strong);
+  border-color: var(--lg-edge);
+  box-shadow: var(--lg-rim);
+  border-radius: 0;
+}
+.dash-side   { border-right: 1px solid var(--lg-edge); }
+.dash-topbar { border-bottom: 1px solid var(--lg-edge); box-shadow: var(--lg-rim), 0 10px 30px -22px rgba(0,0,0,.5); }
+.footer      { border-top: 1px solid var(--lg-edge); }
+.stg-rail {
+  background-color: var(--lg-surface);
+  background-image: var(--lg-sheen);
+  border: 1px solid var(--lg-edge);
+  box-shadow: var(--lg-rim), var(--lg-e1);
+  -webkit-backdrop-filter: var(--lg-blur);
+          backdrop-filter: var(--lg-blur);
+}
+.surface-opt {
+  background-color: var(--lg-surface-inner);
+  border-color: var(--lg-edge);
+  -webkit-backdrop-filter: var(--lg-blur-soft);
+          backdrop-filter: var(--lg-blur-soft);
+}
+.surface-opt.active { border-color: var(--signal); }
+
+/* ── 3 · Floating layers (elevation 2) ──────────────────────────────────── */
+.modal-card, .cmd-box, .toast, .notif-panel, .olx-kd-panel,
+.studio-dropdown, .col-menu-popover, .slicer-dropdown {
+  background-color: var(--lg-surface-strong) !important;
+  background-image: var(--lg-sheen);
+  border: 1px solid var(--lg-edge-strong);
+  box-shadow: var(--lg-rim), var(--lg-e2);
+  -webkit-backdrop-filter: var(--lg-blur-strong);
+          backdrop-filter: var(--lg-blur-strong);
+}
+.modal-card, .cmd-box, .studio-dropdown, .col-menu-popover, .slicer-dropdown { border-radius: var(--lg-radius); }
+.toast { border-radius: 12px; }
+.olx-kd-panel { border-radius: 0; border-right: 0; border-top: 0; border-bottom: 0; }
+.olx-kd-back, .modal-overlay { -webkit-backdrop-filter: blur(6px) saturate(120%); backdrop-filter: blur(6px) saturate(120%); }
+
+/* Big scrolling data surfaces: translucent but NOT blurred (perf + legibility) */
+.grid-scroll, .pivot-table-wrap {
+  background-color: var(--lg-cell) !important;
+  border: 1px solid var(--lg-edge) !important;
+  border-radius: 12px;
+}
+
+/* ── 4 · Content inside glass ───────────────────────────────────────────── */
+.olx-chart .chart-header, .xr-panel .chart-header, .panel .chart-header { border-bottom-color: var(--lg-edge); }
+.olx-chart::before { opacity: .6; }                      /* keep the accent line, a little calmer */
+.panel table th, .xr-table th, .olx-kd-tb th { background: transparent; border-bottom-color: var(--lg-edge-strong); }
+.panel table td, .xr-table td, .olx-kd-tb td { border-bottom-color: var(--lg-edge); }
+.panel table tbody tr:hover td, .xr-table tbody tr:hover td { background: var(--lg-surface-inner); }
+.xr-tr-row, .xr-tr-head { border-bottom-color: var(--lg-edge); }
+.xr-bar, .xr-stack, .olx-gauge { background: var(--lg-track); border-color: var(--lg-edge); }
+
+/* chart summary strip (hairline dividers) */
+.olx-stats { border-color: var(--lg-edge); background: var(--lg-edge); }
+.olx-st, .olx-st-tg { background: var(--lg-cell); }
+.olx-st-tg { border-top-color: var(--lg-edge); }
+
+.olx-kd-c { background: var(--lg-surface-inner); border-color: var(--lg-edge); }
+.olx-ht { border-color: var(--lg-edge); background: var(--lg-surface-inner); }
+.olx-leg::after { background: linear-gradient(90deg, var(--c, #e8a33d) var(--p, 0%), var(--lg-edge) var(--p, 0%)); }
+
+/* ── 5 · Controls ───────────────────────────────────────────────────────── */
+/* Sunken fields */
+.dash-search, .data-search, .fields-rail-head input, .field input, .form-input, .studio-dropzone, .board-tabs {
+  background-color: var(--lg-surface-sunken) !important;
+  border: 1px solid var(--lg-edge) !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.16);
+  -webkit-backdrop-filter: var(--lg-blur-soft); backdrop-filter: var(--lg-blur-soft);
+}
+.dash-search:focus-within, .data-search:focus-within, .fields-rail-head input:focus, .field input:focus, .form-input:focus {
+  border-color: var(--signal, #e8a33d) !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.12), var(--lg-accent-ring);
+}
+
+/* Segmented controls / lens tabs: a sunken track; the active segment keeps its own fill */
+.seg, .olx-lens {
+  background: var(--lg-surface-sunken);
+  border: 1px solid var(--lg-edge);
+  -webkit-backdrop-filter: var(--lg-blur-soft); backdrop-filter: var(--lg-blur-soft);
+}
+
+/* Buttons: neutral buttons are glass; primary / signal stay solid with a soft rim */
+.btn-outline, .slicer-btn, .role-preset-btn, .olx-chip, .xr-chip, .btn-secondary {
+  background-color: var(--lg-surface);
+  border: 1px solid var(--lg-edge-strong);
+  box-shadow: var(--lg-rim);
+  color: var(--ink);
+  -webkit-backdrop-filter: var(--lg-blur-soft); backdrop-filter: var(--lg-blur-soft);
+}
+.btn-outline:hover, .slicer-btn:hover, .role-preset-btn:hover, .olx-chip:hover, .xr-chip:hover, .btn-secondary:hover {
+  background-color: var(--lg-surface-hover);
+  border-color: var(--signal, #e8a33d);
+}
+.btn-primary { box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 8px 20px -10px rgba(0,0,0,.45); }
+.btn-signal  { box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 10px 24px -10px rgba(232,163,61,.55); }
+.dash-search, .data-search, .fields-rail-head input, .field input, .form-input, .ai-embed-composer textarea {
+  color: var(--ink);
+}
+.dash-search::placeholder, .data-search::placeholder, .fields-rail-head input::placeholder,
+.field input::placeholder, .form-input::placeholder, .ai-embed-composer textarea::placeholder {
+  color: var(--ink-70);
+  opacity: 1;
+}
+.btn { transition: transform .18s var(--lg-ease), box-shadow .18s ease, background-color .18s ease, border-color .18s ease, filter .18s ease; }
+.btn:hover:not(:disabled):not(.btn-ghost) { transform: translateY(-1px); filter: brightness(1.05); }
+.btn:active:not(:disabled) { transform: translateY(0) scale(.985); transition-duration: .08s; }
+.status-pill, .tag, .source-badge { -webkit-backdrop-filter: var(--lg-blur-soft); backdrop-filter: var(--lg-blur-soft); }
+
+/* Keyboard focus: one consistent accent ring on glass */
+.kpi-card:focus-visible, .olx-xk:focus-visible, .project-card:focus-visible, .saved-dash-card:focus-visible,
+.btn:focus-visible, .seg button:focus-visible { outline: 2px solid var(--signal, #e8a33d); outline-offset: 2px; }
+
+/* ── 6 · AI assistant surfaces ──────────────────────────────────────────── */
+.ai-embed-bubble, .ai-embed-suggest-card {
+  background-color: var(--lg-surface) !important;
+  border: 1px solid var(--lg-edge) !important;
+  box-shadow: var(--lg-rim);
+  -webkit-backdrop-filter: var(--lg-blur-soft); backdrop-filter: var(--lg-blur-soft);
+}
+.ai-embed-msg.user .ai-embed-bubble {
+  background-color: rgba(232, 163, 61, 0.16) !important;
+  border-color: rgba(232, 163, 61, 0.34) !important;
+}
+.ai-embed-composer, .ai-composer {
+  background-color: var(--lg-surface-strong) !important;
+  border: 1px solid var(--lg-edge-strong) !important;
+  -webkit-backdrop-filter: var(--lg-blur); backdrop-filter: var(--lg-blur);
+}
+.ai-embed-composer textarea { background-color: var(--lg-surface-sunken) !important; border-color: transparent !important; }
+
+/* Gradient text must always paint cleanly above glass */
+.grad-text, .t-display .grad-text, span.grad-text, .text-gradient { position: relative; isolation: isolate; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+
+/* ── 7 · Ambient light (what the glass actually refracts) ───────────────── */
+/* Glass on a flat colour looks like nothing, so the page gets soft, low-contrast light. */
+body.dash-body {
+  background-color: var(--paper-alt, #07090a);
+  background-image:
+    radial-gradient(900px 560px at 8% -6%, rgba(255, 255, 255, 0.055), transparent 62%),
+    radial-gradient(760px 520px at 100% 2%, rgba(255, 255, 255, 0.035), transparent 58%),
+    linear-gradient(145deg, #0c0f0e, #07090a 70%);
+  background-attachment: fixed;
+}
+html[data-theme="light"] body.dash-body {
+  background-color: #eceee9;
+  background-image:
+    radial-gradient(900px 560px at 8% -6%,  rgba(232, 163, 61, 0.20), transparent 62%),
+    radial-gradient(760px 520px at 100% 2%, rgba(91, 143, 174, 0.18), transparent 58%),
+    radial-gradient(900px 640px at 40% 112%, rgba(45, 166, 178, 0.12), transparent 62%);
+}
+/* The navigation rail follows the active glass tint instead of switching to
+   a contrasting dark slab in the light colour scheme. */
+html[data-theme="light"] .dash-side {
+  background-color: var(--lg-surface);
+  background-image: var(--lg-sheen);
+  color: #26343e;
+}
+html[data-theme="light"] .dash-side .dash-nav-label { color: #52616c; }
+html[data-theme="light"] .dash-side .dash-nav-link:not(.active) { color: #35434d; }
+html[data-theme="light"] .dash-side .dash-nav-link:not(.active):hover { color: #17232c; }
+html[data-theme="light"] .dash-side .dash-nav-link.active { color: #53320a; }
+html[data-theme="light"] .dash-side .dash-nav-link .badge:not(.new):not(.live) { color: #35434d; }
+html[data-theme="light"] .dash-side .dash-side-user-info span { color: #52616c; }
+html[data-theme="light"] .dash-side .dash-side-foot {
+  background: rgba(255, 255, 255, 0.20);
+  border-top-color: var(--lg-edge);
+}
+body:not(.dash-body):not(.ai-body) {
+  background-image:
+    radial-gradient(900px 560px at 10% -8%, rgba(232, 163, 61, 0.13), transparent 60%),
+    radial-gradient(760px 520px at 100% 4%, rgba(91, 143, 174, 0.10), transparent 55%);
+  background-attachment: fixed;
+}
+
+/* ── 8 · Scrollbars ─────────────────────────────────────────────────────── */
+* { scrollbar-width: thin; scrollbar-color: var(--lg-edge-strong) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--lg-edge-strong); border-radius: 999px; border: 3px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: rgba(232, 163, 61, 0.55); background-clip: padding-box; }
+
+/* Phones / touch: lighter blur and a scrolling background (iOS ignores fixed backgrounds and lags) */
+@media (max-width: 820px), (hover: none) {
+  :root { --lg-blur: blur(12px) saturate(140%); --lg-blur-strong: blur(16px) saturate(145%); --lg-blur-soft: blur(8px) saturate(130%); }
+  body.dash-body, body:not(.dash-body):not(.ai-body) { background-attachment: scroll; }
+  .kpi-card:hover, .project-card:hover, .saved-dash-card:hover, .team-card:hover, .report-card:hover, .widget-card:hover,
+  .olx-kpi:hover, .olx-xk.is-clickable:hover { transform: none; }
+}
+
+/* ── 9 · Fallbacks & accessibility ──────────────────────────────────────── */
+/* Browsers without backdrop-filter get solid panes (text never loses contrast) */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .kpi-card, .panel, .chart-card, .project-card, .team-card, .report-card, .stg-card, .widget-card, .saved-dash-card, .role-option,
+  .studio-slicer-bar, .pivot-well, .hierarchy-tree-wrap, .notfound-card, .olx-kpi, .olx-chart, .olx-headline, .olx-narr, .olx-xattn, .xr-panel,
+  .dash-side, .dash-topbar, .footer, .studio-topbar, .studio-fields-rail, .nav { background-color: var(--paper-soft, #141815); }
+  .modal-card, .cmd-box, .toast, .notif-panel, .olx-kd-panel, .studio-dropdown, .col-menu-popover, .slicer-dropdown { background-color: var(--paper, #0a0c0b) !important; }
+}
+/* OS-level "reduce transparency" -> solid panes, no blur */
+@media (prefers-reduced-transparency: reduce) {
+  .kpi-card, .panel, .chart-card, .project-card, .team-card, .report-card, .stg-card, .widget-card, .saved-dash-card, .role-option,
+  .studio-slicer-bar, .pivot-well, .hierarchy-tree-wrap, .notfound-card, .olx-kpi, .olx-chart, .olx-headline, .olx-narr, .olx-xattn, .xr-panel,
+  .dash-side, .dash-topbar, .footer, .studio-topbar, .studio-fields-rail, .nav, .seg, .olx-lens {
+    background-color: var(--paper-soft, #141815); background-image: none;
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+  }
+  .modal-card, .cmd-box, .toast, .notif-panel, .olx-kd-panel, .studio-dropdown, .col-menu-popover, .slicer-dropdown {
+    background-color: var(--paper, #0a0c0b) !important; -webkit-backdrop-filter: none; backdrop-filter: none;
+  }
+}
+/* Higher contrast: stronger hairlines */
+@media (prefers-contrast: more) {
+  :root { --lg-edge: rgba(255,255,255,.30); --lg-edge-strong: rgba(255,255,255,.50); }
+  html[data-theme="light"] { --lg-edge: rgba(0,0,0,.36); --lg-edge-strong: rgba(0,0,0,.55); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kpi-card, .panel, .chart-card, .project-card, .saved-dash-card, .olx-kpi, .olx-chart, .xr-panel, .btn {
+    transition: none !important; transform: none !important;
+  }
+}
+/* Print: flat and ink-friendly */
+@media print {
+  .kpi-card, .panel, .chart-card, .olx-kpi, .olx-chart, .olx-headline, .olx-narr, .olx-xattn, .xr-panel {
+    background: #fff !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+    border-color: #d8dbe0 !important;
+  }
+}

@@ -1,0 +1,60 @@
+/* ==========================================================================
+   DashView - Visual polish layer (loaded LAST on dashboard.html / people.html)
+   Purely visual: spacing rhythm, alignment, typography, depth, focus.
+   No markup or logic depends on it; delete the <link> to revert.
+   ========================================================================== */
+:root{
+  --vp-radius:14px; --vp-radius-sm:9px;
+  --vp-ease:cubic-bezier(.2,.7,.2,1);
+  --vp-shadow-1:0 1px 2px rgba(0,0,0,.18),0 6px 18px -8px rgba(0,0,0,.35);
+  --vp-shadow-2:0 2px 4px rgba(0,0,0,.2),0 18px 40px -16px rgba(0,0,0,.5);
+}
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;scroll-behavior:smooth}
+body{font-feature-settings:"cv11","ss01";letter-spacing:-.003em}
+::selection{background:rgba(139,92,246,.35)}
+
+/* Numbers line up: KPIs, tables, money columns */
+table,.kpi,[class*="kpi"],[class*="kpi"] b,[class*="stat"] strong{font-variant-numeric:tabular-nums lining-nums}
+td:not(:first-child),th:not(:first-child){font-variant-numeric:tabular-nums}
+
+/* Headings: tighter, consistent scale */
+h1,h2,h3{letter-spacing:-.02em;text-wrap:balance}
+p{text-wrap:pretty}
+
+/* Cards: one radius, one border weight, gentle depth + hover lift */
+.card,[class*="-card"],[class*="card-"],.panel,[class*="panel"]{
+  border-radius:var(--vp-radius);
+  transition:box-shadow .25s var(--vp-ease),border-color .25s var(--vp-ease),transform .25s var(--vp-ease)}
+.card:hover,[class*="kpi-card"]:hover,[class*="stat-card"]:hover{
+  box-shadow:var(--vp-shadow-2);border-color:var(--color-border-bright,rgba(139,92,246,.24))}
+
+/* Grids: children may shrink so nothing overflows */
+[class*="grid"]>*{min-width:0}
+
+/* Tables: sticky header, zebra hint, aligned padding, rounded frame */
+table{border-collapse:separate;border-spacing:0;width:100%}
+thead th{position:sticky;top:0;z-index:1;text-transform:uppercase;font-size:.72rem;
+  letter-spacing:.06em;font-weight:600;white-space:nowrap}
+tbody tr{transition:background .15s}
+tbody tr:hover{background:rgba(139,92,246,.06)}
+td,th{padding:.7rem .9rem;vertical-align:middle}
+
+/* Buttons / inputs: same height, radius and motion everywhere */
+button,.btn,select,input:not([type=checkbox]):not([type=radio]):not([type=range]),textarea{
+  border-radius:var(--vp-radius-sm);transition:border-color .15s,background .15s,box-shadow .15s,transform .1s}
+button:active,.btn:active{transform:translateY(1px) scale(.99)}
+input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(139,92,246,.28)}
+:focus-visible{outline:2px solid var(--color-accent,#8b5cf6);outline-offset:2px;border-radius:6px}
+
+/* Charts / SVG / canvas never overflow their card */
+canvas,svg{max-width:100%}
+
+/* Scrollbars: slim and quiet */
+*{scrollbar-width:thin;scrollbar-color:rgba(139,92,246,.35) transparent}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:rgba(139,92,246,.3);border-radius:9px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:rgba(139,92,246,.5);background-clip:content-box}
+
+/* Small screens: comfortable tap targets and side padding */
+@media (max-width:760px){td,th{padding:.6rem .7rem}button,.btn{min-height:40px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
