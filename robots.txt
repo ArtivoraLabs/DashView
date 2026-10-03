@@ -1,0 +1,7 @@
+# DashView - robots.txt
+# Public marketing + product pages; allow all crawlers.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://your-domain.example.com/sitemap.xml

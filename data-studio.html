@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta name="referrer" content="strict-origin-when-cross-origin"/>
+
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#111512"/>
+<meta name="description" content="Open Data Studio in your DashView workspace."/>
+<meta http-equiv="refresh" content="0; url=dashboard.html#studio"/>
+<title>Opening Data Studio — DashView</title>
+<style>
+  :root { color-scheme: light dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: #111512; color: #e7ede7; }
+  * { box-sizing: border-box; }
+  body { min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 24px; }
+  main { width: min(100%, 520px); padding: clamp(28px, 7vw, 52px); border: 1px solid rgba(232,163,61,.24); border-radius: 18px; background: #191e1a; box-shadow: 0 24px 60px rgba(0,0,0,.28); }
+  .eyebrow { color: #e8a33d; font: 600 11px ui-monospace, monospace; letter-spacing: .14em; }
+  h1 { margin: 14px 0 10px; font-size: clamp(26px, 6vw, 34px); letter-spacing: -.04em; }
+  p { color: #b7c0b8; line-height: 1.6; }
+  a { display: inline-flex; align-items: center; gap: 9px; min-height: 46px; margin-top: 14px; padding: 0 17px; border-radius: 8px; background: #e8a33d; color: #17130d; font-weight: 700; text-decoration: none; }
+  a:hover { background: #f0c06a; }
+  a:focus-visible { outline: 3px solid #f0c06a; outline-offset: 3px; }
+  .note { margin: 20px 0 0; color: #879087; font-size: 12px; }
+  @media (prefers-reduced-motion: no-preference) { main { animation: appear .25s ease-out both; } @keyframes appear { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } } }
+</style>
+<script>window.location.replace('dashboard.html#studio');</script>
+<link rel="stylesheet" href="css/pro-detail.css"/>
+</head>
+<body>
+<main aria-labelledby="redirectTitle">
+  <p class="eyebrow">DASHVIEW · DATA STUDIO</p>
+  <h1 id="redirectTitle">Opening your workspace</h1>
+  <p>Data Studio now lives in your DashView workspace. You’re being redirected there now.</p>
+  <a href="dashboard.html#studio">Continue to Data Studio <span aria-hidden="true">→</span></a>
+  <p class="note" role="status" aria-live="polite">If the page doesn’t open automatically, use the button above.</p>
+</main>
+</body>
+</html>

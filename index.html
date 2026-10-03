@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta name="referrer" content="strict-origin-when-cross-origin"/>
+
+<meta charset="UTF-8"/>
+<script>(function(){try{var t=localStorage.getItem('dashview-theme');if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DashView — Describe the ticket. Review the PR.</title>
+<meta name="description" content="DashView reads your repo, plans the change, writes it, runs your tests, and opens a pull request — with a live dashboard tracking every decision along the way."/>
+<meta name="theme-color" content="#0a0c0b"/>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0a0c0b;--surface:#0f1210;--elevated:#141815;--card:#171c18;
+  --border:rgba(232,163,61,.14);--border-b:rgba(232,163,61,.34);
+  --amber:#e8a33d;--amber2:#f0c06a;--green:#4fb477;--red:#e5654f;
+  --grad:linear-gradient(120deg,#d98f27 0%,#e8a33d 55%,#f0c06a 100%);
+  --grad-text:linear-gradient(120deg,#f0c06a 0%,#e8a33d 60%,#d98f27 100%);
+  --text:#e7ede7;--text2:rgba(231,237,231,.64);--text3:rgba(231,237,231,.4);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.35);
+  --shadow-md:0 10px 30px -10px rgba(0,0,0,.55);
+  --shadow-lg:0 28px 70px -20px rgba(0,0,0,.7);
+  --shadow-amber:0 18px 50px -16px rgba(232,163,61,.4);
+  --nav-bg:rgba(10,12,11,.86);
+  --noise-url:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+  --r-sm:4px;--r-md:8px;--r-lg:14px;--r-xl:20px;--r-full:9999px;
+  --f-display:'Manrope',sans-serif;--f-body:'Inter',sans-serif;--f-mono:'IBM Plex Mono',monospace;
+  --nav-h:64px;color-scheme:dark;
+}
+html[data-theme="light"]{
+  color-scheme:light;
+  --bg:#f5f6f3;--surface:#ffffff;--elevated:#ffffff;--card:#eef0eb;
+  --border:rgba(20,24,19,.1);--border-b:rgba(184,115,22,.32);
+  --amber:#b87316;--amber2:#a9640f;--green:#2f8f55;--red:#c7402a;
+  --grad-text:linear-gradient(120deg,#b87316 0%,#a9640f 60%,#8a5a1c 100%);
+  --text:#141813;--text2:rgba(20,24,19,.64);--text3:rgba(20,24,19,.42);
+  --shadow-sm:0 1px 2px rgba(20,24,19,.08);
+  --shadow-md:0 10px 26px -10px rgba(20,24,19,.14);
+  --shadow-lg:0 22px 54px -18px rgba(20,24,19,.18);
+  --shadow-amber:0 16px 40px -14px rgba(184,115,22,.24);
+  --nav-bg:rgba(245,246,243,.88);
+  --noise-url:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*,*::before,*::after{transition:background-color .25s ease,border-color .25s ease,color .25s ease}
+html{scroll-behavior:smooth}
+body{font-family:var(--f-body);background-color:var(--bg);background-image:var(--noise-url);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden;font-size:15.5px;line-height:1.5}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;background:none;font-family:inherit;color:inherit}
+img,svg{display:block;max-width:100%}
+ul{list-style:none}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:2px}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+
+/* ── Typography ── */
+.t-display{font-family:var(--f-display);font-weight:700;letter-spacing:-.02em;line-height:1.08}
+.t-mono{font-family:var(--f-mono)}
+.grad-text{background:var(--grad-text);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+h1,h2,h3,h4{font-family:var(--f-display);letter-spacing:-.02em;color:var(--text)}
+h2{font-size:clamp(1.7rem,3vw,2.35rem);font-weight:700;line-height:1.16}
+h3{font-size:1.05rem;font-weight:700}
+p{color:var(--text2)}
+
+/* ── Container ── */
+.container{width:100%;max-width:1180px;margin:0 auto;padding:0 24px}
+.container-wide{width:100%;max-width:1320px;margin:0 auto;padding:0 24px}
+
+/* ── Section scaffolding ── */
+.section{padding:112px 0}
+.section-tight{padding:88px 0}
+.kicker{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:.8125rem;color:var(--amber);margin-bottom:18px}
+.kicker::before{content:'';width:14px;height:1px;background:var(--amber)}
+.section-head{max-width:620px;margin-bottom:56px}
+.section-head.wide{max-width:760px}
+.section-head h2{margin-bottom:14px}
+.section-head p{font-size:1rem;line-height:1.6}
+.section-row{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;margin-bottom:56px}
+.section-row .section-head{margin-bottom:0}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 22px;border-radius:var(--r-md);font-size:.875rem;font-weight:600;font-family:var(--f-body);transition:.2s cubic-bezier(.16,1,.3,1);white-space:nowrap}
+.btn-primary{background:var(--grad);color:#191008;box-shadow:var(--shadow-amber)}
+.btn-primary:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.btn-outline{border:1px solid var(--border-b);color:var(--text2);background:transparent}
+.btn-outline:hover{border-color:var(--amber);color:var(--text);background:rgba(232,163,61,.06)}
+.btn-lg{padding:14px 28px;font-size:.9375rem}
+.btn-sm{padding:8px 16px;font-size:.8125rem}
+.btn-block{width:100%}
+
+/* ══════════ NAV ══════════ */
+.nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);z-index:200;display:flex;align-items:center;transition:.3s}
+.nav.scrolled{background:var(--nav-bg);backdrop-filter:blur(20px) saturate(140%);border-bottom:1px solid var(--border)}
+.nav-inner{display:flex;align-items:center;gap:0;width:100%;max-width:1180px;margin:0 auto;padding:0 24px}
+.nav-brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:700;font-size:1.0625rem;color:var(--text);flex-shrink:0}
+.nav-logo-ring{width:30px;height:30px;border-radius:7px;background:var(--grad);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(232,163,61,.35)}
+.nav-links{display:flex;align-items:center;gap:2px;margin:0 auto;padding:0 24px}
+.nav-links a{padding:7px 14px;border-radius:var(--r-full);font-size:.875rem;color:var(--text2);transition:.15s}
+.nav-links a:hover{color:var(--text);background:rgba(232,163,61,.08)}
+.nav-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.theme-toggle{width:36px;height:36px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;color:var(--text2);border:1px solid var(--border);background:var(--surface);position:relative;flex-shrink:0}
+.theme-toggle:hover{border-color:var(--border-b);color:var(--text)}
+.theme-toggle svg{position:absolute;transition:opacity .3s ease,transform .5s cubic-bezier(.16,1,.3,1)}
+.theme-toggle .icon-sun{opacity:0;transform:rotate(-70deg) scale(.4)}
+.theme-toggle .icon-moon{opacity:1;transform:rotate(0) scale(1)}
+html[data-theme="light"] .theme-toggle .icon-sun{opacity:1;transform:rotate(0) scale(1)}
+html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70deg) scale(.4)}
+.nav-burger{display:none}
+
+/* ══════════ HERO ══════════ */
+.hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;padding:calc(var(--nav-h) + 56px) 0 72px;border-bottom:1px solid var(--border)}
+.hero-rail{position:absolute;top:0;bottom:0;left:40px;width:1px;background:linear-gradient(var(--border) 0 0);display:none}
+.hero-glow{position:absolute;width:900px;height:560px;top:-220px;right:-260px;background:radial-gradient(ellipse,rgba(232,163,61,.16),transparent 68%);filter:blur(10px);pointer-events:none}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 75% 60% at 30% 30%,black 20%,transparent 100%);opacity:.6;pointer-events:none}
+.hero-inner{position:relative;z-index:1;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;width:100%;max-width:1180px;margin:0 auto;padding:0 24px}
+.hero-badge{display:inline-flex;align-items:center;gap:9px;padding:6px 14px 6px 10px;border-radius:var(--r-full);border:1px solid var(--border-b);background:rgba(232,163,61,.06);margin-bottom:26px;font-family:var(--f-mono);font-size:.75rem;color:var(--text2)}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s ease-in-out infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+.hero-h1{font-size:clamp(2.3rem,4.4vw,3.6rem);font-weight:800;letter-spacing:-.035em;line-height:1.06;margin-bottom:22px}
+.hero-sub{font-size:1.0625rem;color:var(--text2);line-height:1.65;margin-bottom:34px;max-width:480px}
+.hero-cta{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:44px}
+.hero-proof{display:flex;align-items:center;gap:26px;flex-wrap:wrap;padding-top:22px;border-top:1px solid var(--border)}
+.hero-proof-item{display:flex;flex-direction:column;gap:2px}
+.hero-proof-item strong{font-family:var(--f-display);font-size:1.15rem;color:var(--text);font-weight:800}
+.hero-proof-item span{font-size:.75rem;color:var(--text3)}
+
+/* Terminal panel */
+.hero-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-lg)}
+.hero-panel-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--elevated)}
+.hp-dots{display:flex;gap:6px}
+.hp-dots span{width:10px;height:10px;border-radius:50%}
+.hp-dots span:nth-child(1){background:var(--red)}
+.hp-dots span:nth-child(2){background:var(--amber)}
+.hp-dots span:nth-child(3){background:var(--green)}
+.hp-title{font-family:var(--f-mono);font-size:.75rem;color:var(--text3);margin-left:6px}
+.hero-panel-body{padding:20px 22px;min-height:290px;font-family:var(--f-mono);font-size:.8125rem;line-height:1.9}
+.t-line{opacity:0;transform:translateY(4px);transition:opacity .3s ease,transform .3s ease}
+.t-line.show{opacity:1;transform:none}
+.t-prompt{color:var(--amber);margin-right:8px}
+.t-cmd{color:var(--text)}
+.t-out{color:var(--text3)}
+.t-ok{color:var(--green)}
+
+/* ══════════ DIFF DIVIDER ══════════ */
+.diff-divider{display:flex;align-items:center;justify-content:center;gap:0;padding:14px 0;background:var(--surface);border-bottom:1px solid var(--border);overflow:hidden;white-space:nowrap}
+.diff-divider span{font-family:var(--f-mono);font-size:.75rem;color:var(--text3);padding:0 18px;border-right:1px solid var(--border)}
+.diff-divider span:last-child{border-right:none}
+.diff-divider .plus{color:var(--green)}
+.diff-divider .minus{color:var(--red)}
+
+/* ══════════ TRUST BAR ══════════ */
+.trust{padding:52px 0;border-bottom:1px solid var(--border)}
+.trust-label{font-family:var(--f-mono);font-size:.75rem;color:var(--text3);margin-bottom:22px}
+.trust-row{display:flex;flex-wrap:wrap;align-items:center;gap:36px 44px}
+.trust-row span{font-family:var(--f-display);font-weight:700;font-size:1.05rem;color:var(--text3);opacity:.75;transition:opacity .2s}
+.trust-row span:hover{opacity:1;color:var(--text2)}
+
+/* ══════════ COMPARE (problem/approach) ══════════ */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+.compare-col{background:var(--surface);padding:32px 30px}
+.compare-col h4{font-family:var(--f-mono);font-size:.8125rem;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:22px}
+.compare-col.bad h4{color:var(--red)}
+.compare-col.good h4{color:var(--green)}
+.compare-line{display:flex;gap:12px;padding:11px 0;border-top:1px solid var(--border);font-size:.9rem;color:var(--text2)}
+.compare-line:first-of-type{border-top:none}
+.compare-mark{font-family:var(--f-mono);flex-shrink:0;font-weight:600}
+.compare-col.bad .compare-mark{color:var(--red)}
+.compare-col.good .compare-mark{color:var(--green)}
+.compare-time{margin-top:20px;padding-top:18px;border-top:1px solid var(--border);font-family:var(--f-mono);font-size:.8125rem;color:var(--text3)}
+.compare-col.good .compare-time{color:var(--green)}
+
+/* ══════════ HOW IT WORKS ══════════ */
+.steps{position:relative}
+.steps-list{display:flex;flex-direction:column}
+.step{display:grid;grid-template-columns:52px 1fr;gap:28px;padding:34px 0;border-top:1px solid var(--border)}
+.step:first-child{border-top:1px solid var(--border)}
+.step-num{width:40px;height:40px;border-radius:var(--r-md);border:1px solid var(--border-b);background:var(--surface);display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-size:.85rem;color:var(--amber);flex-shrink:0}
+.step-body{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+.step-text h3{margin-bottom:8px;font-size:1.15rem}
+.step-text p{font-size:.9375rem;max-width:420px}
+.step-visual{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:16px 18px;font-family:var(--f-mono);font-size:.78rem;color:var(--text3);line-height:1.85}
+.step-visual .hl{color:var(--text)}
+.step-visual .add{color:var(--green)}
+.step-visual .rm{color:var(--red)}
+.step-visual .am{color:var(--amber)}
+
+/* ══════════ BENTO CAPABILITIES ══════════ */
+.bento{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:180px;gap:16px}
+.bento-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:26px;display:flex;flex-direction:column;justify-content:space-between;transition:.2s ease}
+.bento-card:hover{border-color:var(--border-b);transform:translateY(-2px)}
+.bento-card.b-lg{grid-column:span 2;grid-row:span 2}
+.bento-card.b-md{grid-column:span 2;grid-row:span 1}
+.bento-card.b-sm{grid-column:span 2;grid-row:span 1}
+.bento-icon{width:38px;height:38px;border-radius:var(--r-sm);background:rgba(232,163,61,.1);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--amber)}
+.bento-card h3{margin-top:16px;margin-bottom:8px}
+.bento-card p{font-size:.875rem;line-height:1.55}
+.bento-mini{margin-top:16px;font-family:var(--f-mono);font-size:.75rem;color:var(--text3);border-top:1px solid var(--border);padding-top:14px}
+.bento-mini div{display:flex;align-items:center;gap:8px;padding:4px 0}
+.bento-mini .dot{width:5px;height:5px;border-radius:50%;background:var(--green);flex-shrink:0}
+
+/* ══════════ DASHBOARD PREVIEW ══════════ */
+.dash-preview{display:grid;grid-template-columns:.85fr 1.15fr;gap:48px;align-items:center}
+.dash-frame{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-md)}
+.dash-frame-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--border);background:var(--elevated);font-family:var(--f-mono);font-size:.75rem;color:var(--text3)}
+.dash-frame-body{padding:22px}
+.dash-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.dash-kpi{background:var(--elevated);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px}
+.dash-kpi span{display:block;font-size:.7rem;color:var(--text3);margin-bottom:6px}
+.dash-kpi strong{font-family:var(--f-display);font-size:1.15rem;color:var(--text)}
+.dash-kpi em{font-style:normal;font-size:.7rem;color:var(--green);margin-left:6px}
+.dash-chart{background:var(--elevated);border:1px solid var(--border);border-radius:var(--r-sm);padding:18px;display:flex;align-items:flex-end;gap:8px;height:150px}
+.dash-chart i{flex:1;background:linear-gradient(180deg,var(--amber2),var(--amber));border-radius:3px 3px 0 0;opacity:.85}
+.dash-list{margin-top:24px}
+.dash-list li{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--border);font-size:.9375rem;color:var(--text2);align-items:flex-start}
+.dash-list li:first-child{border-top:none}
+.dash-list svg{flex-shrink:0;margin-top:3px;color:var(--amber)}
+
+/* ══════════ TOUR ══════════ */
+.tour-tabs{display:flex;gap:6px;margin-bottom:28px;flex-wrap:wrap;border-bottom:1px solid var(--border)}
+.tour-tab{padding:10px 4px;margin-right:22px;font-size:.875rem;color:var(--text3);border-bottom:2px solid transparent;position:relative;top:1px;transition:.15s}
+.tour-tab:hover{color:var(--text2)}
+.tour-tab.active{color:var(--amber);border-color:var(--amber)}
+.tour-panel{display:none}
+.tour-panel.active{display:block}
+.tour-frame{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-md)}
+.tour-frame-bar{display:flex;align-items:center;padding:12px 18px;border-bottom:1px solid var(--border);background:var(--elevated)}
+.tour-frame-dot{width:9px;height:9px;border-radius:50%;background:var(--amber)}
+.tour-frame-body{padding:26px}
+
+/* ══════════ SECURITY ══════════ */
+.sec-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+.sec-card{background:var(--surface);padding:28px 24px}
+.sec-card .bento-icon{margin-bottom:16px}
+.sec-card h3{font-size:.95rem;margin-bottom:8px}
+.sec-card p{font-size:.84rem;line-height:1.55}
+
+/* ══════════ INTEGRATIONS ══════════ */
+.int-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.int-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:20px;display:flex;align-items:center;gap:14px;transition:.15s}
+.int-card:hover{border-color:var(--border-b)}
+.int-icon{width:36px;height:36px;border-radius:var(--r-sm);background:var(--elevated);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-weight:600;font-size:.8rem;color:var(--amber);flex-shrink:0}
+.int-card div strong{display:block;font-size:.875rem;font-weight:600;color:var(--text)}
+.int-card div span{font-size:.75rem;color:var(--text3)}
+
+/* ══════════ TESTIMONIALS ══════════ */
+.quote-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.quote-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:28px}
+.quote-mark{font-family:var(--f-display);font-size:2rem;color:var(--amber);line-height:1;margin-bottom:12px;opacity:.7}
+.quote-text{font-size:.9375rem;color:var(--text2);line-height:1.6;margin-bottom:22px}
+.quote-person{display:flex;align-items:center;gap:12px}
+.quote-avatar{width:36px;height:36px;border-radius:50%;background:var(--grad);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--f-display);font-weight:700;font-size:.8rem;color:#191008}
+.quote-person strong{display:block;font-size:.8375rem;color:var(--text)}
+.quote-person span{font-size:.75rem;color:var(--text3)}
+
+/* ══════════ PRICING ══════════ */
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch}
+.price-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:32px;display:flex;flex-direction:column}
+.price-card.featured{border-color:var(--border-b);box-shadow:var(--shadow-amber);position:relative}
+.price-tag{position:absolute;top:-13px;left:32px;background:var(--grad);color:#191008;font-family:var(--f-mono);font-size:.7rem;font-weight:600;padding:4px 12px;border-radius:var(--r-full)}
+.price-name{font-family:var(--f-mono);font-size:.8125rem;color:var(--amber);margin-bottom:14px}
+.price-amount{display:flex;align-items:baseline;gap:6px;margin-bottom:6px}
+.price-amount strong{font-family:var(--f-display);font-size:2.2rem;font-weight:800;color:var(--text)}
+.price-amount span{font-size:.8125rem;color:var(--text3)}
+.price-desc{font-size:.84rem;color:var(--text3);margin-bottom:24px}
+.price-feats{margin-bottom:28px;flex:1}
+.price-feats li{display:flex;gap:10px;padding:8px 0;font-size:.875rem;color:var(--text2)}
+.price-feats svg{flex-shrink:0;color:var(--green);margin-top:2px}
+
+/* ══════════ FAQ ══════════ */
+.faq-list{max-width:760px}
+.faq-item{border-top:1px solid var(--border);padding:6px 0}
+.faq-item:last-child{border-bottom:1px solid var(--border)}
+.faq-item summary{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:18px 0;cursor:pointer;font-family:var(--f-display);font-weight:600;font-size:.9375rem;color:var(--text)}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary .plus{font-family:var(--f-mono);color:var(--amber);flex-shrink:0;transition:.2s}
+.faq-item[open] summary .plus{transform:rotate(45deg)}
+.faq-item p{font-size:.9rem;line-height:1.65;padding-bottom:20px;max-width:640px}
+
+/* ══════════ CTA ══════════ */
+.cta-section{padding:100px 0}
+.cta-band{background:var(--surface);border:1px solid var(--border-b);border-radius:var(--r-xl);padding:64px 56px;text-align:left;position:relative;overflow:hidden}
+.cta-band::before{content:'';position:absolute;top:-140px;right:-100px;width:420px;height:420px;background:radial-gradient(ellipse,rgba(232,163,61,.16),transparent 70%);pointer-events:none}
+.cta-band h2{margin-bottom:12px;max-width:480px}
+.cta-band>p{max-width:440px;margin-bottom:30px}
+.cta-email{display:flex;gap:12px;max-width:440px;flex-wrap:wrap;position:relative;z-index:1}
+.cta-input{flex:1;min-width:220px;padding:12px 16px;border-radius:var(--r-md);border:1px solid var(--border-b);background:var(--elevated);color:var(--text);font-size:.875rem;font-family:var(--f-body)}
+.cta-input::placeholder{color:var(--text3)}
+.cta-input:focus{outline:2px solid var(--amber);outline-offset:1px}
+
+/* ══════════ FOOTER ══════════ */
+.footer{padding:72px 0 32px;border-top:1px solid var(--border)}
+.footer-grid{display:grid;grid-template-columns:1.6fr repeat(4,1fr);gap:40px;padding-bottom:52px}
+.footer-brand p{font-size:.85rem;line-height:1.6;margin:14px 0 20px;max-width:260px}
+.footer-social{display:flex;gap:10px}
+.footer-social a{width:32px;height:32px;border-radius:var(--r-sm);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text3)}
+.footer-social a:hover{color:var(--amber);border-color:var(--border-b)}
+.footer-col h5{font-family:var(--f-mono);font-weight:500;font-size:.75rem;color:var(--text3);margin-bottom:16px}
+.footer-col a,.footer-col button{display:block;font-size:.85rem;color:var(--text2);padding:6px 0}
+.footer-col a:hover,.footer-col button:hover{color:var(--amber)}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:28px;border-top:1px solid var(--border);font-size:.8rem;color:var(--text3);flex-wrap:wrap;gap:10px}
+
+/* ══════════ MODAL ══════════ */
+.modal-overlay{position:fixed;inset:0;background:rgba(5,6,5,.7);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:500;opacity:0;pointer-events:none;transition:.25s ease;padding:20px}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal-card{background:var(--elevated);border:1px solid var(--border-b);border-radius:var(--r-xl);padding:40px;max-width:420px;width:100%;position:relative;box-shadow:var(--shadow-lg);transform:translateY(8px);transition:.25s ease}
+.modal-overlay.open .modal-card{transform:none}
+.modal-close{position:absolute;top:18px;right:18px;width:30px;height:30px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;color:var(--text3);border:1px solid var(--border)}
+.modal-close:hover{color:var(--text)}
+.modal-card h3{font-size:1.35rem;margin:10px 0 8px}
+.modal-card>p{font-size:.875rem;margin-bottom:26px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:.75rem;color:var(--text3);margin-bottom:6px;font-family:var(--f-mono)}
+.field input{width:100%;padding:11px 14px;border-radius:var(--r-md);border:1px solid var(--border-b);background:var(--surface);color:var(--text);font-size:.875rem;font-family:var(--f-body)}
+.field input:focus{outline:2px solid var(--amber);outline-offset:1px}
+.modal-success{display:none;text-align:center;padding:10px 0}
+.modal-success svg{width:48px;height:48px;color:var(--green);margin:0 auto 16px}
+.modal-success h3{margin-bottom:8px}
+.modal-success p{font-size:.875rem}
+
+/* ══════════ TOAST ══════════ */
+.toast-stack{position:fixed;bottom:24px;right:24px;z-index:600;display:flex;flex-direction:column;gap:10px}
+.toast{background:var(--elevated);border:1px solid var(--border-b);border-radius:var(--r-md);padding:14px 20px;font-size:.85rem;color:var(--text);box-shadow:var(--shadow-md);animation:toastIn .25s ease}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ══════════ RESPONSIVE ══════════ */
+@media(max-width:980px){
+  .hero-inner{grid-template-columns:1fr;gap:44px}
+  .hero{padding-bottom:56px}
+  .bento{grid-template-columns:repeat(2,1fr)}
+  .bento-card.b-lg{grid-column:span 2}
+  .compare-grid{grid-template-columns:1fr}
+  .sec-grid{grid-template-columns:repeat(2,1fr)}
+  .int-grid{grid-template-columns:repeat(2,1fr)}
+  .quote-grid,.price-grid{grid-template-columns:1fr}
+  .dash-preview{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:repeat(2,1fr)}
+  .step-body{grid-template-columns:1fr;gap:18px}
+}
+@media(max-width:720px){
+  .nav-links{display:none}
+  .section{padding:76px 0}
+  .bento{grid-template-columns:1fr}
+  .bento-card.b-lg,.bento-card.b-md,.bento-card.b-sm{grid-column:span 1}
+  .sec-grid,.int-grid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr;gap:32px}
+  .cta-band{padding:40px 28px}
+  .hero-proof{gap:20px}
+}
+</style>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="DashView"/>
+<script src="js/config.js"></script>
+<script defer src="js/updater.js"></script>
+<link rel="stylesheet" href="css/index-pro.css"/>
+<link rel="stylesheet" href="css/pro-detail.css"/>
+</head>
+<body>
+<!-- ══════════ NAV ══════════ -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-logo-ring"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M7 13l3-5 2 3 2-4 3 6" stroke="#191008" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      DashView
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a class="nav-menu-only" href="#approach">Why it works</a>
+      <a href="#how">How it works</a>
+      <a href="#capabilities">Capabilities</a>
+      <a href="#security">Security</a>
+      <a href="#pricing">Free access</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="people.html">People</a>
+      <a href="data-studio.html">Data Studio</a>
+      <a class="nav-menu-only" href="ai.html">AI Assistant</a>
+      <a class="nav-menu-only" href="dashboard.html#settings">Settings</a>
+      <button class="nav-menu-only nav-menu-theme" type="button" id="menuTheme">Switch theme</button>
+      <button class="nav-menu-only" type="button" id="menuLogin">Sign in</button>
+    </nav>
+    <div class="nav-actions">
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+      </button>
+      <button class="btn btn-outline btn-sm" id="loginBtn">Sign in</button>
+      <button class="btn btn-primary btn-sm" id="waitlistBtn">Request access</button>
+      <button class="nav-burger" id="navBurger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════ HERO ══════════ -->
+<section class="hero">
+  <div class="hero-glow" aria-hidden="true"></div>
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        <span>Onboarding design partners — limited spots</span>
+      </div>
+      <h1 class="hero-h1">Describe the ticket.<br/>Review the <span class="grad-text">PR.</span></h1>
+      <p class="hero-sub">DashView reads your repo, plans the change, writes it, runs your tests, and opens a pull request — while a live dashboard tracks every decision along the way.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary btn-lg" id="heroWaitlistBtn">Request early access →</button>
+        <a href="dashboard.html" class="btn btn-outline btn-lg">Open the dashboard</a>
+      </div>
+      <p class="hero-install" id="heroInstall" hidden><button type="button" class="link-btn" id="installAppBtn">Install DashView as an app</button> for a full-screen window on this device.</p>
+      <div class="hero-proof">
+        <div class="hero-proof-item"><strong id="statRepos">0</strong><span>repos connected</span></div>
+        <div class="hero-proof-item"><strong id="statPRs">0</strong><span>PRs shipped</span></div>
+        <div class="hero-proof-item"><strong>99.97%</strong><span>pipeline uptime</span></div>
+      </div>
+    </div>
+    <div class="hero-panel">
+      <div class="hero-panel-bar">
+        <div class="hp-dots"><span></span><span></span><span></span></div>
+        <span class="hp-title">agent · live session · acme-corp/api</span>
+      </div>
+      <div class="hero-panel-body" id="terminal"></div>
+    </div>
+  </div>
+</section>
+
+<div class="diff-divider" aria-hidden="true">
+  <span class="plus">+ 6,214</span><span class="minus">− 1,382</span><span>212 files</span><span>48 repos</span><span>320 PRs merged</span>
+</div>
+
+<!-- ══════════ TRUST BAR ══════════ -->
+<section class="trust">
+  <div class="container">
+    <p class="trust-label">Works inside the stack you already run</p>
+    <div class="trust-row">
+      <span>GitHub</span><span>GitLab</span><span>Bitbucket</span><span>Jira</span><span>Linear</span><span>Slack</span><span>CircleCI</span><span>Vercel</span>
+    </div>
+  </div>
+</section>
+<!-- ══════════ PROBLEM / APPROACH ══════════ -->
+<section class="section-tight" id="approach">
+  <div class="container">
+    <div class="section-head wide">
+      <p class="kicker">a backlog ticket, two ways</p>
+      <h2>Every ticket costs a context switch. Most of your week is context switching.</h2>
+      <p>The work itself — the actual diff — is usually small. Everything around it (re-reading the code, remembering the convention, writing the tests, waiting for review) is what eats the day.</p>
+    </div>
+    <div class="compare-grid">
+      <div class="compare-col bad">
+        <h4>— Without DashView</h4>
+        <div class="compare-line"><span class="compare-mark">01</span><span>Ticket sits in the backlog until someone has a free afternoon.</span></div>
+        <div class="compare-line"><span class="compare-mark">02</span><span>Engineer re-reads the module to remember how it works.</span></div>
+        <div class="compare-line"><span class="compare-mark">03</span><span>Writes the change, then writes tests for it separately.</span></div>
+        <div class="compare-line"><span class="compare-mark">04</span><span>Opens a PR, waits, gets asked to add a missing edge case.</span></div>
+        <div class="compare-time">~1 engineering day, interrupted</div>
+      </div>
+      <div class="compare-col good">
+        <h4>+ With DashView</h4>
+        <div class="compare-line"><span class="compare-mark">01</span><span>Ticket is pasted in; DashView reads the surrounding code first.</span></div>
+        <div class="compare-line"><span class="compare-mark">02</span><span>A step-by-step plan appears in under a minute for you to approve.</span></div>
+        <div class="compare-line"><span class="compare-mark">03</span><span>Code and matching tests are written together, then run against CI.</span></div>
+        <div class="compare-line"><span class="compare-mark">04</span><span>A PR opens with green checks — you review outcomes, not busywork.</span></div>
+        <div class="compare-time">~11 minutes, reviewed in one sitting</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ STATS ══════════ -->
+<section class="section-tight" style="border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="container">
+    <div class="bento" style="grid-auto-rows:auto">
+      <div class="bento-card b-sm" style="grid-column:span 1"><h3 class="t-display" data-target="12400" style="font-size:1.9rem">0</h3><p style="font-size:.8rem">Pull requests merged</p></div>
+      <div class="bento-card b-sm" style="grid-column:span 1"><h3 class="t-display" data-target="340" style="font-size:1.9rem">0</h3><p style="font-size:.8rem">Engineering teams onboard</p></div>
+      <div class="bento-card b-sm" style="grid-column:span 1"><h3 class="t-display" style="font-size:1.9rem">99.97%</h3><p style="font-size:.8rem">Pipeline uptime</p></div>
+      <div class="bento-card b-sm" style="grid-column:span 1"><h3 class="t-display" data-target="4200000" style="font-size:1.9rem">0</h3><p style="font-size:.8rem">Lines reviewed / month</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ HOW IT WORKS ══════════ -->
+<section class="section" id="how">
+  <div class="container">
+    <div class="section-head wide">
+      <p class="kicker">how it works</p>
+      <h2>Five steps, one review.</h2>
+      <p>DashView doesn't skip straight to a diff. It plans out loud first, so what lands in your review queue is something you already agreed to.</p>
+    </div>
+    <div class="steps">
+      <div class="steps-list">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-body">
+            <div class="step-text"><h3>Describe the ticket</h3><p>Paste a Jira ticket, a Linear issue, or a plain-English request. No special syntax required.</p></div>
+            <div class="step-visual"><span class="am">&gt;</span> <span class="hl">"Add a sliding-window rate limiter to the public API"</span></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-body">
+            <div class="step-text"><h3>Review the plan</h3><p>DashView reads the repo, checks existing patterns, and drafts a step-by-step plan before writing a line of code.</p></div>
+            <div class="step-visual">1. Add rateLimiter.ts (Redis-backed)<br/>2. Wire into route middleware<br/>3. Add config + env defaults<br/>4. Write unit + integration tests</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-body">
+            <div class="step-text"><h3>Code gets written</h3><p>Following your repo's existing conventions — not generic boilerplate pulled from nowhere.</p></div>
+            <div class="step-visual"><span class="add">+ export function rateLimiter(opts: Opts) {</span><br/><span class="add">+   return slidingWindow(opts.redis, opts.max)</span><br/><span class="add">+ }</span><br/><span class="rm">- // TODO: add rate limiting</span></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">04</div>
+          <div class="step-body">
+            <div class="step-text"><h3>Tests run automatically</h3><p>Existing suites run first; new tests are written for the exact change. Nothing opens on red CI.</p></div>
+            <div class="step-visual">Running 212 tests…<br/><span class="add">212 passed · coverage 94%</span></div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">05</div>
+          <div class="step-body">
+            <div class="step-text"><h3>A pull request opens</h3><p>With commit-level history, a written summary, and a link to the live run — ready for a human to approve.</p></div>
+            <div class="step-visual">PR #482 opened<br/>3 files changed · +64 −6 · reviewers: @you</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ══════════ CAPABILITIES (BENTO) ══════════ -->
+<section class="section" id="capabilities" style="border-top:1px solid var(--border)">
+  <div class="container">
+    <div class="section-head wide">
+      <p class="kicker">capabilities</p>
+      <h2>Everything a senior engineer would do, automated.</h2>
+      <p>DashView reasons about your repo, runs your tests, and stops to ask when something's ambiguous — just like a teammate would.</p>
+    </div>
+    <div class="bento">
+      <div class="bento-card b-lg">
+        <div><div class="bento-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg></div>
+        <h3>Plans before it codes</h3>
+        <p>Breaks tasks into a reviewable step-by-step plan before touching a single file. You approve, it executes — nothing runs unsupervised.</p></div>
+        <div class="bento-mini">
+          <div><span class="dot"></span>Add rateLimiter.ts (Redis-backed)</div>
+          <div><span class="dot"></span>Wire into route middleware</div>
+          <div><span class="dot"></span>Write unit + integration tests</div>
+        </div>
+      </div>
+      <div class="bento-card b-md">
+        <div class="bento-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 18l-6-6 6-6M15 6l6 6-6 6"/></svg></div>
+        <div><h3>Ships real pull requests</h3><p>Commit-level history, not one squashed diff you can't reason about.</p></div>
+      </div>
+      <div class="bento-card b-md">
+        <div class="bento-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <div><h3>Runs your test suite</h3><p>Executes existing tests and writes new ones. Green CI before a PR opens.</p></div>
+      </div>
+      <div class="bento-card b-sm">
+        <div class="bento-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 20V10M12 20V4M20 20v-7"/></svg></div>
+        <div><h3>Live observability</h3><p>Every action streams to a dashboard your team can watch in real time.</p></div>
+      </div>
+      <div class="bento-card b-sm">
+        <div class="bento-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73M12 2c5.52 0 10 4.58 10 10.25 0 4.53-2.87 8.37-6.84 9.73"/><path d="M12 2v20"/></svg></div>
+        <div><h3>Repo-aware context</h3><p>Reads your existing patterns instead of generating generic boilerplate.</p></div>
+      </div>
+      <div class="bento-card b-sm">
+        <div class="bento-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <div><h3>Human approval gates</h3><p>Nothing merges to your default branch without a reviewer signing off.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="diff-divider" aria-hidden="true">
+  <span class="am">Live dashboard</span><span>updates streamed per action</span><span>audit-logged</span>
+</div>
+
+<!-- ══════════ DASHBOARD PREVIEW ══════════ -->
+<section class="section">
+  <div class="container">
+    <div class="dash-preview">
+      <div>
+        <p class="kicker">see what shipped, and why</p>
+        <h2 style="margin-bottom:16px">Every run reports itself — nobody has to ask for a status update.</h2>
+        <p style="font-size:.95rem;margin-bottom:26px;max-width:420px">A live dashboard tracks throughput, review time, and test coverage across every repo DashView touches, so your team reviews outcomes instead of chasing updates.</p>
+        <ul class="dash-list">
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg><span>Revenue-style throughput charts for PR volume and review time</span></li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg><span>Per-repo breakdown of what changed and which tests ran</span></li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg><span>A full audit trail — every decision, timestamped and reviewable</span></li>
+        </ul>
+        <a href="dashboard.html" class="btn btn-outline" style="margin-top:8px">Open the live dashboard →</a>
+      </div>
+      <div class="dash-frame">
+        <div class="dash-frame-bar"><span>overview · acme-corp</span><span>Last 30 days</span></div>
+        <div class="dash-frame-body">
+          <div class="dash-kpis">
+            <div class="dash-kpi"><span>PRs shipped</span><strong>128<em>+18%</em></strong></div>
+            <div class="dash-kpi"><span>Avg. review time</span><strong>14m<em>−62%</em></strong></div>
+            <div class="dash-kpi"><span>Test coverage</span><strong>94%<em>+6%</em></strong></div>
+          </div>
+          <div class="dash-chart" aria-hidden="true">
+            <i style="height:38%"></i><i style="height:52%"></i><i style="height:44%"></i><i style="height:68%"></i><i style="height:60%"></i><i style="height:82%"></i><i style="height:71%"></i><i style="height:90%"></i><i style="height:78%"></i><i style="height:95%"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ══════════ PRODUCT TOUR ══════════ -->
+<section class="section" id="tour" style="border-top:1px solid var(--border)">
+  <div class="container">
+    <div class="section-head wide">
+      <p class="kicker">see it live</p>
+      <h2>One platform, three surfaces.</h2>
+      <p>The dashboard, the built-in BI tool, and the AI assistant all read from the same live data — no exports, no syncing.</p>
+    </div>
+    <div class="tour-tabs">
+      <button class="tour-tab active" data-tab="dashboard">Dashboard</button>
+      <button class="tour-tab" data-tab="studio">Data Studio</button>
+      <button class="tour-tab" data-tab="ai">AI Assistant</button>
+    </div>
+    <div class="tour-panel active" data-panel="dashboard">
+      <div class="tour-frame">
+        <div class="tour-frame-bar"><span class="tour-frame-dot"></span><span style="font-family:var(--f-mono);font-size:.75rem;color:var(--text3);margin-left:8px">dashboard.html · live session</span></div>
+        <div class="tour-frame-body">
+          <div class="dash-kpis" style="margin-bottom:20px">
+            <div class="dash-kpi"><span>Repos connected</span><strong>48</strong></div>
+            <div class="dash-kpi"><span>Open PRs</span><strong>7</strong></div>
+            <div class="dash-kpi"><span>Uptime</span><strong>99.97%</strong></div>
+          </div>
+          <div style="background:var(--elevated);border:1px solid var(--border);border-radius:var(--r-md);padding:20px;text-align:center;color:var(--text3);font-size:.875rem">Full interactive charts available in <a href="dashboard.html" style="color:var(--amber)">Dashboard →</a></div>
+        </div>
+      </div>
+    </div>
+    <div class="tour-panel" data-panel="studio">
+      <div class="tour-frame">
+        <div class="tour-frame-bar"><span class="tour-frame-dot"></span><span style="font-family:var(--f-mono);font-size:.75rem;color:var(--text3);margin-left:8px">data-studio.html · zero API keys</span></div>
+        <div class="tour-frame-body">
+          <p style="font-size:.9rem;margin-bottom:18px">Import a spreadsheet, and Data Studio types every column, flags data-health issues, and drafts a full BI dashboard — entirely client-side, with no network calls.</p>
+          <div style="background:var(--elevated);border:1px solid var(--border);border-radius:var(--r-md);padding:20px;text-align:center;color:var(--text3);font-size:.875rem">Try it with sample data in <a href="data-studio.html" style="color:var(--amber)">Data Studio →</a></div>
+        </div>
+      </div>
+    </div>
+    <div class="tour-panel" data-panel="ai">
+      <div class="tour-frame">
+        <div class="tour-frame-bar"><span class="tour-frame-dot"></span><span style="font-family:var(--f-mono);font-size:.75rem;color:var(--text3);margin-left:8px">ai.html · rule-based, on-device</span></div>
+        <div class="tour-frame-body">
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="display:flex;gap:12px"><div style="width:32px;height:32px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.75rem;color:var(--amber);font-weight:600">AK</div><div style="background:var(--elevated);border:1px solid var(--border);border-radius:0 var(--r-lg) var(--r-lg) var(--r-lg);padding:12px 16px;font-size:.875rem;color:var(--text2);max-width:380px">What's our best performing product category this quarter?</div></div>
+            <div style="display:flex;gap:12px;justify-content:flex-end"><div style="background:rgba(232,163,61,.08);border:1px solid var(--border);border-radius:var(--r-lg) 0 var(--r-lg) var(--r-lg);padding:12px 16px;font-size:.875rem;color:var(--text2);max-width:420px"><strong style="color:var(--amber)">Electronics leads at $94.2k (+18% QoQ)</strong>, followed by Home ($67.8k) and Beauty ($51.3k). Recommend increasing inventory allocation ~15% heading into Q4.</div></div>
+          </div>
+          <div style="margin-top:20px;text-align:center"><a href="ai.html" class="btn btn-outline btn-sm">Open AI Assistant →</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ SECURITY ══════════ -->
+<section class="section-tight" id="security" style="border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="container">
+    <div class="section-head wide">
+      <p class="kicker">security &amp; governance</p>
+      <h2>An autonomous agent still answers to your rules.</h2>
+      <p>DashView runs inside guardrails your team already trusts — nothing it does is invisible or irreversible.</p>
+    </div>
+    <div class="sec-grid">
+      <div class="sec-card">
+        <div class="bento-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M3 7l9-4 9 4"/></svg></div>
+        <h3>Sandboxed execution</h3><p>Every run happens in an isolated container with no access beyond the repo it's working in.</p>
+      </div>
+      <div class="sec-card">
+        <div class="bento-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3v12a3 3 0 0 0 3 3h12M6 9h12"/></svg></div>
+        <h3>Branch protection respected</h3><p>DashView opens PRs against your existing rules — required reviews and status checks still apply.</p>
+      </div>
+      <div class="sec-card">
+        <div class="bento-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg></div>
+        <h3>Full audit trail</h3><p>Every plan, edit, and decision is timestamped and reviewable — nothing happens off the record.</p>
+      </div>
+      <div class="sec-card">
+        <div class="bento-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></div>
+        <h3>Scoped permissions</h3><p>Access is granted per-repo, per-team, with revocable tokens — never a blanket org-wide key.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ INTEGRATIONS ══════════ -->
+<section class="section-tight">
+  <div class="container">
+    <div class="section-row">
+      <div class="section-head" style="margin-bottom:0">
+        <p class="kicker">integrations</p>
+        <h2>Plugs into the tools your team already uses.</h2>
+      </div>
+    </div>
+    <div class="int-grid">
+      <div class="int-card"><div class="int-icon">Gh</div><div><strong>GitHub</strong><span>Source control &amp; PRs</span></div></div>
+      <div class="int-card"><div class="int-icon">Gl</div><div><strong>GitLab</strong><span>Source control &amp; PRs</span></div></div>
+      <div class="int-card"><div class="int-icon">Ji</div><div><strong>Jira</strong><span>Ticket import</span></div></div>
+      <div class="int-card"><div class="int-icon">Li</div><div><strong>Linear</strong><span>Ticket import</span></div></div>
+      <div class="int-card"><div class="int-icon">Sl</div><div><strong>Slack</strong><span>Run notifications</span></div></div>
+      <div class="int-card"><div class="int-icon">Cc</div><div><strong>CircleCI</strong><span>Test pipelines</span></div></div>
+      <div class="int-card"><div class="int-icon">Vc</div><div><strong>Vercel</strong><span>Preview deploys</span></div></div>
+      <div class="int-card"><div class="int-icon">Bb</div><div><strong>Bitbucket</strong><span>Source control &amp; PRs</span></div></div>
+    </div>
+  </div>
+</section>
+<!-- ══════════ TESTIMONIALS ══════════ -->
+<section class="section" style="border-top:1px solid var(--border)">
+  <div class="container">
+    <div class="section-head wide">
+      <p class="kicker">from design partners</p>
+      <h2>What engineering teams say after a week of PRs.</h2>
+    </div>
+    <div class="quote-grid">
+      <div class="quote-card">
+        <div class="quote-mark">"</div>
+        <p class="quote-text">The plan-before-code step is what sold the team. We can veto a bad approach before it costs us a diff.</p>
+        <div class="quote-person"><div class="quote-avatar">RS</div><div><strong>Priya Raman</strong><span>Staff Engineer, Vertica</span></div></div>
+      </div>
+      <div class="quote-card">
+        <div class="quote-mark">"</div>
+        <p class="quote-text">Review time dropped once PRs started arriving with tests already green. We stopped bouncing things back.</p>
+        <div class="quote-person"><div class="quote-avatar">JM</div><div><strong>Jonah Marsh</strong><span>Eng Lead, Halyard</span></div></div>
+      </div>
+      <div class="quote-card">
+        <div class="quote-mark">"</div>
+        <p class="quote-text">Branch protection and the audit log made this an easy sell to security — nothing is a black box.</p>
+        <div class="quote-person"><div class="quote-avatar">TC</div><div><strong>Talia Chen</strong><span>CTO, Corsair Labs</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ FREE ACCESS ══════════ -->
+<section class="section-tight" id="pricing" style="border-top:1px solid var(--border)">
+  <div class="container">
+    <div class="section-head wide">
+      <p class="kicker">no subscription</p>
+      <h2>Free for every engineering team. No seat fees.</h2>
+      <p>DashView is free to connect, free to run, and free to scale across every repo your team owns — no credit card, no per-seat billing, no locked tiers.</p>
+    </div>
+    <div class="price-grid" style="grid-template-columns:1fr">
+      <div class="price-card featured" style="max-width:640px;margin:0 auto;text-align:left">
+        <span class="price-tag">Always free</span>
+        <p class="price-name">Full access</p>
+        <div class="price-amount"><strong>$0</strong><span>forever, unlimited repos</span></div>
+        <p class="price-desc">Everything DashView does, included from the first connected repo — no add-ons held back for a paid tier.</p>
+        <ul class="price-feats" style="columns:2;gap:20px">
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Unlimited repos</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Live dashboard</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Full audit trail</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Branch protection</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Slack + Jira/Linear</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Community support</li>
+        </ul>
+        <button class="btn btn-primary btn-block btn-lg" id="priceTeamBtn">Get started free →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ FAQ ══════════ -->
+<section class="section-tight" style="border-top:1px solid var(--border)">
+  <div class="container">
+    <div class="section-head">
+      <p class="kicker">frequently asked</p>
+      <h2>Questions engineering leads actually ask.</h2>
+    </div>
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary>Can it merge code without a human?<span class="plus">+</span></summary>
+        <p>No. DashView opens pull requests and respects your existing branch protection rules — a reviewer always has to approve before anything reaches your default branch.</p>
+      </details>
+      <details class="faq-item">
+        <summary>What happens if a task is ambiguous?<span class="plus">+</span></summary>
+        <p>DashView stops at the planning step and asks a clarifying question instead of guessing. You'll never see a PR for a task it wasn't confident about.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Does it work with our existing test suite?<span class="plus">+</span></summary>
+        <p>Yes — it runs your existing tests first and writes new ones in the same framework and style already used in your repo.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Can we self-host it?<span class="plus">+</span></summary>
+        <p>Enterprise plans support self-hosted and VPC deployments, so code never has to leave your own infrastructure.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Is it really free for a growing team?<span class="plus">+</span></summary>
+        <p>Yes — DashView has no per-seat billing and no subscription. Every repo you connect gets the full feature set, whether you're a team of 3 or 300.</p>
+      </details>
+      <details class="faq-item">
+        <summary>What languages and frameworks are supported?<span class="plus">+</span></summary>
+        <p>DashView reads whatever conventions already exist in your repo, so it isn't limited to a fixed language list — support is broadest for common backend and frontend stacks.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ CTA ══════════ -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-band">
+      <p class="kicker" style="margin-bottom:16px">give your backlog a signal</p>
+      <h2>Ready to ship faster?</h2>
+      <p>Join engineering teams already shipping production PRs with DashView every week.</p>
+      <div class="cta-email">
+        <input class="cta-input" type="email" placeholder="your@email.com" id="ctaEmail"/>
+        <button class="btn btn-primary" id="ctaSubmitBtn">Request access →</button>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ══════════ FOOTER ══════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-brand">
+          <div class="nav-logo-ring"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M7 13l3-5 2 3 2-4 3 6" stroke="#191008" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          DashView
+        </a>
+        <p>An autonomous coding agent that plans, ships, and reports on its own work — so your team reviews outcomes, not busywork.</p>
+        <div class="footer-social">
+          <a href="https://github.com/artivoralabs/Dashview" rel="noopener" aria-label="GitHub"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.03-.01-1.87-2.78.62-3.37-1.22-3.37-1.22-.46-1.19-1.11-1.51-1.11-1.51-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.32 9.32 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Workspace</h5>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="people.html">People</a>
+        <a href="data-studio.html">Data Studio</a>
+        <a href="ai.html">AI Assistant</a>
+      </div>
+      <div class="footer-col">
+        <h5>Learn more</h5>
+        <a href="#how">How it works</a>
+        <a href="#capabilities">Capabilities</a>
+        <a href="#security">Security</a>
+        <a href="#pricing">Free access</a>
+      </div>
+      <div class="footer-col">
+        <h5>Get started</h5>
+        <button id="footerWaitlistBtn">Request access</button>
+        <a href="dashboard.html#settings">Settings</a>
+        <a href="https://github.com/artivoralabs/Dashview" rel="noopener">Source on GitHub</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 DashView. All rights reserved.</span>
+      <span>Built for engineering teams that ship.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════ MODAL ══════════ -->
+<div class="modal-overlay" id="waitlistModal">
+  <div class="modal-card">
+    <button class="modal-close" id="modalCloseBtn" type="button" aria-label="Close waitlist dialog"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="kicker" style="margin-bottom:6px">early access</p>
+    <h3>Join the waitlist</h3>
+    <p>We're onboarding design partners in small batches. Tell us where to reach you.</p>
+    <div id="waitlistFormWrap">
+      <div class="field"><label for="wlName">Full name</label><input type="text" id="wlName" placeholder="Jane Smith" autocomplete="name"/></div>
+      <div class="field"><label for="wlEmail">Work email</label><input type="email" id="wlEmail" placeholder="jane@company.com" autocomplete="email"/></div>
+      <button class="btn btn-primary btn-block btn-lg" id="wlSubmitBtn">Request access →</button>
+    </div>
+    <div class="modal-success" id="wlSuccess">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/></svg>
+      <h3>You're on the list!</h3>
+      <p>We'll reach out as soon as a spot opens up.</p>
+    </div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+<script>
+// ── Helpers ──
+const qs = s => document.querySelector(s);
+const on = (el, ev, fn) => el?.addEventListener(ev, fn);
+
+// ── Nav scroll effect ──
+on(window, 'scroll', () => {
+  qs('#nav').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// ── Theme ──
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  try { localStorage.setItem('dashview-theme', t); } catch (e) {}
+  const meta = qs('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', t === 'light' ? '#f5f6f3' : '#0a0c0b');
+  const btn = qs('#themeToggle');
+  if (btn) btn.setAttribute('aria-label', t === 'light' ? 'Switch to dark theme' : 'Switch to light theme');
+}
+on(qs('#themeToggle'), 'click', () => {
+  applyTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+});
+window.addEventListener('storage', e => {
+  if (e.key === 'dashview-theme' && (e.newValue === 'light' || e.newValue === 'dark')) {
+    document.documentElement.setAttribute('data-theme', e.newValue);
+  }
+});
+applyTheme(document.documentElement.getAttribute('data-theme') || 'dark');
+
+// ── Counter animation ──
+function animateCounter(el, target) {
+  const start = Date.now();
+  const dur = 1800;
+  const fmt = n => {
+    if (target >= 1000000) return (n/1000000).toFixed(1)+'m';
+    if (target >= 1000) return (n/1000).toFixed(0)+'k+';
+    return Math.round(n).toLocaleString();
+  };
+  const tick = () => {
+    const prog = Math.min((Date.now()-start)/dur, 1);
+    const ease = 1 - Math.pow(1-prog, 3);
+    el.textContent = fmt(target * ease);
+    if (prog < 1) requestAnimationFrame(tick);
+    else el.textContent = fmt(target);
+  };
+  tick();
+}
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    const t = +e.target.dataset.target;
+    if (t) animateCounter(e.target, t);
+    io.unobserve(e.target);
+  });
+}, {threshold: 0.3});
+document.querySelectorAll('[data-target]').forEach(el => io.observe(el));
+
+// ── Hero stat counters ──
+setTimeout(() => {
+  let r = 0, p = 0;
+  const ri = setInterval(() => { qs('#statRepos').textContent = ++r; if(r>=48)clearInterval(ri); }, 40);
+  const pi = setInterval(() => { qs('#statPRs').textContent = ++p; if(p>=320)clearInterval(pi); }, 6);
+}, 500);
+
+// ── Terminal animation ──
+const LINES = [
+  {type:'prompt', cmd:'analyze repo acme/platform-api'},
+  {type:'out', txt:'Scanning 847 files...'},
+  {type:'out', txt:'Found: 12 middleware files, 43 route handlers'},
+  {type:'ok', txt:'Context indexed ✓'},
+  {type:'prompt', cmd:'plan task "Add sliding-window rate limiter"'},
+  {type:'out', txt:'Checking existing patterns...'},
+  {type:'out', txt:'Selecting implementation: Redis + sliding window'},
+  {type:'ok', txt:'Plan ready — 6 steps, 3 files'},
+  {type:'prompt', cmd:'execute plan --auto-test'},
+  {type:'out', txt:'[1/6] Creating rateLimiter.ts'},
+  {type:'ok', txt:'[2/6] Tests written (coverage: 94%)'},
+  {type:'out', txt:'[3/6] Running CI...'},
+  {type:'ok', txt:'[6/6] PR #482 opened ↗'},
+];
+const terminal = qs('#terminal');
+let li = 0;
+function addLine() {
+  if (!terminal) return;
+  if (li >= LINES.length) { li = 0; terminal.innerHTML=''; }
+  const l = LINES[li++];
+  const div = document.createElement('div');
+  div.className = 't-line';
+  if (l.type === 'prompt') {
+    div.innerHTML = `<span class="t-prompt">▸</span><span class="t-cmd">${l.cmd}</span>`;
+  } else if (l.type === 'ok') {
+    div.innerHTML = `<span class="t-out t-ok">${l.txt}</span>`;
+  } else {
+    div.innerHTML = `<span class="t-out">${l.txt}</span>`;
+  }
+  terminal.appendChild(div);
+  requestAnimationFrame(() => div.classList.add('show'));
+  terminal.scrollTop = terminal.scrollHeight;
+  setTimeout(addLine, l.type === 'prompt' ? 1200 : 600);
+}
+setTimeout(addLine, 700);
+
+// ── Tour tabs ──
+document.querySelectorAll('.tour-tab').forEach(btn => {
+  on(btn, 'click', () => {
+    document.querySelectorAll('.tour-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tour-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    qs(`[data-panel="${btn.dataset.tab}"]`)?.classList.add('active');
+  });
+});
+
+// ── Modal logic ──
+function openModal() {
+  qs('#waitlistModal').classList.add('open');
+  qs('#wlName')?.focus();
+}
+function closeModal() { qs('#waitlistModal').classList.remove('open'); }
+['loginBtn','waitlistBtn','heroWaitlistBtn','footerWaitlistBtn','priceTeamBtn'].forEach(id => {
+  on(qs('#'+id), 'click', openModal);
+});
+on(qs('#modalCloseBtn'), 'click', closeModal);
+on(qs('#waitlistModal'), 'click', e => { if(e.target===e.currentTarget) closeModal(); });
+on(qs('#wlSubmitBtn'), 'click', () => {
+  const name = qs('#wlName')?.value.trim();
+  const email = qs('#wlEmail')?.value.trim();
+  if (!name || !email) { toast('Please fill in both fields.'); return; }
+  qs('#waitlistFormWrap').style.display = 'none';
+  qs('#wlSuccess').style.display = 'block';
+  setTimeout(closeModal, 3000);
+});
+on(qs('#ctaSubmitBtn'), 'click', () => {
+  const email = qs('#ctaEmail')?.value.trim();
+  if (!email) return;
+  toast('You\'re on the list! We\'ll be in touch.');
+  qs('#ctaEmail').value = '';
+});
+
+// ── Toast ──
+function toast(msg, dur=3500) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  qs('#toastStack').appendChild(el);
+  setTimeout(() => el.remove(), dur);
+}
+
+// ── Keyboard ──
+on(document, 'keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    window.location.href = 'dashboard.html';
+  }
+});
+</script>
+<script>
+(function(){
+  var nav=document.getElementById('nav'),b=document.getElementById('navBurger'),h=document.documentElement;
+  function menu(o){nav.classList.toggle('menu-open',o);h.classList.toggle('menu-lock',o);b.setAttribute('aria-expanded',String(o));b.setAttribute('aria-label',o?'Close menu':'Open menu')}
+  b.addEventListener('click',function(){menu(!nav.classList.contains('menu-open'))});
+  document.getElementById('navLinks').addEventListener('click',function(e){if(e.target.closest('a,button'))menu(false)});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')menu(false)});
+  if(window.matchMedia)matchMedia('(min-width:1041px)').addEventListener('change',function(m){if(m.matches)menu(false)});
+  var mt=document.getElementById('menuTheme');if(mt)mt.addEventListener('click',function(){document.getElementById('themeToggle').click()});
+  var ml=document.getElementById('menuLogin');if(ml)ml.addEventListener('click',function(){document.getElementById('loginBtn').click()});
+  var ib=document.getElementById('installAppBtn'),ip=document.getElementById('heroInstall');
+  function inst(){var t=window.DV&&DV.status();ip.hidden=!(t&&t.canInstall&&!t.installed)}
+  ib.addEventListener('click',function(){DV.install().then(inst)});
+  addEventListener('dv:installable',inst);addEventListener('dv:installed',inst);inst();
+})();
+</script>
+</body>
+</html>

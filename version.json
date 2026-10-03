@@ -1,0 +1,187 @@
+{
+  "version": "2.8.0",
+  "build": "2026.10.03",
+  "released": "2026-10-03",
+  "notes": [
+    "New: Manufacturing, procurement, invoice, GRN and delivery metrics in the company-aware executive Overview",
+    "Improved: Drill Explorer with server-side search, 25-record paging, contextual Odoo links and full filtered CSV exports up to 10,000 records",
+    "Improved: Main Settings now includes the user manual, keyboard shortcuts, resettable preferences and clickable release history",
+    "Fixed: Settings disclosures remain open during refresh and all dashboard panels stay within the viewport"
+  ],
+  "history": [
+    {
+      "version": "2.8.0",
+      "date": "2026-10-03",
+      "notes": [
+        "New: Manufacturing, procurement, invoice, GRN and delivery metrics in the company-aware executive Overview",
+        "Improved: Drill Explorer with server-side search, 25-record paging, contextual Odoo links and full filtered CSV exports up to 10,000 records",
+        "Improved: Main Settings now includes the user manual, keyboard shortcuts, resettable preferences and clickable release history",
+        "Fixed: Settings disclosures remain open during refresh and all dashboard panels stay within the viewport"
+      ],
+      "critical": false
+    },
+    {
+      "version": "2.7.0",
+      "date": "2026-10-03",
+      "notes": [
+        "New: Overview company selector with safe multi-currency handling",
+        "Improved: Odoo People, Tasks and Audit data mapping and error visibility",
+        "Improved: Data Studio imports Excel worksheets and parses CSV/TSV offline",
+        "Improved: Liquid Glass text contrast and colorful chart palettes",
+        "Fixed: incomplete app updates are rejected and reported for retry",
+        "Improved: Settings install guidance and PWA install state"
+      ],
+      "critical": false
+    },
+    {
+      "version": "2.6.0",
+      "date": "2026-10-02",
+      "notes": [
+        "New: Software update popup redesigned - live progress ring, 4-step tracker, release notes grouped as Security / New / Improved / Fixed, and a Previous versions list",
+        "New: Settings > Software update - status pill, brand-colour progress bar, tagged release notes and a Release notes button",
+        "Improved: Update banner - clear icon per state (available, downloading, ready, failed), version and size, percentage while downloading, full-width buttons on phones",
+        "Improved: Popup is a bottom sheet on phones; Esc, click-outside and keyboard focus are handled; page scroll is locked while it is open",
+        "Fixed: Update popup always opened dark and purple, even in light theme - it now follows the app theme and amber brand colour",
+        "Fixed: A failed-download banner could not be dismissed, the banner stayed on screen while installing, and repeated Check clicks could stack"
+      ]
+    },
+    {
+      "version": "2.5.2",
+      "date": "2026-10-02",
+      "notes": [
+        "Fixed: Liquid Glass - slicer and column dropdown menus were being clipped by the glass cards; they now open fully",
+        "Fixed: Liquid Glass - gradient headings no longer refuse to wrap on narrow screens",
+        "Fixed: Liquid Glass - lag and janky scrolling on phones/iOS (lighter blur, scrolling background, no hover-lift on touch); glass stylesheet now loads before first paint (no flat-to-glass flash)",
+        "Improved: Liquid Glass - thin scrollbars in Firefox too",
+        "Improved: Charts - no black anywhere: tooltips, line-chart badges, markers, bar/gauge tracks and doughnut borders now use slate-blue / white tones"
+      ]
+    },
+    {
+      "version": "2.5.1",
+      "date": "2026-10-01",
+      "notes": [
+        "Improved: Overview charts - one clear, high-contrast colour palette (separate dark/light tones); blue = revenue, amber = orders, violet = CRM pipeline, teal = shops/products",
+        "Improved: Invoices by payment status now uses status colours (green paid, blue in payment, amber partial, red not paid)",
+        "Improved: Overview charts - axis titles on the revenue/orders chart, solid bars (no washed-out fade), readable x-axis labels, cleaner legends with share bars and larger chart areas"
+      ]
+    },
+    {
+      "version": "2.5.0",
+      "date": "2026-10-01",
+      "notes": [
+        "Fixed: People - profile card name/pay pill clipping, device name and meta running together, calendar events overflowing their cells",
+        "Fixed: People - mobile header status pill wrapping, sideways page scroll, metric labels colliding",
+        "Improved: People greeting now reads 'Welcome back, DashView'; leftover template names (Nixtio, Crextio) replaced and migrated",
+        "Improved: People calendar events show a full tooltip and wrap long titles in narrow cells"
+      ],
+      "critical": false
+    },
+    {
+      "version": "2.4.1",
+      "date": "2026-10-01",
+      "notes": [
+        "Improved: Chart colours now have a light and a dark palette tuned for contrast; switching theme recolours existing charts instantly",
+        "Improved: Axis labels, grid lines, legends, value labels and doughnut totals meet WCAG AA contrast in both themes"
+      ],
+      "critical": false
+    },
+    {
+      "version": "2.4.0",
+      "date": "2026-10-01",
+      "notes": [
+        "New: User manual (manual.html) with search, section navigation and print layout, linked from Settings",
+        "New: Settings - Preferences (density, chart animations, bar labels, landing page), Updates, Privacy and data, Keyboard shortcuts",
+        "Improved: Charts - staggered entrance animation, value labels on bars, hover focus that dims other bars/slices, accessible chart descriptions, animated progress bars"
+      ],
+      "critical": false
+    },
+    {
+      "version": "2.3.1",
+      "date": "2026-10-01",
+      "notes": [
+        "Security: checkup now includes CSP, and failed-attempt checks, with an A-F grade and a to-fix count",
+        "Security: Cloudflare Worker now sends HSTS, X-Frame-Options, Referrer-Policy, Permissions-Policy and CORP headers; every page has a baseline CSP and referrer policy",
+        "Improved: Overview header, period switch, KPI/card hover and responsive grid"
+      ],
+      "critical": false
+    },
+    {
+      "version": "2.3.0",
+      "date": "2026-10-01",
+      "notes": [
+        "Improved: Software Update sheet - version/size/released cards, progress stepper, New/Fixed/Improved tags, Remind me tomorrow, mobile bottom-sheet",
+        "Improved: Drill-in now shows a breadcrumb trail (Overview > chart > value) with Clear, Back to charts and Esc; drillable legend rows show an arrow",
+        "Improved: Settings - sticky glass header, active-section tracking, mobile chip navigation",
+        "New: PDF reports get a Report contents page and a Confidential footer"
+      ],
+      "critical": false
+    },
+    {
+      "version": "2.2.2",
+      "date": "2026-10-01",
+      "notes": [
+        "Executive line charts: fixed the zigzag - monotone smoothing (no overshoot between points), automatic y-axis scale with headroom, compact ticks and a capped number of x labels",
+        "Line charts: Peak / Low / Latest value badges, average reference line, hover crosshair and 'vs previous' change in the tooltip",
+        "Executive trend cards: summary strip (Latest with change, Peak, Low, Average, Total) and a 3-month trend overlay toggle",
+        "Liquid Glass v3: neutral professional glass, 3 elevation levels, hairline edges, calm motion, now also covers the Executive cards, charts and detail drawer; fallbacks for reduced transparency, high contrast, no backdrop-filter and print",
+        "Liquid Glass preference now applies before first paint (no flat-to-glass flash)"
+      ],
+      "critical": false
+    },
+    {
+      "version": "2.2.1",
+      "date": "2026-10-01",
+      "notes": [
+        "Executive dashboards: click any KPI for a detail panel (current vs previous, change, status, how it is calculated, 12-month trend with average line, last-6-months table, View records)",
+        "Executive: Refresh button, concentration-risk gauge with 40% / 60% thresholds"
+      ],
+      "critical": false
+    },
+    {
+      "version": "2.2.0",
+      "date": "2026-10-01",
+      "notes": [
+        "Software Update: top banner when an update is available, then Download and Install & Restart, like a phone",
+        "Settings: live update status, progress, what's new, auto-check and auto-download switches (the old button did not really check)",
+        "AI: business playbooks (aging, period comparison, concentration, pipeline, low stock, cash, stuck work), 7 more Odoo models, confidence line, clickable follow-up questions",
+        "Charts and KPI cards: new gradient/glow styling"
+      ],
+      "critical": false
+    },
+    {
+      "version": "2.1.2",
+      "date": "2026-10-01",
+      "notes": [
+        "Settings control center: live health cards (Odoo, AI, Security, Backup, Version), Needs attention list with Fix shortcuts, settings search (press /), remembered last section"
+      ]
+    },
+    {
+      "version": "2.1.1",
+      "date": "2026-10-01",
+      "notes": [
+        "Executive overview: headline health strip, previous value and absolute change on every KPI, per-section favourable badges, Basis & data notes",
+        "Scorecard export now includes absolute change and status columns",
+        "Fixed: login/register no longer send a stale session token",
+        "Fixed: CI/engineering questions mentioning 'pipeline' were treated as Odoo data questions",
+        "Fixed: query provenance now lists group-by and measures"
+      ]
+    },
+    {
+      "version": "2.1.0",
+      "date": "2026-09-29",
+      "notes": [
+        "Visual polish and detailing layer",
+        "Software Update flow with version history"
+      ]
+    },
+    {
+      "version": "2.0.0",
+      "date": "2026-09-24",
+      "notes": [
+        "Live Odoo everywhere, Executive suite, AI agent, Cloudflare Worker"
+      ]
+    }
+  ],
+  "critical": false,
+  "size": 2323422
+}

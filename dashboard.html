@@ -1,0 +1,1761 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<script>(function(){try{var t=localStorage.getItem('dashview-theme');if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<script>try{var __s=JSON.parse(localStorage.getItem('dv_sec')||'{}');if(__s.pin&&!sessionStorage.getItem('dv_sk'))document.documentElement.classList.add('dv-locked')}catch(e){}</script>
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta name="referrer" content="no-referrer"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Workspace — DashView</title>
+<meta name="description" content="DashView workspace — live sales overview and a full Data Studio (import, type, chart, pivot and drill down) in one place."/>
+<meta name="theme-color" content="#f2f3ef"/>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="stylesheet" href="css/base.css"/>
+<link rel="stylesheet" href="css/components.css"/>
+<link rel="stylesheet" href="css/dashboard.css"/>
+<link rel="stylesheet" href="css/studio-dash.css"/>
+<link rel="stylesheet" href="css/merged.css"/>
+<link rel="stylesheet" href="css/dashboard-pro.css"/>
+<link rel="stylesheet" href="css/ai-embed.css"/>
+<link rel="stylesheet" href="css/dashview-suite.css"/>
+<link rel="stylesheet" href="css/odoo-live.css"/>
+<link rel="stylesheet" href="css/dashboard-hr-match.css"/>
+<link rel="stylesheet" href="css/pro-upgrade.css"/>
+<link rel="stylesheet" href="css/odoo-pro.css"/>
+<link rel="stylesheet" href="css/security.css"/>
+<link rel="stylesheet" href="css/studio-workspace.css"/>
+<link rel="stylesheet" href="css/settings-pro.css"/>
+<link rel="stylesheet" href="css/exec-retail.css"/>
+<link rel="stylesheet" href="css/exec-company.css"/>
+<link rel="stylesheet" href="css/exec-drill.css"/>
+<link rel="stylesheet" href="css/tabbar.css"/>
+<link rel="stylesheet" href="css/visual-polish.css"/>
+<link rel="stylesheet" href="css/chart-polish.css"/>
+<link rel="stylesheet" href="css/overview-charts-pro.css"/>
+<link rel="stylesheet" href="css/exec-unify.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="DashView"/>
+<script src="js/config.js"></script>
+<script defer src="js/updater.js"></script>
+<link rel="stylesheet" href="css/pro-detail.css"/>
+<script>try{if(localStorage.getItem("dashview_surface")==="glass"){document.documentElement.setAttribute("data-surface","glass");var l=document.createElement("link");l.id="lg-glass-link";l.rel="stylesheet";l.setAttribute("blocking","render");l.href="css/liquid-glass.css";document.head.appendChild(l);}}catch(e){}</script>
+</head>
+<body class="dash-body">
+
+<div class="dash-shell" id="shell">
+
+  <!-- ══════════════════════ SIDEBAR ══════════════════════ -->
+  <aside class="dash-side" id="sidebar">
+    <div class="dash-side-brand">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#e8a33d" stroke-width="1.6"/><path d="M7 13l3-5 2 3 2-4 3 6" stroke="#e8a33d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>DashView</span>
+      <button class="dash-side-collapse-btn" id="sidebarCollapseBtn" title="Collapse sidebar" aria-label="Collapse sidebar">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4v16M15 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h10M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M15 4v16"/></svg>
+      </button>
+    </div>
+    <nav class="dash-nav">
+      <p class="dash-nav-label">Workspace</p>
+      <a href="#overview" class="dash-nav-link active" data-view="overview">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+        <span>Overview</span>
+      </a>
+      <a href="#studio" class="dash-nav-link" data-view="studio">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
+        <span>Data Studio</span><span class="badge new">New</span>
+      </a>
+      <a href="people.html" class="dash-nav-link">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M22 20v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/></svg>
+        <span>People</span><span class="badge new">New</span>
+      </a>
+      <a href="#task-assignments" class="dash-nav-link" data-view="task-assignments">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/></svg>
+        <span>Task assignments</span><span class="badge" id="navTaskBadge" hidden>0</span>
+      </a>
+      <a href="#team" class="dash-nav-link" data-view="team">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0-3-3.87"/></svg>
+        <span>Team</span>
+      </a>
+      <p class="dash-nav-label">Analytics</p>
+      <a href="#reports" class="dash-nav-link" data-view="reports">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
+        <span>Reports</span>
+      </a>
+      <a href="ai.html" class="dash-nav-link" data-view="ai">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2c-1.7 0-3 1.2-3 3v1H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2V5c0-1.8-1.3-3-3-3Z"/><circle cx="12" cy="13" r="2"/></svg>
+        <span>AI Assistant</span>
+      </a>
+      <a href="#widgets" class="dash-nav-link" data-view="widgets">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="8" height="5" rx="1"/><rect x="13" y="3" width="8" height="10" rx="1"/><rect x="3" y="10" width="8" height="11" rx="1"/><rect x="13" y="15" width="8" height="6" rx="1"/></svg>
+        <span>Widget Builder</span><span class="badge new">New</span>
+      </a>
+      <a href="#odoo-live" class="dash-nav-link" data-view="odoo-live">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/><circle cx="19.5" cy="5" r="3" fill="#6fe3a5" stroke="none"/></svg>
+        <span>Odoo</span><span class="badge new">Live</span>
+      </a>
+      <a href="#audit-log" class="dash-nav-link" data-view="audit-log">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+        <span>Audit log</span>
+      </a>
+      <p class="dash-nav-label">Settings</p>
+      <a href="#settings" class="dash-nav-link" data-view="settings">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 18a1.65 1.65 0 0 0-1.51 1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+    <div class="dash-side-foot" id="dashUserBlock" style="cursor:pointer;">
+      <div class="dash-side-user" id="dashUserAvatar">AK</div>
+      <div class="dash-side-user-info"><p id="dashUserName">Amara Khan</p><span id="dashUserMeta">acme-corp · Admin</span></div>
+    </div>
+  </aside>
+
+  <!-- ══════════════════════ MAIN ══════════════════════ -->
+  <div class="dash-main">
+
+    <header class="dash-topbar">
+      <button class="dash-icon-btn dash-sidebar-toggle" id="mobileSideToggle" aria-label="Toggle sidebar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <div class="dash-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" placeholder="Search orders, files, actions…" id="topSearchInput"/>
+        <kbd>⌘K</kbd>
+      </div>
+      <div class="dash-top-actions">
+        <button class="dash-icon-btn theme-toggle-btn" id="themeToggleBtn" type="button" aria-label="Switch to light theme" title="Switch theme">
+          <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+        </button>
+        <button class="dash-icon-btn" id="notifBtn" aria-label="Notifications">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="dot" id="notifDot" hidden></span>
+        </button>
+        <button class="dash-icon-btn" id="lockBtn" hidden title="Lock workspace (Ctrl/⌘ + Shift + L)" aria-label="Lock workspace">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        </button>
+        <button class="dash-icon-btn" id="cmdBtn" title="Command palette (⌘K)" aria-label="Command palette">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
+        </button>
+        <div class="dash-side-user" id="dashTopUserAvatar" style="cursor:pointer;width:32px;height:32px;font-size:12px;" title="Account">AK</div>
+      </div>
+    </header>
+
+    <div class="dash-content">
+
+      <!-- ══════════════════════ OVERVIEW ══════════════════════ -->
+      <section class="view-panel active" id="view-overview">
+        <div class="ov-head">
+          <div>
+            <h1 id="ovGreeting">Overview</h1>
+            <p>Live business overview from your Odoo · <span id="dateLabel"></span></p>
+          </div>
+          <div class="ov-head-actions">
+            <span class="odoo-live-status" id="ovStatus"><span class="dot"></span><span id="ovStatusText">Not connected</span></span>
+            <div class="date-range" id="ovRange" role="group" aria-label="Period">
+              <button type="button" data-range="30" class="active">30D</button>
+              <button type="button" data-range="90">90D</button>
+              <button type="button" data-range="365">1Y</button>
+            </div>
+            <button class="btn btn-outline btn-sm" id="ovRefresh" type="button">Refresh</button>
+            <div class="studio-dropdown" id="ovExportDropdown">
+              <button class="btn btn-outline btn-sm" id="ovExportDropdownBtn" type="button">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V3M7 10l5 5 5-5M4 21h16"/></svg>
+                Export
+              </button>
+              <div class="studio-dropdown-menu">
+                <button class="studio-dropdown-item" id="ovExportCsvBtn" type="button">CSV data</button>
+                <div class="studio-dropdown-sep"></div>
+                <button class="studio-dropdown-item" id="ovExportReportBtn" type="button">Full report (PDF, AI insights + snapshot)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="odoo-live-connect-banner" id="ovBanner" hidden>
+          <p id="ovBannerText"></p>
+          <a href="#settings" class="btn btn-primary btn-sm" data-view="settings">Open Settings</a>
+        </div>
+        <div id="ovKpis"></div>
+        <div class="ov-grid" id="ovGrid"></div>
+      </section>
+
+      <!-- ══════════════════════ DATA STUDIO ══════════════════════ -->
+      <section class="view-panel" id="view-studio" aria-labelledby="studioPageTitle">
+
+        <div class="studio-page-head">
+          <div>
+            <p class="studio-eyebrow">ANALYTICS WORKSPACE</p>
+            <h1 id="studioPageTitle">Data Studio</h1>
+            <p>Explore your data, build a dashboard, and shape the story behind the numbers.</p>
+          </div>
+          <a class="studio-overview-link" href="#overview" data-view="overview">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
+            Back to overview
+          </a>
+        </div>
+
+        <div class="studio-toolbar">
+          <div class="studio-toolbar-left">
+            <label class="visually-hidden" for="workbookNameInput">Workbook name</label>
+            <input type="text" id="workbookNameInput" class="studio-workbook-name" value="Untitled workbook" maxlength="80" spellcheck="false"/>
+            <span class="studio-save-state" id="saveStateTag" role="status" aria-live="polite">No changes yet</span>
+            <span class="studio-dataset-tag" id="datasetTag" aria-live="polite"></span>
+          </div>
+          <div class="studio-toolbar-right">
+            <button class="studio-icon-btn studio-fields-toggle" id="fieldsToggleBtn" type="button" aria-label="Show fields panel" aria-controls="fieldsRail" aria-expanded="false" style="color:var(--ink-50);">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+            </button>
+            <div class="studio-dropdown" id="workbooksDropdown">
+              <button class="btn btn-outline btn-sm" id="openWorkbooksBtn" type="button" title="My workbooks" aria-haspopup="dialog">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
+                My workbooks
+              </button>
+            </div>
+            <button class="btn btn-outline btn-sm" id="newWorkbookBtn" type="button">New</button>
+            <div class="studio-dropdown" id="exportDropdown">
+              <button class="btn btn-outline btn-sm" id="exportDropdownBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="exportDropdownMenu">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V3M7 10l5 5 5-5M4 21h16"/></svg>
+                Export
+              </button>
+              <div class="studio-dropdown-menu" id="exportDropdownMenu" role="menu">
+                <button class="studio-dropdown-item" id="exportCsvBtn" type="button" role="menuitem">Data as CSV</button>
+                <div class="studio-dropdown-sep"></div>
+                <button class="studio-dropdown-item" id="exportXlsxBtn" type="button" role="menuitem">Excel report (.xlsx)</button>
+                <button class="studio-dropdown-item" id="exportPdfBtn" type="button" role="menuitem">PDF report</button>
+              </div>
+            </div>
+            <button class="btn btn-signal btn-sm" id="topbarImportBtn" type="button">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>
+              Import file
+            </button>
+            <input type="file" id="fileInput" accept=".csv,.tsv,.xlsx,.xls,.json" aria-label="Choose a data file" style="display:none;"/>
+          </div>
+        </div>
+        <div class="studio-import-feedback" id="studioImportFeedback" hidden role="status" aria-live="polite"></div>
+
+        <!-- Empty state -->
+        <div class="studio-empty" id="emptyState">
+          <div class="studio-dropzone" id="dropzone">
+            <svg class="studio-dropzone-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="8" width="26" height="32" rx="3"/>
+              <path d="M9 17h15M9 25h15M9 33h11"/>
+              <path d="M23 42h24"/>
+              <path d="M27 42V32M35 42V24M43 42V16"/>
+            </svg>
+            <p class="studio-empty-eyebrow">START WITH YOUR DATA</p>
+            <h2>Bring your data into focus</h2>
+            <p>Import a spreadsheet to get a clear view of the key metrics, patterns, and relationships in your data. Your original file is never changed.</p>
+            <div class="studio-dropzone-actions">
+              <button class="btn btn-primary btn-lg" id="emptyImportBtn" type="button">Choose a file</button>
+              <button class="btn btn-outline btn-lg" id="sampleDataBtn" type="button">Try it with sample data</button>
+            </div>
+            <p class="studio-dropzone-formats">CSV · TSV · XLSX · XLS · JSON</p>
+            <ul class="studio-capability-list" aria-label="What you can do in Data Studio">
+              <li><span aria-hidden="true">01</span>Find trends with charts and KPIs</li>
+              <li><span aria-hidden="true">02</span>Filter, sort, and inspect rows</li>
+              <li><span aria-hidden="true">03</span>Build pivots and drill-downs</li>
+            </ul>
+            <p class="studio-privacy-note">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+              Parsed entirely in this browser — no file, and no AI API call, ever leaves your machine.
+            </p>
+          </div>
+        </div>
+
+        <!-- Main workbench -->
+        <div class="studio-main" id="studioMain" style="display:none;">
+
+          <aside class="studio-fields-rail" id="fieldsRail" aria-label="Dataset fields">
+            <div class="fields-rail-head">
+              <h4>Fields <span class="tag" id="fieldCountTag" style="font-size:10px;"></span></h4>
+              <input type="text" id="fieldSearchInput" placeholder="Search fields…" aria-label="Search dataset fields"/>
+            </div>
+            <div class="fields-list" id="fieldsList"></div>
+            <div class="fields-rail-foot">
+              <button class="btn btn-outline btn-sm btn-block" id="addCalcFieldBtn" type="button">ƒx Add calculated column</button>
+              <button class="btn btn-ghost btn-sm btn-block" id="dataHealthBtn" type="button">Data health</button>
+            </div>
+          </aside>
+
+          <div class="studio-center">
+
+            <div class="studio-summary-strip">
+              <p id="summaryText"></p>
+              <div class="studio-summary-actions">
+                <button class="btn btn-outline btn-sm" id="reopenSuggestionsBtn" type="button" aria-haspopup="dialog">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg>
+                  Suggestions
+                </button>
+              </div>
+            </div>
+
+            <div class="drill-breadcrumb" id="drillBreadcrumb" style="display:none;"></div>
+            <div class="studio-slicer-bar" id="slicerBar"></div>
+
+            <div class="studio-tabs" id="studioTabs" role="tablist" aria-label="Workbook views">
+              <button class="studio-tab active" id="tab-overview" role="tab" aria-selected="true" aria-controls="panel-overview" tabindex="0" data-tab="overview" type="button">Overview</button>
+              <button class="studio-tab" id="tab-data" role="tab" aria-selected="false" aria-controls="panel-data" tabindex="-1" data-tab="data" type="button">Data<span class="badge" id="dataTabBadge"></span></button>
+              <button class="studio-tab" id="tab-pivot" role="tab" aria-selected="false" aria-controls="panel-pivot" tabindex="-1" data-tab="pivot" type="button">Pivot table</button>
+              <button class="studio-tab" id="tab-hierarchy" role="tab" aria-selected="false" aria-controls="panel-hierarchy" tabindex="-1" data-tab="hierarchy" type="button">Hierarchy</button>
+            </div>
+
+            <div class="studio-tab-panel studio-print-target" id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" tabindex="0">
+              <div class="kpi-grid" id="overviewKpiGrid"></div>
+              <div class="widget-grid" id="overviewWidgetGrid"></div>
+            </div>
+
+            <div class="studio-tab-panel" id="panel-data" role="tabpanel" aria-labelledby="tab-data" tabindex="0" style="display:none;">
+              <div class="data-toolbar">
+                <div class="data-search grow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                  <input type="text" id="dataSearchInput" placeholder="Search all rows…" aria-label="Search all rows"/>
+                </div>
+                <button class="btn btn-outline btn-sm" id="columnsMenuBtn" type="button">Columns</button>
+                <button class="btn btn-outline btn-sm" id="highlightToggleBtn" type="button">Highlight numbers</button>
+                <button class="btn btn-outline btn-sm" id="addRowBtn" type="button">+ Add row</button>
+                <button class="btn btn-ghost btn-sm" id="deleteRowsBtn" type="button" style="display:none;color:var(--danger);">Delete selected</button>
+                <span class="data-count-tag" id="dataCountTag"></span>
+              </div>
+              <div class="grid-scroll"><table class="data-grid" id="dataGridTable" aria-label="Imported dataset rows"><thead id="dataGridHead"></thead><tbody id="dataGridBody"></tbody></table></div>
+              <div class="data-pagination">
+                <select id="pageSizeSelect">
+                  <option value="25">25 rows / page</option>
+                  <option value="50" selected>50 rows / page</option>
+                  <option value="100">100 rows / page</option>
+                  <option value="250">250 rows / page</option>
+                </select>
+                <div class="pager-btns">
+                  <button id="pagerFirstBtn" type="button" aria-label="First page">«</button>
+                  <button id="pagerPrevBtn" type="button" aria-label="Previous page">‹</button>
+                  <span id="pagerInfo">Page 1 of 1</span>
+                  <button id="pagerNextBtn" type="button" aria-label="Next page">›</button>
+                  <button id="pagerLastBtn" type="button" aria-label="Last page">»</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="studio-tab-panel" id="panel-pivot" role="tabpanel" aria-labelledby="tab-pivot" tabindex="0" style="display:none;">
+              <div class="pivot-wells">
+                <div class="pivot-well" id="pivotWellFilters" data-well="filters"><div class="pivot-well-title">Filters</div><div class="pivot-well-body"><p class="pivot-well-empty">Add a field from the rail (F)</p></div></div>
+                <div class="pivot-well" id="pivotWellRows" data-well="rows"><div class="pivot-well-title">Rows (nested)</div><div class="pivot-well-body"><p class="pivot-well-empty">Add a field from the rail (R)</p></div></div>
+                <div class="pivot-well" id="pivotWellColumns" data-well="columns"><div class="pivot-well-title">Columns</div><div class="pivot-well-body"><p class="pivot-well-empty">Add a field from the rail (C)</p></div></div>
+                <div class="pivot-well" id="pivotWellValues" data-well="values"><div class="pivot-well-title">Values</div><div class="pivot-well-body"><p class="pivot-well-empty">Add a field from the rail (V)</p></div></div>
+              </div>
+              <div class="studio-summary-strip" style="margin-bottom:var(--sp-3);">
+                <p id="pivotSummaryText">Build a pivot using the wells above.</p>
+                <div class="studio-summary-actions">
+                  <button class="btn btn-outline btn-sm" id="pivotExportCsvBtn" type="button">Export CSV</button>
+                  <button class="btn btn-primary btn-sm" id="pivotPinBtn" type="button">Pin to Overview</button>
+                </div>
+              </div>
+              <div class="pivot-table-wrap"><table class="pivot-table" id="pivotTable"></table></div>
+            </div>
+
+            <div class="studio-tab-panel" id="panel-hierarchy" role="tabpanel" aria-labelledby="tab-hierarchy" tabindex="0" style="display:none;">
+              <div class="hierarchy-controls">
+                <label class="visually-hidden" for="hLevel1">Level 1</label><select id="hLevel1"></select>
+                <label class="visually-hidden" for="hLevel2">Level 2</label><select id="hLevel2"></select>
+                <label class="visually-hidden" for="hLevel3">Level 3</label><select id="hLevel3"></select>
+                <span class="studio-divider-v" style="background:var(--line-strong);"></span>
+                <select id="hMetricField"></select>
+                <select id="hMetricAgg">
+                  <option value="sum">Sum</option><option value="avg">Average</option><option value="count">Count</option>
+                  <option value="min">Min</option><option value="max">Max</option><option value="countRows">Row count</option>
+                </select>
+                <button class="btn btn-outline btn-sm" id="hApplyBtn" type="button">Apply</button>
+                <button class="btn btn-primary btn-sm" id="hPinBtn" type="button" style="margin-left:auto;">Pin to Overview</button>
+              </div>
+              <div class="hierarchy-tree-wrap" id="hierarchyTreeWrap"></div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════ AI ASSISTANT (embedded SPA view) ══════════════════════ -->
+      <section class="view-panel" id="view-ai">
+        <div class="ov-head">
+          <div><h1>AI Assistant</h1><p>Local engine · runs in this tab, no network calls</p></div>
+          <div class="ov-head-actions">
+            <button class="btn btn-outline btn-sm" id="aiEmbedNewChatBtn">+ New chat</button>
+            <button class="btn btn-outline btn-sm" id="aiEmbedExportBtn">Export chat</button>
+          </div>
+        </div>
+        <div class="ai-embed-shell panel">
+          <div class="ai-embed-messages" id="aiEmbedMessages">
+            <div class="ai-embed-empty" id="aiEmbedEmpty">
+              <div class="ai-embed-empty-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M7 13l3-5 2 3 2-4 3 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <h3>What can I help you with?</h3>
+              <p>Local intelligence engine — no API key, no account, nothing leaves this tab. Paste code to debug, ask about a DashView feature, or just tell me how things are going.</p>
+              <div class="ai-embed-suggest-grid">
+                <button class="ai-embed-suggest-card" data-prompt="How does the auto-suggest engine in Data Studio decide which charts and KPIs to recommend?">How does Data Studio work?</button>
+                <button class="ai-embed-suggest-card" data-prompt="What's the safest way to roll out a risky deploy and roll it back if something breaks?">Deploys &amp; rollbacks</button>
+                <button class="ai-embed-suggest-card" data-prompt="What does the region filter and date range do on the Overview board?">What do the dashboard filters do?</button>
+                <button class="ai-embed-suggest-card" data-prompt="Honestly, I'm feeling pretty overwhelmed with everything on my plate right now.">Just need to talk something through</button>
+              </div>
+            </div>
+          </div>
+          <div class="ai-embed-composer">
+            <textarea id="aiEmbedInput" placeholder="Message DashView AI…" rows="1"></textarea>
+            <button class="btn btn-signal btn-sm" id="aiEmbedSendBtn" disabled>Send</button>
+          </div>
+          <p class="ai-embed-footnote">DashView AI · local engine · <a href="ai.html">Open full-page chat ↗</a></p>
+        </div>
+      </section>
+
+      <!-- ══════════════════════ WIDGET BUILDER ══════════════════════ -->
+      <section class="view-panel" id="view-widgets">
+        <div class="ov-head">
+          <div><h1>Widget Builder</h1><p>Compose KPI, chart and table widgets from your live Odoo data or an imported file — then share or put them on a TV.</p></div>
+          <div class="ov-head-actions dv-widget-toolbar">
+            <button class="btn btn-outline btn-sm" id="dvImportLayoutBtn" data-require-perm="importExport">⬆ Import layout</button>
+            <input type="file" id="dvImportLayoutFile" accept="application/json" style="display:none"/>
+            <button class="btn btn-outline btn-sm" id="dvExportLayoutBtn" data-require-perm="importExport">⬇ Export layout</button>
+            <button class="btn btn-outline btn-sm" id="dvShareBtn" data-require-perm="share">🔗 Share</button>
+            <button class="btn btn-outline btn-sm" id="dvTvModeBtn" data-require-perm="tvMode">📺 TV Mode</button>
+            <button class="btn btn-signal btn-sm" id="dvAddWidgetBtn" data-require-perm="editWidgets">+ Add widget</button>
+          </div>
+        </div>
+        <p class="dv-signin-banner" id="dvGuestBanner" style="display:none;">
+          <span>Browsing as <b>Guest (Viewer)</b> — widgets are read-only. <button type="button" class="dv-account-menu-item" style="display:inline;padding:2px 4px;" id="dashSignInBtn">Sign in</button> to edit.</span>
+        </p>
+        <div class="dv-widget-grid" id="dvWidgetGrid"></div>
+      </section>
+
+
+      <!-- ══════════════════════ ODOO — LIVE (real, director-scale) ══════════════════════ -->
+      <section class="view-panel" id="view-odoo-live">
+        <div class="ov-head">
+          <div>
+            <h1>Odoo Live <span class="odoo-live-status is-disconnected" id="odooLiveStatus" role="status" aria-live="polite"><span class="dot" aria-hidden="true"></span><span id="odooLiveStatusText">Not connected</span></span></h1>
+            <p id="odooLiveSub">Pick an installed app, then explore its models — insights and charts adapt to the app you choose.</p>
+          </div>
+          <div class="ov-head-actions">
+            <select class="pro-select" id="odooLiveAutoRefresh" aria-label="Auto refresh">
+              <option value="0">Auto-refresh: off</option>
+              <option value="30000">Every 30 s</option>
+              <option value="60000">Every minute</option>
+              <option value="300000">Every 5 min</option>
+            </select>
+            <button class="btn btn-outline btn-sm olx-refresh" id="odooLiveRefreshBtn" type="button">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg> Refresh
+            </button>
+          </div>
+        </div>
+        <div class="odoo-live-connect-banner" id="odooLiveConnectBanner" role="region" aria-live="polite" aria-labelledby="odooLiveConnectBannerText" hidden>
+          <p id="odooLiveConnectBannerText"></p>
+          <button class="btn btn-outline btn-sm" id="odooLiveRetryBtn" type="button" hidden>Retry connection</button>
+          <a href="#settings" class="btn btn-primary btn-sm" data-view="settings">Open Settings</a>
+        </div>
+        <div id="odooLiveCheckpoints" class="odoo-live-checkpoints"></div>
+        <div class="olx-conn" id="odooLiveConn"></div>
+        <div class="olx-shell">
+          <div class="olx-main">
+            <div class="panel olx-select-bar">
+              <div class="olx-crumb" id="odooLiveCrumb"><b>Select a module</b><span>Choose an app below</span></div>
+              <div class="olx-model olx-module">
+                <label for="odooLiveModuleSelect">Module</label>
+                <select class="pro-select" id="odooLiveModuleSelect" disabled><option value="">Connect Odoo…</option></select>
+                <small id="odooLiveModCount"></small>
+              </div>
+              <div class="olx-model">
+                <label for="odooLiveModelSelect">Model</label>
+                <select class="pro-select" id="odooLiveModelSelect" disabled><option value="">Select a module first</option></select>
+                <small id="odooLiveModelCount"></small>
+              </div>
+              <div class="seg" id="odooLiveTabs" role="tablist" aria-label="Odoo data views">
+                <button id="odooLiveExecTab" type="button" role="tab" aria-controls="odooLiveExec" aria-selected="true" tabindex="0" data-tab="executive" class="active">Executive</button>
+                <button id="odooLiveInsightsTab" type="button" role="tab" aria-controls="odooLiveInsights" aria-selected="false" tabindex="-1" data-tab="insights">Insights &amp; reports</button>
+                <button id="odooLiveRecordsTab" type="button" role="tab" aria-controls="odooLiveRecords" aria-selected="false" tabindex="-1" data-tab="records">Data browser</button>
+              </div>
+            </div>
+            <div id="odooLiveExec" role="tabpanel" aria-labelledby="odooLiveExecTab"></div>
+            <div id="odooLiveInsights" role="tabpanel" aria-labelledby="odooLiveInsightsTab" hidden>
+              <div class="olx-kpis" id="odooLiveKpis"></div>
+              <div class="olx-charts" id="odooLiveCharts"></div>
+              <div class="panel olx-builder">
+                <div class="olx-builder-bar">
+                  <h3>Build your own chart</h3>
+                  <select class="pro-select" id="odooLiveGroupBy" aria-label="Group by"><option value="">Group by…</option></select>
+                  <select class="pro-select" id="odooLiveMeasure" aria-label="Measure"><option value="__count">Count records</option></select>
+                  <select class="pro-select" id="odooLiveChartType" aria-label="Chart type">
+                    <option value="bar">Bar</option><option value="hbar">Horizontal bar</option><option value="doughnut">Doughnut</option><option value="line">Line</option>
+                  </select>
+                </div>
+                <div id="odooLiveBuilderBody"><div class="olx-empty-s">Pick a module to start.</div></div>
+              </div>
+            </div>
+            <div id="odooLiveRecords" role="tabpanel" aria-labelledby="odooLiveRecordsTab" hidden>
+              <div class="panel">
+                <div class="odoo-live-filterbar">
+                  <select class="pro-select" id="odooLiveFilterField" aria-label="Filter field"><option value="">Filter field…</option></select>
+                  <input type="text" class="pro-select" id="odooLiveFilterValue" aria-label="Filter value" placeholder="contains…" style="width:160px" disabled/>
+                  <button class="btn btn-outline btn-sm" id="odooLiveAddFilterBtn" type="button" disabled>+ Add filter</button>
+                  <div class="odoo-live-pop-wrap">
+                    <button class="btn btn-outline btn-sm" id="odooLiveColumnsBtn" type="button" aria-controls="odooLiveColumnsPop" aria-expanded="false" disabled title="Choose which fields to show">Columns</button>
+                    <div class="odoo-live-pop" id="odooLiveColumnsPop" aria-label="Choose visible columns" hidden>
+                      <div class="odoo-live-pop-head">Show fields<span>Custom column set, saved per model</span></div>
+                      <div class="odoo-live-pop-list" id="odooLiveColumnsList"></div>
+                      <div class="odoo-live-pop-foot"><button class="btn btn-ghost btn-sm" id="odooLiveColumnsReset" type="button">Reset to default</button></div>
+                    </div>
+                  </div>
+                  <div class="odoo-live-pop-wrap">
+                    <button class="btn btn-outline btn-sm" id="odooLiveViewsBtn" type="button" aria-controls="odooLiveViewsPop" aria-expanded="false" disabled title="Save or recall a filtered view">Views</button>
+                    <div class="odoo-live-pop odoo-live-pop--wide" id="odooLiveViewsPop" aria-label="Saved data views" hidden>
+                      <div class="odoo-live-pop-head">Saved views<span>Model &amp; filters — recalled in one click</span></div>
+                      <div class="odoo-live-pop-list" id="odooLiveViewsList"></div>
+                      <div class="odoo-live-pop-foot odoo-live-pop-foot--save">
+                        <input type="text" id="odooLiveViewName" placeholder="Name this view…" maxlength="40"/>
+                        <button class="btn btn-primary btn-sm" id="odooLiveViewSaveBtn" type="button">Save current</button>
+                      </div>
+                    </div>
+                  </div>
+                  <button class="btn btn-outline btn-sm" id="odooLiveExportBtn" type="button" disabled title="Download this page as CSV">Export CSV</button>
+                  <div class="data-search dv-odoo-search" style="margin-left:auto;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                    <input type="search" placeholder="Quick search…" id="odooLiveQuickSearch" aria-label="Search visible records" disabled/>
+                  </div>
+                </div>
+                <div class="odoo-live-chips" id="odooLiveChips"></div>
+                <div class="table-wrap" tabindex="0" aria-label="Scrollable Odoo records"><table class="dash-table" id="odooLiveTable" aria-label="Odoo records"><thead></thead><tbody></tbody></table></div>
+                <div class="odoo-live-pagination">
+                  <span class="p-info" id="odooLivePageInfo">–</span>
+                  <div class="p-btns">
+                    <button class="btn btn-outline btn-sm" id="odooLivePrevBtn" type="button" aria-label="Previous records page" disabled>← Prev</button>
+                    <button class="btn btn-outline btn-sm" id="odooLiveNextBtn" type="button" aria-label="Next records page" disabled>Next →</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ══════════════════════ TASK ASSIGNMENTS ══════════════════════ -->
+      <section class="view-panel" id="view-task-assignments">
+        <div class="ov-head">
+          <div>
+            <h1>Task assignments</h1>
+            <p>Live Odoo project tasks with separately stored local tasks</p>
+          </div>
+          <div class="ov-head-actions">
+            <div class="seg" id="tkSource" role="group" aria-label="Task data source">
+              <button type="button" class="active" data-source="odoo">Odoo</button>
+              <button type="button" data-source="local">Local tasks</button>
+            </div>
+            <div class="seg" id="tkMode" role="group" aria-label="View">
+              <button type="button" class="active" data-mode="people">By employee</button>
+              <button type="button" data-mode="table">All tasks</button>
+            </div>
+            <button class="btn btn-outline btn-sm" id="tkExport" type="button">Export CSV</button>
+            <button class="btn btn-primary btn-sm" id="tkAdd" type="button">+ Assign task</button>
+          </div>
+        </div>
+        <div class="tk-stats" id="tkStats"></div>
+        <div class="tk-filters">
+          <div class="data-search"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input type="text" id="tkSearch" placeholder="Search tasks or people…"/></div>
+          <select class="pro-select" id="tkEmp" aria-label="Employee"><option value="">All employees</option></select>
+          <select class="pro-select" id="tkStatus" aria-label="Stage"><option value="">All stages</option></select>
+          <select class="pro-select" id="tkPriority" aria-label="Priority"><option value="">All priorities</option><option value="urgent">Urgent</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+        </div>
+        <p class="tk-source-info" id="tkSourceInfo" role="status" aria-live="polite"></p>
+        <div id="tkBody"></div>
+        <div class="tk-page" id="tkPage" hidden>
+          <span id="tkPageInfo"></span>
+          <div><button class="btn btn-outline btn-sm" id="tkPrev" type="button">← Previous</button> <button class="btn btn-outline btn-sm" id="tkNext" type="button">Next →</button></div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════ TEAM ══════════════════════ -->
+      <section class="view-panel" id="view-team">
+        <div class="ov-head">
+          <div><h1>Team</h1><p id="teamSubhead">Team directory</p></div>
+          <div class="ov-head-actions">
+            <input type="file" id="teamImportFile" accept=".json" style="display:none"/>
+            <button class="btn btn-outline btn-sm" id="teamImportBtn" data-require-perm="importExport" title="Import team from a JSON backup">Import</button>
+            <div class="export-menu-wrap">
+              <button class="btn btn-outline btn-sm" id="teamExportBtn">
+                Export <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:2px"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <div class="export-menu" id="teamExportMenu">
+                <button data-export="json" data-require-perm="importExport">JSON (full backup)</button>
+                <button data-export="xlsx" data-require-perm="importExport">Excel workbook (.xlsx)</button>
+                <button data-export="pdf" data-require-perm="importExport">Designed PDF report</button>
+              </div>
+            </div>
+            <button class="btn btn-signal btn-sm" id="inviteTeamBtn" data-require-perm="manageTeam">+ Invite member</button>
+          </div>
+        </div>
+        <p class="team-source-note" id="teamSourceNote" role="status" aria-live="polite"></p>
+        <div class="team-grid" id="teamGrid"></div>
+      </section>
+
+      <!-- ══════════════════════ REPORTS ══════════════════════ -->
+      <section class="view-panel" id="view-reports">
+        <div class="ov-head">
+          <div>
+            <p class="eyebrow reports-eyebrow">Business reporting</p>
+            <h1>Reports</h1>
+            <p>On-demand exports from your connected workspace and Data Studio.</p>
+          </div>
+          <div class="ov-head-actions">
+            <button class="btn btn-signal btn-sm" id="newReportBtn">+ New report</button>
+          </div>
+        </div>
+        <div class="reports-context" aria-label="Report generation guidance">
+          <span class="reports-context-mark" aria-hidden="true">i</span>
+          <p><strong>Prepared for decisions.</strong> Every generated report records its date, company and filters. Data Studio reports also retain the selected fields.</p>
+        </div>
+        <div class="reports-grid" id="reportsGrid"></div>
+      </section>
+
+      <!-- ══════════════════════ AUDIT LOG ══════════════════════ -->
+      <section class="view-panel" id="view-audit-log">
+        <div class="ov-head">
+          <div>
+            <h1>Audit log <span class="odoo-live-status" id="auditStatus"><span class="dot"></span><span id="auditStatusText" aria-live="polite">Not connected</span></span></h1>
+            <p id="auditSub">Live from your Odoo</p>
+          </div>
+          <div class="ov-head-actions">
+            <button class="btn btn-outline btn-sm" id="auditRefresh" type="button">Refresh</button>
+            <button class="btn btn-outline btn-sm" id="exportAuditBtn" type="button">Export CSV</button>
+          </div>
+        </div>
+        <div class="odoo-live-connect-banner" id="auditBanner" hidden>
+          <p id="auditBannerText"></p>
+          <a href="#settings" class="btn btn-primary btn-sm" data-view="settings">Open Settings</a>
+        </div>
+        <div class="panel">
+          <div class="audit-toolbar">
+            <div class="seg" id="auditTabs" role="group" aria-label="Log source">
+              <button type="button" class="active" data-src="activity">Odoo activity</button>
+              <button type="button" data-src="signins">Sign-ins</button>
+              <button type="button" data-src="local">Workspace security</button>
+            </div>
+            <div class="data-search"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input type="text" id="auditSearch" maxlength="120" placeholder="Search user, record or subject…"/></div>
+            <select class="pro-select" id="auditPeriod" aria-label="Period">
+              <option value="1">Last 24 hours</option><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last 365 days (maximum)</option>
+            </select>
+            <span id="auditTypeWrap"><select class="pro-select" id="auditType" aria-label="Message type"><option value="">All types</option><option value="comment">Messages</option><option value="notification">System &amp; tracked changes</option><option value="email">Emails</option></select></span>
+          </div>
+          <p class="audit-note" id="auditNote"></p>
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Record</th><th>Details</th><th>Type</th></tr></thead>
+              <tbody id="auditBody" aria-live="polite" aria-relevant="all"></tbody>
+            </table>
+          </div>
+          <div class="audit-pager">
+            <span id="auditPageInfo" aria-live="polite" aria-atomic="true">–</span>
+            <div class="p-btns"><button class="btn btn-outline btn-sm" id="auditPrev" disabled>← Prev</button> <button class="btn btn-outline btn-sm" id="auditNext" disabled>Next →</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════ SETTINGS ══════════════════════ -->
+      <section class="view-panel" id="view-settings">
+        <div class="ov-head">
+          <div>
+            <h1>Settings</h1>
+            <p>Workspace preferences, integrations and data management</p>
+          </div>
+        </div>
+
+        <!-- ── Two-column settings shell ── -->
+        <div class="stg-shell">
+
+          <!-- Left rail nav -->
+          <nav class="stg-rail" aria-label="Settings sections">
+            <p class="stg-rail-label">Workspace</p>
+            <button type="button" class="stg-tab" data-stg="profile">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+              <span>Profile</span>
+            </button>
+            <button type="button" class="stg-tab active" data-stg="appearance">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+              <span>Appearance</span>
+            </button>
+            <div class="stg-rail-divider"></div>
+            <p class="stg-rail-label">Integrations</p>
+            <button type="button" class="stg-tab" data-stg="odoo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3A5 5 0 0 0 13.5 3.5L11.7 5.3"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3A5 5 0 0 0 10.5 20.5l1.8-1.8"/></svg>
+              <span>Odoo</span>
+              <span class="stg-tab-status" id="stgTabOdooStatus"></span>
+            </button>
+            <button type="button" class="stg-tab" data-stg="ai">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-8 12h6l-1 8 8-12h-6l1-8z"/></svg>
+              <span>AI Assistant</span>
+              <span class="stg-tab-status" id="stgTabAiStatus"></span>
+            </button>
+            <div class="stg-rail-divider"></div>
+            <p class="stg-rail-label">Data</p>
+            <button type="button" class="stg-tab" data-stg="data">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+              <span>Data &amp; backup</span>
+              <span class="stg-tab-status" id="stgTabDataStatus"></span>
+            </button>
+            <div class="stg-rail-divider"></div>
+            <p class="stg-rail-label">Protection</p>
+            <button type="button" class="stg-tab" data-stg="security">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z"/><path d="m9 12 2 2 4-4"/></svg>
+              <span>Security</span>
+              <span class="stg-tab-status" id="stgTabSecStatus"></span>
+            </button>
+            <div class="stg-rail-divider"></div>
+            <p class="stg-rail-label">Support</p>
+            <button type="button" class="stg-tab" data-stg="help">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9a2.5 2.5 0 1 1 4.3 1.8c-1.1 1.1-1.9 1.3-1.9 3"/><path d="M12 17h.01"/></svg>
+              <span>Help &amp; manual</span>
+            </button>
+          </nav>
+
+          <!-- Right content -->
+          <div class="stg-content">
+
+            <!-- ── Profile panel ── -->
+            <div class="stg-panel" id="stg-profile">
+              <div class="stg-card">
+                <div class="stg-card-head">
+                  <div class="stg-card-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                  </div>
+                  <div class="stg-card-head-text">
+                    <h3>Workspace profile</h3>
+                    <p>Your workspace identity and how it appears across the dashboard</p>
+                  </div>
+                  <div class="stg-card-head-right">
+                    <span class="tag">acme-corp</span>
+                  </div>
+                </div>
+                <div class="stg-card-body">
+                  <div class="stg-field-grid">
+                    <div class="stg-field">
+                      <label>Workspace name</label>
+                      <input type="text" class="stg-input" id="setWorkspaceName" value="acme-corp" placeholder="your-company"/>
+                      <span class="stg-field-help">Shown in the sidebar and exported reports.</span>
+                    </div>
+                    <div class="stg-field">
+                      <label>Display name</label>
+                      <input type="text" class="stg-input" id="setDisplayName" value="Amara Khan" placeholder="Your Name"/>
+                      <span class="stg-field-help">Appears in the user block and activity feed.</span>
+                    </div>
+                  </div>
+                  <div class="stg-action-row">
+                    <button class="btn btn-signal btn-sm" id="saveProfileBtn">Save profile</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ── Account & login mode ── -->
+              <div class="stg-card">
+                <div class="stg-card-head">
+                  <div class="stg-card-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  </div>
+                  <div class="stg-card-head-text">
+                    <h3>Account &amp; login</h3>
+                    <p>Choose how sign-in works for this dashboard</p>
+                  </div>
+                  <div class="stg-card-head-right">
+                    <span class="stg-status-pill" id="dvAccountsModeTag">Simple (built-in)</span>
+                  </div>
+                </div>
+                <div class="stg-card-body">
+                  <label class="stg-field" style="flex-direction:row;align-items:center;gap:var(--sp-2);max-width:none;">
+                    <input type="checkbox" id="dvAccountsBackendToggle" style="width:16px;height:16px;"/>
+                    <span>Use the DashView accounts backend (organization sign-up, roles, multiple users)</span>
+                  </label>
+                  <span class="stg-field-help">
+                    Off (default): sign in with the built-in admin account — email <code>admin@workspace.local</code>, password <code>admin123</code> (change it in <code>js/auth-service.js</code> → <code>SIMPLE_USER</code>). No Cloudflare D1 or wrangler setup needed — just upload the files and deploy the Worker.<br/>
+                    On: real sign-up/sign-in against your deployed DashView API. Requires <code>wrangler d1 create</code>, running the migration, and setting the <code>JWT_SECRET</code>/<code>ODOO_ENC_KEY</code> secrets (see <code>worker-src/README.md</code>).
+                  </span>
+                  <div class="stg-action-row">
+                    <button class="btn btn-signal btn-sm" id="dvAccountsModeSave">Save</button>
+                    <button class="btn btn-sm" type="button" id="dvAccountsOpenSignIn">Sign in</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── Appearance panel ── -->
+            <div class="stg-panel active" id="stg-appearance">
+              <div class="stg-card">
+                <div class="stg-card-head">
+                  <div class="stg-card-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                  </div>
+                  <div class="stg-card-head-text">
+                    <h3>Appearance &amp; preferences</h3>
+                    <p>Configure your workspace look and dashboard behaviour here. Changes are saved immediately.</p>
+                  </div>
+                </div>
+                <div class="stg-card-body">
+                  <div class="stg-field-grid">
+                    <div class="stg-field">
+                      <label for="setThemeSelect">Colour theme</label>
+                      <select class="stg-input" id="setThemeSelect">
+                        <option value="system">Follow device</option>
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                      </select>
+                      <span class="stg-field-help">Theme and Liquid Glass surface are independent.</span>
+                    </div>
+                    <div class="stg-field">
+                      <label for="setAccentSelect">Accent colour</label>
+                      <select class="stg-input" id="setAccentSelect">
+                        <option value="amber">Amber</option>
+                        <option value="teal">Teal</option>
+                        <option value="blue">Blue</option>
+                        <option value="violet">Violet</option>
+                        <option value="rose">Rose</option>
+                      </select>
+                      <span class="stg-field-help">Used for highlights and chart accents.</span>
+                    </div>
+                  </div>
+
+                  <div class="apr-row no-border" style="padding-bottom:4px;">
+                    <div class="apr-txt"><b>Surface material</b><span>Apply the frosted-glass effect without changing your light or dark colours.</span></div>
+                  </div>
+                  <div class="surface-opts" id="surfaceStyleOpts" role="radiogroup" aria-label="Surface material">
+                    <button type="button" class="surface-opt" data-surface="flat" role="radio" aria-checked="false"><div class="surface-swatch flat" aria-hidden="true"></div><b>Standard</b><span>Clear solid surfaces.</span></button>
+                    <button type="button" class="surface-opt" data-surface="glass" role="radio" aria-checked="false"><div class="surface-swatch glass" aria-hidden="true"><i></i><i></i><i></i></div><b>Liquid Glass</b><span>Soft blur and subtle depth.</span></button>
+                  </div>
+
+                  <div class="stg-card-subhead"><h4>Accessibility</h4><p>Reduce motion to limit interface and chart animation.</p></div>
+                  <div class="stg-field-grid">
+                    <div class="stg-field">
+                      <label for="setMotionSelect">Motion preference</label>
+                      <select class="stg-input" id="setMotionSelect">
+                        <option value="system">Follow device</option>
+                        <option value="reduce">Reduce motion</option>
+                        <option value="full">Full motion</option>
+                      </select>
+                    </div>
+                    <div class="stg-field">
+                      <label for="setDensitySelect">Dashboard density</label>
+                      <select class="stg-input" id="setDensitySelect">
+                        <option value="comfortable">Comfortable</option>
+                        <option value="compact">Compact</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="stg-card-subhead"><h4>Dashboard defaults</h4><p>Choose how the dashboard looks and where it opens.</p></div>
+                  <div class="stg-field-grid">
+                    <div class="stg-field">
+                      <label for="setChartAnimSelect">Chart animations</label>
+                      <select class="stg-input" id="setChartAnimSelect">
+                        <option value="on">On</option><option value="off">Off</option>
+                      </select>
+                    </div>
+                    <div class="stg-field">
+                      <label for="setChartLabelsSelect">Bar chart value labels</label>
+                      <select class="stg-input" id="setChartLabelsSelect">
+                        <option value="on">Show when available</option><option value="off">Hide</option>
+                      </select>
+                    </div>
+                    <div class="stg-field">
+                      <label for="setLandingSelect">Default landing page</label>
+                      <select class="stg-input" id="setLandingSelect">
+                        <option value="overview">Overview</option><option value="studio">Data Studio</option><option value="ai">AI Assistant</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- ── Odoo panel ── -->
+            <div class="stg-panel" id="stg-odoo">
+
+              <!-- Status card -->
+              <div class="stg-card">
+                <div class="stg-card-head">
+                  <div class="stg-card-icon" style="background:rgba(232,163,61,0.12);color:var(--signal);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3A5 5 0 0 0 13.5 3.5L11.7 5.3"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3A5 5 0 0 0 10.5 20.5l1.8-1.8"/></svg>
+                  </div>
+                  <div class="stg-card-head-text">
+                    <h3>Odoo integration</h3>
+                    <p>Connect to any Odoo instance — Cloud, Odoo.sh, or self-hosted — for live data</p>
+                  </div>
+                  <div class="stg-card-head-right">
+                    <span class="stg-status-pill" id="odooStatusTag" role="status" aria-live="polite">Not connected</span>
+                  </div>
+                </div>
+                <div class="stg-card-body">
+                  <!-- Connection meta (shown when connected) -->
+                  <div class="stg-conn-meta" id="odooConnMeta" hidden>
+                    <div class="stg-conn-meta-item"><span>Instance</span><span id="odooMetaUrl">—</span></div>
+                    <div class="stg-conn-meta-item"><span>Database</span><span id="odooMetaDb">—</span></div>
+                    <div class="stg-conn-meta-item"><span>Signed in as</span><span id="odooMetaUser">—</span></div>
+                    <div class="stg-conn-meta-item"><span>Last tested</span><span id="odooMetaTested">—</span></div>
+                  </div>
+
+                  <!-- Credential fields -->
+                  <div class="stg-field-grid odoo-field-grid">
+                    <div class="stg-field">
+                      <label for="odooUrl">Odoo URL</label>
+                      <input type="url" class="stg-input" id="odooUrl" autocomplete="url" placeholder="https://yourcompany.odoo.com" aria-describedby="odooUrlHelp"/>
+                      <span class="stg-field-help" id="odooUrlHelp">Use the HTTPS site root, without a database or app path.</span>
+                    </div>
+                    <div class="stg-field">
+                      <label for="odooDb">Database</label>
+                      <input type="text" class="stg-input" id="odooDb" autocomplete="off" placeholder="yourcompany-live" aria-describedby="odooDbHelp"/>
+                      <span class="stg-field-help" id="odooDbHelp">Odoo Online: usually your instance name; otherwise use the exact database name.</span>
+                    </div>
+                    <div class="stg-field">
+                      <label for="odooUser">Username / email</label>
+                      <input type="text" class="stg-input" id="odooUser" autocomplete="username" placeholder="you@yourcompany.com"/>
+                    </div>
+                    <div class="stg-field">
+                      <label for="odooKey">API key <em>(not your password)</em></label>
+                      <input type="password" class="stg-input" id="odooKey" autocomplete="new-password" placeholder="Odoo API key" aria-describedby="odooKeyHelp"/>
+                      <span class="stg-field-help" id="odooKeyHelp">Odoo → Settings → Users → your account → Account Security → New API Key. Leave blank to retain a previously saved key.</span>
+                    </div>
+                    <div class="stg-field span-2">
+                      <label for="odooProxyUrl">Read-only Worker URL &nbsp;<span class="stg-badge-free">Cloudflare Worker</span></label>
+                      <input type="url" class="stg-input" id="odooProxyUrl" autocomplete="url" placeholder="https://dashview-proxy.YOUR-NAME.workers.dev" aria-describedby="odooProxyHelp"/>
+                      <span class="stg-field-help" id="odooProxyHelp">Optional when signed in to DashView. Deploy <code>cloudflare-worker.js</code> and paste its HTTPS <code>.workers.dev</code> URL to use the Odoo Live explorer's read-only Worker path. Task assignments and Team data use authenticated DashView Node API methods, never Worker writes.</span>
+                    </div>
+                  </div>
+
+                  <!-- Security note -->
+                  <div class="stg-security-note">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                    <span>Credentials are saved in this browser and sent over HTTPS to the configured Odoo proxy for Odoo Live reads. Task assignments and Team use the authenticated DashView Node API; task writes are limited to allowlisted <code>project.task</code> fields and require an Owner/Admin session. No task write goes through the Worker or directly from the browser to Odoo. A passcode encrypts the saved key at rest.</span>
+                  </div>
+
+                  <!-- Checkpoints -->
+                  <div id="odooSettingsCheckpoints" class="stg-checkpoints-wrap"></div>
+                  <div id="odooActionFeedback" class="odoo-action-feedback" role="status" aria-live="polite" aria-atomic="true" hidden></div>
+
+                  <div class="stg-action-row">
+                    <button class="btn btn-signal btn-sm" id="odooConnectBtn" type="button" data-require-perm="manageOdoo">Connect to Odoo</button>
+                    <button class="btn btn-outline btn-sm" id="odooTestBtn" type="button">Test current settings</button>
+                    <button class="btn btn-outline btn-sm" id="odooDisconnectBtn" type="button" hidden style="color:var(--danger);border-color:var(--danger-10);">Disconnect</button>
+                    <a href="#odoo-live" class="btn btn-outline btn-sm" data-view="odoo-live" style="margin-left:auto;">Browse live data →</a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Setup steps card -->
+              <div class="stg-card">
+                <div class="stg-card-head">
+                  <div class="stg-card-icon" style="background:var(--paper-soft);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22C6.5 22 2 17.5 2 12S6.5 2 12 2s10 4.5 10 10-4.5 10-10 10z"/><path d="M12 8v4l3 3"/></svg>
+                  </div>
+                  <div class="stg-card-head-text">
+                    <h3>3-step setup</h3>
+                    <p>Takes about 5 minutes — no servers, no code</p>
+                  </div>
+                </div>
+                <div class="stg-card-body">
+                  <div class="stg-steps">
+                    <div class="stg-step">
+                      <span class="stg-step-num">1</span>
+                      <div class="stg-step-body">
+                        <b>Create an Odoo API key</b>
+                        <p>In Odoo: <strong>Settings → Users → your account → Account Security → New API Key</strong>. Use this key here — not your login password.</p>
+                      </div>
+                    </div>
+                    <div class="stg-step">
+                      <span class="stg-step-num">2</span>
+                      <div class="stg-step-body">
+                        <b>Deploy the Cloudflare Worker (free, 2 min)</b>
+                        <p>Go to <a href="https://workers.cloudflare.com" target="_blank" rel="noopener">workers.cloudflare.com</a> → free account (no credit card) → Create Worker → paste the full contents of <code>cloudflare-worker.js</code> → Deploy → copy the Worker URL (e.g. <code>https://dashview-proxy.yourname.workers.dev</code>).</p>
+                      </div>
+                    </div>
+                    <div class="stg-step">
+                      <span class="stg-step-num">3</span>
+                      <div class="stg-step-body">
+                        <b>Fill the fields above and connect</b>
+                        <p>Enter your Odoo URL, database, username and API key; sign in to DashView to use its authenticated Node API, or add the read-only Worker URL for the Odoo Live explorer → click <strong>Connect to Odoo</strong>. Task assignments and Team use authenticated Node API reads and task writes.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── AI Assistant panel ── -->
+            <div class="stg-panel" id="stg-ai">
+              <div class="stg-card">
+                <div class="stg-card-head">
+                  <div class="stg-card-icon" style="background:rgba(139,92,246,0.12);color:#8b5cf6;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-8 12h6l-1 8 8-12h-6l1-8z"/></svg>
+                  </div>
+                  <div class="stg-card-head-text">
+                    <h3>AI Assistant</h3>
+                    <p>Connect a live AI model, or keep the free offline demo engine</p>
+                  </div>
+                  <div class="stg-card-head-right"><span class="stg-status-pill" id="aiKeyStatusTag">Offline demo engine</span></div>
+                </div>
+                <div class="stg-card-body">
+                  <div class="stg-field-grid">
+                    <div class="stg-field">
+                      <label>Provider</label>
+                      <select class="stg-input" id="aiProviderSelect">
+                        <option value="offline">Offline demo engine (no key needed)</option>
+                        <option value="dashview">DashView AI — Python backend + Odoo (recommended)</option>
+                        <option value="grok">Grok (xAI)</option>
+                        <option value="anthropic">Claude (Anthropic)</option>
+                        <option value="groq">Groq</option>
+                      </select>
+                      <span class="stg-field-help">Offline mode runs entirely in your browser — nothing sent anywhere.</span>
+                    </div>
+                    <div class="stg-field" id="aiModelField">
+                      <label>Model</label>
+                      <select class="stg-input" id="aiModelSelect"></select>
+                    </div>
+                    <div class="stg-field span-2" id="aiBackendField" style="display:none">
+                      <label>AI backend URL</label>
+                      <input type="text" class="stg-input" id="aiBackendUrlInput" placeholder="https://ai.yourcompany.com"/>
+                      <span class="stg-field-help">Where you deployed <code>ai-service/</code>. Model: auto picks fast/smart by question; deep is opt-in.</span>
+                    </div>
+                    <div class="stg-field span-2" id="aiKeyField">
+                      <label>API key</label>
+                      <input type="password" class="stg-input" id="aiApiKeyInput" placeholder="Paste your API key"/>
+                      <span class="stg-field-help" id="aiKeyHelp"></span>
+                    </div>
+                    <div class="stg-field span-2">
+                      <label>Custom system prompt <em>(optional)</em></label>
+                      <input type="text" class="stg-input" id="aiSystemPromptInput" placeholder="e.g. Answer briefly and always mention units in PKR"/>
+                    </div>
+                  </div>
+
+                  <label class="sec-toggle" style="margin-top:4px;">
+                    <input type="checkbox" id="aiIncludeContextToggle" checked/>
+                    <span><b>Give it context from your Dashboard and Odoo</b><small>Lets the assistant see your tracked projects and a live snapshot of Odoo sales orders, products, customers and CRM leads, so it can actually answer questions about your company instead of guessing.</small></span>
+                  </label>
+
+                  <div class="stg-security-note">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                    <span>Your key is saved <b>only in this browser's local storage</b> and sent directly from your browser to the provider you pick, on every message. Don't use a key you're not comfortable exposing on this device.</span>
+                  </div>
+
+                  <div class="stg-action-row">
+                    <button class="btn btn-signal btn-sm" id="aiSaveBtn">Save</button>
+                    <a href="ai.html" class="btn btn-outline btn-sm">Open AI Assistant</a>
+                    <span class="stg-field-help" id="aiSaveStatus" style="margin-left:auto;"></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="stg-card">
+                <div class="stg-card-head">
+                  <div class="stg-card-icon" style="background:rgba(232,163,61,0.12);color:var(--signal);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3A5 5 0 0 0 13.5 3.5L11.7 5.3"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3A5 5 0 0 0 10.5 20.5l1.8-1.8"/></svg>
+                  </div>
+                  <div class="stg-card-head-text"><h3>Connect AI to Odoo</h3><p>Decide whether the assistant can see your live Odoo data — separate from the AI provider's API key above</p></div>
+                  <div class="stg-card-head-right"><span class="stg-status-pill" id="aiOdooConnectTag">Connected</span></div>
+                </div>
+                <div class="stg-card-body">
+                  <div class="apr-row">
+                    <div class="apr-txt"><b>Connect to Odoo data</b><span>Off keeps the assistant fully general-purpose — no company data leaves the browser.</span></div>
+                    <div class="pro-seg" id="aiOdooConnectSeg" role="radiogroup" aria-label="Connect AI to Odoo">
+                      <button type="button" data-val="on">On</button>
+                      <button type="button" data-val="off">Off</button>
+                    </div>
+                  </div>
+                  <div class="apr-row no-border">
+                    <div class="apr-txt"><b>Data it can read</b><span>Only ticked areas are included in context — untick anything sensitive.</span></div>
+                  </div>
+                  <div class="scope-grid" id="aiScopeGrid">
+                    <label class="scope-item"><input type="checkbox" data-scope="sales" checked/>Sales orders</label>
+                    <label class="scope-item"><input type="checkbox" data-scope="products" checked/>Products &amp; inventory</label>
+                    <label class="scope-item"><input type="checkbox" data-scope="crm" checked/>Customers &amp; CRM leads</label>
+                    <label class="scope-item"><input type="checkbox" data-scope="payroll"/>Payroll &amp; contracts</label>
+                    <label class="scope-item"><input type="checkbox" data-scope="projects" checked/>Projects &amp; tasks</label>
+                    <label class="scope-item"><input type="checkbox" data-scope="hr"/>HR / employee records</label>
+                  </div>
+                  <div class="stg-security-note" style="margin-top:14px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                    <span>Reads only — the assistant queries Odoo the same read-only way as Odoo Live. It never creates, edits or deletes records.</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="stg-card">
+                <div class="stg-card-head">
+                  <div class="stg-card-icon" style="background:rgba(91,143,174,0.12);color:#5b8fae;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+                  </div>
+                  <div class="stg-card-head-text"><h3>Response behaviour</h3><p>Fine-tune how the assistant answers, for a more consistent, professional output</p></div>
+                </div>
+                <div class="stg-card-body">
+                  <div class="stg-field-grid">
+                    <div class="stg-field"><label>Answer length</label>
+                      <select class="stg-input" id="aiBehaviorLength"><option value="brief">Brief</option><option value="standard" selected>Standard</option><option value="detailed">Detailed / item-by-item</option></select></div>
+                    <div class="stg-field"><label>Tone</label>
+                      <select class="stg-input" id="aiBehaviorTone"><option value="professional" selected>Professional</option><option value="casual">Casual</option><option value="executive">Executive summary</option></select></div>
+                    <div class="stg-field"><label>Number format</label>
+                      <select class="stg-input" id="aiBehaviorNumbers"><option value="pkr" selected>PKR, thousands separator</option><option value="plain">Plain numbers</option></select></div>
+                    <div class="stg-field"><label>Monthly usage cap</label>
+                      <select class="stg-input" id="aiBehaviorCap"><option value="0">Unlimited</option><option value="500" selected>~500 messages</option><option value="2000">~2,000 messages</option></select>
+                      <span class="stg-field-help">Soft guardrail against runaway API spend on paid providers.</span></div>
+                  </div>
+                  <label class="sec-toggle"><input type="checkbox" id="aiBehaviorInsights" checked/>
+                    <span><b>Include key insights &amp; visual summaries</b><small>Answers add a short "what this means" takeaway and, where useful, a chart alongside the data.</small></span></label>
+                  <div class="stg-action-row" style="margin-top:14px;">
+                    <button class="btn btn-signal btn-sm" id="aiBehaviorSaveBtn" type="button">Save behaviour</button>
+                    <span class="stg-field-help" id="aiBehaviorSaveStatus" style="margin-left:auto;"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── Data & backup panel ── -->
+            <div class="stg-panel" id="stg-data">
+              <div class="stg-card">
+                <div class="stg-card-head">
+                  <div class="stg-card-icon" style="background:rgba(45,166,178,0.12);color:#2da6b2;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                  </div>
+                  <div class="stg-card-head-text">
+                    <h3>Data &amp; backup</h3>
+                    <p>Workspace files and preferences stay in this browser — export to keep them safe</p>
+                  </div>
+                  <div class="stg-card-head-right"><span class="tag" id="storageUsageTag">—</span></div>
+                </div>
+                <div class="stg-card-body">
+                  <div class="stg-storage-bar-wrap">
+                    <div class="stg-storage-bar-row">
+                      <span>Browser local storage</span>
+                      <span id="storageBarLabel">Calculating…</span>
+                    </div>
+                    <div class="stg-storage-bar-track"><div class="stg-storage-bar-fill" id="storageBarFill"></div></div>
+                  </div>
+                  <ul class="stg-info-list">
+                    <li><span><b>Auto-save</b> — every change in Data Studio and Settings saves instantly. No Save button needed day-to-day.</span></li>
+                    <li><span><b>Backup file</b> — export workspace data and settings to one JSON file; secrets remain excluded by default.</span></li>
+                    <li><span><b>Per-browser scope</b> — data does not sync across browsers automatically; export/import is how you move it.</span></li>
+                    <li><span><b>Connect Odoo</b> — use the Odoo integration to keep orders and products in a real database rather than browser storage.</span></li>
+                  </ul>
+                  <div class="stg-action-row">
+                    <button class="btn btn-outline btn-sm" id="exportBackupBtn">Export backup (.json)</button>
+                    <button class="btn btn-outline btn-sm" id="importBackupBtn">Import backup</button>
+                    <input type="file" id="importBackupFile" accept="application/json" style="display:none"/>
+                    <button class="btn btn-outline btn-sm" id="resetSettingsBtn" type="button">Reset preferences</button>
+                    <button class="btn btn-outline btn-sm" id="clearLocalBtn" style="color:var(--danger);border-color:var(--danger-10);margin-left:auto;">Clear local data</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="stg-card">
+                <div class="stg-card-head">
+                  <div class="stg-card-icon" style="background:rgba(79,180,119,0.12);color:#4fb477;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z"/><path d="m9 12 2 2 4-4"/></svg>
+                  </div>
+                  <div class="stg-card-head-text"><h3>Security &amp; version updates</h3><p>What's running, and whether backups are safe to restore</p></div>
+                  <div class="stg-card-head-right"><span class="stg-status-pill" style="background:rgba(79,180,119,.14);color:#4fb477;">Up to date</span></div>
+                </div>
+                <div class="stg-card-body">
+                  <div class="stg-conn-meta">
+                    <div class="stg-conn-meta-item"><span>App version</span><button class="stg-version-link" id="verAppVersion" type="button" title="View release notes">DashView</button></div>
+                    <div class="stg-conn-meta-item"><span>Update status</span><span id="verStatus" class="upd-pill">—</span></div>
+                    <div class="stg-conn-meta-item"><span>Last update check</span><span id="verLastCheck">—</span></div>
+                    <div class="stg-conn-meta-item"><span>Last backup</span><span id="verLastBackup">No backup yet</span></div>
+                    <div class="stg-conn-meta-item"><span>Backup integrity</span><span id="verBackupIntegrity" style="color:#4fb477;">Verified on export</span></div>
+                  </div>
+                  <ul class="stg-info-list">
+                    <li><span><b>Backup verification</b> — each export is checksummed so a corrupted file is caught before import, not after.</span></li>
+                    <li><span><b>Secrets excluded by default</b> — API keys and tokens never land in an exported backup unless you turn that off in Security.</span></li>
+                    <li><span><b>Restore preview</b> — importing shows what will change before anything is overwritten.</span></li>
+                  </ul>
+                  <div id="verProgress" class="upd-prog" hidden><i></i></div>
+                  <div id="verNotes" class="upd-notes" hidden></div>
+                  <label class="stg-conn-meta-item" style="cursor:pointer"><span>Check for updates automatically</span><input type="checkbox" id="updAutoCheck" checked></label>
+                  <label class="stg-conn-meta-item" style="cursor:pointer"><span>Download updates automatically (you still choose when to install)</span><input type="checkbox" id="updAutoDl"></label>
+                  <div class="stg-action-row">
+                    <button class="btn btn-primary btn-sm" id="checkUpdatesBtn" type="button">Check for updates now</button>
+                    <button class="btn btn-outline btn-sm" id="updNotesBtn" type="button">Release notes</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="stg-card">
+                <div class="stg-card-head">
+                  <div class="stg-card-icon" style="background:var(--paper-soft);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>
+                  </div>
+                  <div class="stg-card-head-text"><h3>App &amp; privacy</h3><p>Install DashView, check offline readiness and manage temporary browser cache.</p></div>
+                </div>
+                <div class="stg-card-body">
+                  <div class="stg-field-grid">
+                    <div class="stg-field">
+                      <label>Install DashView</label>
+                      <span class="stg-field-help" id="installStatusMsg">Check your browser menu to install DashView as an app.</span>
+                      <div class="stg-action-row">
+                        <button class="btn btn-signal btn-sm" id="installDesktopBtn" type="button">Install app</button>
+                        <button class="btn btn-outline btn-sm" id="installMobileBtn" type="button">Mobile install help</button>
+                      </div>
+                    </div>
+                    <div class="stg-field">
+                      <label>Offline access</label>
+                      <span class="stg-field-help" id="offlineStatusMsg" role="status" aria-live="polite">Checking offline readiness…</span>
+                    </div>
+                    <div class="stg-field span-2">
+                      <label>Privacy</label>
+                      <span class="stg-field-help">Workspace data is stored in this browser. Odoo is queried through your configured connection; hosted AI providers may receive the company context you enable in AI settings.</span>
+                    </div>
+                  </div>
+                  <div class="stg-action-row">
+                    <button class="btn btn-outline btn-sm" id="clearTempCacheBtn" type="button">Clear temporary cache</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+                      <!-- ── Security panel ── -->
+            <div class="stg-panel" id="stg-security">
+              <div class="stg-card">
+                <div class="stg-card-head">
+                  <div class="stg-card-icon" style="background:rgba(79,180,119,0.12);color:#4fb477;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z"/><path d="m9 12 2 2 4-4"/></svg></div>
+                  <div class="stg-card-head-text"><h3>Security checkup</h3><p>Live assessment of how well this workspace is protected</p></div>
+                </div>
+                <div class="stg-card-body">
+                  <div class="sec-score">
+                    <div class="sec-ring" id="secRing"><span id="secScore">–</span></div>
+                    <div style="flex:1;min-width:260px;"><p class="sec-grade" id="secGrade"></p><ul class="sec-checks" id="secChecks"></ul></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="stg-card">
+                <div class="stg-card-head">
+                  <div class="stg-card-icon" style="background:rgba(232,163,61,0.12);color:#e8a33d;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+                  <div class="stg-card-head-text"><h3>Passcode &amp; encrypted credentials</h3><p>Locks the workspace and encrypts your Odoo API key on this device (AES-256-GCM, PBKDF2 key)</p></div>
+                  <div class="stg-card-head-right"><span class="stg-status-pill" id="secPassState">Passcode off</span></div>
+                </div>
+                <div class="stg-card-body">
+                  <p class="stg-field-help" id="secUnsupported" hidden style="color:var(--danger);">Secure storage needs HTTPS (or localhost). Open the app over HTTPS to enable a passcode.</p>
+                  <p class="stg-field-help">A 12+ character passcode is required before saving Odoo API keys. Keys are encrypted on this device and cleared from memory when the workspace locks.</p>
+                  <div class="sec-grid">
+                    <div class="stg-field" id="secCurWrap" hidden><label for="secCur">Current passcode</label><input type="password" class="pro-select" id="secCur" autocomplete="current-password"/></div>
+                    <div class="stg-field"><label for="secPass1">New passcode</label><input type="password" class="pro-select" id="secPass1" minlength="12" autocomplete="new-password" placeholder="At least 12 characters"/>
+                      <div class="sec-meter" id="secMeter" data-s=""><i></i><i></i><i></i><i></i></div><span class="stg-field-help" id="secMeterText"></span></div>
+                    <div class="stg-field"><label for="secPass2">Confirm passcode</label><input type="password" class="pro-select" id="secPass2" minlength="12" autocomplete="new-password"/></div>
+                    <div class="stg-field"><label for="secAutoLock">Auto-lock after inactivity</label>
+                      <select class="pro-select" id="secAutoLock"><option value="1">1 minute</option><option value="5">5 minutes</option><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">1 hour</option><option value="0">Never</option></select></div>
+                  </div>
+                  <p class="sec-msg" id="secMsg" role="status"></p>
+                  <div class="stg-action-row">
+                    <button class="btn btn-primary btn-sm" id="secSetBtn" type="button">Enable passcode</button>
+                    <button class="btn btn-outline btn-sm" id="secLockBtn" type="button" hidden>Lock now (Ctrl/⌘ + Shift + L)</button>
+                    <button class="btn btn-outline btn-sm" id="secRemoveBtn" type="button" hidden style="color:var(--danger);border-color:var(--danger-10);margin-left:auto;">Disable passcode</button>
+                  </div>
+                  <p class="stg-field-help">There is no recovery: if you forget the passcode, use “Wipe all local data” below and reconnect Odoo. Brute-force attempts are rate-limited (5 tries, then increasing delays).</p>
+                </div>
+              </div>
+
+              <div class="stg-card">
+                <div class="stg-card-head">
+                  <div class="stg-card-icon" style="background:rgba(91,143,174,0.12);color:#5b8fae;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z"/></svg></div>
+                  <div class="stg-card-head-text"><h3>Lock down your Cloudflare Worker</h3><p>The proxy forwards your API key — restrict who can use it</p></div>
+                </div>
+                <div class="stg-card-body">
+                  <p class="stg-field-help" style="margin-bottom:10px;">In Cloudflare → your Worker → Settings → Variables, add these two values. Then run any Odoo request here — the checkup above verifies the origin lock automatically.</p>
+                  <pre class="sec-code" id="secHardenCode"></pre>
+                  <div class="stg-action-row"><button class="btn btn-outline btn-sm" id="secCopyBtn" type="button">Copy values</button></div>
+                  <ul class="stg-info-list">
+                    <li><span><b>Least privilege</b> — create a dedicated Odoo user for DashView with read-only access, and use its API key (never your admin password).</span></li>
+                    <li><span><b>Read-only proxy</b> — the Worker only forwards search, read and group queries with validated inputs; it cannot create, edit or delete Odoo data.</span></li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="stg-card">
+                <div class="stg-card-head">
+                  <div class="stg-card-icon" style="background:rgba(139,92,246,0.12);color:#8b5cf6;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></div>
+                  <div class="stg-card-head-text"><h3>Data protection</h3><p>Control what leaves this browser and clear what you no longer need</p></div>
+                </div>
+                <div class="stg-card-body">
+                  <label class="sec-toggle"><input type="checkbox" id="secRedact"/><span><b>Exclude secrets from backups</b><small>API keys, tokens and passwords are stripped from exported backup files.</small></span></label>
+                  <div class="sec-danger" style="margin-top:16px;">
+                    <button class="btn btn-outline btn-sm" id="secForgetBtn" type="button">Forget Odoo credentials</button>
+                    <button class="btn btn-outline btn-sm" id="secWipeBtn" type="button">Wipe all local data</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="stg-card">
+                <div class="stg-card-head">
+                  <div class="stg-card-icon" style="background:rgba(45,166,178,0.12);color:#2da6b2;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+                  <div class="stg-card-head-text"><h3>Recent security events</h3><p>Kept on this device only — also visible in Audit log → Workspace security</p></div>
+                  <div class="stg-card-head-right"><button class="btn btn-ghost btn-sm" id="secClearLog" type="button">Clear</button></div>
+                </div>
+                <div class="stg-card-body"><ul class="sec-log" id="secLog"></ul></div>
+              </div>
+
+              <div class="stg-card">
+                <div class="stg-card-head">
+                  <div class="stg-card-icon" style="background:rgba(229,101,79,0.12);color:var(--danger);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+                  </div>
+                  <div class="stg-card-head-text"><h3>Mandatory security checklist</h3><p>What the score above is actually built from — required items are weighted highest</p></div>
+                </div>
+                <div class="stg-card-body">
+                  <ul class="chk-list" id="secMandatoryChecklist">
+                    <li class="chk-row"><span class="chk-badge req">Required</span><span class="chk-txt"><b>Served over HTTPS</b><span>No passcode or encryption feature works without it.</span></span></li>
+                    <li class="chk-row"><span class="chk-badge req">Required</span><span class="chk-txt"><b>Passcode lock enabled</b><span>Gate for every other credential protection below.</span></span></li>
+                    <li class="chk-row"><span class="chk-badge req">Required</span><span class="chk-txt"><b>Odoo API key encrypted at rest</b><span>AES-256-GCM, only unlocked while the workspace is open.</span></span></li>
+                    <li class="chk-row"><span class="chk-badge rec">Recommended</span><span class="chk-txt"><b>Auto-lock at 15 minutes or less</b><span>Shorter is safer on shared or portable devices.</span></span></li>
+                    <li class="chk-row"><span class="chk-badge rec">Recommended</span><span class="chk-txt"><b>Backups exclude secrets</b><span>Keeps exported JSON files safe to email or store anywhere.</span></span></li>
+                    <li class="chk-row"><span class="chk-badge rec">Recommended</span><span class="chk-txt"><b>Worker and Odoo URLs on HTTPS</b><span>Plain HTTP would leak the API key in transit.</span></span></li>
+                    <li class="chk-row"><span class="chk-badge rec">Recommended</span><span class="chk-txt"><b>Worker restricted to this origin</b><span>Stops any other website from calling your proxy with your key.</span></span></li>
+                    <li class="chk-row"><span class="chk-badge req">Required</span><span class="chk-txt"><b>Dedicated read-only Odoo user</b><span>Never connect DashView with an admin account or password.</span></span></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="stg-panel" id="stg-help">
+              <div class="stg-card">
+                <div class="stg-card-head">
+                  <div class="stg-card-icon" style="background:var(--signal-10);color:var(--signal);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9a2.5 2.5 0 1 1 4.3 1.8c-1.1 1.1-1.9 1.3-1.9 3"/><path d="M12 17h.01"/></svg>
+                  </div>
+                  <div class="stg-card-head-text"><h3>DashView user manual</h3><p>Guides for Odoo setup, dashboards, drill-in, Data Studio, reports, security and updates.</p></div>
+                  <div class="stg-card-head-right"><a class="btn btn-outline btn-sm" href="manual.html" target="_blank" rel="noopener">Open full manual</a></div>
+                </div>
+                <div class="stg-card-body stg-manual-body">
+                  <iframe class="stg-manual-frame" src="manual.html#start" title="DashView user manual" loading="lazy"></iframe>
+                </div>
+              </div>
+              <div class="stg-card">
+                <div class="stg-card-head">
+                  <div class="stg-card-icon" style="background:var(--paper-soft);color:var(--ink-70);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 9h8M8 13h5"/></svg>
+                  </div>
+                  <div class="stg-card-head-text"><h3>Keyboard shortcuts</h3><p>Quick access to common workspace actions.</p></div>
+                </div>
+                <div class="stg-card-body stg-shortcuts">
+                  <div><span>Open Settings</span><kbd>Ctrl</kbd> + <kbd>,</kbd></div>
+                  <div><span>Search Settings</span><kbd>/</kbd></div>
+                  <div><span>Lock workspace</span><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>L</kbd></div>
+                  <div><span>Close drill-in or dialog</span><kbd>Esc</kbd></div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /stg-content -->
+        </div><!-- /stg-shell -->
+
+        <!-- Settings tab switching (self-contained, no external deps) -->
+        <script>
+        (function(){
+          function initStgTabs(){
+            var tabs = document.querySelectorAll('.stg-tab[data-stg]');
+            if(!tabs.length) return;
+            tabs.forEach(function(tab){
+              tab.addEventListener('click', function(){
+                var key = tab.getAttribute('data-stg');
+                tabs.forEach(function(t){ t.classList.toggle('active', t===tab); });
+                document.querySelectorAll('.stg-panel').forEach(function(p){
+                  p.classList.toggle('active', p.id === 'stg-'+key);
+                });
+              });
+            });
+            /* Populate storage bar */
+            try {
+              var used = 0;
+              for(var k in localStorage){ if(localStorage.hasOwnProperty(k)){ used += (localStorage[k].length+k.length)*2; } }
+              var kb = (used/1024).toFixed(1);
+              var el = document.getElementById('storageBarLabel');
+              var fill = document.getElementById('storageBarFill');
+              if(el) el.textContent = kb+' KB used';
+              if(fill) fill.style.width = Math.min(100, (used/(5*1024*1024))*100).toFixed(1)+'%';
+              var tag = document.getElementById('storageUsageTag');
+              if(tag) tag.textContent = kb+' KB';
+            } catch(e){}
+            /* Odoo tab status dot */
+            function updateOdooStatus(){
+              var cfg = null;
+              try { cfg = JSON.parse(localStorage.getItem('dashview_odoo_config')); } catch(e){}
+              var dot = document.getElementById('stgTabOdooStatus');
+              if(!dot) return;
+              if(cfg && cfg.proxyUrl && cfg.url) dot.className = 'stg-tab-status live';
+              else if(cfg && cfg.url) dot.className = 'stg-tab-status configured';
+              else dot.className = 'stg-tab-status';
+            }
+            updateOdooStatus();
+            window.addEventListener('storage', updateOdooStatus);
+            document.addEventListener('dv:odoo-config-saved', updateOdooStatus);
+
+            /* Deep-link straight into a settings tab, e.g. dashboard.html?stg=ai#settings
+               (used by ai.html's "Settings" button so it lands on AI Assistant
+               instead of the generic Profile tab). */
+            try {
+              var wantTab = new URLSearchParams(window.location.search).get('stg');
+              if (wantTab) {
+                var target = document.querySelector('.stg-tab[data-stg="' + wantTab + '"]');
+                if (target) target.click();
+              }
+            } catch (e) {}
+          }
+          if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', initStgTabs);
+          else initStgTabs();
+        })();
+        </script>
+
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ NOTIFICATION PANEL ══════════════════════ -->
+<div class="notif-panel" id="notifPanel">
+  <div class="notif-header">
+    <h4>Notifications</h4>
+    <button class="btn btn-ghost btn-sm">Mark all read</button>
+  </div>
+  <div class="notif-list" id="notifList"><div class="notif-empty" style="padding:22px 16px;color:var(--ink-50);font-size:13px;text-align:center;">You're all caught up.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════ COMMAND PALETTE ══════════════════════ -->
+<div class="cmd-overlay" id="cmdOverlay">
+  <div class="cmd-box">
+    <div class="cmd-input-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
+      <input type="text" id="cmdInput" placeholder="Search pages, actions, charts…"/>
+    </div>
+    <div class="cmd-list">
+      <p class="cmd-group-label">Navigation</p>
+      <div class="cmd-item" data-action="home"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div><span class="cmd-item-label">Go to Home</span><span class="cmd-item-hint">index.html</span></div>
+      <div class="cmd-item focused" data-action="overview"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div><span class="cmd-item-label">Overview</span><span class="cmd-item-hint">Dashboard</span></div>
+      <div class="cmd-item" data-action="studio"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg></div><span class="cmd-item-label">Data Studio</span><span class="cmd-item-hint">Import & build</span></div>
+      <div class="cmd-item" data-action="ai"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c-1.7 0-3 1.2-3 3v1H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2V5c0-1.8-1.3-3-3-3Z"/></svg></div><span class="cmd-item-label">AI Assistant</span></div>
+      <div class="cmd-item" data-action="widgets"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="5" rx="1"/><rect x="13" y="3" width="8" height="10" rx="1"/></svg></div><span class="cmd-item-label">Widget Builder</span></div>
+      <div class="cmd-item" data-action="task-assignments"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg></div><span class="cmd-item-label">Task assignments</span></div>
+      <div class="cmd-item" data-action="team"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg></div><span class="cmd-item-label">Team</span></div>
+      <div class="cmd-item" data-action="reports"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M12 20V4M20 20v-7"/></svg></div><span class="cmd-item-label">Reports</span></div>
+      <div class="cmd-item" data-action="audit-log"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div><span class="cmd-item-label">Audit log</span></div>
+      <div class="cmd-item" data-action="settings"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82"/></svg></div><span class="cmd-item-label">Settings</span></div>
+      <p class="cmd-group-label">Actions</p>
+      <div class="cmd-item" data-action="export"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg></div><span class="cmd-item-label">Export orders as CSV</span></div>
+      <div class="cmd-item" data-action="theme"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg></div><span class="cmd-item-label">Toggle light / dark theme</span></div>
+    </div>
+    <div class="cmd-footer">
+      <span><kbd class="cmd-key">↑↓</kbd> navigate</span>
+      <span><kbd class="cmd-key">↵</kbd> open</span>
+      <span><kbd class="cmd-key">Esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<!-- ══════════════════════ SHEET PICKER MODAL ══════════════════════ -->
+<div class="modal-overlay" id="sheetPickerModal">
+  <div class="modal-card">
+    <button class="modal-close" id="sheetPickerClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);">Multiple sheets found</p>
+    <h3>Which sheet should we read?</h3>
+    <p>This workbook has more than one sheet — pick the one with your data.</p>
+    <div class="workbook-list" id="sheetPickerList"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SUGGESTIONS MODAL ══════════════════════ -->
+<div class="modal-overlay" id="suggestionsModal">
+  <div class="modal-card modal-card-lg">
+    <button class="modal-close" id="suggestionsClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);">Read from your data — no API involved</p>
+    <h3>Here's what we found</h3>
+    <p>DashView scored your columns and drafted these. Tick the ones you want, then finish the dashboard — you can always add or remove more later.</p>
+    <div class="role-preset-row" id="rolePresetRow">
+      <span class="role-preset-label">Build for:</span>
+      <button class="role-preset-btn" data-role="executive" type="button" title="Just the top-line totals — nothing else">Executive</button>
+      <button class="role-preset-btn" data-role="manager" type="button" title="Totals plus a couple of breakdowns">Manager</button>
+      <button class="role-preset-btn" data-role="analyst" type="button" title="Everything — every KPI, chart, and table">Analyst</button>
+    </div>
+    <div class="suggestion-tabs" id="suggestionTabs">
+      <button class="active" data-kind="all" type="button">All</button>
+      <button data-kind="kpi" type="button">KPIs</button>
+      <button data-kind="chart" type="button">Charts</button>
+      <button data-kind="hierarchy" type="button">Hierarchy</button>
+      <button data-kind="pivot" type="button">Pivot</button>
+    </div>
+    <div class="suggestion-list" id="suggestionList"></div>
+    <div class="suggestion-modal-foot">
+      <span class="suggestion-count-tag" id="suggestionCountTag"></span>
+      <div style="display:flex;gap:var(--sp-2);">
+        <button class="btn btn-ghost btn-sm" id="suggestionSelectAllBtn" type="button">Select all</button>
+        <button class="btn btn-primary" id="suggestionAddBtn" type="button">Add selected & finish</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ CALCULATED FIELD MODAL ══════════════════════ -->
+<div class="modal-overlay" id="calcFieldModal">
+  <div class="modal-card">
+    <button class="modal-close" id="calcFieldClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);">New column, computed per row</p>
+    <h3>Add a calculated column</h3>
+    <p>Reference other columns with square brackets, Excel-style. This adds a real column to your data grid.</p>
+    <div class="field"><label for="calcFieldName">Column name</label><input type="text" id="calcFieldName" placeholder="e.g. Profit"/></div>
+    <div class="field">
+      <label for="calcFieldFormula">Formula</label>
+      <div class="formula-input-row"><span class="formula-fx">fx</span><input type="text" id="calcFieldFormula" placeholder="=[Revenue]-[Cost]" spellcheck="false"/></div>
+      <p class="formula-error" id="calcFieldError" style="display:none;"></p>
+    </div>
+    <details class="formula-help"><summary>Available functions</summary><div class="formula-help-grid" id="calcFieldHelpGrid"></div></details>
+    <button class="btn btn-primary btn-block btn-lg" id="calcFieldSaveBtn" type="button" style="margin-top:var(--sp-5);">Add column</button>
+  </div>
+</div>
+
+<!-- ══════════════════════ ADD WIDGET MODAL ══════════════════════ -->
+<div class="modal-overlay" id="addWidgetModal">
+  <div class="modal-card">
+    <button class="modal-close" id="addWidgetClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);">Added to Overview</p>
+    <h3>Add a widget</h3>
+    <div class="chip-select-row" id="widgetTypeChips" style="margin-bottom:var(--sp-5);">
+      <button class="chip-select active" data-type="kpi" type="button">KPI</button>
+      <button class="chip-select" data-type="chart" type="button">Chart</button>
+      <button class="chip-select" data-type="hierarchy" type="button">Hierarchy</button>
+    </div>
+    <div id="addWidgetFields"></div>
+    <button class="btn btn-primary btn-block btn-lg" id="addWidgetSaveBtn" type="button" style="margin-top:var(--sp-5);">Add to Overview</button>
+  </div>
+</div>
+
+<!-- ══════════════════════ REPORT OPTIONS MODAL ══════════════════════ -->
+<div class="modal-overlay" id="reportOptionsModal">
+  <div class="modal-card">
+    <button class="modal-close" id="reportOptionsClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);" id="reportOptionsEyebrow">Board-ready export</p>
+    <h3 id="reportOptionsTitle">Report options</h3>
+    <div class="field">
+      <label for="reportTitleInput">Report title</label>
+      <input type="text" id="reportTitleInput" maxlength="120" spellcheck="false"/>
+    </div>
+    <div class="field">
+      <label>Include</label>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:var(--sp-2);">
+        <label style="display:flex;align-items:center;gap:8px;font-size:var(--fs-sm);color:var(--ink-70);cursor:pointer;"><input type="checkbox" id="reportIncludeKpis" checked/> Key metrics summary</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:var(--fs-sm);color:var(--ink-70);cursor:pointer;"><input type="checkbox" id="reportIncludeCharts" checked/> Charts</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:var(--fs-sm);color:var(--ink-70);cursor:pointer;"><input type="checkbox" id="reportIncludeData" checked/> Data table</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:var(--fs-sm);color:var(--ink-70);cursor:pointer;"><input type="checkbox" id="reportIncludePivot" checked/> Pivot table</label>
+      </div>
+    </div>
+    <p id="reportOptionsHint" style="margin-top:var(--sp-3);font-size:var(--fs-sm);color:var(--ink-30);"></p>
+    <button class="btn btn-primary btn-block btn-lg" id="reportGenerateBtn" type="button" style="margin-top:var(--sp-5);">Generate report</button>
+  </div>
+</div>
+
+<!-- ══════════════════════ DATA HEALTH MODAL ══════════════════════ -->
+<div class="modal-overlay" id="dataHealthModal">
+  <div class="modal-card modal-card-wide">
+    <button class="modal-close" id="dataHealthClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);">Auto-checked on import — clean before you build</p>
+    <h3>Data health</h3>
+    <div id="dataHealthBody"></div>
+    <div id="dataHealthFooter" style="margin-top:var(--sp-4);"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════ WORKBOOKS MODAL ══════════════════════ -->
+<div class="modal-overlay" id="workbooksModal">
+  <div class="modal-card">
+    <button class="modal-close" id="workbooksClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);">Saved in this browser</p>
+    <h3>My workbooks</h3>
+    <p>Stored locally with <code>localStorage</code> — nothing is uploaded. Clearing your browser data will remove these too.</p>
+    <div class="workbook-list" id="workbookList"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════ ADD / EDIT WIDGET MODAL (Widget Builder) ══════════════════════ -->
+<div class="modal-overlay" id="dvWidgetModal">
+  <div class="modal-card">
+    <button class="modal-close" id="dvWidgetModalClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);">Widget Builder</p>
+    <h3 id="dvWidgetModalTitle">Add a widget</h3>
+    <div class="field"><label for="dvWidgetTitleInput">Title</label><input type="text" id="dvWidgetTitleInput" placeholder="e.g. Total revenue"/></div>
+    <p class="dv-source-group-label">Type</p>
+    <div class="chip-select-row" id="dvWidgetTypeChips">
+      <button class="chip-select active" data-type="kpi" type="button">KPI</button>
+      <button class="chip-select" data-type="chart" type="button">Chart</button>
+      <button class="chip-select" data-type="table" type="button">Table</button>
+      <button class="chip-select" data-type="progress" type="button">Progress</button>
+    </div>
+    <p class="dv-source-group-label">Data source</p>
+    <select class="pro-select" id="dvWidgetSourceSelect" style="width:100%;"></select>
+    <div id="dvWidgetChartTypeRow" style="display:none;margin-top:var(--sp-3);">
+      <label style="font-size:var(--fs-xs);color:var(--ink-50);font-weight:600;display:block;margin-bottom:5px;">Chart style</label>
+      <select class="pro-select" id="dvWidgetChartTypeSelect" style="width:100%;">
+        <option value="bar">Bar</option>
+        <option value="line">Line</option>
+        <option value="area">Area</option>
+        <option value="pie">Pie</option>
+        <option value="doughnut">Doughnut</option>
+        <option value="radar">Radar</option>
+      </select>
+    </div>
+    <div id="dvWidgetTargetRow" style="display:none;margin-top:var(--sp-3);">
+      <label style="font-size:var(--fs-xs);color:var(--ink-50);font-weight:600;display:block;margin-bottom:5px;">Target value</label>
+      <input type="number" class="pro-select" id="dvWidgetTargetInput" placeholder="e.g. 50000" style="width:100%;"/>
+    </div>
+    <div id="dvWidgetCsvRow" style="display:none;margin-top:var(--sp-3);">
+      <div class="dv-widget-csv-drop" id="dvWidgetCsvDrop">⬆ Click to choose a CSV or Excel file<br/><span id="dvWidgetCsvStatus" style="display:block;margin-top:4px;color:var(--ink-30);">No file loaded yet.</span></div>
+      <input type="file" id="dvWidgetCsvInput" accept=".csv,.xlsx,.xls" style="display:none"/>
+      <div id="dvWidgetNumericFieldRow" style="display:none;margin-top:var(--sp-3);">
+        <label style="font-size:var(--fs-xs);color:var(--ink-50);font-weight:600;display:block;margin-bottom:5px;">Sum this column</label>
+        <select class="pro-select" id="dvWidgetNumericFieldSelect" style="width:100%;"></select>
+      </div>
+      <div id="dvWidgetCatFieldRow" style="display:none;margin-top:var(--sp-3);">
+        <label style="font-size:var(--fs-xs);color:var(--ink-50);font-weight:600;display:block;margin-bottom:5px;">Group by column (chart labels)</label>
+        <select class="pro-select" id="dvWidgetCatFieldSelect" style="width:100%;"></select>
+      </div>
+      <div id="dvWidgetValFieldRow" style="display:none;margin-top:var(--sp-3);">
+        <label style="font-size:var(--fs-xs);color:var(--ink-50);font-weight:600;display:block;margin-bottom:5px;">Sum this column for each bar/slice (optional — counts rows if left blank)</label>
+        <select class="pro-select" id="dvWidgetValFieldSelect" style="width:100%;"></select>
+      </div>
+    </div>
+    <div class="dv-widget-live-row">
+      <label style="display:flex;align-items:center;gap:8px;font-size:var(--fs-xs);color:var(--ink-70);">
+        <input type="checkbox" id="dvWidgetLiveCheck"/> Live refresh
+      </label>
+      <select class="pro-select" id="dvWidgetIntervalSelect" style="width:auto;">
+        <option value="5">Every 5s</option>
+        <option value="15" selected>Every 15s</option>
+        <option value="60">Every 60s</option>
+      </select>
+    </div>
+    <div class="dv-widget-live-row">
+      <label style="font-size:var(--fs-xs);color:var(--ink-70);">Card size</label>
+      <select class="pro-select" id="dvWidgetSizeSelect" style="width:auto;">
+        <option value="sm">Small</option>
+        <option value="md" selected>Medium</option>
+        <option value="lg">Large</option>
+      </select>
+    </div>
+    <button class="btn btn-primary btn-block btn-lg" id="dvWidgetSaveBtn" type="button" style="margin-top:var(--sp-5);">Save widget</button>
+  </div>
+</div>
+
+<!-- ══════════════════════ TEAM MEMBER MODAL (Team) ══════════════════════ -->
+<div class="modal-overlay" id="teamModal">
+  <div class="modal-card">
+    <button class="modal-close" id="teamModalClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);">Team</p>
+    <h3 id="teamModalTitle">Invite a member</h3>
+    <div class="field"><label for="teamNameInput">Name</label><input type="text" id="teamNameInput" placeholder="e.g. Amara Khan"/></div>
+    <div class="field"><label for="teamRoleInput">Role</label><input type="text" class="pro-select" id="teamRoleInput" placeholder="e.g. Product Manager" style="width:100%;"/></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);">
+      <div class="field"><label for="teamStatusSelect">Status</label>
+        <select class="pro-select" id="teamStatusSelect" style="width:100%;">
+          <option value="online">Online</option>
+          <option value="away">Away</option>
+          <option value="offline">Offline</option>
+        </select>
+      </div>
+      <div class="field"><label for="teamProjectsInput">Projects assigned</label><input type="number" class="pro-select" id="teamProjectsInput" min="0" value="0" style="width:100%;"/></div>
+    </div>
+    <div class="field"><label for="teamEmailInput">Email (optional)</label><input type="email" class="pro-select" id="teamEmailInput" style="width:100%;"/></div>
+    <button class="btn btn-primary btn-block btn-lg" id="teamSaveBtn" type="button" style="margin-top:var(--sp-5);">Save member</button>
+  </div>
+</div>
+
+<!-- ══════════════════════ TASK ASSIGNMENT MODAL ══════════════════════ -->
+<div class="modal-overlay" id="taskModal">
+  <div class="modal-card">
+    <button class="modal-close" id="taskModalClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);">Task assignments</p>
+    <h3 id="taskModalTitle">Assign a task</h3>
+    <div class="field"><label for="taskTitle">Task</label><input type="text" id="taskTitle" maxlength="160" placeholder="e.g. Prepare the monthly payroll report"/></div>
+    <div class="field"><label for="taskAssignee">Assign to</label><select class="pro-select" id="taskAssignee" style="width:100%;"></select></div>
+    <div class="tk-modal-grid">
+      <div class="field"><label for="taskPriority">Priority</label><select class="pro-select" id="taskPriority" style="width:100%;"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select></div>
+      <div class="field"><label for="taskStatus">Status</label><select class="pro-select" id="taskStatus" style="width:100%;"><option value="todo">To do</option><option value="progress">In progress</option><option value="review">In review</option><option value="done">Done</option></select></div>
+    </div>
+    <div class="field"><label for="taskDue">Due date</label><input type="date" class="pro-select" id="taskDue" style="width:100%;"/></div>
+    <div class="field"><label for="taskNotes">Notes (optional)</label><textarea id="taskNotes" rows="3" maxlength="600" class="pro-select" style="width:100%;resize:vertical;"></textarea></div>
+    <p class="tk-err" id="taskErr" role="alert"></p>
+    <div class="tk-modal-actions">
+      <button class="btn btn-outline btn-lg" id="taskDelete" type="button" hidden style="color:var(--danger);">Delete</button>
+      <button class="btn btn-primary btn-lg" id="taskSave" type="button">Save task</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SHARE MODAL (Widget Builder) ══════════════════════ -->
+<div class="modal-overlay" id="dvShareModal">
+  <div class="modal-card">
+    <button class="modal-close" id="dvShareModalClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);">Read-only · no sign-in required</p>
+    <h3>Share this dashboard</h3>
+    <p>Anyone with this link can view these widgets exactly as they are right now — they can't edit, delete, or see anything else in this workspace. The data is encoded directly in the link; nothing is uploaded to a server.</p>
+    <div class="dv-share-link-row">
+      <input type="text" id="dvShareLinkInput" readonly/>
+      <button class="btn btn-primary btn-sm" id="dvShareCopyBtn" type="button">Copy</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ TV MODE OVERLAY ══════════════════════ -->
+<div class="dv-tv-overlay" id="dvTvOverlay">
+  <span class="dv-tv-clock" id="dvTvClock"></span>
+  <button type="button" class="dv-tv-exit" id="dvTvExitBtn">Exit TV Mode (Esc)</button>
+  <div id="dvTvStage"></div>
+  <div class="dv-tv-dots" id="dvTvDots"></div>
+</div>
+
+<!-- ══════════════════════ CONFIRM MODAL (generic) ══════════════════════ -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-card">
+    <button class="modal-close" id="confirmClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);" id="confirmEyebrow">Please confirm</p>
+    <h3 id="confirmTitle">Are you sure?</h3>
+    <p id="confirmBody"></p>
+    <div style="display:flex;gap:var(--sp-3);margin-top:var(--sp-5);">
+      <button class="btn btn-outline btn-block" id="confirmCancelBtn" type="button">Cancel</button>
+      <button class="btn btn-primary btn-block" id="confirmOkBtn" type="button" style="background:var(--danger);">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/dv-security.js"></script>
+<script src="js/odoo-client.js"></script>
+<script src="js/odoo-profiles.js"></script>
+<script src="js/hr-store.js"></script>
+<script src="js/app.js"></script>
+<script src="js/studio-core.js"></script>
+<script src="js/studio-ui.js"></script>
+<script src="js/report-engine.js"></script>
+<script src="js/ai-api-config.js"></script>
+<script src="js/ai-config-store.js"></script>
+<script src="js/ai-engine.js"></script>
+<script src="js/dashboard-pro.js"></script>
+<script src="js/dashview-api.js"></script>
+<script src="js/auth-service.js"></script>
+<script src="js/odoo-service.js"></script>
+<script src="js/odoo-live.js"></script>
+<script src="js/overview-live.js"></script>
+<script src="js/exec-retail.js"></script>
+<script src="js/exec-drill.js"></script>
+<script src="js/exec-company.js"></script>
+<script src="js/tasks.js"></script>
+<script src="js/audit-live.js"></script>
+<script src="js/security-ui.js"></script>
+<script src="js/odoo-connectivity.js"></script>
+<script src="js/widget-builder.js"></script>
+<script src="js/shell.js"></script>
+<script src="js/ai-company-context.js"></script>
+<script src="js/ai-settings-ui.js"></script>
+<script src="js/settings-pro.js"></script>
+<script src="js/settings-overview.js"></script>
+<script src="js/ai-embed.js"></script>
+<script src="js/tabbar.js"></script>
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta name="referrer" content="strict-origin-when-cross-origin"/>
+
+<meta charset="utf-8"/>
+<script>(function(){try{var root=document.documentElement,t=localStorage.getItem('dashview-theme');if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';}root.setAttribute('data-theme',t);var surface=localStorage.getItem('dashview_surface')==='glass'?'glass':'flat';root.setAttribute('data-surface',surface);if(surface==='glass'){var link=document.createElement('link');link.id='settings-glass-link';link.rel='stylesheet';link.href='css/liquid-glass.css';document.head.appendChild(link);}}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="color-scheme" content="dark light"/>
+<meta name="theme-color" content="#0a0c0b"/>
+<title>Settings — DashView</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png"/>
+<link rel="manifest" href="manifest.json"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="DashView"/>
+<script src="js/config.js"></script>
+<script defer src="js/updater.js"></script>
+<style>
+:root{--bg:#0a0c0b;--surface:#131715;--line:#262b28;--text:#e9ece9;--muted:#8d968f;--signal:#e8a33d;--on:#1a1206}
+html[data-theme=light]{--bg:#f2f3ef;--surface:#fff;--line:#dcdfd8;--text:#161a17;--muted:#5d665f;--signal:#b87316;--on:#fff}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.bar{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5}
+.bar h1{font-size:18px;margin:0}
+.back{text-decoration:none;color:var(--muted);padding:8px 10px;margin:-8px 0 -8px -10px;border-radius:8px}
+.back:hover{color:var(--text)}
+.wrap{max-width:900px;margin:0 auto;padding:24px 20px 80px;display:grid;grid-template-columns:180px 1fr;gap:40px}
+.side{position:sticky;top:76px;align-self:start;display:flex;flex-direction:column;gap:2px}
+.side a{text-decoration:none;color:var(--muted);padding:8px 12px;border-radius:8px}
+.side a:hover{background:var(--surface);color:var(--text)}
+section{margin-bottom:36px;scroll-margin-top:76px}
+h2{font-size:17px;margin:0 0 12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:16px 18px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.txt{min-width:0}.txt b{display:block;font-weight:600}.txt span{color:var(--muted);font-size:13.5px}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.seg{display:inline-flex;gap:2px;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.seg label,.sw{position:relative;cursor:pointer}
+.seg input,.sw input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.seg span{display:block;padding:7px 14px;border-radius:7px;white-space:nowrap}
+.seg input:checked+span{background:var(--surface);box-shadow:0 0 0 1px var(--line);font-weight:600}
+.seg input:focus-visible+span,.sw input:focus-visible+span{outline:2px solid var(--signal);outline-offset:2px}
+.sw{width:34px;height:34px}
+.sw span{display:block;width:100%;height:100%;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+.sw input:checked+span{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--c)}
+button,.btn{font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:8px 14px;cursor:pointer}
+button:hover,.btn:hover{border-color:var(--muted)}
+button.primary{background:var(--signal);border-color:var(--signal);color:var(--on);font-weight:600}
+button.danger{color:#e5484d}
+[hidden]{display:none!important}
+.msg{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:10px;opacity:0;pointer-events:none;transition:.2s}
+.msg.on{opacity:1;transform:translate(-50%,0)}
+@media (pointer:coarse){.seg span{padding:11px 16px}button,.btn{padding:12px 16px}.sw{width:40px;height:40px}}
+@media (max-width:760px){.wrap{grid-template-columns:1fr;gap:0;padding-top:16px}.side{display:none}.row{flex-direction:column;align-items:stretch;gap:12px}.ctl{justify-content:flex-start}}
+
+/* --- v2 visual pass: wider layout, card headers, active nav, softer depth --- */
+.bar{backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);background:color-mix(in srgb,var(--bg) 82%,transparent);padding:16px max(20px,calc((100% - 1040px)/2))}
+.bar h1{font-size:19px;letter-spacing:-.02em;font-weight:700}
+.wrap{max-width:1040px;grid-template-columns:220px minmax(0,1fr);gap:56px;padding-top:36px}
+.side{top:92px;gap:4px;border-left:1px solid var(--line);padding-left:6px}
+.side a{position:relative;font-size:14px;padding:9px 14px;transition:background .15s,color .15s}
+.side a.on{color:var(--text);font-weight:600;background:var(--surface)}
+.side a.on::before{content:"";position:absolute;left:-7px;top:8px;bottom:8px;width:2px;border-radius:2px;background:var(--signal)}
+section{margin-bottom:44px;scroll-margin-top:92px}
+h2{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:700;margin:0 0 12px 4px}
+.card{border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,.12),0 12px 32px -18px rgba(0,0,0,.45);overflow:hidden}
+.row{padding:18px 22px;min-height:72px;transition:background .15s}
+.row:hover{background:color-mix(in srgb,var(--text) 3%,transparent)}
+.txt b{font-size:15px;letter-spacing:-.01em;margin-bottom:2px}
+.txt span{line-height:1.45;display:block;max-width:56ch}
+.ctl{flex-shrink:0;align-items:center}
+.seg{border-radius:11px;padding:3px}
+.seg span{font-size:13.5px;transition:background .15s}
+.seg input:checked+span{box-shadow:0 1px 3px rgba(0,0,0,.25),0 0 0 1px var(--line)}
+.sw span{transition:transform .15s}.sw:hover span{transform:scale(1.1)}
+button,.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;font-size:13.5px;transition:border-color .15s,background .15s,transform .1s}
+button:active,.btn:active{transform:translateY(1px)}
+button.primary{box-shadow:0 6px 16px -8px var(--signal)}
+button.danger:hover{background:rgba(229,72,77,.1);border-color:#e5484d}
+@media (max-width:760px){.wrap{padding-top:16px}.bar{padding:14px 16px}.row{padding:16px}}
+</style>
+<link rel="stylesheet" href="css/pro-detail.css"/>
+<style>
+.bar{backdrop-filter:blur(14px) saturate(160%);background:color-mix(in srgb,var(--bg) 80%,transparent)}
+.wrap{max-width:1040px;grid-template-columns:220px 1fr;gap:48px}
+.side a{position:relative;border-left:2px solid transparent;border-radius:0 9px 9px 0;transition:background .15s,color .15s,border-color .15s}
+.side a.on{color:var(--text);background:var(--surface);border-left-color:var(--signal);font-weight:600}
+.card{box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 10px 30px -18px rgba(0,0,0,.5);transition:border-color .2s}
+.card:hover{border-color:color-mix(in srgb,var(--signal) 35%,var(--line))}
+section>h2{display:flex;align-items:center;gap:10px;font-size:18px;letter-spacing:-.01em}
+section>h2:after{content:"";flex:1;height:1px;background:var(--line)}
+.row{transition:background .15s}.row:hover{background:color-mix(in srgb,var(--text) 3%,transparent)}
+.txt span{display:block;margin-top:2px;line-height:1.4}
+button.primary{box-shadow:0 8px 20px -10px var(--signal)}button.primary:hover{filter:brightness(1.08)}
+#setFind{width:100%;margin-bottom:12px;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text);font:inherit}
+.row.nomatch,section.nomatch{display:none!important}
+.msg{border-radius:12px;box-shadow:0 14px 36px -12px rgba(0,0,0,.6)}
+.section-intro{margin:-3px 4px 14px;color:var(--muted);font-size:14px;max-width:66ch}
+.appearance-card .row{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,auto)}
+.appearance-card .ctl{min-width:250px}
+.surface-picker{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:min(100%,520px)}
+.surface-choice{position:relative;display:grid;grid-template-columns:42px minmax(0,1fr);grid-template-rows:auto auto;align-items:center;column-gap:12px;min-height:76px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);cursor:pointer;transition:border-color .15s,background .15s,box-shadow .15s}
+.surface-choice input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.surface-choice:has(input:checked){border-color:var(--signal);box-shadow:0 0 0 2px color-mix(in srgb,var(--signal) 18%,transparent);background:color-mix(in srgb,var(--signal) 5%,var(--surface))}
+.surface-choice:has(input:focus-visible){outline:2px solid var(--signal);outline-offset:2px}
+.surface-icon{grid-row:1 / span 2;width:42px;height:42px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.surface-icon.glass{background:linear-gradient(145deg,color-mix(in srgb,var(--surface) 70%,white),color-mix(in srgb,var(--bg) 75%,transparent));box-shadow:inset 0 1px 0 rgba(255,255,255,.35);backdrop-filter:blur(8px)}
+.surface-choice b{font-size:13.5px}.surface-choice small{color:var(--muted);font-size:12px}
+html[data-surface=glass] body{background-color:var(--bg);background-image:radial-gradient(850px 500px at 8% -5%,rgba(232,163,61,.12),transparent 62%),radial-gradient(760px 480px at 100% 4%,rgba(120,145,160,.09),transparent 58%);background-attachment:fixed}
+html[data-surface=glass] .bar,html[data-surface=glass] .side{backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%);background:color-mix(in srgb,var(--bg) 78%,transparent)}
+html[data-surface=glass] .card{background-color:var(--lg-surface);background-image:var(--lg-sheen);border-color:var(--lg-edge);box-shadow:var(--lg-rim),var(--lg-e1);backdrop-filter:var(--lg-blur);-webkit-backdrop-filter:var(--lg-blur)}
+html[data-surface=glass] .seg{background:var(--lg-surface-sunken);border-color:var(--lg-edge)}
+@media (max-width:760px){.wrap{grid-template-columns:minmax(0,1fr);gap:14px}.wrap main{min-width:0}.appearance-card .row{display:flex}.appearance-card .ctl{min-width:0}.surface-picker{width:100%}}
+@media (max-width:480px){.surface-picker{grid-template-columns:1fr}.surface-choice{min-height:68px}}
+@media (max-width:760px){.side{display:flex;flex-direction:row;overflow-x:auto;position:sticky;top:60px;background:var(--bg);padding:8px 0;z-index:4;gap:6px}.side a{white-space:nowrap;border:1px solid var(--line);border-radius:999px}.side a.on{border-color:var(--signal)}}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+ var side=document.querySelector('.side'),secs=[].slice.call(document.querySelectorAll('.wrap section[id]'));
+ if(side&&secs.length&&'IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){side.querySelectorAll('a').forEach(function(a){a.classList.toggle('on',a.getAttribute('href')==='#'+e.target.id)})}})},{rootMargin:'-20% 0px -70% 0px'});secs.forEach(function(x){io.observe(x)})}
+});
+</script>
+<style>kbd{font:12px ui-monospace,Menlo,monospace;padding:3px 8px;border-radius:6px;border:1px solid var(--line);border-bottom-width:2px;background:var(--bg)}</style>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+ var P=function(k,v){try{if(v===undefined)return localStorage.getItem('dv-pref-'+k);localStorage.setItem('dv-pref-'+k,v)}catch(e){}};
+ var upd=function(){return window.DV&&DV.updater&&DV.updater.prefs?DV.updater.prefs():null};
+ document.querySelectorAll('[data-pref]').forEach(function(g){var k=g.getAttribute('data-pref'),cur=(k==='autoCheck'||k==='autoDownload')?(upd()?(upd()[k]?'1':'0'):null):P(k);
+  if(cur!=null)g.querySelectorAll('input').forEach(function(i){i.checked=i.value===cur});
+  g.addEventListener('change',function(e){var v=e.target.value;if(k==='autoCheck'||k==='autoDownload'){var o={};o[k]=v==='1';if(window.DV&&DV.updater&&DV.updater.setPrefs)DV.updater.setPrefs(o)}else{P(k,v);if(k==='density')document.documentElement.setAttribute('data-density',v)}
+   var m=document.querySelector('.msg');if(m){m.textContent='Saved';m.classList.add('on');setTimeout(function(){m.classList.remove('on')},1200)}})});
+ function usage(){var el=document.getElementById('privUsage');if(!el)return;var b=0,n=0;try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);b+=k.length+(localStorage.getItem(k)||'').length;n++}}catch(e){}
+  el.textContent=n+' saved items, about '+(b*2>1048576?(b*2/1048576).toFixed(1)+' MB':Math.max(1,Math.round(b*2/1024))+' KB')+' in browser storage.';
+  if(navigator.storage&&navigator.storage.estimate)navigator.storage.estimate().then(function(r){if(r.usage)el.textContent+=' Total with caches: '+(r.usage/1048576).toFixed(1)+' MB.'})}
+ usage();var r=document.getElementById('privRefresh');if(r)r.onclick=usage;
+ var c=document.getElementById('privClear');if(c)c.onclick=function(){if(!confirm('Clear temporary caches? Your settings and connection stay.'))return;(window.caches?caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return !/shell|static/i.test(k)}).map(function(k){return caches.delete(k)}))}):Promise.resolve()).then(usage)};
+});
+</script>
+</head>
+<body>
+<header class="bar"><a class="back" id="back" href="dashboard.html#settings">← Dashboard settings</a><h1>Settings</h1></header>
+<div class="wrap">
+<nav class="side" aria-label="Settings sections"><a href="#appearance">Appearance</a><a href="#accessibility">Accessibility</a><a href="#prefs">Preferences</a><a href="#updates">Updates</a><a href="#privacy">Privacy and data</a><a href="#shortcuts">Shortcuts</a><a href="#app">App and offline</a><a href="#backup">Backup and reset</a><a href="#about">About</a><a href="manual.html">User manual</a></nav>
+<main>
+<section id="appearance"><h2>Appearance</h2><p class="section-intro">Set your workspace look in one place. Theme, accent and surface material are independent and apply across DashView.</p><div class="card appearance-card">
+ <div class="row"><div class="txt"><b>Theme</b><span>System follows your device and switches automatically.</span></div>
+  <div class="ctl"><div class="seg" role="radiogroup" aria-label="Theme"><label><input type="radio" name="theme" value="system"><span>System</span></label><label><input type="radio" name="theme" value="light"><span>Light</span></label><label><input type="radio" name="theme" value="dark"><span>Dark</span></label></div></div></div>
+ <div class="row"><div class="txt"><b>Accent color</b><span>Used for buttons, highlights and charts across every page.</span></div>
+  <div class="ctl" role="radiogroup" aria-label="Accent color">
+   <label class="sw"><input type="radio" name="accent" value="amber"><span style="--c:#e0962a"></span><i class="vh">Amber</i></label>
+   <label class="sw"><input type="radio" name="accent" value="teal"><span style="--c:#1aa98a"></span><i class="vh">Teal</i></label>
+   <label class="sw"><input type="radio" name="accent" value="blue"><span style="--c:#3b82f6"></span><i class="vh">Blue</i></label>
+   <label class="sw"><input type="radio" name="accent" value="violet"><span style="--c:#8b5cf6"></span><i class="vh">Violet</i></label>
+   <label class="sw"><input type="radio" name="accent" value="rose"><span style="--c:#e8375f"></span><i class="vh">Rose</i></label></div></div>
+ <div class="row"><div class="txt"><b>Surface material</b><span>Choose solid surfaces or a subtle frosted-glass effect. This never changes your light or dark theme.</span></div>
+  <div class="ctl"><div class="surface-picker" role="radiogroup" aria-label="Surface material">
+   <label class="surface-choice"><input type="radio" name="surface" value="flat"><span class="surface-icon" aria-hidden="true"></span><b>Standard</b><small>Clear, solid surfaces</small></label>
+   <label class="surface-choice"><input type="radio" name="surface" value="glass"><span class="surface-icon glass" aria-hidden="true"></span><b>Liquid Glass</b><small>Soft blur and subtle depth</small></label>
+  </div></div></div>
+</div></section>
+
+<section id="accessibility"><h2>Accessibility</h2><div class="card">
+ <div class="row"><div class="txt"><b>Motion</b><span>Reduce turns off animations and smooth scrolling everywhere.</span></div>
+  <div class="ctl"><div class="seg" role="radiogroup" aria-label="Motion"><label><input type="radio" name="motion" value="system"><span>System</span></label><label><input type="radio" name="motion" value="reduce"><span>Reduce</span></label><label><input type="radio" name="motion" value="full"><span>Full</span></label></div></div></div>
+</div></section>
+
+<section id="prefs"><h2>Preferences</h2><div class="card">
+ <div class="row"><div class="txt"><b>Layout density</b><span>Compact fits more cards on screen; comfortable gives more breathing room.</span></div><div class="ctl"><div class="seg" data-pref="density"><label><input type="radio" name="p_density" value="comfortable" checked><span>Comfortable</span></label><label><input type="radio" name="p_density" value="compact"><span>Compact</span></label></div></div></div>
+ <div class="row"><div class="txt"><b>Chart animations</b><span>Staggered entrance and smooth transitions. Turn off on slower devices.</span></div><div class="ctl"><div class="seg" data-pref="anim"><label><input type="radio" name="p_anim" value="on" checked><span>On</span></label><label><input type="radio" name="p_anim" value="off"><span>Off</span></label></div></div></div>
+ <div class="row"><div class="txt"><b>Value labels on bar charts</b><span>Shows the number above each bar when a chart has 12 bars or fewer.</span></div><div class="ctl"><div class="seg" data-pref="labels"><label><input type="radio" name="p_labels" value="on" checked><span>Show</span></label><label><input type="radio" name="p_labels" value="off"><span>Hide</span></label></div></div></div>
+ <div class="row"><div class="txt"><b>Default landing page</b><span>Where the dashboard opens after you sign in.</span></div><div class="ctl"><div class="seg" data-pref="landing"><label><input type="radio" name="p_landing" value="overview" checked><span>Overview</span></label><label><input type="radio" name="p_landing" value="studio"><span>Data Studio</span></label><label><input type="radio" name="p_landing" value="ai"><span>AI</span></label></div></div></div>
+</div></section>
+
+<section id="updates"><h2>Updates</h2><div class="card">
+ <div class="row"><div class="txt"><b>Check for updates automatically</b><span>Checks every 30 minutes while the app is open.</span></div><div class="ctl"><div class="seg" data-pref="autoCheck"><label><input type="radio" name="p_autoCheck" value="1" checked><span>On</span></label><label><input type="radio" name="p_autoCheck" value="0"><span>Off</span></label></div></div></div>
+ <div class="row"><div class="txt"><b>Download updates in the background</b><span>The update is prepared silently; you still choose when to install.</span></div><div class="ctl"><div class="seg" data-pref="autoDownload"><label><input type="radio" name="p_autoDownload" value="1"><span>On</span></label><label><input type="radio" name="p_autoDownload" value="0" checked><span>Off</span></label></div></div></div>
+</div></section>
+
+<section id="privacy"><h2>Privacy and data</h2><div class="card">
+ <div class="row"><div class="txt"><b>Stored on this device</b><span id="privUsage">Calculating...</span></div><div class="ctl"><button id="privRefresh">Refresh</button></div></div>
+ <div class="row"><div class="txt"><b>Where your data goes</b><span>Dashboards and files stay in this browser. Odoo data is read through your own connection; nothing is sent to DashView servers.</span></div></div>
+ <div class="row"><div class="txt"><b>Clear cached chart and report data</b><span>Removes temporary caches only. Settings, passcode and Odoo connection are kept.</span></div><div class="ctl"><button class="danger" id="privClear">Clear cache</button></div></div>
+ <div class="row"><div class="txt"><b>Security checkup</b><span>Passcode, encryption, backups and more.</span></div><div class="ctl"><a class="btn" href="dashboard.html?stg=security#settings">Open checkup</a></div></div>
+</div></section>
+
+<section id="shortcuts"><h2>Keyboard shortcuts</h2><div class="card">
+ <div class="row"><div class="txt"><b>Open settings</b></div><div class="ctl"><kbd>Ctrl</kbd> + <kbd>,</kbd></div></div>
+ <div class="row"><div class="txt"><b>Search settings</b></div><div class="ctl"><kbd>/</kbd></div></div>
+ <div class="row"><div class="txt"><b>Lock workspace</b></div><div class="ctl"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>L</kbd></div></div>
+ <div class="row"><div class="txt"><b>Clear drill-in filter</b></div><div class="ctl"><kbd>Esc</kbd></div></div>
+</div></section>
+
+<section id="app"><h2>App and offline</h2><div class="card">
+ <div class="row"><div class="txt"><b>Install DashView</b><span id="installHelp"></span></div><div class="ctl"><button class="primary" id="installBtn" hidden>Install app</button></div></div>
+ <div class="row"><div class="txt"><b>Offline access</b><span id="offlineState"></span></div></div>
+ <div class="row"><div class="txt"><b>Software update</b><span id="verNow">Version …</span></div><div class="ctl"><button class="primary" id="checkBtn">Check for updates</button><button id="applyBtn" hidden>Reload</button></div></div>
+ <div class="row"><div class="txt"><b>Version history</b><span id="verHist"></span></div></div>
+ <div class="row"><div class="txt"><b>Saved files</b><span id="usage"></span></div><div class="ctl"><button id="clearBtn">Clear saved files</button></div></div>
+</div></section>
+
+<section id="backup"><h2>Backup and reset</h2><div class="card">
+ <div class="row"><div class="txt"><b>Move your settings</b><span>Export a file, then import it on another laptop or phone.</span></div><div class="ctl"><button id="exportBtn">Export settings</button><label class="btn" tabindex="0" id="importLbl">Import settings<input class="vh" type="file" id="importFile" accept="application/json,.json"></label></div></div>
+ <div class="row"><div class="txt"><b>Reset settings</b><span>Puts theme, accent, surface and motion back to their defaults. Your data stays.</span></div><div class="ctl"><button class="danger" id="resetBtn">Reset settings</button></div></div>
+</div></section>
+
+<section id="about"><h2>About</h2><div class="card">
+ <div class="row"><div class="txt"><b>DashView <span id="verAbout"></span></b><span>Open settings from any page with Ctrl + , (⌘ + , on Mac).</span></div>
+  <div class="ctl"><a class="btn" href="manual.html">User manual</a><a class="btn" href="dashboard.html">Dashboard</a><a class="btn" href="people.html">People</a><a class="btn" href="ai.html">AI Assistant</a></div></div>
+</div></section>
+</main>
+</div>
+<p class="msg" id="msg" role="status" aria-live="polite"></p>
+<script>
+(function(){
+  var $=function(s){return document.querySelector(s)}, t;
+  function say(m){var e=$('#msg');e.textContent=m;e.className='msg on';clearTimeout(t);t=setTimeout(function(){e.className='msg'},3500)}
+  function surface(value){if(value!=='glass')value='flat';var root=document.documentElement,link=document.getElementById('settings-glass-link');root.setAttribute('data-surface',value);if(value==='glass'&&!link){link=document.createElement('link');link.id='settings-glass-link';link.rel='stylesheet';link.href='css/liquid-glass.css';document.head.appendChild(link)}else if(value==='flat'&&link)link.remove();document.querySelectorAll('input[name=surface]').forEach(function(i){i.checked=i.value===value})}
+  function sync(c){c=c||DV.get();['theme','accent','motion'].forEach(function(k){var i=document.querySelector('input[name='+k+'][value='+c[k]+']');if(i)i.checked=true});var current='flat';try{current=localStorage.getItem('dashview_surface')||'flat'}catch(e){}surface(current)}
+  [].forEach.call(document.querySelectorAll('input[type=radio]:not([name=surface])'),function(i){i.addEventListener('change',function(){DV.set(i.name,i.value);say('Saved')})});
+  document.querySelectorAll('input[name=surface]').forEach(function(i){i.addEventListener('change',function(){if(i.checked){try{localStorage.setItem('dashview_surface',i.value)}catch(e){}surface(i.value);say('Surface preference saved')}})});
+  addEventListener('storage',function(e){if(e.key==='dashview_surface')surface(e.newValue||'flat')});
+  DV.on(sync);sync();
+  function fmt(b){return b>1048576?(b/1048576).toFixed(1)+' MB':Math.max(1,Math.round(b/1024))+' KB'}
+  function refresh(){
+    var s=DV.status();
+    $('#installBtn').hidden=s.installed||s.installRequested;
+    $('#installBtn').textContent=s.canInstall?'Install app':'How to install';
+    $('#installHelp').textContent=s.installed?'You are using the installed app.':s.installRequested?'The browser is finishing the app installation.':s.canInstall?'Add DashView to your desktop or home screen. It opens in its own window.':s.ios?'On iPhone or iPad, open DashView in Safari, tap Share, then Add to Home Screen.':location.protocol==='file:'?'Open DashView from its HTTPS web address in Chrome or Edge to install it.':'Open your browser menu and choose Install app.';
+    $('#offlineState').textContent=s.offlineReady?'On. Pages you have opened work without internet.':s.offlineError?'Could not enable offline access. Check your connection and reload.':location.protocol==='file:'?'Off. Open DashView from a web address to turn this on.':'Getting ready. Reload once to finish.';
+    $('#applyBtn').hidden=!s.updateReady;
+    DV.usage().then(function(b){$('#usage').textContent=b?fmt(b)+' stored on this device':'Nothing stored yet'});
+  }
+  $('#installBtn').onclick=function(){if(!DV.status().canInstall){say($('#installHelp').textContent);return}DV.install().then(function(o){say(o==='accepted'?'Installing DashView':'Installation cancelled');refresh()},function(){say('Could not open the install prompt. Use your browser menu to install DashView.');refresh()})};
+  $('#checkBtn').onclick=function(){DV.updater.check(true).then(showVer)};
+  $('#applyBtn').onclick=DV.applyUpdate;
+  $('#clearBtn').onclick=function(){if(confirm('Remove saved files? DashView downloads them again the next time you are online.'))DV.clearCache().then(function(){say('Saved files removed');refresh()})};
+  $('#exportBtn').onclick=function(){var data=JSON.parse(DV.exportJSON());try{data.appearance={surface:localStorage.getItem('dashview_surface')||'flat'}}catch(e){data.appearance={surface:'flat'}}var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='dashview-settings.json';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},1000);say('Settings exported')};
+  $('#importLbl').onkeydown=function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();$('#importFile').click()}};
+  $('#importFile').onchange=function(e){var f=e.target.files[0];if(!f)return;f.text().then(function(x){var data=JSON.parse(x);DV.importJSON(x);if(data.appearance&&['flat','glass'].indexOf(data.appearance.surface)>=0){try{localStorage.setItem('dashview_surface',data.appearance.surface)}catch(e){}surface(data.appearance.surface)}say('Settings imported')}).catch(function(){say('That file could not be used. Choose a DashView settings file.')});e.target.value=''};
+  $('#resetBtn').onclick=function(){if(confirm('Reset theme, accent, surface and motion to their defaults?')){DV.reset();try{localStorage.removeItem('dashview_surface')}catch(e){}surface('flat');say('Settings reset')}};
+  $('#back').onclick=function(e){if(history.length>1){e.preventDefault();history.back()}};
+  ['dv:installable','dv:installed','dv:update','dv:offline-ready','dv:offline-error'].forEach(function(n){addEventListener(n,refresh)});
+  if(navigator.serviceWorker)navigator.serviceWorker.ready.then(refresh);
+  refresh();
+})();
+</script>
+<script>
+(function(){var links=[].slice.call(document.querySelectorAll('.side a'));if(!links.length||!('IntersectionObserver' in window))return;
+var map={};links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a});
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){links.forEach(function(a){a.classList.remove('on')});var a=map[e.target.id];if(a)a.classList.add('on')}})},{rootMargin:'-20% 0px -70% 0px'});
+Object.keys(map).forEach(function(id){var el=document.getElementById(id);if(el)io.observe(el)});})();
+</script>
+<script>
+function showVer(){if(!window.DV||!DV.updater)return;var i=DV.updater.info();if(!i.version)return;var t=i.lastChecked?'Last checked '+new Date(i.lastChecked).toLocaleString():'Not checked yet';
+ document.getElementById('verNow').textContent='Version '+i.version+' (build '+i.build+') · '+t;var a=document.getElementById('verAbout');if(a)a.textContent=i.version;
+ document.getElementById('verHist').innerHTML=DV.updater.history().map(function(h){return '<b style="display:inline">'+h.version+'</b> · '+h.date+' — '+h.notes.join('; ')}).join('<br>')}
+addEventListener('load',function(){setTimeout(showVer,900);setTimeout(showVer,2500)});
+</script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta name="referrer" content="strict-origin-when-cross-origin"/>
+
+<meta charset="UTF-8"/>
+<script>(function(){try{var t=localStorage.getItem('dashview-theme');if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Shared dashboard — DashView</title>
+<meta name="description" content="A read-only, shared view of DashView widgets. No sign-in required."/>
+<meta name="robots" content="noindex"/>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="css/base.css"/>
+<link rel="stylesheet" href="css/components.css"/>
+<link rel="stylesheet" href="css/dashboard.css"/>
+<link rel="stylesheet" href="css/dashboard-pro.css"/>
+<link rel="stylesheet" href="css/dashview-suite.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+  body.dv-share-body { background: var(--paper-alt); min-height: 100vh; }
+  .dv-share-header { max-width: 1100px; margin: 0 auto; padding: var(--sp-8) var(--layout-gutter) var(--sp-4); display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); flex-wrap: wrap; }
+  .dv-share-brand { display: flex; align-items: center; gap: 8px; font-family: var(--f-display); font-weight: 800; color: var(--ink); }
+  .dv-share-wrap { max-width: 1100px; margin: 0 auto; padding: 0 var(--layout-gutter) var(--sp-16); }
+  .dv-share-note { color: var(--ink-30); font-size: var(--fs-xs); }
+  .dv-share-empty { text-align: center; padding: var(--sp-24) 0; color: var(--ink-30); }
+</style>
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="DashView"/>
+<link rel="manifest" href="manifest.json"/>
+<script src="js/config.js"></script>
+<script defer src="js/updater.js"></script>
+<link rel="stylesheet" href="css/pro-detail.css"/>
+</head>
+<body class="dash-body dv-share-body">
+
+<div class="dv-share-header">
+  <div class="dv-share-brand">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#e8a33d" stroke-width="1.6"/><path d="M7 13l3-5 2 3 2-4 3 6" stroke="#e8a33d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>DashView</span>
+    <span class="dv-pill" style="margin-left:10px;">Shared · read-only</span>
+  </div>
+  <a href="dashboard.html" class="btn btn-outline btn-sm">Open DashView</a>
+</div>
+
+<div class="dv-share-wrap">
+  <p class="dv-share-note" id="dvShareMeta" style="margin-bottom:var(--sp-6);"></p>
+  <div class="dv-widget-grid" id="dvShareGrid"></div>
+</div>
+
+<script>
+  // A public share link can't carry live Odoo credentials (nor should it --
+  // that would expose the sharer's Odoo data to anyone with the URL). Widgets
+  // built from the live Overview snapshot (js/overview-live.js's
+  // window.DASHVIEW_OV, read by js/widget-builder.js's computeDemo()) need
+  // *some* stand-in shape here so they still render something on this
+  // read-only page instead of going blank. This is illustrative only.
+  (function () {
+    var CATS = ['Apparel', 'Home', 'Electronics', 'Outdoors', 'Beauty'];
+    var CUSTOMERS = ['Northwind Traders', 'Blue Harbor', 'Ferra Mfg', 'Acme Retail', 'Globex', 'Initech'];
+    var MONTHS = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
+    var REVENUE = [18200, 21100, 19800, 24500, 26200, 23100];
+    var CAT_REV = CATS.map(function (_, i) { return 9000 - i * 1400; });
+    var TOP_V = CUSTOMERS.map(function (_, i) { return 14000 - i * 1800; });
+    var ORDERS = [];
+    for (var i = 0; i < 8; i++) {
+      ORDERS.push({ id: 'S' + String(142 - i).padStart(5, '0'), customer: CUSTOMERS[i % CUSTOMERS.length], state: 'Sales Order', revenue: 900 + i * 410, date: '2026-09-' + String(20 - i).padStart(2, '0') });
+    }
+    var revenue12 = REVENUE.reduce(function (a, b) { return a + b; }, 0), orders12 = 137;
+    window.DASHVIEW_OV = {
+      MONTHS: MONTHS, REVENUE: REVENUE, ORDERS_M: MONTHS.map(function () { return 10; }),
+      CATS: CATS, CAT_REV: CAT_REV, TOP_L: CUSTOMERS, TOP_V: TOP_V,
+      ORDERS: ORDERS, SUMMARY: { revenue12: revenue12, orders12: orders12 }
+    };
+  })();
+</script>
+<script src="js/odoo-service.js"></script>
+<script src="js/widget-builder.js"></script>
+<script>
+  (function () {
+    function esc(str) { return String(str).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; }); }
+    var grid = document.getElementById('dvShareGrid');
+    var meta = document.getElementById('dvShareMeta');
+    var hash = location.hash.replace(/^#/, '');
+    var params = {};
+    hash.split('&').forEach(function (pair) { var kv = pair.split('='); if (kv[0]) params[kv[0]] = kv.slice(1).join('='); });
+    if (!params.d) {
+      grid.innerHTML = '';
+      meta.parentElement.innerHTML = '<div class="dv-share-empty"><h3 style="color:var(--ink);margin-bottom:8px;">No shared dashboard here</h3><p>This link is missing its data — ask the person who shared it to resend it, or <a href="dashboard.html">open your own DashView</a>.</p></div>';
+      return;
+    }
+    var payload;
+    try { payload = JSON.parse(decodeURIComponent(escape(atob(params.d)))); }
+    catch (e) {
+      grid.innerHTML = '';
+      meta.parentElement.innerHTML = '<div class="dv-share-empty"><h3 style="color:var(--ink);margin-bottom:8px;">This share link looks corrupted</h3><p>Ask for a fresh link, or <a href="dashboard.html">open your own DashView</a>.</p></div>';
+      return;
+    }
+    meta.textContent = (payload.widgets || []).length + ' widgets · shared ' + new Date(payload.sharedAt).toLocaleString();
+    var widgets = (payload.widgets || []).slice().sort(function (a, b) { return a.order - b.order; });
+    if (!widgets.length) { grid.innerHTML = '<p class="dv-widget-empty">Nothing was included in this share.</p>'; return; }
+    widgets.forEach(function (w) { grid.appendChild(window.DVWidgets.buildCard(w, { readOnly: true })); });
+  })();
+</script>
+</body>
+</html>

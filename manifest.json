@@ -1,0 +1,98 @@
+{
+  "id": "dashview",
+  "name": "DashView — Workspace, Data Studio & AI",
+  "short_name": "DashView",
+  "description": "Sales dashboard, People workspace, Data Studio and a local AI assistant. Installable and works offline on laptop and mobile.",
+  "start_url": "dashboard.html?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
+  "background_color": "#f2f3ef",
+  "theme_color": "#f2f3ef",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": [
+    "business",
+    "productivity"
+  ],
+  "launch_handler": {
+    "client_mode": [
+      "navigate-existing",
+      "auto"
+    ]
+  },
+  "icons": [
+    {
+      "src": "assets/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "assets/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "assets/dashboard-preview.png",
+      "sizes": "1760x1100",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "DashView dashboard"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "url": "dashboard.html?source=shortcut#overview"
+    },
+    {
+      "name": "People",
+      "url": "people.html?source=shortcut"
+    },
+    {
+      "name": "Data Studio",
+      "url": "dashboard.html?source=shortcut#studio"
+    },
+    {
+      "name": "Reports",
+      "url": "dashboard.html?source=shortcut#reports"
+    },
+    {
+      "name": "Odoo Live",
+      "url": "dashboard.html?source=shortcut#odoo-live"
+    },
+    {
+      "name": "AI Assistant",
+      "url": "ai.html?source=shortcut"
+    },
+    {
+      "name": "Settings",
+      "url": "settings.html?source=shortcut"
+    }
+  ]
+}

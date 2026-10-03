@@ -1,0 +1,45 @@
+{
+  // DashView Worker — Cloudflare Workers Builds config
+  //
+  // WHAT THIS DEPLOYS RIGHT NOW
+  //   - Read-only "Odoo Live" path (POST to the Worker root) + AI relay.
+  //     This path never touches D1, so it works without a database.
+  //   - GET /api/health  ->  {"ok":true}
+  //
+  // NOT ACTIVE YET (needs D1): DashView accounts / sign-in and the stored
+  //   Odoo connection + tasks (/api/auth/*, /api/tasks, /api/teams ...).
+  //   To turn them on later, follow the "ENABLE D1" block at the bottom.
+  //
+  // NAME must match the Worker name in Cloudflare (Workers Builds).
+  // Yours is "workspace"  ->  https://workspace.youknowumer-io.workers.dev
+  "name": "workspace",
+  "main": "worker-src/index.js",
+  "compatibility_date": "2025-09-01",
+  "workers_dev": true,
+
+  "vars": {
+    // Exact frontend origin(s), comma-separated. No path, no trailing slash.
+    // (Add a custom domain here later, e.g. "https://artivoralabs.github.io,https://app.example.com")
+    "ALLOWED_ORIGINS": "https://artivoralabs.github.io",
+
+    // Odoo hostnames this Worker is allowed to call, comma-separated.
+    "ALLOWED_ODOO_HOSTS": "edu-artisanauracreations.odoo.com"
+  },
+
+  // ---------------------------------------------------------------------
+  // ENABLE D1 LATER  (accounts / sign-in / tasks)
+  //   1. Cloudflare -> Storage & Databases -> D1 -> dashview-db -> copy the Database ID.
+  //   2. Remove the leading "//" on the block below and paste the real ID.
+  //   3. D1 -> dashview-db -> Console: run the contents of migrations/0001_init.sql
+  //   4. Worker -> Settings -> Variables and Secrets: add secrets JWT_SECRET and ODOO_ENC_KEY.
+  //   5. Commit -> Workers Builds redeploys.
+  //
+  // "d1_databases": [
+  //   {
+  //     "binding": "DB",
+  //     "database_name": "dashview-db",
+  //     "database_id": "PASTE-REAL-DATABASE-ID-HERE",
+  //     "migrations_dir": "migrations"
+  //   }
+  // ],
+}

@@ -1,0 +1,8 @@
+{
+  "appId": "com.artivoralabs.dashview",
+  "appName": "DashView",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}

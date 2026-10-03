@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta name="referrer" content="strict-origin-when-cross-origin"/>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Page not found — DashView</title>
+<meta name="description" content="This page doesn't exist. Head back to the DashView homepage." />
+<meta name="robots" content="noindex" />
+
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
+<meta name="theme-color" content="#ffffff" />
+
+<link rel="stylesheet" href="css/base.css" />
+<link rel="stylesheet" href="css/components.css" />
+
+<style>
+  .notfound-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--sp-6);
+    position: relative;
+    overflow: hidden;
+  }
+  .notfound-page::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(var(--line) 1px, transparent 1px);
+    background-size: 26px 26px;
+    -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 40%, #000 0%, transparent 75%);
+    mask-image: radial-gradient(ellipse 60% 60% at 50% 40%, #000 0%, transparent 75%);
+    pointer-events: none;
+  }
+  .notfound-card {
+    position: relative;
+    text-align: center;
+    max-width: 460px;
+    padding: var(--sp-12) var(--sp-8);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: var(--shadow-xl);
+  }
+  .notfound-code { margin-bottom: var(--sp-5); justify-content: center; }
+  .notfound-title {
+    font-family: var(--f-display);
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: var(--sp-3);
+  }
+  .notfound-sub {
+    font-size: var(--fs-md);
+    color: var(--ink-50);
+    line-height: 1.6;
+    margin-bottom: var(--sp-8);
+  }
+</style>
+</head>
+<body>
+
+<div class="notfound-page">
+  <div class="notfound-card">
+    <p class="eyebrow notfound-code">Error · 404</p>
+    <h1 class="notfound-title">This page doesn't exist.</h1>
+    <p class="notfound-sub">The page you're looking for may have moved or never existed. Let's get you back on track.</p>
+    <a class="btn btn-signal btn-lg" href="index.html">Back to homepage</a>
+  </div>
+</div>
+
+</body>
+</html>

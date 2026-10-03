@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta name="referrer" content="strict-origin-when-cross-origin"/>
+
+<meta charset="UTF-8"/>
+<script>(function(){try{var t=localStorage.getItem('dashview-theme');if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<script>try{var __s=JSON.parse(localStorage.getItem('dv_sec')||'{}');if(__s.pin&&!sessionStorage.getItem('dv_sk'))document.documentElement.classList.add('dv-locked')}catch(e){}</script>
+<meta name="referrer" content="no-referrer"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Assistant — DashView</title>
+<meta name="description" content="DashView AI Assistant: local, no-key help by default, with optional hosted providers, transparent connection status, and context controls."/>
+<meta name="theme-color" content="#0a0c0b"/>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0a0c0b;--surface:#0f1210;--elevated:#141815;--card:#171c18;
+  --border:rgba(232,163,61,.13);--border-b:rgba(232,163,61,.28);
+  --accent:#e8a33d;--accent2:#5b8fae;--accent3:#c76b3c;
+  --text:#e7ede7;--text2:rgba(231,237,231,.65);--text3:rgba(231,237,231,.38);
+  --success:#4fb477;--warn:#d98f27;--danger:#e5654f;
+  --grad:linear-gradient(120deg,#d98f27 0%,#e8a33d 55%,#f0c06a 100%);
+  --grad-soft:linear-gradient(135deg,rgba(232,163,61,.15) 0%,rgba(91,143,174,.06) 100%);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.3);
+  --shadow-md:0 8px 30px -8px rgba(0,0,0,.5);
+  --shadow-lg:0 24px 64px -16px rgba(0,0,0,.65);
+  --overlay:rgba(7,9,8,.82);--overlay-soft:rgba(7,9,8,.75);
+  --noise-url:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:18px;--r-full:9999px;
+  --f-display:'Manrope',sans-serif;--f-body:'Inter',sans-serif;--f-mono:'IBM Plex Mono',monospace;
+  --sidebar-w:260px;
+  color-scheme:dark;
+}
+html[data-theme="light"]{
+  color-scheme:light;
+  --bg:#f5f6f3;--surface:#ffffff;--elevated:#ffffff;--card:#eef0eb;
+  --border:rgba(184,115,22,.10);--border-b:rgba(184,115,22,.22);
+  --accent:#b87316;--accent2:#3d7290;--accent3:#8a5a1c;
+  --text:#141813;--text2:rgba(20,24,19,.62);--text3:rgba(20,24,19,.42);
+  --success:#2f8f55;--warn:#a9640f;--danger:#c7402a;
+  --grad-soft:linear-gradient(135deg,rgba(184,115,22,.08) 0%,rgba(61,114,144,.05) 100%);
+  --shadow-sm:0 1px 2px rgba(20,24,19,.06);
+  --shadow-md:0 8px 24px -8px rgba(20,24,19,.12);
+  --shadow-lg:0 20px 50px -14px rgba(20,24,19,.16);
+  --overlay:rgba(20,24,19,.26);--overlay-soft:rgba(20,24,19,.16);
+  --noise-url:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*,*::before,*::after{transition:background-color .25s ease,border-color .25s ease,color .25s ease}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+body{font-family:var(--f-body);background-color:var(--bg);background-image:var(--noise-url);color:var(--text);-webkit-font-smoothing:antialiased;height:100vh;overflow:hidden}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;background:none;font-family:inherit}
+svg{display:block;flex-shrink:0}
+
+/* ══════════ SHELL ══════════ */
+.shell{display:grid;grid-template-columns:var(--sidebar-w) 1fr;height:100vh;overflow:hidden}
+
+/* ══════════ SIDEBAR ══════════ */
+.sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;height:100vh}
+.sb-head{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.sb-brand{display:flex;align-items:center;gap:9px;font-family:var(--f-display);font-weight:600;font-size:.9375rem;color:var(--text)}
+.sb-logo{width:26px;height:26px;border-radius:7px;background:var(--grad);display:flex;align-items:center;justify-content:center}
+.new-chat-btn{display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:var(--r-full);background:rgba(232,163,61,.12);border:1px solid var(--border);color:var(--accent);font-size:.8125rem;font-weight:500;transition:.15s}
+.new-chat-btn:hover{background:rgba(232,163,61,.2)}
+.sb-search{padding:10px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sb-search input{width:100%;padding:8px 12px 8px 32px;border-radius:var(--r-full);border:1px solid var(--border);background:var(--elevated);color:var(--text);font-size:.8125rem;outline:none;font-family:inherit;transition:.2s}
+.sb-search input:focus{border-color:var(--accent)}
+.sb-search input::placeholder{color:var(--text3)}
+.sb-search-wrap{position:relative}
+.sb-search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
+.sb-section-label{font-size:.65rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:12px 14px 5px}
+.convo-list{flex:1;overflow-y:auto;padding:4px 8px}
+.convo-list::-webkit-scrollbar{width:3px}
+.convo-list::-webkit-scrollbar-thumb{background:rgba(232,163,61,.18);border-radius:99px}
+.convo-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:var(--r-md);cursor:pointer;transition:.15s;position:relative;group:true}
+.convo-item:hover{background:rgba(232,163,61,.07)}
+.convo-item.active{background:rgba(232,163,61,.13)}
+.convo-item-open{display:flex;align-items:center;gap:9px;flex:1;min-width:0;text-align:left;color:var(--text);border-radius:var(--r-sm)}
+.convo-item-open:focus-visible{outline-offset:3px}
+.convo-item-icon{width:24px;height:24px;border-radius:6px;background:rgba(232,163,61,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent2)}
+.convo-item-body{flex:1;min-width:0;display:block}
+.convo-item-title{display:block;font-size:.8125rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.convo-item-preview{display:block;font-size:.72rem;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.convo-item-del{opacity:0;color:var(--text3);padding:3px;border-radius:4px;transition:.15s;flex-shrink:0}
+.convo-item:hover .convo-item-del{opacity:1}
+.convo-item-del:hover{color:var(--danger);background:rgba(229,101,79,.1)}
+.sb-footer{padding:12px;border-top:1px solid var(--border);flex-shrink:0}
+.sb-user{display:flex;align-items:center;gap:10px;padding:8px;border-radius:var(--r-md);cursor:pointer;transition:.15s}
+.sb-user:hover{background:rgba(232,163,61,.07)}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff;flex-shrink:0}
+.sb-user-info p{font-size:.8125rem;font-weight:500}
+.sb-user-info span{font-size:.7rem;color:var(--text3)}
+.sb-api-badge{display:flex;align-items:center;gap:5px;padding:3px 8px;border-radius:var(--r-full);background:rgba(231,237,231,.05);border:1px solid var(--border);margin-top:6px}
+.sb-api-badge svg,.sb-api-badge span{color:var(--text3)}
+.sb-api-badge[data-state="local"],.sb-api-badge[data-state="connected"]{background:rgba(79,180,119,.1);border-color:rgba(79,180,119,.18)}
+.sb-api-badge[data-state="local"] svg,.sb-api-badge[data-state="local"] span,.sb-api-badge[data-state="connected"] svg,.sb-api-badge[data-state="connected"] span{color:var(--success)}
+.sb-api-badge[data-state="setup"],.sb-api-badge[data-state="error"]{background:rgba(229,101,79,.08);border-color:rgba(229,101,79,.2)}
+.sb-api-badge[data-state="setup"] svg,.sb-api-badge[data-state="setup"] span,.sb-api-badge[data-state="error"] svg,.sb-api-badge[data-state="error"] span{color:var(--danger)}
+
+/* ══════════ MAIN ══════════ */
+.main{display:flex;flex-direction:column;height:100vh;overflow:hidden;position:relative}
+
+/* TOPBAR */
+.topbar{height:56px;display:flex;align-items:center;gap:12px;padding:0 20px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--bg)}
+.mobile-menu-btn{display:none;width:32px;height:32px;border-radius:var(--r-sm);align-items:center;justify-content:center;color:var(--text3)}
+.conv-title{flex:1;font-size:.9375rem;font-weight:500;color:var(--text);display:flex;align-items:center;gap:8px}
+.conv-title-dot{width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 6px var(--success);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.top-actions{display:flex;align-items:center;gap:6px;margin-left:auto}
+.ai-runtime{position:relative;z-index:20}
+.ai-runtime>summary{display:flex;align-items:center;gap:7px;list-style:none;cursor:pointer;padding:6px 10px;border:1px solid var(--border);border-radius:var(--r-full);font-size:.72rem;color:var(--text2);white-space:nowrap}
+.ai-runtime>summary::-webkit-details-marker{display:none}
+.ai-runtime>summary:hover{border-color:var(--border-b);color:var(--text)}
+.runtime-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0}
+.ai-runtime[data-state="local"] .runtime-dot,.ai-runtime[data-state="connected"] .runtime-dot{background:var(--success);box-shadow:0 0 7px color-mix(in srgb,var(--success) 65%,transparent)}
+.ai-runtime[data-state="connecting"] .runtime-dot{background:var(--warn);animation:pulse 1.2s infinite}
+.ai-runtime[data-state="setup"] .runtime-dot,.ai-runtime[data-state="error"] .runtime-dot{background:var(--danger)}
+.ai-runtime-panel{position:absolute;top:calc(100% + 10px);right:0;width:min(380px,calc(100vw - 28px));padding:16px;border:1px solid var(--border-b);border-radius:var(--r-lg);background:var(--elevated);box-shadow:var(--shadow-lg);color:var(--text);white-space:normal}
+.runtime-panel-title{font-size:.82rem;font-weight:700;margin-bottom:10px}
+.runtime-detail{font-size:.75rem;color:var(--text2);line-height:1.55;margin:0 0 8px}
+.runtime-detail strong{color:var(--text)}
+.runtime-note{border-top:1px solid var(--border);padding-top:9px;margin-top:10px;color:var(--text3)}
+.runtime-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.runtime-actions .btn{font-size:.7rem;padding:6px 10px}
+.icon-btn{width:32px;height:32px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;color:var(--text3);transition:.15s;position:relative}
+.icon-btn:hover{background:rgba(232,163,61,.1);color:var(--text)}
+.theme-toggle svg{position:absolute;transition:opacity .3s ease,transform .5s cubic-bezier(.16,1,.3,1)}
+.theme-toggle .icon-sun{opacity:0;transform:rotate(-70deg) scale(.4)}
+.theme-toggle .icon-moon{opacity:1;transform:rotate(0) scale(1)}
+html[data-theme="light"] .theme-toggle .icon-sun{opacity:1;transform:rotate(0) scale(1)}
+html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70deg) scale(.4)}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:var(--r-full);font-size:.8125rem;font-weight:500;transition:.2s;white-space:nowrap}
+.btn-primary{background:var(--grad);color:#fff}
+.btn-primary:hover{opacity:.9}
+.btn-outline{border:1px solid var(--border-b);color:var(--text2);background:rgba(232,163,61,.04)}
+.btn-outline:hover{border-color:var(--accent);color:var(--text)}
+.btn-sm{padding:5px 12px;font-size:.75rem}
+.btn-block{width:100%;justify-content:center}
+
+/* MESSAGES */
+.messages-area{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.messages-area::-webkit-scrollbar{width:4px}
+.messages-area::-webkit-scrollbar-thumb{background:rgba(232,163,61,.18);border-radius:99px}
+.messages-inner{max-width:780px;width:100%;margin:0 auto;padding:28px 20px;display:flex;flex-direction:column;gap:0}
+
+/* Empty state */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;padding:40px 20px;max-width:600px;margin:0 auto}
+.empty-logo{width:56px;height:56px;border-radius:14px;background:var(--grad);display:flex;align-items:center;justify-content:center;margin-bottom:24px;box-shadow:0 8px 28px -6px rgba(184,115,22,.45)}
+.empty-state h2{font-family:var(--f-display);font-size:1.375rem;font-weight:700;letter-spacing:-.02em;margin-bottom:10px}
+.empty-state p{font-size:.9rem;color:var(--text2);line-height:1.65;margin-bottom:32px}
+.suggest-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+.suggest-card{padding:14px;border-radius:var(--r-lg);border:1px solid var(--border);background:var(--surface);text-align:left;cursor:pointer;transition:.2s}
+.suggest-card:hover{border-color:var(--border-b);background:var(--elevated);transform:translateY(-1px)}
+.suggest-card p{font-size:.875rem;font-weight:500;color:var(--text);margin-bottom:4px}
+.suggest-card span{font-size:.75rem;color:var(--text3)}
+
+/* Message bubbles */
+.msg-row{display:flex;gap:12px;margin-bottom:20px;align-items:flex-start}
+.msg-row.user{flex-direction:row-reverse}
+.msg-avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700}
+.msg-avatar.ai{background:var(--grad)}
+.msg-avatar.user{background:rgba(232,163,61,.2);color:var(--accent);font-size:.7rem;font-weight:600}
+.msg-bubble{max-width:680px;position:relative}
+.msg-content{padding:14px 18px;border-radius:var(--r-xl);font-size:.9rem;line-height:1.7;word-break:break-word}
+.msg-row.ai .msg-content{background:var(--elevated);border:1px solid var(--border);border-radius:0 var(--r-xl) var(--r-xl) var(--r-xl)}
+.msg-row.user .msg-content{background:rgba(232,163,61,.14);border:1px solid rgba(232,163,61,.2);border-radius:var(--r-xl) 0 var(--r-xl) var(--r-xl);color:var(--text)}
+.ai-topic-tag{display:inline-block;font-size:.65rem;font-weight:600;letter-spacing:.02em;color:var(--accent2);background:rgba(91,143,174,.1);border:1px solid rgba(91,143,174,.2);padding:2px 9px;border-radius:var(--r-full);margin-bottom:6px}
+.msg-meta{display:flex;align-items:center;gap:8px;margin-top:5px;font-size:.7rem;color:var(--text3)}
+.msg-row.user .msg-meta{justify-content:flex-end}
+.msg-actions{display:flex;gap:4px;opacity:0;transition:.15s}
+.msg-row:hover .msg-actions,.msg-row:focus-within .msg-actions{opacity:1}
+.msg-act-btn{width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:.15s}
+.msg-act-btn:hover{background:rgba(232,163,61,.1);color:var(--accent)}
+
+/* Markdown content */
+.msg-content h1,.msg-content h2,.msg-content h3{font-family:var(--f-display);font-weight:600;margin:14px 0 6px;letter-spacing:-.02em}
+.msg-content h1{font-size:1.125rem}.msg-content h2{font-size:1rem}.msg-content h3{font-size:.9375rem}
+.msg-content p{margin-bottom:10px}
+.msg-content p:last-child{margin-bottom:0}
+.msg-content ul,.msg-content ol{margin:8px 0 8px 20px}
+.msg-content li{margin-bottom:4px;font-size:.875rem}
+.msg-content code{font-family:var(--f-mono);font-size:.8rem;background:rgba(232,163,61,.12);padding:1px 6px;border-radius:4px;color:var(--accent2)}
+.msg-content pre{background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);padding:14px;margin:12px 0;overflow-x:auto}
+.msg-content pre code{background:none;padding:0;color:var(--text);font-size:.8125rem;line-height:1.65}
+.msg-content strong{font-weight:600;color:var(--text)}
+.msg-content blockquote{border-left:2px solid var(--accent);padding-left:14px;margin:10px 0;color:var(--text2)}
+.msg-content hr{border:none;border-top:1px solid var(--border);margin:14px 0}
+.msg-content table{width:100%;border-collapse:collapse;font-size:.83rem;margin:10px 0}
+.msg-content th{padding:8px 12px;border-bottom:1px solid var(--border-b);text-align:left;font-weight:600;color:var(--text3);font-size:.75rem;text-transform:uppercase;letter-spacing:.06em}
+.msg-content td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text2)}
+.msg-content tr:last-child td{border-bottom:none}
+.msg-content a{color:var(--accent);text-decoration:underline;text-decoration-color:rgba(232,163,61,.4)}
+.msg-content .ai-chart{background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 16px;margin:12px 0}
+.msg-content .ai-chart-title{font-family:var(--f-display);font-weight:600;font-size:.78rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.msg-content .ai-chart-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.msg-content .ai-chart-row:last-child{margin-bottom:0}
+.msg-content .ai-chart-label{flex:0 0 30%;max-width:150px;font-size:.78rem;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msg-content .ai-chart-bar-track{flex:1;height:14px;background:rgba(232,163,61,.1);border-radius:var(--r-full);overflow:hidden}
+.msg-content .ai-chart-bar-fill{display:block;height:100%;border-radius:var(--r-full);background:var(--grad);min-width:4px}
+.msg-content .ai-chart-svg{width:100%;height:auto;display:block;overflow:visible}
+.msg-content .ai-chart-line{fill:none;stroke:#e8a33d;stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.msg-content .ai-chart-area{fill:rgba(232,163,61,.14);stroke:none}
+.msg-content .ai-chart-svg circle{fill:#e8a33d}
+.msg-content .ai-chart-axis{stroke:rgba(128,128,128,.35);stroke-width:1}
+.msg-content .ai-chart-svg text{font-size:11px;fill:currentColor;opacity:.65;font-family:inherit}
+.msg-content .ai-chart-svg text.ai-chart-pt{opacity:1;font-weight:700}
+.msg-content .ai-donut-wrap{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.msg-content .ai-donut{position:relative;width:112px;height:112px;border-radius:50%;flex:0 0 auto}
+.msg-content .ai-donut span{position:absolute;inset:26%;border-radius:50%;background:var(--card)}
+.msg-content .ai-donut-legend{flex:1;min-width:180px}
+.msg-content .ai-donut-item{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:.78rem}
+.msg-content .ai-donut-dot{width:10px;height:10px;border-radius:3px;flex:0 0 auto}
+.msg-content .ai-donut-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.msg-content .ai-kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}
+.msg-content .ai-kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.msg-content .ai-kpi-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;opacity:.65;margin-bottom:6px}
+.msg-content .ai-kpi-value{font-size:1.25rem;font-weight:700;line-height:1.2}
+.msg-content .ai-kpi-delta{font-size:.74rem;margin-top:4px;opacity:.8}
+.msg-content .ai-kpi-delta.up{color:#3f9b5f;opacity:1}
+.msg-content .ai-kpi-delta.down{color:#c8503c;opacity:1}
+.msg-content .ai-chart-value{flex:0 0 auto;font-family:var(--f-mono);font-size:.75rem;font-weight:600;color:var(--text);min-width:56px;text-align:right}
+
+/* Typing indicator */
+.typing-indicator{display:flex;gap:12px;align-items:flex-start;margin-bottom:20px}
+.typing-dots{padding:14px 18px;background:var(--elevated);border:1px solid var(--border);border-radius:0 var(--r-xl) var(--r-xl) var(--r-xl);display:flex;gap:5px;align-items:center}
+.typing-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);opacity:.5;animation:typingBounce 1.2s ease-in-out infinite}
+.typing-dot:nth-child(2){animation-delay:.2s}
+.typing-dot:nth-child(3){animation-delay:.4s}
+@keyframes typingBounce{0%,80%,100%{transform:translateY(0);opacity:.5}40%{transform:translateY(-6px);opacity:1}}
+
+/* COMPOSER */
+.composer-wrap{padding:16px 20px;border-top:1px solid var(--border);background:var(--bg);flex-shrink:0}
+.composer-inner{max-width:780px;margin:0 auto}
+.composer-box{background:var(--surface);border:1px solid var(--border-b);border-radius:var(--r-xl);overflow:hidden;transition:.2s;position:relative}
+.composer-box:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,163,61,.12)}
+.composer-top{display:flex;align-items:flex-end;gap:0}
+textarea#chatInput{flex:1;border:none;background:none;color:var(--text);font-size:.9375rem;font-family:var(--f-body);padding:14px 16px;resize:none;outline:none;min-height:52px;max-height:200px;line-height:1.55;scrollbar-width:none}
+textarea#chatInput::-webkit-scrollbar{display:none}
+textarea#chatInput::placeholder{color:var(--text3)}
+.composer-actions{display:flex;align-items:flex-end;gap:6px;padding:10px 12px 10px 0}
+.attach-btn{width:32px;height:32px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;color:var(--text3);transition:.15s}
+.attach-btn:hover{color:var(--accent);background:rgba(232,163,61,.1)}
+.send-btn{width:36px;height:36px;border-radius:var(--r-lg);background:var(--grad);display:flex;align-items:center;justify-content:center;color:#fff;transition:.2s;box-shadow:0 4px 14px rgba(184,115,22,.35)}
+.send-btn:hover{opacity:.9;transform:scale(1.05)}
+.send-btn:disabled{opacity:.4;transform:none;pointer-events:none}
+.composer-footer{display:flex;align-items:center;justify-content:space-between;padding:8px 14px 10px;border-top:1px solid var(--border)}
+.composer-hints{display:flex;gap:8px;align-items:center}
+.hint-chip{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:var(--r-full);background:var(--elevated);border:1px solid var(--border);font-size:.7rem;color:var(--text3);cursor:pointer;transition:.15s}
+.hint-chip:hover{border-color:var(--border-b);color:var(--text2)}
+.hint-chip svg{color:var(--accent)}
+.composer-info{font-size:.68rem;color:var(--text3)}
+.composer-info button{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
+
+/* ══════════ API KEY MODAL ══════════ */
+.modal-overlay{position:fixed;inset:0;background:var(--overlay);backdrop-filter:blur(16px);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-card{background:var(--elevated);border:1px solid var(--border-b);border-radius:var(--r-xl);padding:36px;max-width:440px;width:calc(100% - 32px);position:relative;box-shadow:var(--shadow-lg);transform:translateY(12px);transition:.3s cubic-bezier(.16,1,.3,1)}
+.modal-overlay.open .modal-card{transform:none}
+.modal-close{position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;color:var(--text3);transition:.15s}
+.modal-close:hover{background:rgba(232,163,61,.1);color:var(--text)}
+.modal-icon{width:44px;height:44px;border-radius:var(--r-md);background:var(--grad);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.modal-card h3{font-family:var(--f-display);font-size:1.25rem;font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
+.modal-card>p{font-size:.875rem;color:var(--text2);line-height:1.6;margin-bottom:22px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:.8rem;color:var(--text2);margin-bottom:6px;font-weight:500}
+.field input{width:100%;padding:10px 14px;border-radius:var(--r-md);border:1px solid var(--border-b);background:var(--surface);color:var(--text);font-size:.9rem;outline:none;transition:.2s;font-family:var(--f-mono)}
+.field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,163,61,.12)}
+.field input::placeholder{color:var(--text3)}
+.field-hint{font-size:.7rem;color:var(--text3);margin-top:5px}
+.modal-note{font-size:.75rem;color:var(--text3);text-align:center;margin-top:12px;line-height:1.5}
+.modal-card-wide{max-width:520px}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.about-item{display:flex;align-items:flex-start;gap:10px;padding:12px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--border)}
+.about-item-icon{width:28px;height:28px;border-radius:8px;background:rgba(232,163,61,.12);color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.about-item p{font-size:.8125rem;font-weight:600;color:var(--text);margin-bottom:2px}
+.about-item span{font-size:.7rem;color:var(--text3);line-height:1.4;display:block}
+@media(max-width:480px){.about-grid{grid-template-columns:1fr}}
+
+/* ══════════ TOAST ══════════ */
+.toast-stack{position:fixed;bottom:24px;right:24px;z-index:600;display:flex;flex-direction:column;gap:8px}
+.toast{padding:11px 16px;border-radius:var(--r-md);background:var(--elevated);border:1px solid var(--border-b);font-size:.85rem;color:var(--text);box-shadow:var(--shadow-md);animation:toastIn .3s cubic-bezier(.16,1,.3,1);display:flex;align-items:center;gap:8px}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+
+/* ══════════ RESPONSIVE ══════════ */
+@media(max-width:768px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:100;width:var(--sidebar-w);transform:translateX(-100%);transition:.3s cubic-bezier(.16,1,.3,1)}
+  .sidebar.open{transform:none;box-shadow:4px 0 32px rgba(0,0,0,.5)}
+  .mobile-menu-btn{display:flex}
+  .suggest-grid{grid-template-columns:1fr}
+  .messages-inner{padding:20px 14px}
+  .topbar{padding:0 12px;gap:7px}
+  .top-actions{gap:3px}
+  .top-actions .btn{padding:5px 8px}
+  .composer-footer{align-items:flex-start;gap:8px;flex-wrap:wrap}
+  .composer-hints{max-width:100%;overflow-x:auto;padding-bottom:2px}
+}
+@media(max-width:560px){
+  .top-actions>#aboutTopBtn,.top-actions>a[href="data-studio.html"],.top-actions>a[href="dashboard.html"]{display:none}
+  .top-actions>a[data-ai-settings-link]{font-size:0;padding:7px}
+  .top-actions>a[data-ai-settings-link] svg{width:16px;height:16px}
+  .conv-title{font-size:.8rem;min-width:0}
+  #convTitleText{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ai-runtime>summary{font-size:0;gap:0;padding:8px}
+  .ai-runtime>summary .runtime-dot{width:9px;height:9px}
+  .top-actions>#odooChip{max-width:88px;overflow:hidden;text-overflow:ellipsis}
+  .composer-info{width:100%;text-align:right}
+  .msg-actions{opacity:1}
+}
+@media(max-width:360px){
+  .topbar{padding:0 7px;gap:4px}
+  .top-actions{gap:1px}
+  .top-actions>#odooChip{display:none}
+  .empty-state{padding:24px 10px}
+  .suggest-card{padding:12px}
+}
+@media(hover:none){.msg-actions{opacity:1}}
+
+/* ── Match the People (HR) dashboard's glass-card look ──────────────────
+   Same idea as .hr-card in css/people.css: translucent surface + blur +
+   a touch more radius, instead of a flat opaque panel. Scoped to this
+   page's own tokens so it stays consistent with its existing dark/light
+   themes rather than importing new ones. */
+.sidebar{background:color-mix(in srgb, var(--surface) 82%, transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.suggest-card{background:color-mix(in srgb, var(--surface) 78%, transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:var(--r-xl)}
+.suggest-card:hover{background:color-mix(in srgb, var(--surface) 92%, transparent);border-color:var(--border-b);transform:translateY(-2px)}
+.composer-box{background:color-mix(in srgb, var(--surface) 84%, transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.modal-card{background:color-mix(in srgb, var(--elevated) 88%, transparent);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.msg-content pre{border-radius:var(--r-lg)}
+ .ai-dashboard-artifact{margin:18px 0;padding:22px;border:1px solid var(--border-b);border-radius:var(--r-lg);background:var(--surface);color:var(--text)}
+ .ai-dashboard-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px}
+ .ai-dashboard-head h2{font:700 1.25rem var(--f-display);margin:0 0 5px}
+ .ai-dashboard-meta,.ai-dashboard-notes{font-size:.78rem;line-height:1.55;color:var(--text2);overflow-wrap:anywhere}
+ .ai-dashboard-actions{display:flex;gap:8px;flex-shrink:0}
+ .ai-dashboard-actions button{padding:8px 12px;border:1px solid var(--border-b);border-radius:var(--r-full);color:var(--text);font-size:.78rem}
+ .ai-dashboard-actions button:hover{background:var(--grad-soft)}
+ .ai-dashboard-metric{padding:14px 0;border-top:1px solid var(--border)}
+ .ai-dashboard-metric h3{font:600 .95rem var(--f-display);margin-bottom:10px}
+ .ai-dashboard-bars{display:grid;gap:8px;margin:0 0 14px}
+ .ai-dashboard-bar-row{display:grid;grid-template-columns:minmax(90px,1fr) minmax(100px,2fr) minmax(60px,auto);align-items:center;gap:10px;font-size:.78rem}
+ .ai-dashboard-bar-label{overflow-wrap:anywhere}
+ .ai-dashboard-bar-track{height:12px;border-radius:var(--r-full);background:var(--grad-soft);overflow:hidden}
+ .ai-dashboard-bar-fill{display:block;height:100%;border-radius:inherit;background:var(--grad)}
+ .ai-dashboard-line{display:block;width:100%;max-height:220px;margin:8px 0 14px;overflow:visible}
+ .ai-dashboard-line line{stroke:var(--border-b);stroke-width:1}
+ .ai-dashboard-line path{fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+ .ai-dashboard-line circle{fill:var(--accent)}
+ .ai-dashboard-line text{fill:currentColor;font:11px var(--f-body)}
+ .ai-dashboard-table{width:100%;border-collapse:collapse;font-size:.75rem;margin:8px 0 0}
+ .ai-dashboard-table th,.ai-dashboard-table td{text-align:left;border:1px solid var(--border);padding:6px 8px}
+ .ai-dashboard-table th{background:var(--grad-soft);font-weight:600}
+ .ai-dashboard-notes{margin-top:14px}
+ .ai-dashboard-notes h3{font:600 .82rem var(--f-display);color:var(--text);margin:10px 0 4px}
+ .ai-dashboard-readout{white-space:pre-wrap;font-size:.8rem;line-height:1.6;color:var(--text2)}
+ @media print{
+   @page{size:A4;margin:14mm}
+   body.ai-dashboard-printing{display:block;height:auto;min-height:0;overflow:visible;background:#fff}
+   body.ai-dashboard-printing .shell,body.ai-dashboard-printing .main,body.ai-dashboard-printing .messages-area,body.ai-dashboard-printing .messages-inner,body.ai-dashboard-printing .msg-row,body.ai-dashboard-printing .msg-bubble,body.ai-dashboard-printing .msg-content{display:block;position:static;height:auto;max-height:none;overflow:visible;background:transparent}
+   body.ai-dashboard-printing *{visibility:hidden!important}
+   body.ai-dashboard-printing .ai-dashboard-artifact,body.ai-dashboard-printing .ai-dashboard-artifact *{visibility:visible!important}
+   body.ai-dashboard-printing .ai-dashboard-artifact{position:absolute;left:0;top:0;width:100%;margin:0;padding:0;border:0;background:#fff!important;color:#1c2321!important;box-shadow:none}
+   body.ai-dashboard-printing .ai-dashboard-actions{display:none!important}
+   body.ai-dashboard-printing .ai-dashboard-line{color:#1c2321}
+   body.ai-dashboard-printing .ai-dashboard-meta,body.ai-dashboard-printing .ai-dashboard-notes{color:#46504b!important}
+   body.ai-dashboard-printing .ai-dashboard-readout{color:#1c2321!important}
+   body.ai-dashboard-printing .ai-dashboard-metric{break-inside:avoid}
+ }
+</style>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="DashView"/>
+<link rel="stylesheet" href="css/security.css"/>
+<script src="js/config.js"></script>
+<script defer src="js/updater.js"></script>
+<link rel="stylesheet" href="css/pro-detail.css"/>
+</head>
+<body>
+
+<div class="shell" id="shell">
+
+  <!-- ══════════ SIDEBAR ══════════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-head">
+      <a href="index.html" class="sb-brand">
+        <div class="sb-logo"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M7 13l3-5 2 3 2-4 3 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        DashView
+      </a>
+      <button class="new-chat-btn" id="newChatBtn" type="button" aria-label="Start a new chat">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        New chat
+      </button>
+    </div>
+    <div class="sb-search">
+      <div class="sb-search-wrap">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="search" placeholder="Search conversations…" id="convoSearch" aria-label="Search conversations"/>
+      </div>
+    </div>
+    <p class="sb-section-label">Recent</p>
+    <div class="convo-list" id="convoList"></div>
+    <div class="sb-footer">
+      <div class="sb-user" id="aboutBtn" title="About this AI" role="button" tabindex="0" aria-label="About this AI">
+        <div class="avatar">AK</div>
+        <div class="sb-user-info">
+          <p>Amara Khan</p>
+          <span>acme-corp</span>
+          <div class="sb-api-badge" id="apiBadge" data-state="local">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+            <span>Local engine · on this device</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══════════ MAIN ══════════ -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <button class="mobile-menu-btn icon-btn" id="mobileMenuBtn" type="button" aria-label="Open navigation menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <div class="conv-title">
+        <span class="conv-title-dot"></span>
+        <span id="convTitleText">New conversation</span>
+      </div>
+      <div class="top-actions">
+        <details class="ai-runtime" id="aiRuntime" data-state="local">
+          <summary>
+            <span class="runtime-dot" aria-hidden="true"></span>
+            <span id="providerStatusLabel" role="status" aria-live="polite">Local · on this device</span>
+          </summary>
+          <div class="ai-runtime-panel">
+            <p class="runtime-panel-title">Provider &amp; data use</p>
+            <p class="runtime-detail" id="providerDetailsText"></p>
+            <p class="runtime-detail" id="contextDetailsText"></p>
+            <p class="runtime-detail runtime-note" id="privacyDetailsText"></p>
+            <div class="runtime-actions">
+              <a class="btn btn-outline" href="dashboard.html?stg=ai#settings" data-ai-settings-link>Provider settings</a>
+              <button class="btn btn-outline" type="button" id="connectionReportBtn">Check Odoo connection</button>
+            </div>
+          </div>
+        </details>
+        <button class="btn btn-outline btn-sm" id="odooChip" type="button" title="Check the Odoo connection" aria-live="polite" hidden>Odoo …</button>
+        <button class="btn btn-outline btn-sm" id="aboutTopBtn" type="button">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+          About
+        </button>
+        <a href="data-studio.html" class="btn btn-outline btn-sm">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
+          Data Studio
+        </a>
+        <a href="dashboard.html" class="btn btn-outline btn-sm">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+          Dashboard
+        </a>
+        <a href="dashboard.html?stg=ai#settings" class="btn btn-outline btn-sm" data-ai-settings-link title="Choose your AI provider and API key">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Settings
+        </a>
+        <button class="icon-btn theme-toggle" id="themeToggle" type="button" aria-label="Switch to light theme" title="Switch theme">
+          <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+        </button>
+        <button class="icon-btn" id="clearChatBtn" type="button" aria-label="Clear conversation" title="Clear conversation">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+        </button>
+        <button class="icon-btn" id="exportChatBtn" type="button" aria-label="Export chat" title="Export chat">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- MESSAGES -->
+    <div class="messages-area" id="messagesArea" role="log" aria-label="Conversation" aria-live="polite" aria-relevant="additions">
+      <div class="messages-inner" id="messagesInner">
+        <!-- Empty state -->
+        <div class="empty-state" id="emptyState">
+          <div class="empty-logo">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M7 13l3-5 2 3 2-4 3 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h2>What can I help you with?</h2>
+          <p>Start with a practical task: debug code, explore DashView, plan a rollout, or ask for a report. Local replies stay in this tab; hosted providers and optional company context are clearly labeled.</p>
+          <div class="suggest-grid">
+            <button class="suggest-card" data-prompt="Debug this function — something's wrong with it:\n\n```js\nfunction getRevenue(orders) {\n  var total = 0\n  for (var i=0; i<orders.length; i++ {\n    total += orders[i].price * orders[i].qty\n  }\n  return total\n}\n```">
+              <p>Debug my code</p>
+              <span>Real static analysis, not a guess</span>
+            </button>
+            <button class="suggest-card" data-prompt="How does the auto-suggest engine in Data Studio decide which charts and KPIs to recommend?">
+              <p>How does Data Studio work?</p>
+              <span>Column typing & auto-suggest</span>
+            </button>
+            <button class="suggest-card" data-prompt="What's the safest way to roll out a risky deploy and roll it back if something breaks?">
+              <p>Deploys & rollbacks</p>
+              <span>Feature flags, canaries, rollback</span>
+            </button>
+            <button class="suggest-card" data-prompt="status">
+              <p>Check my connections</p>
+              <span>Get a live Odoo connection report</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPOSER -->
+    <div class="composer-wrap">
+      <div class="composer-inner">
+        <div class="composer-box">
+          <div class="composer-top">
+            <textarea id="chatInput" aria-label="Message the DashView AI assistant. Press Enter to send; Shift plus Enter for a new line." placeholder="Message DashView AI…" rows="1"></textarea>
+            <div class="composer-actions">
+              <button class="send-btn" id="sendBtn" type="button" aria-label="Send message" title="Send message (Enter)" disabled>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="composer-footer">
+            <div class="composer-hints">
+              <button class="hint-chip" data-prompt="What's a good strategy for handling a slow database query?">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
+                Slow query
+              </button>
+              <button class="hint-chip" data-prompt="What refactoring patterns should I use to improve this codebase?">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l-6-6 6-6M15 6l6 6-6 6"/></svg>
+                Refactoring
+              </button>
+              <button class="hint-chip" data-prompt="How do calculated columns and formulas work in Data Studio?">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                Formulas
+              </button>
+            </div>
+            <span class="composer-info">DashView AI · <span id="modelLabel">local engine</span> · <button type="button" id="contextDetailsBtn" aria-expanded="false" aria-controls="aiRuntime">data &amp; connection details</button></span>
+          </main>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ ABOUT THIS AI MODAL ══════════ -->
+<div class="modal-overlay" id="aboutModal">
+  <div class="modal-card modal-card-wide" role="dialog" aria-modal="true" aria-labelledby="aboutModalTitle">
+    <button class="modal-close" id="aboutModalClose" type="button" aria-label="Close About this AI">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="modal-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+    </div>
+    <h3 id="aboutModalTitle">About this AI</h3>
+    <p>By default, DashView uses a deterministic local engine: your message stays in this tab, and pasted code can receive local static checks. You can optionally choose a hosted provider in Settings → AI Assistant. The Provider &amp; data use panel shows the selected provider, whether it has actually replied, and what conversation/company context may be included. Conversations remain saved in this browser.</p>
+    <div class="about-grid">
+      <div class="about-item">
+        <div class="about-item-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 16 4-4-4-4M6 8l-4 4 4 4M14.5 4l-5 16"/></svg></div>
+        <div><p>Local code diagnostics</p><span>Syntax/structure checks for JS, JSON, HTML & Python in local mode</span></div>
+      </div>
+      <div class="about-item">
+        <div class="about-item-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+        <div><p>Engineering &amp; product help</p><span>Local guidance plus optional hosted-model answers</span></div>
+      </div>
+      <div class="about-item">
+        <div class="about-item-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h6"/></svg></div>
+        <div><p>Company reporting</p><span>Hosted providers can use connected Odoo context when enabled</span></div>
+      </div>
+      <div class="about-item">
+        <div class="about-item-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg></div>
+        <div><p>Conversation stays local</p><span>Chat history is saved in this browser, across provider changes</span></div>
+      </div>
+    </div>
+    <p class="modal-note">Local answers are deterministic; hosted replies can vary. Direct-provider keys are stored in this browser and sent with requests, so only use a trusted browser profile. Type <code style="font-size:.7rem;background:rgba(232,163,61,.1);padding:1px 5px;border-radius:3px">help</code> in local mode to see supported topics.</p>
+    <button class="btn btn-primary btn-block" id="aboutModalGotIt" style="margin-top:16px">Got it →</button>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<script src="js/dv-security.js"></script>
+<script src="js/ai-api-config.js"></script>
+<script src="js/ai-config-store.js"></script>
+<script src="js/odoo-service.js"></script>
+<script src="js/ai-company-context.js"></script>
+<script src="js/ai-odoo-agent.js"></script>
+<script src="js/ai-conversation-context.js"></script>
+<script src="js/ai-engine.js"></script>
+<script src="js/report-engine.js"></script>
+<script>
+// ══════════ STATE ══════════
+let conversations = JSON.parse(localStorage.getItem('al_convos') || '{}');
+const ACTIVE_CONVO_KEY = 'al_active_convo_id';
+let activeId = localStorage.getItem(ACTIVE_CONVO_KEY);
+let aiDashboardArtifactId = 0;
+const aiDashboardPayloads = Object.create(null);
+let isStreaming = false;
+let runtimeProvider = null;
+let runtimeOutcome = 'pending';
+let runtimeCheckedAt = 0;
+
+// ══════════ HELPERS ══════════
+const qs = s => document.querySelector(s);
+const on = (el, ev, fn) => el?.addEventListener(ev, fn);
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+// ── Theme ──
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  try { localStorage.setItem('dashview-theme', t); } catch (e) {}
+  const meta = qs('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', t === 'light' ? '#f5f6f3' : '#0a0c0b');
+  const btn = qs('#themeToggle');
+  if (btn) btn.setAttribute('aria-label', t === 'light' ? 'Switch to dark theme' : 'Switch to light theme');
+}
+on(qs('#themeToggle'), 'click', () => {
+  applyTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+});
+window.addEventListener('storage', e => {
+  if (e.key === 'dashview-theme' && (e.newValue === 'light' || e.newValue === 'dark')) {
+    applyTheme(e.newValue);
+  }
+});
+applyTheme(document.documentElement.getAttribute('data-theme') || 'dark');
+
+function toast(msg, type='default', dur=3500) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  const icon = type==='success'?'✓ ':type==='error'?'✕ ':'';
+  el.innerHTML = `<span>${icon}${esc(msg)}</span>`;
+  qs('#toastStack').appendChild(el);
+  setTimeout(() => el.remove(), dur);
+}
+
+function genId() { return 'c_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+
+function saveConvos() { localStorage.setItem('al_convos', JSON.stringify(conversations)); }
+
+function providerLabel(cfg) {
+  if (!cfg || cfg.provider === 'offline') return 'Offline demo engine';
+  const providers = window.DVAIConfig && window.DVAIConfig.PROVIDERS;
+  return (providers && providers[cfg.provider] && providers[cfg.provider].label) || cfg.provider || 'AI provider';
+}
+
+function refreshAssistantStatus(resetOutcome) {
+  const cfg = window.DVAIConfig ? window.DVAIConfig.get() : { provider: 'offline' };
+  const provider = cfg.provider || 'offline';
+  if (provider !== runtimeProvider || resetOutcome) {
+    runtimeProvider = provider;
+    runtimeOutcome = 'pending';
+    runtimeCheckedAt = 0;
+  }
+  const status = qs('#providerStatusLabel');
+  const details = qs('#providerDetailsText');
+  const context = qs('#contextDetailsText');
+  const privacy = qs('#privacyDetailsText');
+  const runtime = qs('#aiRuntime');
+  const model = qs('#modelLabel');
+  const sidebarBadge = qs('#apiBadge');
+  const sidebarLabel = sidebarBadge && sidebarBadge.querySelector('span');
+  const label = providerLabel(cfg);
+  const activeModel = window.DVAIConfig && window.DVAIConfig.activeModel ? window.DVAIConfig.activeModel(cfg) : '';
+  const configured = !!(window.DVAIConfig && window.DVAIConfig.isConfigured());
+  let state = 'local';
+  let stateLabel = 'Local · on this device';
+  let providerText = 'The offline demo engine runs in this tab. It does not contact an AI provider.';
+
+  if (provider !== 'offline' && !configured) {
+    state = 'setup';
+    stateLabel = 'Setup needed · ' + label;
+    providerText = label + ' is selected but is not ready. Add the required key or backend URL in Provider settings. No hosted request has been sent; local replies remain available.';
+  } else if (provider !== 'offline') {
+    state = runtimeOutcome === 'connecting' ? 'connecting' : runtimeOutcome === 'connected' ? 'connected' : runtimeOutcome === 'error' ? 'error' : 'ready';
+    stateLabel = state === 'connecting' ? 'Connecting · ' + label
+      : state === 'connected' ? 'Responded · ' + label
+      : state === 'error' ? 'Last request failed · ' + label
+      : 'Configured · ' + label;
+    providerText = state === 'connected'
+      ? label + ' returned a response' + (runtimeCheckedAt ? ' at ' + new Date(runtimeCheckedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '') + '. This confirms the last request only.'
+      : state === 'error'
+        ? 'The most recent request to ' + label + ' failed. Check the error in the conversation, your provider settings, and your network. No background connectivity check is running.'
+        : state === 'connecting'
+            ? 'A request to ' + label + (activeModel ? ' (' + activeModel + ')' : '') + ' is in progress. The status changes to responded or failed when it finishes.'
+            : label + (activeModel ? ' (' + activeModel + ')' : '') + ' is configured, but has not been tested yet. Connectivity is checked when you send a message.';
+  }
+
+  if (status) status.textContent = stateLabel;
+  if (details) details.textContent = providerText;
+  if (runtime) runtime.setAttribute('data-state', state);
+  if (model) model.textContent = provider === 'offline' ? 'local engine' : (activeModel || label);
+  if (sidebarBadge) sidebarBadge.setAttribute('data-state', state);
+  if (sidebarLabel) sidebarLabel.textContent = state === 'local' ? 'Local engine · on this device'
+    : state === 'setup' ? 'Provider setup needed · local mode'
+      : state === 'connecting' ? 'Provider connecting'
+        : state === 'connected' ? 'Provider responded'
+          : state === 'error' ? 'Provider unavailable'
+            : 'Provider not tested';
+
+  if (context) {
+    if (provider === 'offline') {
+      context.textContent = 'Data sent: none. Messages and conversation history remain in this browser. Local replies do not use GitHub, dashboard, or Odoo records.';
+    } else if (!configured) {
+      context.textContent = 'Your conversation is still saved locally. No hosted request is made until this provider is configured and you send a message.';
+    } else if (provider === 'dashview') {
+      context.textContent = 'Hosted requests include your current prompt and up to 24 recent prior messages (up to 24,000 characters of prior context). The backend may use its configured Odoo tools; browser dashboard context is not attached by this page.';
+    } else {
+      const contextEnabled = cfg.includeCompanyContext !== false;
+      context.textContent = 'Hosted requests include your current prompt and up to 24 recent prior messages (up to 24,000 characters of prior context). ' +
+        (contextEnabled
+          ? 'Company context is on: dashboard project/GitHub summaries and relevant Odoo records may also be included when available.'
+          : 'Company context is off: dashboard and Odoo context are not added by this page.') +
+        ' Full conversation history remains saved in this browser.';
+    }
+  }
+  if (privacy) {
+    privacy.textContent = provider === 'offline'
+      ? 'No provider connection is made. Conversation history is saved in this browser.'
+      : provider === 'dashview'
+        ? 'Model-provider keys stay on the configured backend. The browser sends the current prompt/history to that backend using the available app session or service key.'
+        : 'This provider key is stored in this browser’s settings and sent with requests to the provider or configured proxy. Use a trusted browser profile; credentials are never displayed here.';
+    privacy.textContent += ' Connectivity is based on the last request, not a background ping.';
+  }
+}
+
+function recordProviderOutcome(provider, outcome) {
+  const current = window.DVAIConfig ? window.DVAIConfig.get() : { provider: 'offline' };
+  if (current.provider !== provider) return;
+  runtimeProvider = provider;
+  runtimeOutcome = outcome;
+  runtimeCheckedAt = Date.now();
+  refreshAssistantStatus();
+}
+
+// ══════════ CONVERSATION LIST ══════════
+function renderConvoList(filter='') {
+  const list = qs('#convoList');
+  const ids = Object.keys(conversations).sort((a,b) => (conversations[b].updatedAt||0) - (conversations[a].updatedAt||0));
+  const filtered = filter ? ids.filter(id => (conversations[id].title||'').toLowerCase().includes(filter.toLowerCase())) : ids;
+  if (!filtered.length) {
+    list.innerHTML = `<p style="font-size:.75rem;color:var(--text3);text-align:center;padding:20px 10px">${filter?'No results':'No conversations yet'}</p>`;
+    return;
+  }
+  list.innerHTML = filtered.map(id => {
+    const c = conversations[id];
+    const preview = c.messages?.[c.messages.length-1]?.content?.slice(0,60)||'';
+    return `<div class="convo-item${id===activeId?' active':''}" data-id="${esc(id)}">
+      <button class="convo-item-open" type="button" aria-current="${id===activeId?'page':'false'}" aria-label="Open conversation: ${esc(c.title||'New conversation')}">
+        <span class="convo-item-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+        <span class="convo-item-body">
+          <span class="convo-item-title">${esc(c.title||'New conversation')}</span>
+          <span class="convo-item-preview">${esc(preview)}</span>
+        </span>
+      </button>
+      <button class="convo-item-del" data-del="${esc(id)}" type="button" title="Delete conversation" aria-label="Delete conversation: ${esc(c.title||'New conversation')}">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+      </button>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.convo-item-open').forEach(item => {
+    item.addEventListener('click', () => loadConvo(item.closest('.convo-item').dataset.id));
+  });
+  list.querySelectorAll('[data-del]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      deleteConvo(btn.dataset.del);
+    });
+  });
+}
+
+function loadConvo(id) {
+  activeId = id;
+  localStorage.setItem(ACTIVE_CONVO_KEY, id);
+  const c = conversations[id];
+  qs('#convTitleText').textContent = c.title || 'New conversation';
+  const inner = qs('#messagesInner');
+  inner.innerHTML = '';
+  if (!c.messages || !c.messages.length) {
+    inner.appendChild(createEmptyState());
+  } else {
+    c.messages.forEach(m => appendMessage(m.role, m.content, false, m.tag, m.dashboard, m.liveOdoo));
+  }
+  renderConvoList();
+  scrollBottom();
+  if (window.innerWidth <= 768) qs('#sidebar').classList.remove('open');
+}
+
+function deleteConvo(id) {
+  delete conversations[id];
+  saveConvos();
+  if (activeId === id) startNewChat();
+  else renderConvoList();
+}
+
+function startNewChat() {
+  const id = genId();
+  conversations[id] = { title:'', messages:[], updatedAt:Date.now() };
+  activeId = id;
+  localStorage.setItem(ACTIVE_CONVO_KEY, id);
+  saveConvos();
+  const inner = qs('#messagesInner');
+  inner.innerHTML = '';
+  inner.appendChild(createEmptyState());
+  qs('#convTitleText').textContent = 'New conversation';
+  renderConvoList();
+}
+
+function createEmptyState() {
+  const div = document.createElement('div');
+  div.className = 'empty-state';
+  div.id = 'emptyState';
+  const cfg = window.DVAIConfig ? window.DVAIConfig.get() : null;
+  const live = !!(cfg && window.DVAIConfig.isConfigured() && cfg.provider !== 'offline');
+  const chosenProvider = !!(cfg && cfg.provider && cfg.provider !== 'offline');
+  const selectedLabel = chosenProvider ? providerLabel(cfg) : '';
+  const hasCompanyContext = !!(cfg && cfg.includeCompanyContext !== false);
+  const odooConnected = !!(window.DVOdoo && window.DVOdoo.isConnected && window.DVOdoo.isConnected());
+  const responseNote = runtimeOutcome === 'connected'
+    ? 'The last request received a reply.'
+    : runtimeOutcome === 'error'
+      ? 'The last request failed; see provider status for details.'
+      : 'Connectivity is checked when you send a message.';
+  const introText = live
+    ? `Configured for ${esc(selectedLabel)}${hasCompanyContext && cfg.provider !== 'dashview' ? ', with optional dashboard and Odoo context' : ''}. ${responseNote}`
+    : chosenProvider
+      ? `${esc(selectedLabel)} is selected but needs setup. You can still use the local demo engine while you configure a provider.`
+      : `The local demo engine runs in this tab with no provider key or network calls. Paste code to debug, explore DashView, plan a rollout, or check your connections.`;
+  const companyPrompt = live && hasCompanyContext && odooConnected
+    ? `<button class="suggest-card" data-prompt="Create a concise business report from the connected Odoo data: summarize recent sales orders, top products, and CRM leads worth following up on. Separate observed figures from recommendations."><p>Report on my business</p><span>Use connected Odoo data; label figures and insights</span></button>`
+    : `<button class="suggest-card" data-prompt="status"><p>Check my connections</p><span>Get a live Odoo connection report</span></button>`;
+  div.innerHTML = `
+    <div class="empty-logo"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M7 13l3-5 2 3 2-4 3 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <h2>What can I help you with?</h2>
+    <p>${introText}</p>
+    <div class="suggest-grid">
+      <button class="suggest-card" data-prompt="Debug this function — something's wrong with it:\n\n\`\`\`js\nfunction getRevenue(orders) {\n  var total = 0\n  for (var i=0; i<orders.length; i++ {\n    total += orders[i].price * orders[i].qty\n  }\n  return total\n}\n\`\`\`"><p>Debug my code</p><span>Real static analysis, not a guess</span></button>
+      <button class="suggest-card" data-prompt="How does the auto-suggest engine in Data Studio decide which charts and KPIs to recommend?"><p>How does Data Studio work?</p><span>Column typing & auto-suggest</span></button>
+      <button class="suggest-card" data-prompt="What's the safest way to roll out a risky deploy and roll it back if something breaks?"><p>Plan a safe rollout</p><span>Canary steps, success signals, and rollback</span></button>
+      ${companyPrompt}
+    </div>`;
+  div.querySelectorAll('.suggest-card').forEach(btn => {
+    btn.addEventListener('click', () => sendMessage(btn.dataset.prompt));
+  });
+  return div;
+}
+
+// Reopen the selected thread; on older installs without an active-id key,
+// resume the most recently updated conversation rather than creating a
+// fresh empty thread every time the page is opened.
+if (!conversations[activeId]) {
+  activeId = Object.keys(conversations).sort((a, b) => (conversations[b].updatedAt || 0) - (conversations[a].updatedAt || 0))[0] || null;
+}
+if (!activeId) startNewChat();
+else loadConvo(activeId);
+
+// Deep-link support: ai.html?q=your question here — auto-sends it as the
+// first message (used by "Ask AI" links elsewhere in the app) and cleans
+// the URL afterward so refreshing doesn't resubmit it.
+(function handleQueryHandoff() {
+  const params = new URLSearchParams(window.location.search);
+  const q = params.get('q');
+  if (!q) return;
+  history.replaceState({}, '', window.location.pathname);
+  setTimeout(() => sendMessage(q), 150);
+})();
+
+// ══════════ MARKDOWN RENDERER ══════════
+// Turns one ```chart fenced block into a horizontal bar chart. Expected
+// shape (see js/ai-company-context.js's reporting instructions):
+//   ```chart
+//   Optional title
+//   Label one: 12345
+//   Label two: 9876
+//   ```
+// Returns an HTML string, or null if fewer than 2 lines parse as
+// "label <: or |> number" — the caller then leaves the original fenced
+// block untouched so it still renders as a plain code block rather than
+// disappearing.
+function renderChartBlock(raw) {
+  var lines = raw.split(/\r?\n/).map(function (l) { return l.trim(); }).filter(Boolean);
+  var rowRe = /^(.+?)\s*[:|]\s*[$€£₹]?\s*([+-]?[\d,]*\.?\d+)\s*%?$/;
+  var PALETTE = ['#e8a33d', '#5b8fae', '#c76b3c', '#7aa874', '#a78bc4', '#d4b95e', '#5fb3b3', '#b0798a'];
+
+  // Optional first line "type: bar | line | donut" (default bar).
+  var kind = 'bar';
+  if (lines.length && /^type\s*:\s*(bar|line|donut)$/i.test(lines[0])) {
+    kind = lines.shift().split(':')[1].trim().toLowerCase();
+  }
+  var title = '';
+  if (lines.length && !rowRe.test(lines[0])) title = lines.shift();
+
+  var rows = lines.map(function (l) {
+    var m = l.match(rowRe);
+    if (!m) return null;
+    return { label: m[1].trim(), value: parseFloat(m[2].replace(/,/g, '')) };
+  }).filter(function (r) { return r && isFinite(r.value); }).slice(0, kind === 'line' ? 24 : 8);
+
+  if (rows.length < 2) return null;
+
+  function fmt(v) {
+    var rounded = Math.round(v);
+    return (Math.abs(v - rounded) < 0.005 ? rounded : v).toLocaleString();
+  }
+  var titleHtml = title ? '<div class="ai-chart-title">' + (title) + '</div>' : '';
+  var vals = rows.map(function (r) { return r.value; });
+
+  if (kind === 'line') {
+    var W = 560, H = 190, L = 10, R = 14, T = 22, B = 26;
+    var mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals);
+    var span = (mx - mn) || 1;
+    var n = rows.length;
+    var pts = rows.map(function (r, i) {
+      return { x: L + i * (W - L - R) / (n - 1), y: T + (1 - (r.value - mn) / span) * (H - T - B) };
+    });
+    var d = pts.map(function (p, i) { return (i ? 'L' : 'M') + p.x.toFixed(1) + ' ' + p.y.toFixed(1); }).join(' ');
+    var area = d + ' L' + pts[n - 1].x.toFixed(1) + ' ' + (H - B) + ' L' + pts[0].x.toFixed(1) + ' ' + (H - B) + ' Z';
+    var step = Math.ceil(n / 6);
+    var xl = rows.map(function (r, i) {
+      if (i % step && i !== n - 1) return '';
+      return '<text x="' + pts[i].x.toFixed(1) + '" y="' + (H - 8) + '" text-anchor="' + (i === 0 ? 'start' : (i === n - 1 ? 'end' : 'middle')) + '">' + (r.label) + '</text>';
+    }).join('');
+    var iMax = vals.indexOf(mx), iLast = n - 1;
+    var tags = [iMax].concat(iLast !== iMax ? [iLast] : []).map(function (i) {
+      return '<text class="ai-chart-pt" x="' + Math.min(Math.max(pts[i].x, 30), W - 30).toFixed(1) + '" y="' + (pts[i].y - 8).toFixed(1) + '" text-anchor="middle">' + (fmt(rows[i].value)) + '</text>';
+    }).join('');
+    var dots = pts.map(function (p) { return '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="3"/>'; }).join('');
+    return '<div class="ai-chart">' + titleHtml +
+      '<svg class="ai-chart-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + (title || 'Line chart') + '">' +
+      '<line class="ai-chart-axis" x1="' + L + '" y1="' + (H - B) + '" x2="' + (W - R) + '" y2="' + (H - B) + '"/>' +
+      '<path class="ai-chart-area" d="' + area + '"/><path class="ai-chart-line" d="' + d + '"/>' + dots + xl + tags + '</svg></div>';
+  }
+
+  if (kind === 'donut') {
+    var total = vals.reduce(function (a, v) { return a + Math.abs(v); }, 0) || 1;
+    var acc = 0;
+    var stops = rows.map(function (r, i) {
+      var from = acc / total * 100; acc += Math.abs(r.value); var to = acc / total * 100;
+      return PALETTE[i % PALETTE.length] + ' ' + from.toFixed(2) + '% ' + to.toFixed(2) + '%';
+    }).join(', ');
+    var legend = rows.map(function (r, i) {
+      return '<div class="ai-donut-item"><span class="ai-donut-dot" style="background:' + PALETTE[i % PALETTE.length] + '"></span>' +
+        '<span class="ai-donut-label">' + (r.label) + '</span>' +
+        '<span class="ai-chart-value">' + (fmt(r.value)) + ' · ' + (Math.abs(r.value) / total * 100).toFixed(1) + '%</span></div>';
+    }).join('');
+    return '<div class="ai-chart">' + titleHtml + '<div class="ai-donut-wrap"><div class="ai-donut" style="background:conic-gradient(' + stops + ')"><span></span></div>' +
+      '<div class="ai-donut-legend">' + legend + '</div></div></div>';
+  }
+
+  var max = Math.max.apply(null, vals.map(Math.abs)) || 1;
+  var barsHtml = rows.map(function (r) {
+    var pct = Math.max((Math.abs(r.value) / max) * 100, 3);
+    return '<div class="ai-chart-row">' +
+      '<span class="ai-chart-label">' + (r.label) + '</span>' +
+      '<span class="ai-chart-bar-track"><span class="ai-chart-bar-fill" style="width:' + pct.toFixed(1) + '%"></span></span>' +
+      '<span class="ai-chart-value">' + (fmt(r.value)) + '</span></div>';
+  }).join('');
+  return '<div class="ai-chart">' + titleHtml + barsHtml + '</div>';
+}
+
+// ```kpi block: one card per line, "Label: value | change" (change optional, e.g. "+12.4% vs last month").
+function renderKpiBlock(raw) {
+  var cards = raw.split(/\r?\n/).map(function (l) { return l.trim(); }).filter(Boolean).slice(0, 6).map(function (l) {
+    var i = l.indexOf(':');
+    if (i < 1) return null;
+    var parts = l.slice(i + 1).split('|').map(function (s) { return s.trim(); });
+    if (!parts[0]) return null;
+    var delta = parts[1] || '';
+    var cls = /^[+▲↑]/.test(delta) ? ' up' : (/^[-−▼↓]/.test(delta) ? ' down' : '');
+    return '<div class="ai-kpi"><div class="ai-kpi-label">' + (l.slice(0, i).trim()) + '</div>' +
+      '<div class="ai-kpi-value">' + (parts[0]) + '</div>' +
+      (delta ? '<div class="ai-kpi-delta' + cls + '">' + (delta) + '</div>' : '') + '</div>';
+  }).filter(Boolean);
+  return cards.length ? '<div class="ai-kpi-grid">' + cards.join('') + '</div>' : null;
+}
+
+function renderAIDashboard(payload, narrative) {
+  if (!payload || payload.version !== 1 || !Array.isArray(payload.metrics) || !payload.metrics.length) return null;
+  const artifactId = 'ai-dashboard-' + (++aiDashboardArtifactId);
+  const insightsText = String(narrative || '').replace(/\n\n\*Live Odoo ·[^*]*\*/g, '').replace(/```[\s\S]*?```/g, '').replace(/^\s*#{1,6}\s*/gm, '').replace(/[*_`]/g, '').replace(/\|/g, ' · ').replace(/\n{3,}/g, '\n\n').slice(0, 12000).trim();
+  aiDashboardPayloads[artifactId] = Object.assign({}, payload, { insightsText: insightsText });
+  const known = Object.keys(aiDashboardPayloads);
+  if (known.length > 20) delete aiDashboardPayloads[known[0]];
+  const generated = new Date(payload.generatedAt);
+  const date = Number.isNaN(generated.getTime()) ? 'Date unavailable' : generated.toLocaleString();
+  const charts = payload.metrics.map((metric) => {
+    const rows = Array.isArray(metric.rows) ? metric.rows.filter((r) => r && Number.isFinite(Number(r.value))).slice(0, 24) : [];
+    if (!rows.length) return '';
+    const max = Math.max(...rows.map((r) => Math.abs(Number(r.value)))) || 1;
+    const values = rows.map((r) => `<tr><th scope="row">${esc(r.label || '')}</th><td>${esc(String(r.value))}</td><td>${r.count == null ? '—' : esc(String(r.count))}</td></tr>`).join('');
+    const bars = rows.map((r) => `<div class="ai-dashboard-bar-row"><span class="ai-dashboard-bar-label">${esc(r.label || '')}</span><span class="ai-dashboard-bar-track"><span class="ai-dashboard-bar-fill" style="width:${Math.max(3, Math.abs(Number(r.value)) / max * 100).toFixed(1)}%"></span></span><strong>${esc(String(r.value))}</strong></div>`).join('');
+    let visual = `<div class="ai-dashboard-bars" role="img" aria-label="${esc(metric.title || 'Metric')} bar chart; exact values are listed in the table below">${bars}</div>`;
+    if (metric.chartType === 'line' && rows.length > 1) {
+      const low = Math.min(...rows.map((r) => Number(r.value))), high = Math.max(...rows.map((r) => Number(r.value))), span = high - low || 1;
+      const points = rows.map((r, i) => ({ x: 28 + i * 504 / (rows.length - 1), y: 104 - (Number(r.value) - low) / span * 66 }));
+      const path = points.map((p, i) => `${i ? 'L' : 'M'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+      const step = Math.ceil(rows.length / 6), maxIndex = rows.reduce((best, r, i, all) => Number(r.value) > Number(all[best].value) ? i : best, 0);
+      const marks = points.map((p, i) => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3"/>${i % step === 0 || i === rows.length - 1 ? `<text x="${p.x.toFixed(1)}" y="128" text-anchor="middle">${esc(String(rows[i].label).slice(0, 14))}</text>` : ''}${i === maxIndex || i === rows.length - 1 ? `<text x="${p.x.toFixed(1)}" y="${Math.max(16, p.y - 8).toFixed(1)}" text-anchor="middle">${esc(String(rows[i].value))}</text>` : ''}`).join('');
+      visual = `<svg class="ai-dashboard-line" viewBox="0 0 560 140" role="img" aria-label="${esc(metric.title || 'Metric')} line chart; exact values are listed in the table below"><line x1="20" y1="110" x2="540" y2="110"/><path d="${path}"/>${marks}</svg>`;
+    }
+    return `<section class="ai-dashboard-metric"><h3>${esc(metric.title || metric.model || 'Odoo metric')}</h3>${visual}<table class="ai-dashboard-table"><caption>${esc(metric.title || 'Metric')} — exact returned Odoo values</caption><thead><tr><th scope="col">Group</th><th scope="col">${esc(metric.measure || 'Value')}</th><th scope="col">Records</th></tr></thead><tbody>${values}</tbody></table></section>`;
+  }).join('');
+  const kpis = (payload.kpis || []).filter((k) => k && Number.isFinite(Number(k.value))).map((k) => `<div class="ai-kpi"><div class="ai-kpi-label">${esc(k.label || '')}</div><div class="ai-kpi-value">${esc(String(k.value))}</div><div class="ai-kpi-delta">${esc(k.queryId || 'Odoo result')}</div></div>`).join('');
+  const methods = (payload.methods || []).map((x) => `<li>${esc(x)}</li>`).join('');
+  const limits = (payload.limitations || []).map((x) => `<li>${esc(x)}</li>`).join('');
+  return `<section class="ai-dashboard-artifact" aria-label="Odoo data dashboard" data-ai-dashboard-id="${artifactId}"><header class="ai-dashboard-head"><div><h2>${esc(payload.title || 'Odoo dashboard')}</h2><div class="ai-dashboard-meta">Generated ${esc(date)} · ${esc(payload.source || 'Live Odoo query results')}${payload.currency ? ' · Currency: ' + esc(payload.currency) : ''}</div></div><div class="ai-dashboard-actions"><button type="button" data-ai-dashboard-export>Export board-ready PDF</button><button type="button" data-ai-dashboard-print>Print / Save as PDF</button></div></header>${kpis ? `<div class="ai-kpi-grid">${kpis}</div>` : ''}${charts}<div class="ai-dashboard-notes">${insightsText ? `<h3>Executive read-out</h3><div class="ai-dashboard-readout">${esc(insightsText)}</div>` : ''}<h3>Method and sources</h3><ul>${methods || '<li>Read-only Odoo query results</li>'}</ul><h3>Limitations</h3><ul>${limits || '<li>Only returned data is represented; no missing values are estimated.</li>'}</ul></div></section>`;
+}
+
+function renderMarkdown(text, liveOdoo=false) {
+  // Model output can echo Odoo text typed by outsiders (web-form leads, partner names) — escape it all first.
+  text = String(text == null ? '' : text);
+  if (liveOdoo) text = text.replace(/```(?:kpi|chart|dashboard)\s*\r?\n[\s\S]*?```/gi, '');
+  text = esc(text);
+  // GFM tables — run first so pipe rows aren't mangled by the paragraph/
+  // list passes below. Matches a header row, a |---|---| separator row,
+  // then any number of body rows.
+  text = text.replace(
+    /^\|(.+)\|[ \t]*\r?\n\|([ \t:|-]+)\|[ \t]*\r?\n((?:\|.*\|[ \t]*\r?\n?)*)/gm,
+    (match, headerRow, sepRow, bodyRows) => {
+      const splitRow = (row) => {
+        let parts = row.split('|');
+        if (parts.length && parts[0].trim() === '') parts.shift();
+        if (parts.length && parts[parts.length - 1].trim() === '') parts.pop();
+        return parts.map((c) => c.trim());
+      };
+      const headers = splitRow(headerRow);
+      const bodyLines = bodyRows.replace(/\r?\n$/, '').split(/\r?\n/).filter((l) => l.trim());
+      const thead = `<thead><tr>${headers.map((h) => `<th>${h}</th>`).join('')}</tr></thead>`;
+      const tbody = `<tbody>${bodyLines.map((line) => `<tr>${splitRow(line).map((c) => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>`;
+      return `<table>${thead}${tbody}</table>\n`;
+    }
+  );
+  // Chart blocks — must run before the generic ``` handler below. A
+  // malformed/too-short chart block is left as-is here and falls through
+  // to that generic handler, so it still renders as readable text instead
+  // of vanishing.
+  text = text.replace(/```kpi\n?([\s\S]*?)```/g, (match, body) => renderKpiBlock(body) || match);
+  text = text.replace(/```chart\n?([\s\S]*?)```/g, (match, body) => renderChartBlock(body) || match);
+
+  return text
+    // Code blocks
+    .replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) =>
+      `<pre><code>${code.trim()}</code></pre>`)
+    // Inline code
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    // Headers
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    // Bold + italic
+    .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    // Blockquote
+    .replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>')
+    // HR
+    .replace(/^---$/gm, '<hr/>')
+    // Unordered list
+    .replace(/^[\-\*] (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, m => `<ul>${m}</ul>`)
+    // Ordered list
+    .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+    // Links
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+    // Paragraphs
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/^(?!<[h|u|o|b|p|l|t])(.+)/, '<p>$1')
+    .replace(/(.+)(?<![>])$/, '$1</p>');
+}
+
+// ══════════ MESSAGES ══════════
+function appendMessage(role, content, animate=true, tag=null, dashboard=null, liveOdoo=false) {
+  const emptyState = qs('#emptyState');
+  if (emptyState) emptyState.remove();
+
+  const row = document.createElement('div');
+  row.className = `msg-row ${role}`;
+  const initials = role === 'user' ? 'AK' : '';
+  const avatarContent = role === 'ai'
+    ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M7 13l3-5 2 3 2-4 3 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+    : initials;
+  const tagHtml = (role === 'ai' && tag) ? `<span class="ai-topic-tag">${esc(tag)}</span>` : '';
+
+  row.innerHTML = `
+    <div class="msg-avatar ${role}">${avatarContent}</div>
+    <div class="msg-bubble">
+      ${tagHtml}
+      <div class="msg-content" id="msg-${Date.now()}">${role==='ai'?renderMarkdown(content, liveOdoo) + (dashboard ? renderAIDashboard(dashboard, content) : ''):esc(content)}</div>
+      <div class="msg-meta">
+        <span>${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>
+        <div class="msg-actions">
+          <button class="msg-act-btn" type="button" onclick="copyMsg(this)" title="Copy" aria-label="Copy message">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+          ${role==='ai'?`<button class="msg-act-btn" type="button" onclick="regenMsg()" title="Regenerate" aria-label="Regenerate answer"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>`:''}
+        </div>
+      </div>
+    </div>`;
+
+  if (animate) {
+    row.style.opacity = '0';
+    row.style.transform = 'translateY(10px)';
+    qs('#messagesInner').appendChild(row);
+    requestAnimationFrame(() => {
+      row.style.transition = '.35s cubic-bezier(.16,1,.3,1)';
+      row.style.opacity = '1';
+      row.style.transform = 'none';
+    });
+  } else {
+    qs('#messagesInner').appendChild(row);
+  }
+  scrollBottom();
+  return row;
+}
+
+function copyMsg(btn) {
+  const content = btn.closest('.msg-bubble').querySelector('.msg-content').innerText;
+  navigator.clipboard.writeText(content).then(() => toast('Copied to clipboard', 'success'));
+}
+
+function regenMsg() {
+  const c = conversations[activeId];
+  if (!c || c.messages.length < 2) return;
+  const lastUser = [...c.messages].reverse().find(m => m.role === 'user');
+  if (lastUser) sendMessage(lastUser.content, true);
+}
+
+function showTyping() {
+  const div = document.createElement('div');
+  div.className = 'typing-indicator';
+  div.id = 'typingIndicator';
+  div.innerHTML = `
+    <div class="msg-avatar ai"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M7 13l3-5 2 3 2-4 3 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="typing-dots"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>`;
+  qs('#messagesInner').appendChild(div);
+  scrollBottom();
+}
+
+function hideTyping() { qs('#typingIndicator')?.remove(); }
+
+function scrollBottom() {
+  const area = qs('#messagesArea');
+  setTimeout(() => area.scrollTop = area.scrollHeight, 50);
+}
+
+// ══════════ SEND MESSAGE ══════════
+function sendMessage(content, isRegen=false) {
+  if (!content?.trim() || isStreaming) return;
+  content = content.trim();
+  const DATA_Q = /\b(odoo|sales?|revenue|invoices?|orders?|customers?|clients?|vendors?|suppliers?|purchases?|stock|inventory|leads?|(?:sales|crm|lead|hiring|recruitment)\s+pipeline|employees?|expenses?|tasks?|receivables?|payables?|profit|bikri|udhaar|khareed|maal)\b/i;
+  const DASHBOARD_DATA_Q = /\b(dashboards?|board report)\b/i.test(content) && /\b(focused|board-ready|executive|company|business|data|metric|analytics|odoo|sales?|revenue)\b/i.test(content);
+
+  isStreaming = true;
+  qs('#sendBtn').disabled = true;
+  qs('#chatInput').value = '';
+  qs('#chatInput').style.height = 'auto';
+
+  // Remove last AI message if regenerating
+  if (isRegen) {
+    const rows = qs('#messagesInner').querySelectorAll('.msg-row');
+    const lastAI = [...rows].reverse().find(r => r.classList.contains('ai'));
+    lastAI?.remove();
+  }
+
+  // Show user message
+  appendMessage('user', content);
+
+  // Update conversation
+  const c = conversations[activeId];
+  if (!c.messages) c.messages = [];
+  c.messages.push({ role:'user', content });
+  if (!c.title) {
+    c.title = content.slice(0, 42) + (content.length>42?'…':'');
+    qs('#convTitleText').textContent = c.title;
+  }
+  c.updatedAt = Date.now();
+  saveConvos();
+  renderConvoList();
+
+  showTyping();
+
+  // "status" / "odoo connection kaisa hai" → answered straight from a live check (works with or without an AI key).
+  if (window.DVOdooAgent && window.DVOdooAgent.looksLikeStatusQuestion(content)) {
+    window.DVOdooAgent.statusReport(true).then(function (text) {
+      hideTyping();
+      appendMessage('ai', text, true, 'Odoo status');
+      c.messages.push({ role: 'ai', content: text, tag: 'Odoo status' });
+      c.updatedAt = Date.now(); saveConvos(); renderConvoList();
+      isStreaming = false; qs('#sendBtn').disabled = !qs('#chatInput').value.trim();
+      refreshOdooChip(false);
+    }).catch(function (err) {
+      hideTyping();
+      var text = 'Could not complete the Odoo connection report: ' + (err && err.message ? err.message : 'unknown error') + '. Check Settings → Odoo and try again.';
+      appendMessage('ai', text, true, 'Odoo status');
+      c.messages.push({ role: 'ai', content: text, tag: 'Odoo status' });
+      c.updatedAt = Date.now(); saveConvos(); renderConvoList();
+    }).finally(function () {
+      isStreaming = false;
+      qs('#sendBtn').disabled = !qs('#chatInput').value.trim();
+    });
+    return;
+  }
+
+  if (window.DVAIConfig && window.DVAIConfig.isConfigured()) {
+    // ── Real API mode: call the configured provider (Grok or Claude) directly
+    //    from the browser, with company context (Odoo + dashboard) folded
+    //    into the system prompt when that's turned on in Settings. ──
+    var history = window.DVAIConversationContext.limitHistory((c.messages || []).map(function (m) { return { role: m.role === 'ai' ? 'assistant' : 'user', content: m.content }; }));
+    var cfg = window.DVAIConfig.get();
+    refreshAssistantStatus();
+    runtimeProvider = cfg.provider;
+    runtimeOutcome = 'pending';
+    refreshAssistantStatus();
+    var odooLive = !!(window.DVOdoo && window.DVOdoo.isConnected());
+    var useAgent = odooLive && cfg.includeCompanyContext !== false && cfg.provider !== 'dashview' && window.DVOdooAgent;
+    var needsCompanyData = DATA_Q.test(content) || DASHBOARD_DATA_Q;
+    if (needsCompanyData && !useAgent) {
+      var unavailable = cfg.includeCompanyContext === false
+        ? 'Odoo company context is disabled in AI settings.'
+        : !odooLive
+          ? 'Odoo is not connected in this workspace.'
+          : 'The selected provider cannot run the guarded read-only Odoo query workflow.';
+      var unavailableText = '**Live company data is unavailable.** ' + unavailable + ' No metrics were generated. Connect Odoo, enable Odoo context, and select a supported hosted AI provider to analyze company data.';
+      hideTyping();
+      appendMessage('ai', unavailableText, true, 'Live Odoo unavailable');
+      c.messages.push({ role: 'ai', content: unavailableText, tag: 'Live Odoo unavailable' });
+      c.updatedAt = Date.now();
+      saveConvos();
+      renderConvoList();
+      isStreaming = false;
+      qs('#sendBtn').disabled = !qs('#chatInput').value.trim();
+      return;
+    }
+    runtimeOutcome = 'connecting';
+    refreshAssistantStatus();
+    var answerPromise;
+    if (useAgent) {
+      // Targeted mode: plan → fetch exactly what the question needs from Odoo → answer from those rows.
+      answerPromise = window.DVOdooAgent.askDetailed(content, history, { systemPrompt: cfg.systemPrompt });
+    } else {
+      var contextPromise = (cfg.includeCompanyContext !== false && cfg.provider !== 'dashview' && window.DVAICompanyContext)
+        ? window.DVAICompanyContext.build().catch(function () { return ''; })
+        : Promise.resolve('');
+      answerPromise = contextPromise.then(function (companyContext) {
+        var notLive = (!odooLive && cfg.provider !== 'dashview')
+          ? 'Odoo is NOT connected in this workspace. If the user asks for company data (sales, invoices, stock, customers…), say plainly that Odoo is not connected and that they must open Settings → Odoo (Worker URL, Odoo URL, database, username, API key) and press Connect. Never invent figures.'
+          : '';
+        var sys = [cfg.systemPrompt, companyContext, notLive].filter(Boolean).join('\n\n');
+        return window.DVAIConfig.callAI(history, sys);
+      });
+    }
+
+    answerPromise.then(function (result) {
+      var aiContent = typeof result === 'string' ? result : result.content;
+      var dashboard = result && result.dashboard || null;
+      var liveOdoo = !!(result && result.liveOdoo);
+      hideTyping();
+      appendMessage('ai', aiContent, true, null, dashboard, liveOdoo);
+      c.messages.push({ role: 'ai', content: aiContent, tag: null, dashboard: dashboard, liveOdoo: liveOdoo });
+      c.updatedAt = Date.now();
+      saveConvos();
+      renderConvoList();
+      isStreaming = false;
+      qs('#sendBtn').disabled = !qs('#chatInput').value.trim();
+      recordProviderOutcome(cfg.provider, 'connected');
+    }).catch(function (err) {
+      hideTyping();
+      var msg = 'Could not get an answer (' + err.message + '). If this mentions the provider or a rate limit, check your key/plan in Settings → AI Assistant; if it mentions Odoo or the Worker, type **status** to see exactly what is broken.';
+      appendMessage('ai', msg, true, null);
+      c.messages.push({ role: 'ai', content: msg, tag: null });
+      saveConvos(); renderConvoList();
+      isStreaming = false;
+      qs('#sendBtn').disabled = !qs('#chatInput').value.trim();
+      recordProviderOutcome(cfg.provider, 'error');
+    });
+    return;
+  }
+
+  // ── Offline demo mode: local pattern-matching engine (js/ai-engine.js) ──
+  // The local engine is instant and fully synchronous — but replying with
+  // zero delay reads as jarring/robotic, so we pace it slightly, the same
+  // way a human would take a beat before typing a reply.
+  const delay = 380 + Math.random() * 480;
+  // Company metrics always require the configured live Odoo path; the local rules engine must not simulate them.
+  const offlineNeedsProvider = DATA_Q.test(content) || DASHBOARD_DATA_Q;
+  setTimeout(() => {
+    let aiContent, aiTag = null;
+    try {
+      if (offlineNeedsProvider) {
+        aiContent = '**Abhi koi AI provider set nahi hai**, isliye main sirf offline engine par chal raha hoon — ye Odoo ka data nahi padh sakta, isi liye aapko data nahi mil raha.\n\n' +
+          '**Fix (1 minute):** Settings → AI Assistant → provider (Groq / Grok / Claude) chunen, API key paste karein aur Save karein. ' +
+          (window.DVOdoo && window.DVOdoo.isConnected() ? 'Odoo pehle se connected hai — key lagate hi aap ke sawalon ke jawab live data se aayenge. Connection check karne ke liye **status** likhein.' : 'Phir Settings → Odoo mein Odoo connect karein.');
+        aiTag = 'Setup needed';
+      } else {
+      const result = DashViewAI.respond(content, { seed: activeId });
+      aiContent = result.content;
+      aiTag = result.tag || null;
+      }
+    } catch (err) {
+      aiContent = "Something went wrong generating a reply locally — try rephrasing, or reload the page if this keeps happening.";
+    }
+
+    hideTyping();
+    appendMessage('ai', aiContent, true, aiTag);
+    c.messages.push({ role:'ai', content: aiContent, tag: aiTag });
+    c.updatedAt = Date.now();
+    saveConvos();
+    renderConvoList();
+
+    isStreaming = false;
+    qs('#sendBtn').disabled = !qs('#chatInput').value.trim();
+  }, delay);
+}
+
+// ══════════ COMPOSER ══════════
+const chatInput = qs('#chatInput');
+const sendBtn = qs('#sendBtn');
+
+chatInput.addEventListener('input', () => {
+  chatInput.style.height = 'auto';
+  chatInput.style.height = Math.min(chatInput.scrollHeight, 200) + 'px';
+  sendBtn.disabled = !chatInput.value.trim() || isStreaming;
+});
+
+chatInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage(chatInput.value);
+  }
+});
+
+sendBtn.addEventListener('click', () => sendMessage(chatInput.value));
+
+// Hint chips
+document.querySelectorAll('.hint-chip, .suggest-card').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.dataset.prompt) {
+      chatInput.value = btn.dataset.prompt;
+      chatInput.dispatchEvent(new Event('input'));
+      chatInput.focus();
+    }
+  });
+});
+
+// ══════════ ABOUT MODAL ══════════
+let aboutReturnFocus = null;
+function openAboutModal() {
+  aboutReturnFocus = document.activeElement;
+  qs('#aboutModal').classList.add('open');
+  qs('#aboutModalClose').focus();
+}
+function closeAboutModal() {
+  qs('#aboutModal').classList.remove('open');
+  if (aboutReturnFocus && aboutReturnFocus.focus) aboutReturnFocus.focus();
+}
+
+on(qs('#aboutBtn'), 'click', openAboutModal);
+on(qs('#aboutBtn'), 'keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    openAboutModal();
+  }
+});
+on(qs('#aboutTopBtn'), 'click', openAboutModal);
+on(qs('#aboutModalClose'), 'click', closeAboutModal);
+on(qs('#aboutModalGotIt'), 'click', closeAboutModal);
+on(qs('#aboutModal'), 'click', e => { if(e.target===e.currentTarget) closeAboutModal(); });
+on(qs('#aboutModal'), 'keydown', e => {
+  if (e.key !== 'Tab' || !qs('#aboutModal').classList.contains('open')) return;
+  const focusable = Array.from(qs('#aboutModal').querySelectorAll('button:not([disabled]), a[href]'));
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
+});
+on(qs('#contextDetailsBtn'), 'click', () => {
+  const panel = qs('#aiRuntime');
+  panel.open = true;
+  qs('#contextDetailsBtn').setAttribute('aria-expanded', 'true');
+  panel.querySelector('summary').focus();
+});
+on(qs('#aiRuntime'), 'toggle', () => {
+  qs('#contextDetailsBtn').setAttribute('aria-expanded', qs('#aiRuntime').open ? 'true' : 'false');
+});
+on(qs('#connectionReportBtn'), 'click', () => {
+  qs('#aiRuntime').open = false;
+  sendMessage('status');
+});
+
+// ══════════ EXPORT CHAT ══════════
+function printAIDashboard(section) {
+  if (!section) return;
+  let cleanupTimer;
+  const cleanup = () => {
+    document.body.classList.remove('ai-dashboard-printing');
+    if (cleanupTimer) clearTimeout(cleanupTimer);
+  };
+  document.body.classList.add('ai-dashboard-printing');
+  window.addEventListener('afterprint', cleanup, { once: true });
+  cleanupTimer = setTimeout(cleanup, 30000);
+  window.print();
+}
+document.addEventListener('click', event => {
+  const exportBtn = event.target.closest('[data-ai-dashboard-export]');
+  const printBtn = event.target.closest('[data-ai-dashboard-print]');
+  if (!exportBtn && !printBtn) return;
+  const section = event.target.closest('.ai-dashboard-artifact');
+  if (!section) return;
+  if (printBtn) {
+    toast('In the print dialog, choose “Save as PDF”. This browser fallback does not download a PDF automatically.', 'info');
+    printAIDashboard(section);
+    return;
+  }
+  const payload = aiDashboardPayloads[section.dataset.aiDashboardId];
+  if (payload && window.DVReportEngine && typeof window.DVReportEngine.generateAIDashboardPdf === 'function') {
+    window.DVReportEngine.generateAIDashboardPdf(payload).then(() => {
+      toast('Board-ready dashboard PDF exported.', 'success');
+    }).catch(() => {
+      toast('The PDF library could not be loaded. Opening the browser print dialog; choose “Save as PDF”.', 'info');
+      printAIDashboard(section);
+    });
+  } else {
+    toast('PDF export tooling is unavailable. Opening the browser print dialog; choose “Save as PDF”.', 'info');
+    printAIDashboard(section);
+  }
+});
+
+on(qs('#exportChatBtn'), 'click', () => {
+  const c = conversations[activeId];
+  if (!c?.messages?.length) { toast('Nothing to export yet'); return; }
+  const lines = c.messages.map(m => `${m.role === 'user' ? 'You' : 'DashView AI'}:\n${m.content}\n`);
+  const text = `${c.title || 'Conversation'}\n${'='.repeat((c.title||'Conversation').length)}\n\n` + lines.join('\n');
+  const blob = new Blob([text], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (c.title || 'dashview-conversation').replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  toast('Conversation exported', 'success');
+});
+
+// ══════════ OTHER CONTROLS ══════════
+on(qs('#newChatBtn'), 'click', startNewChat);
+on(qs('#mobileMenuBtn'), 'click', () => qs('#sidebar').classList.toggle('open'));
+on(qs('#convoSearch'), 'input', e => renderConvoList(e.target.value));
+on(qs('#clearChatBtn'), 'click', () => {
+  if (!conversations[activeId]?.messages?.length) return;
+  conversations[activeId].messages = [];
+  conversations[activeId].title = '';
+  saveConvos();
+  loadConvo(activeId);
+  toast('Conversation cleared');
+});
+window.addEventListener('storage', e => {
+  if (e.key === 'dashview_ai_config') refreshAssistantStatus(true);
+});
+window.addEventListener('focus', () => refreshAssistantStatus());
+document.addEventListener('dv:odoo-config-saved', () => refreshAssistantStatus());
+
+// Close sidebar on outside click (mobile)
+document.addEventListener('click', e => {
+  if (window.innerWidth <= 768 && !e.target.closest('#sidebar') && !e.target.closest('#mobileMenuBtn')) {
+    qs('#sidebar').classList.remove('open');
+  }
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeAboutModal();
+    qs('#aiRuntime').open = false;
+    if (window.innerWidth <= 768) qs('#sidebar').classList.remove('open');
+  }
+  if ((e.metaKey || e.ctrlKey) && e.key === 'n') { e.preventDefault(); startNewChat(); }
+  if ((e.metaKey || e.ctrlKey) && e.key === '/') { e.preventDefault(); openAboutModal(); }
+});
+
+// Friendly first-load toast.
+if (!Object.keys(conversations).length) {
+  setTimeout(() => {
+    var cfg = window.DVAIConfig ? window.DVAIConfig.get() : null;
+    if (cfg && window.DVAIConfig.isConfigured() && cfg.provider !== 'offline') {
+      var label = (window.DVAIConfig.PROVIDERS[cfg.provider] || {}).label || cfg.provider;
+      toast(label + ' configured — connection is checked after your first request', 'success', 4500);
+    } else {
+      toast('Local AI ready — no provider key needed. You can optionally configure a hosted provider in Settings → AI Assistant.', 'success', 5000);
+    }
+  }, 900);
+}
+refreshAssistantStatus();
+</script>
+<script>
+// ══════════ ODOO STATUS CHIP ══════════
+// Always-visible answer to "is my data actually reaching the assistant?" — click for the full per-area report.
+function refreshOdooChip(force) {
+  var chip = document.getElementById('odooChip');
+  if (!chip || !window.DVOdooAgent || !window.DVOdoo) return;
+  var cfg = window.DVOdoo.getConfig() || {};
+  if (!cfg.proxyUrl && !cfg.url) { chip.hidden = false; chip.textContent = 'Odoo ⚠ not set up'; chip.title = 'Open Settings → Odoo'; return; }
+  chip.hidden = false; chip.textContent = 'Odoo …';
+  window.DVOdooAgent.status(!!force).then(function (s) {
+    if (!s.ok) { chip.textContent = 'Odoo ⚠ ' + (s.stage || 'error'); chip.title = (s.error || '') + (s.fix ? ' — ' + s.fix : ''); return; }
+    var names = Object.keys(s.areas || {});
+    var good = names.filter(function (n) { return s.areas[n].status === 'ok'; }).length;
+    chip.textContent = 'Odoo ● live' + (names.length ? ' · ' + good + '/' + names.length + ' areas' : '');
+    chip.title = 'Connected' + (s.latencyMs ? ' · ' + s.latencyMs + ' ms' : '') + '. Click for the full report.';
+  });
+}
+(function () {
+  var chip = document.getElementById('odooChip');
+  if (chip) chip.addEventListener('click', function () {
+    if (!window.DVOdooAgent) return;
+    window.DVOdooAgent.statusReport(true).then(function (text) {
+      appendMessage('ai', text, true, 'Odoo status');
+      refreshOdooChip(false);
+    });
+  });
+  window.addEventListener('load', function () { setTimeout(function () { refreshOdooChip(false); }, 400); });
+  document.addEventListener('dv:odoo-config-saved', function () { refreshOdooChip(true); });
+  setInterval(function () { refreshOdooChip(false); }, 5 * 60 * 1000);
+})();
+</script>
+</body>
+</html>
