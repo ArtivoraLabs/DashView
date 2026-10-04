@@ -1,261 +1,187 @@
 /* ==========================================================================
-   DashView — Audit log (live from Odoo)
-   Sources
-     activity  → mail.message   who did what on which Odoo record (chatter + tracked changes)
-     signins   → fixed-purpose authenticated Node API for res.users.log
-     local     → DVSec log      security events recorded by this workspace (lock/unlock, exports…)
+   DashView — Audit log  (rebuilt)
+   Activity  → every create / edit / move / assign / delete / export made to
+               people, tasks and hiring (written automatically by window.WS)
+   Security  → events recorded by the workspace lock / passcode layer (DVSec)
+   Search, filter, page, expand field-level changes, export the filtered view.
+   No Odoo, account or server is needed.
    ========================================================================== */
 (function () {
   'use strict';
   var root = document.getElementById('view-audit-log');
-  if (!root || !window.DVOdooClient) return;
+  if (!root || !window.WS) return;
 
-  var C = window.DVOdooClient, F = window.DVFmt, esc = F.esc;
-  function $(id) { return document.getElementById(id); }
-  var S = { src: 'activity', page: 0, size: 25, total: 0, rows: [], seq: 0 };
-  var TYPE = { comment: ['Message', 'active'], notification: ['System', 'review'], email: ['Email', 'review'], user_notification: ['Notification', 'review'], auto_comment: ['Automated', 'review'] };
-  var LOCAL = { ok: ['Success', 'active'], review: ['Flagged', 'review'], blocked: ['Denied', 'blocked'] };
+  var WS = window.WS, L = WS.L, esc = WS.esc;
+  var S = { src: 'activity', page: 0, size: 25, q: '', entity: '', action: '', period: 0, armTimer: 0 };
+  var SEC = { ok: ['Success', 'created'], review: ['Flagged', 'updated'], blocked: ['Denied', 'deleted'] };
   var NOTE = {
-    activity: 'Chatter messages and tracked field changes across every Odoo record your API user can read.',
-    signins: 'Odoo sign-in history from res.users.log via the authenticated DashView API (365-day lookback and 10,000-row offset limit). Only user and timestamp fields are requested; Odoo access rights still apply.',
-    local: 'Security events recorded by this DashView workspace on this device (passcode, locks, exports, credential changes).'
+    activity: 'Recorded automatically on this device for every change to people, tasks and hiring. The most recent ' + WS.MAX_AUDIT.toLocaleString() + ' events are kept.',
+    security: 'Security events (passcode, locking, exports, credential changes) recorded by this workspace on this device.'
   };
 
-  function period() { return +$('auditPeriod').value; }
-  function searchQuery() { return $('auditSearch').value.trim().slice(0, 120); }
-  function needsOdoo() { return S.src !== 'local'; }
-  function safeError(error) {
-    var message = String(error && error.message || 'Request failed');
-    var cfg = window.DVOdoo && window.DVOdoo.getConfig ? window.DVOdoo.getConfig() : C.cfg();
-    [cfg.apiKey, cfg.username, cfg.user].forEach(function (secret) { if (secret) message = message.split(String(secret)).join('[redacted]'); });
-    return message;
+  function $(id) { return document.getElementById(id); }
+
+  /* -- data ---------------------------------------------------------------- */
+  function since() { return S.period ? Date.now() - S.period * 864e5 : 0; }
+  function activityRows() {
+    var q = S.q.toLowerCase(), from = since();
+    return WS.audit().filter(function (e) {
+      if (e.t < from) return false;
+      if (S.entity && e.entity !== S.entity) return false;
+      if (S.action && e.action !== S.action) return false;
+      if (q) {
+        var hay = (e.actor + ' ' + e.name + ' ' + e.details + ' ' + L.action[e.action] + ' ' + L.entity[e.entity] + ' ' +
+          e.changes.map(function (c) { return c.field + ' ' + c.from + ' ' + c.to; }).join(' ')).toLowerCase();
+        if (hay.indexOf(q) < 0) return false;
+      }
+      return true;
+    });
   }
-  function authenticatedApi() {
-    var api = window.AL_API, cfg = window.DVOdoo && window.DVOdoo.getConfig ? window.DVOdoo.getConfig() : C.cfg();
-    return !!(api && api.isConnected && api.isConnected() && cfg.url && cfg.db &&
-      (cfg.username || cfg.user) && cfg.apiKey && api.odooRecords);
+  function securityRows() {
+    var q = S.q.toLowerCase(), from = since();
+    var log = [];
+    try { log = (window.DVSec && window.DVSec.getLog && window.DVSec.getLog()) || []; } catch (e) { log = []; }
+    return log.filter(function (e) {
+      return e && e.t >= from && (!q || ((e.u || '') + ' ' + (e.a || '') + ' ' + (e.d || '')).toLowerCase().indexOf(q) > -1);
+    }).map(function (e) {
+      var st = SEC[e.s] || SEC.ok;
+      return { t: e.t, actor: e.u || 'You', action: e.a || 'Event', label: st[0], cls: st[1], name: 'DashView workspace', sub: 'Security', details: e.d || '', changes: [] };
+    });
   }
-  function records(model, options) {
-    if (authenticatedApi()) {
-      var cfg = window.DVOdoo && window.DVOdoo.getConfig ? window.DVOdoo.getConfig() : C.cfg();
-      return window.AL_API.odooRecords(cfg, model, options);
+  function rows() { return S.src === 'activity' ? activityRows() : securityRows(); }
+
+  /* -- render -------------------------------------------------------------- */
+  function renderStats(list) {
+    var day = Date.now() - 864e5, recent = list.filter(function (e) { return e.t >= day; }).length;
+    var third, fourth;
+    if (S.src === 'activity') {
+      third = ['Deletions', list.filter(function (e) { return e.action === 'deleted'; }).length, 'items removed', ''];
+      var actors = {}; list.forEach(function (e) { actors[e.actor] = 1; });
+      fourth = ['People acting', Object.keys(actors).length, 'distinct users', ''];
+    } else {
+      var flagged = list.filter(function (e) { return e.label !== 'Success'; }).length;
+      third = ['Flagged / denied', flagged, flagged ? 'worth a look' : 'all clear', flagged ? 'is-warn' : 'is-ok'];
+      fourth = ['Successful', list.length - flagged, 'normal events', ''];
     }
-    return C.records(model, options);
+    $('auditStats').innerHTML = [['Events', list.length, S.q || S.entity || S.action || S.period ? 'matching filters' : 'recorded', ''],
+      ['Last 24 hours', recent, 'recent activity', ''], third, fourth]
+      .map(function (c) { return '<div class="ws-stat ' + c[3] + '"><span>' + c[0] + '</span><b>' + c[1].toLocaleString() + '</b><small>' + c[2] + '</small></div>'; }).join('');
   }
-  function setStatus(mode, text) {
-    var p = $('auditStatus'); p.classList.remove('is-live', 'is-error');
-    if (mode === 'live') p.classList.add('is-live'); if (mode === 'error') p.classList.add('is-error');
-    $('auditStatusText').textContent = text;
+  function detailsHtml(e) {
+    if (e.changes && e.changes.length) {
+      var shown = e.changes.slice(0, 3), more = e.changes.slice(3);
+      var item = function (c, hidden) {
+        return '<li' + (hidden ? ' class="more" hidden' : '') + '><b>' + esc(c.field) + '</b>: <s>' + esc(c.from) + '</s> → <b>' + esc(c.to) + '</b></li>';
+      };
+      return '<div class="ws-det"><ul class="ws-changes">' + shown.map(function (c) { return item(c); }).join('') + more.map(function (c) { return item(c, true); }).join('') + '</ul>' +
+        (more.length ? '<button type="button" class="ws-link-btn" data-more aria-expanded="false">Show ' + more.length + ' more</button>' : '') + '</div>';
+    }
+    return '<div class="ws-det"><p>' + (e.details ? esc(e.details) : '<span class="ws-muted">—</span>') + '</p></div>';
   }
-  function msg(html, err) {
-    $('auditBody').setAttribute('aria-busy', 'false');
-    $('auditBody').innerHTML = '<tr><td colspan="6" role="' + (err ? 'alert' : 'status') + '" class="odoo-live-table-state' + (err ? ' is-error' : '') + '">' + html + '</td></tr>';
+  function rowHtml(e) {
+    var pill = S.src === 'activity'
+      ? '<span class="ws-pill ' + e.action + '">' + L.action[e.action] + '</span>'
+      : '<span class="ws-pill ' + e.cls + '">' + esc(e.label) + '</span>';
+    var action = S.src === 'activity' ? pill : esc(e.action) + ' ' + pill;
+    var item = '<div class="ws-audit-item"><b>' + esc(e.name || '—') + '</b><small>' + esc(S.src === 'activity' ? L.entity[e.entity] : e.sub) + '</small></div>';
+    return '<tr><td title="' + esc(new Date(e.t).toISOString()) + '"><span class="ws-mono">' + esc(WS.fmtDateTime(e.t)) + '</span><br><small class="ws-muted">' + esc(WS.ago(e.t)) + '</small></td>' +
+      '<td>' + esc(e.actor) + '</td><td>' + action + '</td><td>' + item + '</td><td>' + detailsHtml(e) + '</td></tr>';
   }
-  function odooHost() { try { return new URL(C.cfg().url).host; } catch (e) { return ''; } }
-  function recordLink(model, id) {
-    var base = C.cfg().url || '';
-    if (!model || !id) return '';
-    try {
-      var url = new URL(base);
-      if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash) return '';
-      var path = url.pathname.replace(/\/+$/, '');
-      return '<a class="audit-link" target="_blank" rel="noopener noreferrer" title="Open in Odoo" href="' +
-        esc(url.origin + path + '/web#model=' + encodeURIComponent(model) + '&id=' + encodeURIComponent(id) + '&view_type=form') + '">↗</a>';
-    } catch (e) { return ''; }
+  function emptyRow(title, text, extra) {
+    return '<tr><td colspan="5"><div class="ws-empty" style="border:0;"><h3>' + title + '</h3><p>' + text + '</p>' + (extra || '') + '</div></td></tr>';
   }
-
-  /* -- Normalised fetchers: each resolves { rows, total } ----------------------- */
-  function fetchActivity(limit, offset) {
-    var dom = [['model', '!=', false]], q = searchQuery(), t = $('auditType').value;
-    if (period()) dom.push(['date', '>=', F.isoDaysAgo(period())]);
-    if (t) dom.push(['message_type', '=', t]);
-    if (q) dom = dom.concat(['|', '|', ['record_name', 'ilike', q], ['subject', 'ilike', q], ['author_id.name', 'ilike', q]]);
-    return records('mail.message', { domain: dom, fields: ['date', 'author_id', 'message_type', 'subtype_id', 'model', 'res_id', 'record_name', 'subject', 'tracking_value_ids', 'email_from'], limit: limit, offset: offset, order: 'date desc' }).then(function (r) {
-      return { total: r.total || 0, rows: (r.rows || []).map(function (m) {
-        var n = (m.tracking_value_ids || []).length, ty = TYPE[m.message_type] || [m.message_type || 'Other', 'review'];
-        var details = m.subject || (n ? n + ' field change' + (n > 1 ? 's' : '') + ' tracked' : 'Message activity');
-        return { time: m.date, user: Array.isArray(m.author_id) ? m.author_id[1] : (m.email_from || 'System'), action: Array.isArray(m.subtype_id) ? m.subtype_id[1] : ty[0],
-          record: m.record_name || m.model, sub: m.model, link: recordLink(m.model, m.res_id), details: details, type: ty[0], cls: ty[1] };
-      }) };
-    });
-  }
-  function fetchSignins(limit, offset) {
-    var client = window.AL_API, cfg = window.DVOdoo && window.DVOdoo.getConfig ? window.DVOdoo.getConfig() : {};
-    if (!client || !client.isConnected()) return Promise.reject(new Error('Sign in to DashView to view Odoo sign-in history.'));
-    return client.odooSigninLogs(cfg, {
-      periodDays: Number(period()) || 365,
-      search: searchQuery(),
-      limit: limit,
-      offset: offset
-    }).then(function (r) {
-      return { total: r.total || 0, rows: (r.rows || []).map(function (l) { return { time: l.create_date, user: Array.isArray(l.create_uid) ? l.create_uid[1] : '–', action: 'Signed in', record: 'Odoo web client', sub: odooHost(), link: '', details: 'Session started', type: 'Sign-in', cls: 'active' }; }) };
-    });
-  }
-  function fetchLocal(limit, offset) {
-    var q = searchQuery().toLowerCase(), since = period() ? Date.now() - period() * 864e5 : 0;
-    var all = (window.DVSec ? window.DVSec.getLog() : []).filter(function (e) { return e.t >= since && (!q || (e.u + ' ' + e.a + ' ' + e.d).toLowerCase().indexOf(q) > -1); });
-    return Promise.resolve({ total: all.length, rows: all.slice(offset, offset + limit).map(function (e) {
-      var st = LOCAL[e.s] || LOCAL.ok;
-      return { time: new Date(e.t).toISOString().slice(0, 19).replace('T', ' '), user: e.u || 'You', action: e.a, record: 'DashView workspace', sub: location.host, link: '', details: e.d || '–', type: st[0], cls: st[1] };
-    }) });
-  }
-  function fetcher() { return S.src === 'activity' ? fetchActivity : S.src === 'signins' ? fetchSignins : fetchLocal; }
-
-  /* -- Render ---------------------------------------------------------------------- */
   function render() {
-    $('auditBody').setAttribute('aria-live', 'polite');
-    var from = S.total ? S.page * S.size + 1 : 0, to = Math.min(S.total, S.page * S.size + S.rows.length);
-    $('auditPageInfo').textContent = S.total ? from + '–' + to + ' of ' + S.total.toLocaleString() : '0 of 0';
+    var list = rows(), total = list.length;
+    var pages = Math.max(1, Math.ceil(total / S.size));
+    if (S.page >= pages) S.page = pages - 1;
+    var start = S.page * S.size, slice = list.slice(start, start + S.size);
+    var anyFilter = !!(S.q || S.entity || S.action || S.period);
+    renderStats(list);
+    $('auditNote').textContent = NOTE[S.src] + (S.src === 'activity' && !WS.persistent() ? ' Browser storage is unavailable, so history will be lost when this tab closes.' : '');
+    $('auditReset').hidden = !anyFilter;
+    $('auditEntity').hidden = $('auditAction').hidden = S.src !== 'activity';
+    $('auditClear').hidden = S.src !== 'activity';
+    $('auditClear').disabled = !WS.audit().length;
+    $('exportAuditBtn').disabled = !total;
+    var body;
+    if (slice.length) body = slice.map(rowHtml).join('');
+    else if (S.src === 'activity' && !WS.audit().length) body = emptyRow('No activity yet', 'Changes to people, tasks and hiring are recorded here automatically — who made them, what changed and when.',
+      '<div class="ws-actions"><a class="btn btn-primary btn-sm" href="#task-assignments" data-view="task-assignments">Go to Tasks</a><a class="btn btn-outline btn-sm" href="people.html">Go to People</a></div>');
+    else if (S.src === 'security' && !anyFilter) body = emptyRow('No security events yet', 'Events such as setting a passcode, locking the workspace or exporting data will appear here.');
+    else body = emptyRow('No events match these filters', 'Try a wider date range or a different search.', '<button type="button" class="btn btn-outline btn-sm" data-reset>Clear filters</button>');
+    $('auditBody').innerHTML = body;
+    $('auditPageInfo').textContent = total ? (start + 1) + '–' + (start + slice.length) + ' of ' + total.toLocaleString() + ' events' : '0 events';
     $('auditPrev').disabled = S.page === 0;
-    $('auditNext').disabled = to >= S.total || (S.page + 1) * S.size > 10000;
-    if (!S.rows.length) return msg('No log entries match these filters.');
-    $('auditBody').innerHTML = S.rows.map(function (r) {
-      return '<tr><td class="mono">' + esc(F.when(r.time)) + '</td><td>' + esc(r.user) + '</td><td>' + esc(r.action) + '</td>' +
-        '<td><span class="audit-rec">' + esc(r.record) + ' ' + (r.link || '') + '</span><span class="audit-sub">' + esc(r.sub) + '</span></td>' +
-        '<td class="audit-details" title="' + esc(r.details) + '">' + esc(r.details.length > 140 ? r.details.slice(0, 140) + '…' : r.details) + '</td>' +
-        '<td><span class="status-pill ' + r.cls + '">' + esc(r.type) + '</span></td></tr>';
-    }).join('');
-  }
-  function load() {
-    var seq = ++S.seq, src = S.src;
-    $('auditPrev').disabled = true;
-    $('auditNext').disabled = true;
-    $('auditPageInfo').textContent = 'Loading…';
-    $('auditNote').textContent = NOTE[src];
-    $('auditTypeWrap').hidden = src !== 'activity';
-    $('auditSub').textContent = src === 'local' ? 'Security events recorded by this workspace' : (odooHost() ? 'Live from ' + odooHost() : 'Live from your Odoo');
-    var st = C.state();
-    if (st === 'noproxy' && authenticatedApi()) st = 'ok';
-    if (src === 'signins') {
-      var cfg = window.DVOdoo && window.DVOdoo.getConfig ? window.DVOdoo.getConfig() : {};
-      if (window.DVSec && window.DVSec.isLocked()) st = 'locked';
-      else if (!cfg.url || !cfg.db || !(cfg.username || cfg.user) || !cfg.apiKey) st = 'none';
-      else if (!window.AL_API || !window.AL_API.isConnected()) st = 'api-login';
-      else st = 'ok';
-    }
-    if (needsOdoo() && st !== 'ok') {
-      var stateMessage = src === 'signins' && st === 'api-login'
-        ? 'Sign in to your DashView account to read sign-in history through the authenticated Node API.'
-        : src === 'signins' && st === 'none'
-          ? 'Configure Odoo URL, database, username and API key in Settings before reading sign-in history.'
-          : C.message(st);
-      $('auditBanner').hidden = false; $('auditBannerText').innerHTML = '<strong>' + (st === 'locked' ? 'Workspace locked.' : 'Odoo not connected.') + '</strong> ' + esc(stateMessage);
-      setStatus('error', st === 'locked' ? 'Locked' : 'Not connected'); S.rows = []; S.total = 0; render();
-      msg(src === 'signins' ? esc(stateMessage) : 'Connect Odoo to see its audit trail — or open the “Workspace security” tab.'); return;
-    }
-    $('auditBanner').hidden = true; setStatus('connecting', 'Loading…'); msg('Fetching live log…');
-    $('auditBody').setAttribute('aria-busy', 'true');
-    var t0 = Date.now();
-    fetcher()(S.size, S.page * S.size).then(function (r) {
-      if (seq !== S.seq) return;
-      S.rows = r.rows; S.total = r.total; render();
-      $('auditBody').setAttribute('aria-busy', 'false');
-      if (r.note) $('auditNote').textContent = r.note;
-      setStatus(src === 'local' ? 'live' : 'live', src === 'local' ? 'This device' : 'Live · ' + (Date.now() - t0) + ' ms');
-    }).catch(function (e) {
-      if (seq !== S.seq) return;
-      S.rows = []; S.total = 0; setStatus('error', 'Error');
-      var m = safeError(e);
-      $('auditBody').setAttribute('aria-busy', 'false');
-      msg(esc(/doesn.t exist|does not exist/i.test(m) ? 'This Odoo database does not expose that log (the Discuss/Mail app is required).' : /access|rights|denied/i.test(m) ? 'The connected Odoo user is not allowed to read this log.' : m) +
-        ' <button type="button" class="btn btn-outline btn-sm" data-audit-retry>Retry</button>', true);
-      $('auditPageInfo').textContent = '0 of 0';
+    $('auditNext').disabled = S.page >= pages - 1;
+    root.querySelectorAll('#auditTabs button').forEach(function (b) {
+      var on = b.getAttribute('data-src') === S.src; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
   }
+
+  /* -- actions ------------------------------------------------------------- */
+  function resetClear() { var b = $('auditClear'); clearTimeout(S.armTimer); b.classList.remove('armed'); b.textContent = 'Clear log'; }
   function exportCsv() {
-    var btn = $('exportAuditBtn'), controls = [$('auditSearch'), $('auditPeriod'), $('auditType')]
-      .concat(Array.prototype.slice.call(document.querySelectorAll('#auditTabs button')));
-    var priorDisabled = controls.map(function (control) { return control.disabled; });
-    var exportStatus = $('auditExportStatus');
-    if (!exportStatus) {
-      exportStatus = document.createElement('span');
-      exportStatus.id = 'auditExportStatus';
-      exportStatus.className = 'audit-export-status';
-      exportStatus.setAttribute('role', 'status');
-      exportStatus.setAttribute('aria-live', 'polite');
-      btn.insertAdjacentElement('afterend', exportStatus);
+    var list = rows();
+    if (!list.length) { WS.toast('There are no events to export.'); return; }
+    var data;
+    if (S.src === 'activity') {
+      data = [['Time (ISO)', 'Who', 'Action', 'Item type', 'Item', 'Details', 'Changes']].concat(list.map(function (e) {
+        return [new Date(e.t).toISOString(), e.actor, L.action[e.action], L.entity[e.entity], e.name, e.details,
+          e.changes.map(function (c) { return c.field + ': ' + c.from + ' -> ' + c.to; }).join('; ')];
+      }));
+    } else {
+      data = [['Time (ISO)', 'Who', 'Event', 'Result', 'Details']].concat(list.map(function (e) {
+        return [new Date(e.t).toISOString(), e.actor, e.action, e.label, e.details];
+      }));
     }
-    exportStatus.textContent = 'Preparing filtered CSV…';
-    btn.setAttribute('aria-busy', 'true');
-    btn.disabled = true; controls.forEach(function (control) { control.disabled = true; });
-    var st = C.state();
-    if (st === 'noproxy' && authenticatedApi()) st = 'ok';
-    var go = needsOdoo() && st !== 'ok'
-      ? Promise.reject(new Error(C.message(st)))
-      : fetchExportRows();
-    go.then(function (r) {
-      var rows = [['Time', 'User', 'Action', 'Record', 'Model', 'Details', 'Type']]
-        .concat(r.rows.map(function (x) { return [x.time, x.user, x.action, x.record, x.sub, x.details, x.type]; }));
-      F.download('audit-' + S.src + '-' + new Date().toISOString().slice(0, 10) + '.csv', F.csv(rows));
-      if (window.DVSec) window.DVSec.log('Exported audit log', S.src + ' · ' + r.rows.length + ' rows');
-      var capped = r.total > r.rows.length;
-      exportStatus.textContent = 'Exported ' + r.rows.length.toLocaleString() + ' of ' + r.total.toLocaleString() + ' matching rows.';
-      if (window.showToast) window.showToast('Exported ' + r.rows.length + ' of ' + r.total.toLocaleString() +
-        ' rows' + (capped ? ' (1,000-row export limit; refine filters to export another report).' : '.'));
-    }).catch(function (e) {
-      exportStatus.textContent = 'Export failed. Review the message and try again.';
-      if (window.showToast) window.showToast('Audit export failed: ' + safeError(e));
-    }).then(function () {
-      btn.disabled = false;
-      btn.removeAttribute('aria-busy');
-      controls.forEach(function (control, index) { control.disabled = priorDisabled[index]; });
-    });
+    WS.download('audit-' + S.src + '-' + WS.today() + '.csv', WS.csv(data));
+    if (S.src === 'activity') WS.log('exported', 'Audit log', list.length + ' event' + (list.length === 1 ? '' : 's') + ' exported to CSV');
+    else if (window.DVSec && window.DVSec.log) window.DVSec.log('Exported audit log', 'security · ' + list.length + ' rows');
+    WS.toast('Exported ' + list.length.toLocaleString() + ' event' + (list.length === 1 ? '' : 's') + '.');
+  }
+  function clearFilters() {
+    S.q = S.entity = S.action = ''; S.period = 0; S.page = 0;
+    $('auditSearch').value = ''; $('auditEntity').value = ''; $('auditAction').value = ''; $('auditPeriod').value = '0';
+    render();
   }
 
-  function fetchExportRows() {
-    var pageSize = 200, maxRows = 1000, read = fetcher();
-    function next(offset, rows, total) {
-      if (offset >= maxRows || (offset > 0 && rows.length >= total)) return Promise.resolve({ rows: rows, total: total });
-      var limit = Math.min(pageSize, maxRows - offset);
-      return read(limit, offset).then(function (page) {
-        var batch = page.rows || [], all = rows.concat(batch);
-        var count = Number(page.total) || 0;
-        if (!batch.length || all.length >= count || all.length >= maxRows) return { rows: all, total: count };
-        return next(offset + batch.length, all, count);
-      });
-    }
-    return next(0, [], 0);
-  }
-
-  function debounce(fn, ms) { var t; return function () { clearTimeout(t); t = setTimeout(fn, ms); }; }
-  function reset() { S.page = 0; load(); }
+  /* -- wiring -------------------------------------------------------------- */
   function init() {
-    $('auditSearch').setAttribute('aria-label', 'Search audit records by user, record, or subject');
-    $('auditPeriod').setAttribute('aria-label', 'Filter audit records by date range');
-    $('auditType').setAttribute('aria-label', 'Filter Odoo activity by message type');
-    $('auditStatus').setAttribute('role', 'status');
-    $('auditStatus').setAttribute('aria-live', 'polite');
-    $('auditPageInfo').setAttribute('aria-live', 'polite');
-    var table = $('auditBody').closest('table');
-    if (table && !table.querySelector('caption')) {
-      var caption = document.createElement('caption');
-      caption.className = 'audit-sr-only';
-      caption.textContent = 'Audit events matching the current source and filters';
-      table.insertBefore(caption, table.firstChild);
-    }
-    $('auditBody').addEventListener('click', function (e) {
-      if (e.target.closest('[data-audit-retry]')) reset();
-    });
-    document.querySelectorAll('#auditTabs button').forEach(function (b) {
-      b.setAttribute('aria-pressed', b.getAttribute('data-src') === S.src ? 'true' : 'false');
-      b.addEventListener('click', function () {
-        document.querySelectorAll('#auditTabs button').forEach(function (x) {
-          var selected = x === b;
-          x.classList.toggle('active', selected);
-          x.setAttribute('aria-pressed', selected ? 'true' : 'false');
-        });
-        S.src = b.getAttribute('data-src'); reset();
-      });
-    });
-    $('auditSearch').addEventListener('input', debounce(reset, 350));
-    $('auditPeriod').addEventListener('change', reset); $('auditType').addEventListener('change', reset);
-    $('auditRefresh').addEventListener('click', function () { C.reset(); load(); });
+    var timer;
+    $('auditSearch').addEventListener('input', function () { var v = this.value.trim(); clearTimeout(timer); timer = setTimeout(function () { S.q = v.slice(0, 120); S.page = 0; render(); }, 200); });
+    $('auditEntity').addEventListener('change', function () { S.entity = this.value; S.page = 0; render(); });
+    $('auditAction').addEventListener('change', function () { S.action = this.value; S.page = 0; render(); });
+    $('auditPeriod').addEventListener('change', function () { S.period = +this.value || 0; S.page = 0; render(); });
+    $('auditReset').addEventListener('click', clearFilters);
+    $('auditPrev').addEventListener('click', function () { if (S.page > 0) { S.page--; render(); } });
+    $('auditNext').addEventListener('click', function () { S.page++; render(); });
     $('exportAuditBtn').addEventListener('click', exportCsv);
-    $('auditPrev').addEventListener('click', function () { if (S.page > 0) { S.page--; load(); } });
-    $('auditNext').addEventListener('click', function () { S.page++; load(); });
-    ['dv:odoo-config-saved', 'dv:unlocked', 'dv:locked'].forEach(function (ev) { document.addEventListener(ev, function () { if (root.classList.contains('active')) reset(); }); });
-    document.querySelectorAll('[data-view="audit-log"]').forEach(function (l) { l.addEventListener('click', function () { setTimeout(reset, 0); }); });
-    if (root.classList.contains('active')) load();
+    $('auditClear').addEventListener('click', function () {
+      var b = this;
+      if (!b.classList.contains('armed')) {
+        b.classList.add('armed'); b.textContent = 'Click again to clear';
+        clearTimeout(S.armTimer); S.armTimer = setTimeout(resetClear, 4000); return;
+      }
+      resetClear(); WS.clearAudit(); S.page = 0; WS.toast('Audit log cleared.');
+    });
+    root.querySelectorAll('#auditTabs button').forEach(function (b) {
+      b.addEventListener('click', function () { S.src = b.getAttribute('data-src'); S.page = 0; resetClear(); render(); });
+    });
+    root.addEventListener('click', function (e) {
+      if (e.target.closest('[data-reset]')) { clearFilters(); return; }
+      var more = e.target.closest('[data-more]');
+      if (more) {
+        var open = more.getAttribute('aria-expanded') !== 'true';
+        more.parentNode.querySelectorAll('li.more').forEach(function (li) { li.hidden = !open; });
+        more.setAttribute('aria-expanded', open ? 'true' : 'false');
+        more.textContent = open ? 'Show fewer' : 'Show ' + more.parentNode.querySelectorAll('li.more').length + ' more';
+      }
+    });
+    WS.subscribe(function () { render(); });
+    /* "x min ago" labels and the security tab are refreshed whenever the page is opened */
+    document.querySelectorAll('[data-view="audit-log"]').forEach(function (l) { l.addEventListener('click', function () { setTimeout(render, 0); }); });
+    ['dv:locked', 'dv:unlocked'].forEach(function (ev) { document.addEventListener(ev, render); });
+    render();
   }
   if (document.readyState !== 'loading') init(); else document.addEventListener('DOMContentLoaded', init);
 })();

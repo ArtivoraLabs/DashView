@@ -18,7 +18,7 @@ const ok = (n, c) => { if (c) { pass++; console.log(' ok  ', n); } else { fail++
   ok('control center is injected', !!c && c.querySelectorAll('.stgo-card').length === 5);
   ok('shows Odoo not connected, AI setup needed, security score', /Not connected/.test(c.textContent) && /Setup needed/.test(c.textContent) && /55\/100/.test(c.textContent));
   ok('Needs attention lists actionable items with hints', /Needs attention/.test(c.textContent) && /Passcode lock is off/.test(c.textContent) && /Set a passcode/.test(c.textContent));
-  ok('version loaded from version.json', /v2\.8\.0/.test(c.textContent));
+  ok('version loaded from version.json', new RegExp('v' + releaseManifest.version.replace(/\./g, '\\.')).test(c.textContent));
   const versionCard = c.querySelector('[data-version-notes]');
   versionCard.click();
   ok('clicking the version card opens release history', !!d.getElementById('stgoReleaseDialog') && /2\.8\.0/.test(d.getElementById('stgoReleaseDialog').textContent) && /2\.7\.0/.test(d.getElementById('stgoReleaseDialog').textContent));
@@ -61,6 +61,6 @@ const ok = (n, c) => { if (c) { pass++; console.log(' ok  ', n); } else { fail++
   d.getElementById('resetSettingsBtn').click();
   ok('Reset preferences restores appearance defaults and keeps Odoo and workbook data', w.DV.get().theme === 'system' && w.DV.get().accent === 'amber' && w.DV.get().motion === 'system' && w.localStorage.getItem('dashview_surface') === 'flat' && !!w.localStorage.getItem('dashview_odoo_config') && !!w.localStorage.getItem('dashview_workbooks'));
   ok('Reset preferences clears saved dashboard choices and synchronizes visible controls', ['density', 'anim', 'labels', 'landing'].every((key) => !w.localStorage.getItem('dv-pref-' + key)) && d.getElementById('setDensitySelect').value === 'comfortable' && d.getElementById('setChartAnimSelect').value === 'on' && d.getElementById('setChartLabelsSelect').value === 'on' && d.getElementById('setLandingSelect').value === 'overview');
-  ok('Settings keeps a readable bundled version number without service-worker support', /DashView 2\.8\.0/.test(d.getElementById('verAppVersion').textContent) && !/DashView -/.test(d.getElementById('verAppVersion').textContent));
+  ok('Settings keeps a readable bundled version number without service-worker support', new RegExp('DashView ' + releaseManifest.version.replace(/\./g, '\\.')).test(d.getElementById('verAppVersion').textContent) && !/DashView -/.test(d.getElementById('verAppVersion').textContent));
   w.close(); console.log(`${pass} passed, ${fail} failed`); process.exitCode = fail ? 1 : 0;
 })().catch((e) => { console.error(e); process.exit(1); });

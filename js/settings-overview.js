@@ -8,15 +8,19 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function load(k, d) { try { var v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
   var releaseInfo = {
-    version: '2.8.0',
-    released: '2026-10-03',
+    version: '2.9.0',
+    released: '2026-10-04',
     notes: [
-      'New: Manufacturing, procurement, invoice, GRN and delivery metrics in the company-aware executive Overview',
-      'Improved: Drill Explorer with server-side search, 25-record paging, contextual Odoo links and full filtered CSV exports up to 10,000 records',
-      'Improved: Main Settings now includes the user manual, keyboard shortcuts, resettable preferences and clickable release history',
-      'Fixed: Settings disclosures remain open during refresh and all dashboard panels stay within the viewport'
+      'Rebuilt: People, Task assignments and Audit log from scratch - one shared workspace store, validated forms, kanban board, hiring pipeline and field-level audit history',
+      'Improved: every People, Task and Hiring change is recorded automatically in the Audit log, with search, filters, paging and CSV export',
+      'Fixed: overdue dates use the local calendar day, tasks of a deleted person are unassigned, duplicate emails are rejected and drag-and-drop works on the task board'
     ],
     history: [
+      { version: '2.9.0', date: '2026-10-04', notes: [
+        'Rebuilt: People, Task assignments and Audit log from scratch - one shared workspace store, validated forms, kanban board, hiring pipeline and field-level audit history',
+        'Improved: every People, Task and Hiring change is recorded automatically in the Audit log, with search, filters, paging and CSV export',
+        'Fixed: overdue dates use the local calendar day, tasks of a deleted person are unassigned, duplicate emails are rejected and drag-and-drop works on the task board'
+      ] },
       { version: '2.8.0', date: '2026-10-03', notes: [
         'New: Manufacturing, procurement, invoice, GRN and delivery metrics in the company-aware executive Overview',
         'Improved: Drill Explorer with server-side search, 25-record paging, contextual Odoo links and full filtered CSV exports up to 10,000 records',

@@ -189,28 +189,17 @@
       reader.readAsText(file);
     }
     function exportPeopleCSV(filename) {
-      var team = (window.PeopleStore && window.PeopleStore.get().team) || [];
-      var candidates = (window.PeopleStore && window.PeopleStore.get().candidates) || [];
-      if (!team.length) { toast('No one in the People directory yet — connect Odoo or add people first.'); return; }
-      var F = window.DVFmt;
-      var rows = [['Directory']]
-        .concat([['Name', 'Role', 'Department', 'Contract', 'Status', 'Monthly pay', 'Started', 'Email']])
-        .concat(team.map(function (e) { return [e.name, e.role, e.dept, e.type, e.status, e.pay, e.start, e.email]; }))
-        .concat([[]], [['Hiring pipeline']], [['Name', 'Role', 'Stage', 'Source', 'Days in pipeline']])
-        .concat(candidates.map(function (c) { return [c.name, c.role, c.stage, c.source, c.days]; }));
-      if (F) F.download(filename, F.csv(rows));
-      else {
-        var csv = rows.map(function (r) { return r.map(function (c) {
-          var v = String(c == null ? '' : c);
-          var negativeNumber = /^\s*-\d+(?:\.\d*)?(?:[eE][+-]?\d+)?\s*$/.test(v) || /^\s*-\.\d+(?:[eE][+-]?\d+)?\s*$/.test(v);
-          if (/^\s*[=+@\t\r]/.test(v) || (/^\s*-/.test(v) && !negativeNumber)) v = "'" + v;
-          return /[",\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
-        }).join(','); }).join('\r\n');
-        var url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
-        var a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url);
-      }
+      var WS = window.WS;
+      if (!WS || !WS.people().length) { toast('No one in the People directory yet — add people first.'); return; }
+      var rows = [['Name', 'Email', 'Phone', 'Role', 'Department', 'Status', 'Contract', 'Start date', 'Open tasks']]
+        .concat(WS.people().map(function (e) {
+          return [e.name, e.email, e.phone, e.role, e.dept, WS.L.personStatus[e.status], e.type, e.start, WS.openTasksFor(e.id).length];
+        }))
+        .concat([[]], [['Hiring pipeline']], [['Name', 'Role', 'Stage', 'Source']])
+        .concat(WS.hires().map(function (c) { return [c.name, c.role, WS.L.stage[c.stage], c.source]; }));
+      WS.download(filename, WS.csv(rows));
+      WS.log('exported', 'People report', WS.people().length + ' people and ' + WS.hires().length + ' candidates exported to CSV');
       toast('People directory report exported.');
-      if (window.DVSec) window.DVSec.log('Exported report', 'People Directory Report');
     }
     function exportXLSX(filename, sheetName) {
       if (!window.XLSX) { toast('Excel export library did not load.'); return; }

@@ -4,9 +4,8 @@
    Mirrors the theme-toggle and sidebar-collapse behaviour from js/shell.js
    (used on dashboard.html) so both pages stay in sync via the same
    'dashview-theme' key. Deliberately leaves out shell.js's view-switching:
-   this page's nav buttons already carry their own data-view wiring for
-   hr-app.js's internal tabs, and reusing shell.js's [data-view] handler
-   here would hijack that click instead of letting hr-app.js run it.
+   People has its own tabs (js/people.js) and the sidebar links here are
+   plain page links.
    ========================================================================== */
 (function () {
   'use strict';
@@ -78,14 +77,4 @@
     }
   });
 
-  /* ── Sidebar "Settings" link jumps into this page's own Settings tab ──── */
-  on(byId('sidebarSettingsLink'), 'click', function (e) {
-    e.preventDefault();
-    if (window.hrShowView) window.hrShowView('settings');
-    var sidebar = byId('sidebar');
-    if (sidebar) sidebar.classList.remove('open');
-    var btn = byId('mobileSideToggle');
-    setExpanded(btn, false);
-    if (btn) btn.setAttribute('aria-label', 'Open navigation menu');
-  });
 })();
