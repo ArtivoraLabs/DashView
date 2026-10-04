@@ -8,7 +8,7 @@
 <meta name="referrer" content="no-referrer"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>People — DashView</title>
-<meta name="description" content="DashView People — an Odoo-connected employee directory and hiring workspace, with clearly labeled workspace-managed tools."/>
+<meta name="description" content="DashView People — your team directory, hiring pipeline, departments and workload in one place. Works offline, no account needed."/>
 <meta name="theme-color" content="#f2f3ef"/>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png"/>
@@ -17,23 +17,21 @@
 <link rel="stylesheet" href="css/components.css"/>
 <link rel="stylesheet" href="css/dashboard.css"/>
 <link rel="stylesheet" href="css/merged.css"/>
-<link rel="stylesheet" href="css/people.css"/>
-<link rel="stylesheet" href="css/people-pro.css"/>
 <link rel="stylesheet" href="css/security.css"/>
-<link rel="stylesheet" href="css/odoo-live.css"/>
 <link rel="stylesheet" href="css/tabbar.css"/>
 <link rel="stylesheet" href="css/visual-polish.css"/>
 <link rel="stylesheet" href="css/chart-polish.css"/>
+<link rel="stylesheet" href="css/pro-detail.css"/>
+<link rel="stylesheet" href="css/ws.css"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="DashView"/>
 <script src="js/config.js"></script>
 <script defer src="js/updater.js"></script>
-<link rel="stylesheet" href="css/pro-detail.css"/>
 </head>
-<body class="dash-body hr-body">
+<body class="dash-body">
 
-<a class="hr-skip" href="#main">Skip to content</a>
+<a class="ws-skip" href="#main">Skip to content</a>
 
 <div class="dash-shell" id="shell">
 
@@ -92,7 +90,7 @@
         <span>Audit log</span>
       </a>
       <p class="dash-nav-label">Settings</p>
-      <a href="#" id="sidebarSettingsLink" class="dash-nav-link">
+      <a href="dashboard.html#settings" class="dash-nav-link">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 18a1.65 1.65 0 0 0-1.51 1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
         <span>Settings</span>
       </a>
@@ -106,269 +104,115 @@
       <button class="dash-icon-btn dash-sidebar-toggle" id="mobileSideToggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="sidebar">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
       </button>
-
       <div class="dash-top-actions" style="margin-left:auto;">
-        <span class="odoo-live-status" id="pplOdooStatus" role="status" aria-live="polite"><span class="dot"></span><span id="pplOdooStatusText">Checking Odoo…</span></span>
-        <button class="hr-iconbtn theme-toggle-btn" id="themeToggleBtn" type="button" aria-label="Switch to dark theme" title="Switch theme">
+        <button class="dash-icon-btn theme-toggle-btn" id="themeToggleBtn" type="button" aria-label="Switch to dark theme" title="Switch theme">
           <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
           <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
         </button>
-
-        <button class="hr-iconbtn hr-iconbtn--wide" id="settingsBtn" aria-label="Open settings">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-          </svg>
-          <span>Settings</span>
-        </button>
-
-        <div class="hr-rel">
-          <button class="hr-iconbtn" id="bellBtn" aria-label="Notifications" aria-expanded="false">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
-            <span class="hr-dot" id="bellDot" hidden></span>
-          </button>
-          <div class="hr-pop" id="notiPop" hidden role="dialog" aria-label="Notifications">
-            <div class="hr-pop-head">
-              <span class="hr-pop-title">Notifications</span>
-              <button class="hr-pop-link" id="markReadBtn">Mark all read</button>
-            </div>
-            <div id="notiList"></div>
-          </div>
-        </div>
-
-        <button class="hr-iconbtn hr-avatarbtn" id="meBtn" aria-label="Your profile"></button>
       </div>
     </header>
 
     <div class="dash-content">
-    <div class="hr-stage">
-    <div class="hr-shell">
+    <main id="main" class="ws-page" aria-label="People workspace">
 
-    <a href="index.html" id="orgMark" class="visually-hidden">Crextio</a>
-
-    <nav class="hr-subnav">
-      <div class="hr-nav" id="mainNav" role="tablist" aria-label="People workspace sections">
-        <button class="hr-nav-btn" type="button" role="tab" data-view="dashboard" aria-controls="view-dashboard" aria-selected="true">Dashboard</button>
-        <button class="hr-nav-btn" type="button" role="tab" data-view="people" aria-controls="view-people" aria-selected="false">People</button>
-        <button class="hr-nav-btn" type="button" role="tab" data-view="hiring" aria-controls="view-hiring" aria-selected="false">Hiring</button>
-        <button class="hr-nav-btn" type="button" role="tab" data-view="devices" aria-controls="view-devices" aria-selected="false">Devices</button>
-        <button class="hr-nav-btn" type="button" role="tab" data-view="apps" aria-controls="view-apps" aria-selected="false">Apps</button>
-        <button class="hr-nav-btn" type="button" role="tab" data-view="salary" aria-controls="view-salary" aria-selected="false">Salary</button>
-        <button class="hr-nav-btn" type="button" role="tab" data-view="calendar" aria-controls="view-calendar" aria-selected="false">Calendar</button>
-        <button class="hr-nav-btn" type="button" role="tab" data-view="reviews" aria-controls="view-reviews" aria-selected="false">Reviews</button>
-      </div>
-    </nav>
-
-    <div class="odoo-live-connect-banner ppl-source-banner" id="pplOdooBanner" role="region" aria-label="People data connection status" aria-live="polite" data-source-state="loading">
-      <p id="pplOdooBannerText">Checking Odoo connection and data source…</p>
-      <div class="ppl-source-actions">
-        <button type="button" class="hr-btn hr-btn--quiet" id="pplOdooRefresh">Refresh People data</button>
-        <a href="dashboard.html#settings" class="hr-btn" id="pplOdooSettings">Odoo settings</a>
-      </div>
-    </div>
-
-    <main id="main" aria-label="People workspace">
-
-  <!-- ════ Dashboard ══════════════════════════════════════════════════ -->
-  <section class="hr-view" id="view-dashboard" role="tabpanel" aria-label="Dashboard">
-
-    <div class="hr-head">
-      <h1 class="hr-title" id="welcomeLine">Welcome back, DashView</h1>
-
-      <div class="hr-headrow">
-        <div class="hr-cap">
-          <div class="hr-cap-labels" id="capLabels"></div>
-          <div class="hr-cap-track" id="capTrack"></div>
+      <div class="ws-head">
+        <div>
+          <h1>People</h1>
+          <p id="pplSub">Your team directory, hiring pipeline and workload in one place.</p>
         </div>
-
-        <div class="hr-stats" id="statRow"></div>
-      </div>
-    </div>
-
-    <div class="hr-grid">
-
-      <!-- Spotlight -->
-      <article class="hr-spot hr-a-profile" id="spotCard" aria-label="Employee spotlight"></article>
-
-      <!-- Weekly progress -->
-      <article class="hr-card hr-a-progress">
-        <div class="hr-card-head">
-          <h2 class="hr-card-title">Progress</h2>
-          <button class="hr-ghost" id="progressJump" aria-label="Open weekly timesheet">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-              <path d="M7 17 17 7M9 7h8v8"/>
-            </svg>
-          </button>
-        </div>
-        <div class="hr-prog-lead">
-          <span class="hr-prog-big" id="weekTotal">0 h</span>
-          <span class="hr-prog-cap">Work Time<br/>this week</span>
-        </div>
-        <div class="hr-chart">
-          <div class="hr-bars" id="weekBars"></div>
-          <div class="hr-axis" id="weekAxis"></div>
-        </div>
-      </article>
-
-      <!-- Time tracker -->
-      <article class="hr-card hr-a-tracker">
-        <div class="hr-card-head">
-          <h2 class="hr-card-title">Time tracker</h2>
-          <button class="hr-ghost" id="trackerJump" aria-label="Open timesheet history">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-              <path d="M7 17 17 7M9 7h8v8"/>
-            </svg>
-          </button>
-        </div>
-
-        <div class="hr-track-body">
-          <div class="hr-ring">
-            <svg viewBox="0 0 200 200" aria-hidden="true">
-              <g id="ringTicks"></g>
-              <circle class="hr-ring-arc" id="ringArc" cx="100" cy="100" r="82"
-                      stroke-dasharray="515" stroke-dashoffset="515"/>
-            </svg>
-            <div class="hr-ring-face">
-              <div class="hr-ring-time" id="ringTime" role="timer" aria-live="off">00:00</div>
-              <div class="hr-ring-cap">Work Time</div>
+        <div class="ws-actions">
+          <button class="btn btn-outline btn-sm" id="pplExport" type="button">Export people</button>
+          <details class="ws-menu" id="pplMenu">
+            <summary class="btn btn-outline btn-sm" aria-label="Workspace data options">Data ▾</summary>
+            <div class="ws-menu-list">
+              <button type="button" id="pplSampleBtn" data-menu="sample">Load sample data</button>
+              <button type="button" id="pplRemoveSampleBtn" data-menu="remove-sample" hidden>Remove sample data</button>
+              <button type="button" data-menu="backup">Download backup (JSON)</button>
+              <button type="button" data-menu="restore">Restore from backup…</button>
+              <hr/>
+              <button type="button" class="danger" data-menu="reset">Delete all workspace data</button>
             </div>
-          </div>
+          </details>
+          <input type="file" id="pplRestoreFile" accept="application/json,.json" hidden/>
+          <button class="btn btn-primary btn-sm" id="pplAdd" type="button">+ Add person</button>
         </div>
+      </div>
 
-        <div class="hr-track-foot">
-          <button class="hr-round" id="playBtn" aria-label="Start timer">
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-          </button>
-          <button class="hr-round" id="pauseBtn" aria-label="Pause timer" disabled>
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
-          </button>
-          <button class="hr-round hr-round--ink" id="resetBtn" aria-label="Reset today's timer">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-              <circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/>
-            </svg>
-          </button>
-        </div>
-      </article>
+      <div class="seg ws-tabs" id="pplTabs" role="group" aria-label="People sections">
+        <button type="button" class="active" data-tab="overview" aria-pressed="true">Overview</button>
+        <button type="button" data-tab="directory" aria-pressed="false">Directory</button>
+        <button type="button" data-tab="hiring" aria-pressed="false">Hiring</button>
+        <button type="button" data-tab="departments" aria-pressed="false">Departments</button>
+      </div>
 
-      <!-- Onboarding -->
-      <article class="hr-card hr-a-onboard">
-        <div class="hr-onb-head">
-          <h2 class="hr-card-title">Onboarding</h2>
-          <span class="hr-onb-pct" id="onbPct">0%</span>
-        </div>
-
-        <div class="hr-onb-segs" id="onbSegs"></div>
-
-        <div class="hr-stack">
-          <div class="hr-tasks">
-            <div class="hr-tasks-head">
-              <span class="hr-tasks-title">Onboarding Task</span>
-              <span class="hr-tasks-count" id="taskCount">0/0</span>
-            </div>
-            <ul class="hr-tasklist" id="taskList"></ul>
-          </div>
-        </div>
-      </article>
-
-      <!-- Detail accordion -->
-      <article class="hr-card hr-card--flush hr-a-detail">
-        <div class="hr-acc" id="detailAcc"></div>
-      </article>
-
-      <!-- Agenda -->
-      <article class="hr-card hr-agenda hr-a-agenda">
-        <div class="hr-agenda-head">
-          <button class="hr-monthbtn" id="weekPrev"></button>
-          <h2 class="hr-agenda-title" id="weekLabel"></h2>
-          <button class="hr-monthbtn hr-monthbtn--next" id="weekNext"></button>
-        </div>
-        <div class="hr-agendawrap">
-          <div class="hr-cal" id="calGrid"></div>
-        </div>
-      </article>
-
-    </div>
-  </section>
-
-  <!-- ════ Secondary views (rendered by js/hr-views.js) ═══════════════ -->
-  <section class="hr-view" id="view-people"   role="tabpanel" aria-label="People"   hidden></section>
-  <section class="hr-view" id="view-hiring"   role="tabpanel" aria-label="Hiring"   hidden></section>
-  <section class="hr-view" id="view-devices"  role="tabpanel" aria-label="Devices"  hidden></section>
-  <section class="hr-view" id="view-apps"     role="tabpanel" aria-label="Apps"     hidden></section>
-  <section class="hr-view" id="view-salary"   role="tabpanel" aria-label="Salary"   hidden></section>
-  <section class="hr-view" id="view-calendar" role="tabpanel" aria-label="Calendar" hidden></section>
-  <section class="hr-view" id="view-reviews"  role="tabpanel" aria-label="Reviews"  hidden></section>
-  <section class="hr-view" id="view-settings" role="tabpanel" aria-label="Settings" hidden></section>
+      <div id="pplBody" aria-live="polite"></div>
 
     </main>
-
-    </div>
-    </div>
     </div>
   </div>
 </div>
 
-<!-- ════ Event modal ══════════════════════════════════════════════════ -->
-<div class="hr-modal" id="eventModal" hidden role="dialog" aria-modal="true" aria-labelledby="eventModalTitle">
-  <div class="hr-modal-card">
-    <h2 class="hr-modal-title" id="eventModalTitle">New event</h2>
-    <p class="hr-modal-note" id="eventModalNote">Add it to the shared team calendar.</p>
-    <div class="hr-form">
-      <div>
-        <label class="hr-label" for="evTitle">Title</label>
-        <input class="hr-field" id="evTitle" placeholder="Design review"/>
-      </div>
-      <div>
-        <label class="hr-label" for="evNote">Description</label>
-        <input class="hr-field" id="evNote" placeholder="What the session covers"/>
-      </div>
-      <div class="hr-form-row">
-        <div>
-          <label class="hr-label" for="evStart">Starts</label>
-          <input class="hr-field" id="evStart" type="time" step="900"/>
-        </div>
-        <div>
-          <label class="hr-label" for="evEnd">Ends</label>
-          <input class="hr-field" id="evEnd" type="time" step="900"/>
-        </div>
-      </div>
-      <div>
-        <label class="hr-label" for="evTone">Colour</label>
-        <select class="hr-field" id="evTone">
-          <option value="plain">Neutral</option>
-          <option value="ink">Ink</option>
-          <option value="butter">Butter</option>
-        </select>
-      </div>
+<!-- ══════════════════════ PERSON MODAL ══════════════════════ -->
+<div class="modal-overlay ws-modal" id="pplModal">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="pModalTitle">
+    <button class="modal-close" id="pClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);">Directory</p>
+    <h3 id="pModalTitle">Add person</h3>
+    <div class="ws-field"><label for="pName">Full name</label><input type="text" class="ws-input" id="pName" maxlength="80" autocomplete="off" placeholder="e.g. Amara Khan"/></div>
+    <div class="ws-row2">
+      <div class="ws-field"><label for="pEmail">Email <span class="ws-muted">(optional)</span></label><input type="email" class="ws-input" id="pEmail" maxlength="120" autocomplete="off"/></div>
+      <div class="ws-field"><label for="pPhone">Phone <span class="ws-muted">(optional)</span></label><input type="tel" class="ws-input" id="pPhone" maxlength="40" autocomplete="off"/></div>
     </div>
-    <div class="hr-modal-foot">
-      <button class="hr-btn hr-btn--quiet" id="evCancel">Cancel</button>
-      <button class="hr-btn" id="evSave">Add event</button>
+    <div class="ws-row2">
+      <div class="ws-field"><label for="pRole">Role</label><input type="text" class="ws-input" id="pRole" maxlength="80" autocomplete="off" placeholder="e.g. Operations Lead"/></div>
+      <div class="ws-field"><label for="pDept">Department</label><input type="text" class="ws-input" id="pDept" maxlength="60" list="deptList" autocomplete="off" placeholder="e.g. Operations"/><datalist id="deptList"></datalist></div>
+    </div>
+    <div class="ws-row2">
+      <div class="ws-field"><label for="pStatus">Status</label><select class="ws-input" id="pStatus" style="width:100%;"><option value="active">Active</option><option value="leave">On leave</option><option value="inactive">Inactive</option></select></div>
+      <div class="ws-field"><label for="pType">Contract</label><select class="ws-input" id="pType" style="width:100%;"><option>Full-time</option><option>Part-time</option><option>Contract</option><option>Intern</option></select></div>
+    </div>
+    <div class="ws-field"><label for="pStart">Start date <span class="ws-muted">(optional)</span></label><input type="date" class="ws-input" id="pStart"/></div>
+    <div class="ws-field"><label for="pNotes">Notes <span class="ws-muted">(optional)</span></label><textarea class="ws-input" id="pNotes" rows="2" maxlength="600"></textarea></div>
+    <div id="pTasks" style="margin-bottom:10px;"></div>
+    <p class="ws-form-err" id="pErr" role="alert"></p>
+    <p class="ws-muted" id="pDelNote" style="font-size:13px;margin:0 0 8px;" role="status"></p>
+    <div class="ws-modal-actions">
+      <button class="btn btn-outline ws-danger" id="pDelete" type="button" hidden>Delete</button>
+      <div class="grow"><button class="btn btn-outline" id="pCancel" type="button">Cancel</button><button class="btn btn-primary" id="pSave" type="button">Add person</button></div>
     </div>
   </div>
 </div>
 
-<!-- ════ Command palette ══════════════════════════════════════════════ -->
-<div class="hr-cmd" id="cmdPalette" hidden role="dialog" aria-modal="true" aria-label="Command palette">
-  <div class="hr-cmd-card">
-    <input class="hr-cmd-input" id="cmdInput" placeholder="Jump to a section or a colleague…" autocomplete="off"/>
-    <ul class="hr-cmd-list" id="cmdList" role="listbox"></ul>
+<!-- ══════════════════════ CANDIDATE MODAL ══════════════════════ -->
+<div class="modal-overlay ws-modal" id="hireModal">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="hModalTitle">
+    <button class="modal-close" id="hClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <p class="eyebrow" style="margin-bottom:var(--sp-2);">Hiring</p>
+    <h3 id="hModalTitle">Add candidate</h3>
+    <div class="ws-field"><label for="hName">Full name</label><input type="text" class="ws-input" id="hName" maxlength="80" autocomplete="off"/></div>
+    <div class="ws-row2">
+      <div class="ws-field"><label for="hRole">Role applied for</label><input type="text" class="ws-input" id="hRole" maxlength="80" autocomplete="off"/></div>
+      <div class="ws-field"><label for="hSource">Source</label><input type="text" class="ws-input" id="hSource" maxlength="60" autocomplete="off" placeholder="Referral, LinkedIn…"/></div>
+    </div>
+    <div class="ws-row2">
+      <div class="ws-field"><label for="hEmail">Email <span class="ws-muted">(optional)</span></label><input type="email" class="ws-input" id="hEmail" maxlength="120" autocomplete="off"/></div>
+      <div class="ws-field"><label for="hStage">Stage</label><select class="ws-input" id="hStage" style="width:100%;"><option value="applied">Applied</option><option value="screening">Screening</option><option value="interview">Interview</option><option value="offer">Offer</option><option value="hired">Hired</option><option value="rejected">Rejected</option></select></div>
+    </div>
+    <div class="ws-field"><label for="hNotes">Notes <span class="ws-muted">(optional)</span></label><textarea class="ws-input" id="hNotes" rows="3" maxlength="600"></textarea></div>
+    <p class="ws-form-err" id="hErr" role="alert"></p>
+    <div class="ws-modal-actions">
+      <button class="btn btn-outline ws-danger" id="hDelete" type="button" hidden>Delete</button>
+      <div class="grow"><button class="btn btn-outline" id="hCancel" type="button">Cancel</button><button class="btn btn-primary" id="hSave" type="button">Add candidate</button></div>
+    </div>
   </div>
 </div>
-
-<div class="hr-toasts" id="toasts" aria-live="polite"></div>
 
 <script src="js/dv-security.js"></script>
-<script src="js/odoo-client.js"></script>
+<script src="js/dashview-api.js"></script>
+<script src="js/auth-service.js"></script>
 <script src="js/people-shell.js"></script>
-<script src="js/hr-store.js"></script>
-<script src="js/hr-icons.js"></script>
-<script src="js/hr-views.js"></script>
-<script src="js/hr-app.js"></script>
-<script src="js/people-odoo-live.js"></script>
+<script src="js/ws-store.js"></script>
+<script src="js/people.js"></script>
 <script src="js/tabbar.js"></script>
 </body>
 </html>

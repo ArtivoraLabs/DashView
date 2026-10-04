@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.9.0 - 2026-10-04
+- Rebuilt: People, Task assignments and Audit log from scratch - one shared workspace store, validated forms, kanban board, hiring pipeline and field-level audit history
+- Improved: every People, Task and Hiring change is recorded automatically in the Audit log, with search, filters, paging and CSV export
+- Fixed: overdue dates use the local calendar day, tasks of a deleted person are unassigned, duplicate emails are rejected and drag-and-drop works on the task board
+
 ## 2.7.0 - 2026-10-03
 - New: Overview company selector with safe multi-currency handling
 - Improved: Odoo People, Tasks and Audit data mapping and error visibility

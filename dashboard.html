@@ -44,6 +44,7 @@
 <script src="js/config.js"></script>
 <script defer src="js/updater.js"></script>
 <link rel="stylesheet" href="css/pro-detail.css"/>
+<link rel="stylesheet" href="css/ws.css"/>
 <script>try{if(localStorage.getItem("dashview_surface")==="glass"){document.documentElement.setAttribute("data-surface","glass");var l=document.createElement("link");l.id="lg-glass-link";l.rel="stylesheet";l.setAttribute("blocking","render");l.href="css/liquid-glass.css";document.head.appendChild(l);}}catch(e){}</script>
 </head>
 <body class="dash-body">
@@ -538,37 +539,33 @@
 
       <!-- ══════════════════════ TASK ASSIGNMENTS ══════════════════════ -->
       <section class="view-panel" id="view-task-assignments">
-        <div class="ov-head">
+        <div class="ws-head">
           <div>
             <h1>Task assignments</h1>
-            <p>Live Odoo project tasks with separately stored local tasks</p>
+            <p id="tkSub">Plan work, assign it to people and track it through to done.</p>
           </div>
-          <div class="ov-head-actions">
-            <div class="seg" id="tkSource" role="group" aria-label="Task data source">
-              <button type="button" class="active" data-source="odoo">Odoo</button>
-              <button type="button" data-source="local">Local tasks</button>
-            </div>
-            <div class="seg" id="tkMode" role="group" aria-label="View">
-              <button type="button" class="active" data-mode="people">By employee</button>
-              <button type="button" data-mode="table">All tasks</button>
+          <div class="ws-actions">
+            <div class="seg" id="tkMode" role="group" aria-label="Task view">
+              <button type="button" class="active" data-mode="board" aria-pressed="true">Board</button>
+              <button type="button" data-mode="list" aria-pressed="false">List</button>
             </div>
             <button class="btn btn-outline btn-sm" id="tkExport" type="button">Export CSV</button>
-            <button class="btn btn-primary btn-sm" id="tkAdd" type="button">+ Assign task</button>
+            <button class="btn btn-primary btn-sm" id="tkAdd" type="button">+ New task</button>
           </div>
         </div>
-        <div class="tk-stats" id="tkStats"></div>
-        <div class="tk-filters">
-          <div class="data-search"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input type="text" id="tkSearch" placeholder="Search tasks or people…"/></div>
-          <select class="pro-select" id="tkEmp" aria-label="Employee"><option value="">All employees</option></select>
-          <select class="pro-select" id="tkStatus" aria-label="Stage"><option value="">All stages</option></select>
-          <select class="pro-select" id="tkPriority" aria-label="Priority"><option value="">All priorities</option><option value="urgent">Urgent</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+        <div class="ws-stats" id="tkStats" aria-live="polite"></div>
+        <div class="ws-filters">
+          <div class="ws-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input type="search" id="tkSearch" maxlength="120" placeholder="Search tasks, notes or people…" aria-label="Search tasks"/></div>
+          <select class="ws-input" id="tkEmp" aria-label="Filter by assignee"></select>
+          <select class="ws-input" id="tkPriority" aria-label="Filter by priority">
+            <option value="">All priorities</option><option value="urgent">Urgent</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option>
+          </select>
+          <select class="ws-input" id="tkDue" aria-label="Filter by due date">
+            <option value="">Any due date</option><option value="overdue">Overdue</option><option value="today">Due today</option><option value="week">Due in 7 days</option><option value="none">No due date</option>
+          </select>
+          <button class="ws-link-btn" id="tkClear" type="button" hidden>Clear filters</button>
         </div>
-        <p class="tk-source-info" id="tkSourceInfo" role="status" aria-live="polite"></p>
         <div id="tkBody"></div>
-        <div class="tk-page" id="tkPage" hidden>
-          <span id="tkPageInfo"></span>
-          <div><button class="btn btn-outline btn-sm" id="tkPrev" type="button">← Previous</button> <button class="btn btn-outline btn-sm" id="tkNext" type="button">Next →</button></div>
-        </div>
       </section>
 
       <!-- ══════════════════════ TEAM ══════════════════════ -->
@@ -616,44 +613,45 @@
 
       <!-- ══════════════════════ AUDIT LOG ══════════════════════ -->
       <section class="view-panel" id="view-audit-log">
-        <div class="ov-head">
+        <div class="ws-head">
           <div>
-            <h1>Audit log <span class="odoo-live-status" id="auditStatus"><span class="dot"></span><span id="auditStatusText" aria-live="polite">Not connected</span></span></h1>
-            <p id="auditSub">Live from your Odoo</p>
+            <h1>Audit log</h1>
+            <p id="auditSub">Every change to people, tasks and hiring — who did what, and when.</p>
           </div>
-          <div class="ov-head-actions">
-            <button class="btn btn-outline btn-sm" id="auditRefresh" type="button">Refresh</button>
+          <div class="ws-actions">
             <button class="btn btn-outline btn-sm" id="exportAuditBtn" type="button">Export CSV</button>
+            <button class="btn btn-outline btn-sm ws-danger" id="auditClear" type="button">Clear log</button>
           </div>
         </div>
-        <div class="odoo-live-connect-banner" id="auditBanner" hidden>
-          <p id="auditBannerText"></p>
-          <a href="#settings" class="btn btn-primary btn-sm" data-view="settings">Open Settings</a>
+        <div class="ws-stats" id="auditStats" aria-live="polite"></div>
+        <div class="ws-filters">
+          <div class="seg" id="auditTabs" role="group" aria-label="Log source">
+            <button type="button" class="active" data-src="activity" aria-pressed="true">Activity</button>
+            <button type="button" data-src="security" aria-pressed="false">Security</button>
+          </div>
+          <div class="ws-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input type="search" id="auditSearch" maxlength="120" placeholder="Search who, what or details…" aria-label="Search the audit log"/></div>
+          <select class="ws-input" id="auditEntity" aria-label="Filter by item type">
+            <option value="">All items</option><option value="person">People</option><option value="task">Tasks</option><option value="hire">Candidates</option><option value="system">Workspace</option>
+          </select>
+          <select class="ws-input" id="auditAction" aria-label="Filter by action">
+            <option value="">All actions</option><option value="created">Created</option><option value="updated">Updated</option><option value="moved">Moved</option><option value="assigned">Assigned</option><option value="deleted">Deleted</option><option value="exported">Exported</option><option value="imported">Imported</option><option value="loaded">Loaded</option><option value="reset">Reset</option>
+          </select>
+          <select class="ws-input" id="auditPeriod" aria-label="Filter by date range">
+            <option value="1">Last 24 hours</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="0" selected>All time</option>
+          </select>
+          <button class="ws-link-btn" id="auditReset" type="button" hidden>Clear filters</button>
         </div>
-        <div class="panel">
-          <div class="audit-toolbar">
-            <div class="seg" id="auditTabs" role="group" aria-label="Log source">
-              <button type="button" class="active" data-src="activity">Odoo activity</button>
-              <button type="button" data-src="signins">Sign-ins</button>
-              <button type="button" data-src="local">Workspace security</button>
-            </div>
-            <div class="data-search"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input type="text" id="auditSearch" maxlength="120" placeholder="Search user, record or subject…"/></div>
-            <select class="pro-select" id="auditPeriod" aria-label="Period">
-              <option value="1">Last 24 hours</option><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last 365 days (maximum)</option>
-            </select>
-            <span id="auditTypeWrap"><select class="pro-select" id="auditType" aria-label="Message type"><option value="">All types</option><option value="comment">Messages</option><option value="notification">System &amp; tracked changes</option><option value="email">Emails</option></select></span>
-          </div>
-          <p class="audit-note" id="auditNote"></p>
-          <div class="table-wrap">
-            <table class="dash-table">
-              <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Record</th><th>Details</th><th>Type</th></tr></thead>
-              <tbody id="auditBody" aria-live="polite" aria-relevant="all"></tbody>
-            </table>
-          </div>
-          <div class="audit-pager">
-            <span id="auditPageInfo" aria-live="polite" aria-atomic="true">–</span>
-            <div class="p-btns"><button class="btn btn-outline btn-sm" id="auditPrev" disabled>← Prev</button> <button class="btn btn-outline btn-sm" id="auditNext" disabled>Next →</button></div>
-          </div>
+        <p class="ws-muted" id="auditNote" style="font-size:12px;margin:0 0 10px;"></p>
+        <div class="ws-table-wrap" tabindex="0" aria-label="Audit events">
+          <table class="ws-table">
+            <caption class="ws-sr">Audit events matching the current filters, newest first</caption>
+            <thead><tr><th scope="col">When</th><th scope="col">Who</th><th scope="col">Action</th><th scope="col">Item</th><th scope="col">Details</th></tr></thead>
+            <tbody id="auditBody" aria-live="polite"></tbody>
+          </table>
+        </div>
+        <div class="ws-pager">
+          <span id="auditPageInfo" aria-live="polite">–</span>
+          <div><button class="btn btn-outline btn-sm" id="auditPrev" type="button" disabled>← Newer</button> <button class="btn btn-outline btn-sm" id="auditNext" type="button" disabled>Older →</button></div>
         </div>
       </section>
 
@@ -1668,23 +1666,23 @@
 </div>
 
 <!-- ══════════════════════ TASK ASSIGNMENT MODAL ══════════════════════ -->
-<div class="modal-overlay" id="taskModal">
-  <div class="modal-card">
+<div class="modal-overlay ws-modal" id="taskModal">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="taskModalTitle">
     <button class="modal-close" id="taskModalClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     <p class="eyebrow" style="margin-bottom:var(--sp-2);">Task assignments</p>
-    <h3 id="taskModalTitle">Assign a task</h3>
-    <div class="field"><label for="taskTitle">Task</label><input type="text" id="taskTitle" maxlength="160" placeholder="e.g. Prepare the monthly payroll report"/></div>
-    <div class="field"><label for="taskAssignee">Assign to</label><select class="pro-select" id="taskAssignee" style="width:100%;"></select></div>
-    <div class="tk-modal-grid">
-      <div class="field"><label for="taskPriority">Priority</label><select class="pro-select" id="taskPriority" style="width:100%;"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select></div>
-      <div class="field"><label for="taskStatus">Status</label><select class="pro-select" id="taskStatus" style="width:100%;"><option value="todo">To do</option><option value="progress">In progress</option><option value="review">In review</option><option value="done">Done</option></select></div>
+    <h3 id="taskModalTitle">New task</h3>
+    <div class="ws-field"><label for="taskTitle">Task</label><input type="text" class="ws-input" id="taskTitle" maxlength="160" placeholder="e.g. Prepare the monthly payroll report" autocomplete="off"/></div>
+    <div class="ws-field"><label for="taskAssignee">Assign to</label><select class="ws-input" id="taskAssignee" style="width:100%;"></select></div>
+    <div class="ws-row2">
+      <div class="ws-field"><label for="taskPriority">Priority</label><select class="ws-input" id="taskPriority" style="width:100%;"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select></div>
+      <div class="ws-field"><label for="taskStatus">Status</label><select class="ws-input" id="taskStatus" style="width:100%;"><option value="todo">To do</option><option value="progress">In progress</option><option value="review">In review</option><option value="done">Done</option></select></div>
     </div>
-    <div class="field"><label for="taskDue">Due date</label><input type="date" class="pro-select" id="taskDue" style="width:100%;"/></div>
-    <div class="field"><label for="taskNotes">Notes (optional)</label><textarea id="taskNotes" rows="3" maxlength="600" class="pro-select" style="width:100%;resize:vertical;"></textarea></div>
-    <p class="tk-err" id="taskErr" role="alert"></p>
-    <div class="tk-modal-actions">
-      <button class="btn btn-outline btn-lg" id="taskDelete" type="button" hidden style="color:var(--danger);">Delete</button>
-      <button class="btn btn-primary btn-lg" id="taskSave" type="button">Save task</button>
+    <div class="ws-field"><label for="taskDue">Due date <span class="ws-muted">(optional)</span></label><input type="date" class="ws-input" id="taskDue"/></div>
+    <div class="ws-field"><label for="taskNotes">Notes <span class="ws-muted">(optional)</span></label><textarea id="taskNotes" rows="3" maxlength="1000" class="ws-input"></textarea></div>
+    <p class="ws-form-err" id="taskErr" role="alert"></p>
+    <div class="ws-modal-actions">
+      <button class="btn btn-outline ws-danger" id="taskDelete" type="button" hidden>Delete</button>
+      <div class="grow"><button class="btn btn-outline" id="taskCancel" type="button">Cancel</button><button class="btn btn-primary" id="taskSave" type="button">Save task</button></div>
     </div>
   </div>
 </div>
@@ -1728,7 +1726,6 @@
 <script src="js/dv-security.js"></script>
 <script src="js/odoo-client.js"></script>
 <script src="js/odoo-profiles.js"></script>
-<script src="js/hr-store.js"></script>
 <script src="js/app.js"></script>
 <script src="js/studio-core.js"></script>
 <script src="js/studio-ui.js"></script>
@@ -1745,6 +1742,7 @@
 <script src="js/exec-retail.js"></script>
 <script src="js/exec-drill.js"></script>
 <script src="js/exec-company.js"></script>
+<script src="js/ws-store.js"></script>
 <script src="js/tasks.js"></script>
 <script src="js/audit-live.js"></script>
 <script src="js/security-ui.js"></script>

@@ -130,43 +130,42 @@ entirely client-side (`js/studio-core.js` is the framework-free data engine;
   "Report options" dialog, and both lazily loaded from CDN only when you
   export. A plain CSV export remains for quick raw-data grabs.
 
-### People (`people.html`)
-An HR/operations workspace built to a supplied visual brief — a warm
-cream-and-butter light theme that deliberately shares **no** tokens with the
-graphite/amber BI side, so the two can't leak into each other. Everything is
-namespaced under `.hr-` and persisted to one versioned `localStorage` key.
+### People, Task assignments & Audit log
+Three connected workspace pages that share **one data store** (`js/ws-store.js`,
+exposed as `window.WS`). It works with no Odoo, account or server: data is kept
+in this browser's `localStorage` under a single versioned key, and every
+change is validated, saved, broadcast to the other open tabs and written to the
+audit log by the same code path - so the three pages can never drift apart.
 
-- **Dashboard** — an employee spotlight, a weekly work-time chart, a live time
-  tracker, an onboarding checklist and a week agenda, laid out on a four-column
-  grid with the onboarding card spanning both rows.
-- **Time tracker that tells the truth** — the running clock is stored as a
-  *start timestamp*, not an accumulating counter. A counter only advances while
-  the tab is open, so it silently under-reports the moment you switch tabs or
-  the machine sleeps; an anchor timestamp stays correct across both, survives a
-  reload, and banks itself automatically at midnight rollover.
-- **Onboarding checklist** — ticking a task recalculates the headline
-  percentage, the `2/8` counter and all three phase bars together.
-- **Week agenda** — click any empty slot to add an event; two things booked in
-  the same hour share the column side by side instead of hiding one behind the
-  other. Month tabs page the week backwards and forwards.
-- **People** — searchable, filterable, sortable directory; any row can be sent
-  to the dashboard spotlight. CSV export.
-- **Hiring** — a five-stage pipeline with drag-and-drop *and* arrow-button
-  fallback, so it works without a pointer.
-- **Devices** — asset register where the status tag itself is the dropdown, so
-  the table stays quiet until you click it. Assign/unassign updates headcount
-  tiles live. CSV export.
-- **Apps** — seat utilisation meters and recoverable idle spend.
-- **Salary** — payroll table with totals, median/average tiles and a cost-by-
-  department breakdown. CSV export.
-- **Calendar** — month grid; **Reviews** — H1 cycle status; **Settings** —
-  organisation name, greeting, working-day target and the capacity split that
-  drives the bar under the welcome line.
-- **Command palette** (⌘K / Ctrl-K) jumps to any section or colleague; `Space`
-  toggles the timer; `Esc` closes whatever is open.
-- Seeded PRNG for the 90-day work history, so headline numbers never reshuffle
-  between reloads — a dashboard whose figures change on refresh can't be
-  trusted or screenshotted.
+**People** (`people.html`)
+- **Overview** - headcount, leave, hiring and open-task tiles; team by
+  department; workload per person; recently added; hiring funnel.
+- **Directory** - search, filter (department / status / contract), sortable
+  columns, paging, add / edit / delete. Email format and duplicates are
+  validated; deleting someone unassigns their tasks and says so in the audit log.
+- **Hiring** - six-stage board (Applied → Rejected) with drag-and-drop *and* a
+  stage dropdown on every card for keyboard / touch use. A hired candidate is
+  added to the directory in one click (once).
+- **Departments** - derived from the directory; click one to open it filtered.
+- **Data menu** - load / remove sample data, full JSON backup and restore, and
+  a confirm-to-delete reset (the audit history is kept).
+
+**Task assignments** (`dashboard.html#task-assignments`)
+- Board (To do / In progress / In review / Done) and sortable List views,
+  drag-and-drop plus a status dropdown on every task.
+- Filter by assignee, priority and due date (overdue / today / next 7 days);
+  overdue is computed against the **local** calendar day.
+- Sidebar badge and notification bell show open and overdue work on any page.
+- CSV export of the filtered view (spreadsheet-formula-safe).
+
+**Audit log** (`dashboard.html#audit-log`)
+- **Activity** - who did what and when, with field-level *before → after*
+  changes for every People / Task / Hiring edit; search, item / action / date
+  filters, paging (25 per page), filtered CSV export. The newest 5,000 events
+  are kept. **Security** shows lock / passcode events from the workspace.
+
+Data lives on the device only. Use *People → Data → Download backup* to move it
+between browsers.
 
 ### Dashboard (`dashboard.html`)
 A sales/analytics workspace overview — KPIs, a revenue trend chart, a
@@ -191,8 +190,8 @@ links into the Dashboard, Data Studio, and AI Assistant.
 ├── index.html              # Landing page (self-contained: inline CSS + JS)
 ├── dashboard.html           # Sales dashboard demo (self-contained)
 ├── data-studio.html         # Data Studio: import → clean → auto-dashboard
-├── people.html              # People workspace: HR dashboard, directory,
-│                            #   hiring, devices, apps, salary, reviews
+├── people.html              # People workspace: overview, directory, hiring,
+│                            #   departments
 ├── ai.html                  # AI Assistant chat UI (self-contained)
 ├── 404.html                 # Branded not-found page
 ├── manifest.json            # Web app manifest (add-to-home-screen)
@@ -202,8 +201,7 @@ links into the Dashboard, Data Studio, and AI Assistant.
 │   ├── base.css              # Shared design tokens + reset (Data Studio / 404)
 │   ├── components.css        # Shared component styles (Data Studio / 404)
 │   ├── dashboard.css         # Data Studio topbar/shell pieces it reuses
-│   ├── people.css            # People workspace — self-contained light theme,
-│   │                         #   shares no tokens with the BI side
+│   ├── ws.css                # People / Tasks / Audit pages (uses the app theme tokens)
 │   └── studio-dash.css       # Data Studio: rail, slicers, tabs, pivot, hierarchy
 ├── js/
 │   ├── ai-engine.js          # Local AI engine — knowledge base, code debugger,
@@ -220,12 +218,10 @@ links into the Dashboard, Data Studio, and AI Assistant.
 │   │                         #   filters, live-order simulation, Projects/Agent
 │   │                         #   tasks/Team/Reports/Audit tabs, Settings, export
 │   ├── shell.js                # dashboard.html shared shell: sidebar, tabs, theme
-│   ├── hr-store.js             # People: state, seed data, persistence, pub/sub
-│   ├── hr-icons.js             # People: inline SVG icon registry
-│   ├── hr-views.js             # People: directory, hiring, devices, apps,
-│   │                         #   salary, calendar, reviews, settings
-│   ├── hr-app.js               # People: dashboard widgets, routing, timer,
-│   │                         #   agenda, command palette
+│   ├── ws-store.js             # People / Tasks / Audit: shared validated store (window.WS)
+│   ├── people.js               # People page: overview, directory, hiring, departments
+│   ├── tasks.js                # Task assignments: board + list on top of WS
+│   ├── audit-live.js           # Audit log: activity + security views on top of WS
 │   └── ai-embed.js             # Embedded AI Assistant widget (dashboard.html)
 ├── unused-legacy/            # Superseded files kept for reference only — every
 │   │                         #   file here is unreferenced by any .html page.
@@ -272,17 +268,15 @@ Runs every suite headless via `jsdom` — no browser, no network:
   path makes no `fetch()` calls, provider/context status and accessibility
   affordances, topic matching across every knowledge-base category, real code
   debugging, identity/greeting/fallback handling, and the `?q=` deep-link handoff
-- `people.smoke.test.js` — 64 checks against `people.html`. Boots the real
-  page and drives the actual UI rather than calling internals: it clicks
-  tasks and asserts the counter and phase bars move together, starts/pauses
-  the timer and checks the anchor timestamp is what gets persisted, adds a
-  clashing event and asserts the two share the column, types into the
-  directory search and asserts the caret survives the re-render, drags a
-  candidate between pipeline stages, and sweeps every section for unlabelled
-  icon-only buttons.
+- `workspace.smoke.test.js` - 16 behaviour checks on the shared People / Tasks /
+  Audit store: input validation, duplicate emails, one audit entry per change
+  with field-level diffs, no-op saves not logged, local-date overdue maths,
+  unassigning tasks on delete, hire-to-directory rules, persistence and
+  corrupted / hostile storage, audit cap, backup round-trip, CSV formula
+  safety, blocked-storage reporting and HTML escaping.
 
   ```bash
-  npm run test:people      # just the People suite
+  npm run test:people      # the workspace suite
   ```
 
 ## 🚀 Run it locally
