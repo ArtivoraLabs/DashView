@@ -22,6 +22,7 @@
 <link rel="stylesheet" href="css/ai-embed.css"/>
 <link rel="stylesheet" href="css/dashview-suite.css"/>
 <link rel="stylesheet" href="css/odoo-live.css"/>
+<link rel="stylesheet" href="css/hr-live.css"/>
 <link rel="stylesheet" href="css/dashboard-hr-match.css"/>
 <link rel="stylesheet" href="css/pro-upgrade.css"/>
 <link rel="stylesheet" href="css/odoo-pro.css"/>
@@ -543,6 +544,7 @@
           <div>
             <h1>Task assignments</h1>
             <p id="tkSub">Plan work, assign it to people and track it through to done.</p>
+            <div class="tg-sync" id="tkSync" hidden></div>
           </div>
           <div class="ws-actions">
             <div class="seg" id="tkMode" role="group" aria-label="Task view">
@@ -585,10 +587,19 @@
                 <button data-export="pdf" data-require-perm="importExport">Designed PDF report</button>
               </div>
             </div>
+            <button class="btn btn-outline btn-sm" id="teamRefresh" type="button" hidden>&#8635; Refresh</button>
+            <button class="btn btn-outline btn-sm" id="teamLiveExport" type="button" hidden>Export CSV</button>
             <button class="btn btn-signal btn-sm" id="inviteTeamBtn" data-require-perm="manageTeam">+ Invite member</button>
           </div>
         </div>
         <p class="team-source-note" id="teamSourceNote" role="status" aria-live="polite"></p>
+        <div class="hr-kpis hr-kpis-4 hr-team-kpis" id="teamKpis" hidden></div>
+        <div class="ws-filters" id="teamFilters" hidden>
+          <div class="ws-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input type="search" id="teamSearch" maxlength="120" placeholder="Search name, job, department or manager…" aria-label="Search the team"/></div>
+          <select class="ws-input" id="teamDept" aria-label="Filter by department"></select>
+          <select class="ws-input" id="teamAvail" aria-label="Filter by availability"><option value="">Everyone</option><option value="available">Available</option><option value="leave">On time off</option><option value="busy">Heavy workload</option><option value="nouser">No Odoo user</option></select>
+          <select class="ws-input" id="teamSort" aria-label="Sort the team"><option value="name">Sort: name</option><option value="load">Sort: workload</option><option value="dept">Sort: department</option></select>
+        </div>
         <div class="team-grid" id="teamGrid"></div>
       </section>
 
@@ -769,7 +780,7 @@
                     <span>Use the DashView accounts backend (organization sign-up, roles, multiple users)</span>
                   </label>
                   <span class="stg-field-help">
-                    Off (default): sign in with the built-in admin account — email <code>admin@workspace.local</code>, password <code>admin123</code> (change it in <code>js/auth-service.js</code> → <code>SIMPLE_USER</code>). No Cloudflare D1 or wrangler setup needed — just upload the files and deploy the Worker.<br/>
+                    Off (default): a local admin account that you create the first time you sign in. There is no default password &mdash; the password you choose is stored only as a salted hash on this device, repeated wrong attempts lock sign-in for a while, and the session ends after 30 idle minutes. It is a convenience gate for a static site, not protection against someone who controls this browser; use the accounts backend for real multi-user security. Forgot it? Clear this site&rsquo;s data in your browser to set up a new admin account.<br/>
                     On: real sign-up/sign-in against your deployed DashView API. Requires <code>wrangler d1 create</code>, running the migration, and setting the <code>JWT_SECRET</code>/<code>ODOO_ENC_KEY</code> secrets (see <code>worker-src/README.md</code>).
                   </span>
                   <div class="stg-action-row">
@@ -1672,11 +1683,53 @@
     <p class="eyebrow" style="margin-bottom:var(--sp-2);">Task assignments</p>
     <h3 id="taskModalTitle">New task</h3>
     <div class="ws-field"><label for="taskTitle">Task</label><input type="text" class="ws-input" id="taskTitle" maxlength="160" placeholder="e.g. Prepare the monthly payroll report" autocomplete="off"/></div>
-    <div class="ws-field"><label for="taskAssignee">Assign to</label><select class="ws-input" id="taskAssignee" style="width:100%;"></select></div>
+    <div class="ws-field"><label for="taskAssignee">Assign to</label><select class="ws-input" id="taskAssignee" style="width:100%;"></select><span class="ws-muted" id="taskAssigneeNote" style="font-size:12px;display:block;margin-top:4px;"></span></div>
     <div class="ws-row2">
       <div class="ws-field"><label for="taskPriority">Priority</label><select class="ws-input" id="taskPriority" style="width:100%;"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select></div>
       <div class="ws-field"><label for="taskStatus">Status</label><select class="ws-input" id="taskStatus" style="width:100%;"><option value="todo">To do</option><option value="progress">In progress</option><option value="review">In review</option><option value="done">Done</option></select></div>
     </div>
+    <fieldset class="tg-box" id="tgBox" hidden>
+      <legend class="tg-title">Automatic target from Odoo</legend>
+      <label class="tg-title" style="display:flex;align-items:center;gap:8px;font-weight:600;"><input type="checkbox" id="tgOn"/> Mark this task done automatically when the target is reached in Odoo</label>
+      <p class="tg-help" id="tgHelp">DashView checks Odoo every couple of minutes and completes the task for you.</p>
+      <div id="tgFields" hidden>
+        <div class="tg-kinds seg" role="group" aria-label="Target type" id="tgKinds">
+          <button type="button" data-kind="metric" class="active" aria-pressed="true">Count in Odoo</button>
+          <button type="button" data-kind="odoo-task" aria-pressed="false">An Odoo task</button>
+          <button type="button" data-kind="custom" aria-pressed="false">Custom</button>
+        </div>
+        <div class="tg-metric" id="tgMetricBox">
+          <div class="ws-field"><label for="tgMetric">What should be reached</label><select class="ws-input" id="tgMetric" style="width:100%;"></select></div>
+        </div>
+        <div class="tg-otask" id="tgOtaskBox" hidden>
+          <div class="ws-field"><label for="tgOtask">Odoo task to finish</label><select class="ws-input" id="tgOtask" style="width:100%;"></select><span class="ws-muted" id="tgOtaskNote" style="font-size:12px;"></span></div>
+        </div>
+        <div class="tg-custom" id="tgCustomBox" hidden>
+          <div class="tg-row">
+            <div class="ws-field"><label for="tgModel">Odoo model</label><input type="text" class="ws-input" id="tgModel" maxlength="80" placeholder="e.g. sale.order" autocomplete="off"/></div>
+            <div class="ws-field"><label for="tgUserField">Field that holds the person</label><input type="text" class="ws-input" id="tgUserField" maxlength="60" value="user_id" autocomplete="off"/></div>
+          </div>
+          <div class="tg-row">
+            <div class="ws-field"><label for="tgWho">That field points to</label><select class="ws-input" id="tgWho" style="width:100%;"><option value="user">Odoo user (res.users)</option><option value="employee">Employee (hr.employee)</option></select></div>
+            <div class="ws-field"><label for="tgDateField">Date field <span class="ws-muted">(optional)</span></label><input type="text" class="ws-input" id="tgDateField" maxlength="60" placeholder="e.g. date_order" autocomplete="off"/></div>
+          </div>
+          <div class="tg-row">
+            <div class="ws-field"><label for="tgAgg">Measure</label><select class="ws-input" id="tgAgg" style="width:100%;"><option value="count">Number of records</option><option value="sum">Sum of a field</option></select></div>
+            <div class="ws-field"><label for="tgSumField">Field to add up</label><input type="text" class="ws-input" id="tgSumField" maxlength="60" placeholder="e.g. amount_untaxed" autocomplete="off" disabled/></div>
+          </div>
+          <div class="ws-field"><label for="tgDomain">Only count records matching <span class="ws-muted">(optional, JSON)</span></label><textarea class="ws-input" id="tgDomain" rows="2" maxlength="1000" placeholder='[["state","=","sale"]]'></textarea></div>
+          <div class="ws-field"><label for="tgLabel">Name for this target</label><input type="text" class="ws-input" id="tgLabel" maxlength="80" placeholder="e.g. Confirmed quotes" autocomplete="off"/></div>
+        </div>
+        <div id="tgGoalBox">
+          <div class="tg-row">
+            <div class="ws-field"><label for="tgGoal">Target number</label><input type="number" class="ws-input" id="tgGoal" min="1" step="any" inputmode="decimal" placeholder="e.g. 10"/></div>
+            <div class="ws-field"><label for="tgFrom">Count from</label><input type="date" class="ws-input" id="tgFrom"/></div>
+          </div>
+          <div class="ws-field"><label for="tgTo">Count until <span class="ws-muted">(optional, inclusive)</span></label><input type="date" class="ws-input" id="tgTo"/></div>
+        </div>
+        <div class="tg-test"><button type="button" class="btn btn-outline btn-sm" id="tgTest">Check Odoo now</button><output id="tgTestOut" aria-live="polite"></output></div>
+      </div>
+    </fieldset>
     <div class="ws-field"><label for="taskDue">Due date <span class="ws-muted">(optional)</span></label><input type="date" class="ws-input" id="taskDue"/></div>
     <div class="ws-field"><label for="taskNotes">Notes <span class="ws-muted">(optional)</span></label><textarea id="taskNotes" rows="3" maxlength="1000" class="ws-input"></textarea></div>
     <p class="ws-form-err" id="taskErr" role="alert"></p>
@@ -1726,6 +1779,7 @@
 <script src="js/dv-security.js"></script>
 <script src="js/odoo-client.js"></script>
 <script src="js/odoo-profiles.js"></script>
+<script src="js/odoo-hr.js"></script>
 <script src="js/app.js"></script>
 <script src="js/studio-core.js"></script>
 <script src="js/studio-ui.js"></script>
@@ -1743,6 +1797,8 @@
 <script src="js/exec-drill.js"></script>
 <script src="js/exec-company.js"></script>
 <script src="js/ws-store.js"></script>
+<script src="js/odoo-targets.js"></script>
+<script src="js/people-live.js"></script>
 <script src="js/tasks.js"></script>
 <script src="js/audit-live.js"></script>
 <script src="js/security-ui.js"></script>

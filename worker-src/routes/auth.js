@@ -10,18 +10,44 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Workers isolates are short-lived and horizontally scaled, so this is not
 // a substitute for a real rate-limiting product/binding in front of it).
 const attempts = new Map();
-function limitAttempts(key) {
+const WINDOW_MS = 15 * 60 * 1000;
+function limitAttempts(key, max = 8) {
   const now = Date.now();
+  if (attempts.size > 5000) {            // never let the table grow without bound
+    for (const [k, v] of attempts) if (now - v.startedAt >= WINDOW_MS) attempts.delete(k);
+    if (attempts.size > 5000) attempts.clear();
+  }
   const entry = attempts.get(key);
-  if (!entry || now - entry.startedAt >= 15 * 60 * 1000) {
+  if (!entry || now - entry.startedAt >= WINDOW_MS) {
     attempts.set(key, { count: 1, startedAt: now });
     return;
   }
-  if (entry.count >= 8) {
+  if (entry.count >= max) {
     throw new ApiError('Too many attempts. Try again later.', 429);
   }
   entry.count += 1;
 }
+function clearAttempts(key) { attempts.delete(key); }
+
+/* Same rules as the browser (js/auth-service.js passwordProblem) — the server is the one that really enforces them. */
+const COMMON_PASSWORDS = new Set(['admin123', 'password', 'password123', 'password1234', '123456789012', 'qwertyuiop12', 'adminadmin12', 'welcome12345', 'letmein12345', 'iloveyou1234', 'dashview1234', 'workspace123']);
+export function passwordProblem(password, email) {
+  const p = String(password || '');
+  if (p.length < 12 || p.length > 256) return 'Password must be 12–256 characters.';
+  if (/^(.)\1+$/.test(p)) return 'Password must not repeat a single character.';
+  const low = p.toLowerCase();
+  if (COMMON_PASSWORDS.has(low)) return 'That password is too common. Choose something unique.';
+  const mail = String(email || '').trim().toLowerCase();
+  const local = mail.includes('@') ? mail.split('@')[0] : '';
+  if (mail && (low === mail || (local.length >= 4 && low.includes(local)))) return 'The password must not contain your email name.';
+  const classes = [/[a-z]/, /[A-Z]/, /[0-9]/, /[^A-Za-z0-9]/].filter((re) => re.test(p)).length;
+  if (classes < 2 && p.length < 16) return 'Mix letters with numbers or symbols, or use 16+ characters.';
+  return '';
+}
+
+/* A real-looking hash that nobody's password matches. Used so a login for an email that does not exist
+   costs the same time as one that does — otherwise response time reveals which emails are registered. */
+const DUMMY_HASH = 'pbkdf2$210000$' + 'A'.repeat(22) + '==$' + 'A'.repeat(43) + '=';
 
 function publicUser(user) {
   return { id: user.id, name: user.name, email: user.email, role: user.role, orgId: user.org_id };
@@ -43,7 +69,8 @@ export async function register(request, env) {
   if (cleanOrgName.length > 120 || cleanName.length > 100 || !EMAIL_RE.test(cleanEmail) || cleanEmail.length > 320) {
     throw new ApiError('Organization, name, or email is invalid.', 400);
   }
-  if (password.length < 12 || password.length > 256) throw new ApiError('Password must be 12–256 characters.', 400);
+  const weak = passwordProblem(password, cleanEmail);
+  if (weak) throw new ApiError(weak, 400);
 
   const existing = await getUserByEmail(env.DB, cleanEmail);
   if (existing) throw new ApiError('Email already registered', 409);
@@ -60,10 +87,15 @@ export async function login(request, env) {
   if (typeof email !== 'string' || typeof password !== 'string' || email.length > 320 || password.length > 256) {
     throw new ApiError('Valid email and password are required', 400);
   }
-  const user = await getUserByEmail(env.DB, email.trim().toLowerCase());
-  if (!user || !(await verifyPassword(password, user.password_hash))) {
+  const cleanEmail = email.trim().toLowerCase();
+  const emailKey = 'login-email:' + cleanEmail;
+  limitAttempts(emailKey, 6);               // guessing one account from many addresses is throttled too
+  const user = await getUserByEmail(env.DB, cleanEmail);
+  const valid = await verifyPassword(password, user ? user.password_hash : DUMMY_HASH);
+  if (!user || !valid) {
     throw new ApiError('Invalid email or password', 401);
   }
+  clearAttempts(emailKey);
   return { status: 200, body: { token: await sign(user, env), user: publicUser(user) } };
 }
 
@@ -80,6 +112,9 @@ export async function changePassword(request, env) {
       newPassword.length < 12 || newPassword.length > 256) {
     throw new ApiError('Provide your current password and a new password of at least 12 characters.', 400);
   }
+  const weakNext = passwordProblem(newPassword, authed.email);
+  if (weakNext) throw new ApiError(weakNext, 400);
+  if (newPassword === currentPassword) throw new ApiError('Choose a different password from the current one.', 400);
   const user = await getUserById(env.DB, authed.id, authed.orgId);
   if (!user || !(await verifyPassword(currentPassword, user.password_hash))) {
     throw new ApiError('Current password is incorrect.', 401);

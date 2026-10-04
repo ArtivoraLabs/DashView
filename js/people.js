@@ -9,7 +9,9 @@
   if (!window.WS || !document.getElementById('pplTabs')) return;
 
   var WS = window.WS, L = WS.L, esc = WS.esc;
-  var TABS = ['overview', 'directory', 'hiring', 'departments'];
+  var TABS = ['overview', 'directory', 'hiring', 'interviews', 'departments'];
+  var HR = window.DVHR, PL = window.PeopleLive;
+  function isLive() { return !!(HR && PL && HR.live()); }
   var PAGE = 25;
   var S = {
     tab: 'overview',
@@ -195,11 +197,17 @@
     var active = document.activeElement, focusId = active && active.id && $('main').contains(active) ? active.id : '';
     var caret = focusId && active.selectionStart != null ? active.selectionStart : null;
     var views = { overview: renderOverview, directory: renderDirectory, hiring: renderHiring, departments: renderDepartments };
-    $('pplBody').innerHTML = (WS.persistent() ? '' : '<p class="ws-notice err" role="alert">Browser storage is unavailable, so changes will be lost when you close this tab.</p>') + views[S.tab]();
+    var live = isLive();
+    if (!live && S.tab === 'interviews') S.tab = 'overview';   /* interviews only exist with live Odoo data */
+    $('pplBody').innerHTML = live ? PL.html(S.tab)
+      : (WS.persistent() ? '' : '<p class="ws-notice err" role="alert">Browser storage is unavailable, so changes will be lost when you close this tab.</p>') + views[S.tab]();
     document.querySelectorAll('#pplTabs button').forEach(function (b) {
       var on = b.getAttribute('data-tab') === S.tab; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
+    if (live) { PL.chrome(S.tab); }
+    else if (PL) { PL.offChrome(S.tab); }
     var hiring = S.tab === 'hiring';
+    if (live) { if (focusId && $(focusId)) { $(focusId).focus(); if (caret != null) { try { $(focusId).setSelectionRange(caret, caret); } catch (e) {} } } return; }
     $('pplAdd').textContent = hiring ? '+ Add candidate' : '+ Add person';
     $('pplExport').textContent = hiring ? 'Export candidates' : 'Export people';
     $('pplSub').textContent = WS.people().length + ' ' + (WS.people().length === 1 ? 'person' : 'people') + ' · ' + WS.hires().filter(function (h) { return h.stage !== 'hired' && h.stage !== 'rejected'; }).length + ' in hiring · ' + WS.tasks().filter(function (t) { return t.status !== 'done'; }).length + ' open tasks';
@@ -299,6 +307,7 @@
      Export / data menu
      ====================================================================== */
   function exportCsv() {
+    if (isLive()) { PL.exportCsv(S.tab); return; }
     var rows, name, count;
     if (S.tab === 'hiring') {
       var h = WS.hires(); if (!h.length) { WS.toast('There are no candidates to export.'); return; }
@@ -417,6 +426,14 @@
     });
     window.addEventListener('hashchange', function () { var h = location.hash.slice(1); if (TABS.indexOf(h) > -1 && h !== S.tab) setTab(h, false); });
     WS.subscribe(function () { render(); });
+    if (HR && PL) {
+      PL.init({ rerender: render, setTab: setTab, tab: function () { return S.tab; } });
+      HR.subscribe(function () { render(); });
+      document.addEventListener('dv:odoo-config-saved', render);
+      document.addEventListener('dv:locked', render);
+      document.addEventListener('dv:unlocked', render);
+      if (HR.live()) HR.start('people');
+    }
     var start = location.hash.slice(1);
     S.tab = TABS.indexOf(start) > -1 ? start : 'overview';
     render();

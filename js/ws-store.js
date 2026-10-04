@@ -108,6 +108,53 @@
     return fmtDateTime(ms);
   }
 
+  /* -- Odoo assignee + auto-tracking helpers ------------------------------- */
+  var TRACK_KINDS = ['metric', 'odoo-task', 'custom'];
+  function posInt(v) { var n = Math.floor(+v); return isFinite(n) && n > 0 && n < 1e12 ? n : 0; }
+  function cleanOdooAssignee(a) {
+    if (!a || typeof a !== 'object') return null;
+    var id = posInt(a.id); if (!id) return null;
+    return { id: id, name: str(a.name, 80) || ('Employee #' + id), userId: posInt(a.userId) };
+  }
+  function cleanTrack(t) {
+    if (!t || typeof t !== 'object' || TRACK_KINDS.indexOf(t.kind) < 0) return null;
+    var out = { kind: t.kind, from: dateStr(t.from), to: dateStr(t.to), goal: 0, value: 0, label: str(t.label, 80),
+      checked: +t.checked || 0, state: t.state === 'ok' || t.state === 'error' ? t.state : '', error: str(t.error, 200) };
+    if (t.kind === 'odoo-task') {
+      out.taskId = posInt(t.taskId); out.taskName = str(t.taskName, 160); out.goal = 1;
+      out.value = +t.value ? 1 : 0;
+      if (!out.taskId) return null;
+    } else {
+      out.goal = Math.max(0, Math.min(1e9, +t.goal || 0));
+      out.value = Math.max(0, Math.min(1e12, +t.value || 0));
+      if (t.kind === 'metric') out.metric = str(t.metric, 40);
+      if (t.kind === 'custom') {
+        out.model = str(t.model, 80); out.userField = str(t.userField, 60); out.agg = t.agg === 'sum' ? 'sum' : 'count';
+        out.sumField = str(t.sumField, 60); out.dateField = str(t.dateField, 60);
+        out.domain = Array.isArray(t.domain) ? t.domain.slice(0, 20) : [];
+        out.who = t.who === 'employee' ? 'employee' : 'user';
+      }
+    }
+    return out;
+  }
+  function trackLabel(t) {
+    if (!t) return '';
+    if (t.kind === 'odoo-task') return 'Odoo task: ' + (t.taskName || ('#' + t.taskId));
+    var win = t.from || t.to ? ' (' + (t.from ? fmtDate(t.from) : 'any') + ' → ' + (t.to ? fmtDate(t.to) : 'open') + ')' : '';
+    return (t.label || t.metric || 'Odoo count') + ' ≥ ' + t.goal + win;
+  }
+  /* Identity of a target: if any part changes, progress counted so far no longer applies. */
+  function trackKey(t) {
+    if (!t || !t.track) return '';
+    var k = t.track;
+    return JSON.stringify([k.kind, k.metric, k.taskId, k.model, k.userField, k.who, k.agg, k.sumField, k.dateField, k.domain, k.goal, k.from, k.to, t.assigneeOdoo ? t.assigneeOdoo.id : 0]);
+  }
+  function assigneeLabel(t) {
+    if (t.assigneeOdoo) return t.assigneeOdoo.name;
+    var p = t.assigneeId ? byId(state.people, t.assigneeId) : null;
+    return p ? p.name : 'Unassigned';
+  }
+
   /* -- persistence --------------------------------------------------------- */
   function normalize(raw) {
     var out = blank();
@@ -127,7 +174,8 @@
       var status = oneOf(t.status, STATUSES, 'todo');
       out.tasks.push({
         id: str(t.id, 40) || uid('t'), title: str(t.title, 160), notes: str(t.notes, 1000),
-        assigneeId: pid[t.assigneeId] ? t.assigneeId : '', priority: oneOf(t.priority, PRIORITIES, 'medium'),
+        assigneeId: pid[t.assigneeId] ? t.assigneeId : '', assigneeOdoo: cleanOdooAssignee(t.assigneeOdoo),
+        track: cleanTrack(t.track), priority: oneOf(t.priority, PRIORITIES, 'medium'),
         status: status, due: dateStr(t.due), sample: !!t.sample,
         created: +t.created || Date.now(), updated: +t.updated || Date.now(),
         completedAt: status === 'done' ? (+t.completedAt || +t.updated || Date.now()) : 0
@@ -186,9 +234,9 @@
   }
 
   /* -- audit --------------------------------------------------------------- */
-  function log(action, entity, ref, name, details, changes) {
+  function log(action, entity, ref, name, details, changes, who) {
     state.audit.unshift({
-      id: uid('a'), t: Date.now(), actor: actor(), action: action, entity: entity, ref: ref || '',
+      id: uid('a'), t: Date.now(), actor: who || actor(), action: action, entity: entity, ref: ref || '',
       name: str(name, 160), details: str(details, 400), changes: changes || []
     });
     if (state.audit.length > MAX_AUDIT) state.audit.length = MAX_AUDIT;
@@ -209,10 +257,18 @@
   function diff(entity, before, after) {
     var out = [];
     Object.keys(FIELD_LABEL[entity]).forEach(function (f) {
+      if (entity === 'task' && f === 'assigneeId') return; /* handled below: local person or Odoo employee */
       if (String(before[f] == null ? '' : before[f]) !== String(after[f] == null ? '' : after[f])) {
         out.push({ field: FIELD_LABEL[entity][f], from: display(entity, f, before[f]), to: display(entity, f, after[f]), key: f });
       }
     });
+    if (entity === 'task') {
+      var a0 = assigneeLabel(before), a1 = assigneeLabel(after);
+      var k0 = (before.assigneeOdoo ? 'o' + before.assigneeOdoo.id : before.assigneeId || ''), k1 = (after.assigneeOdoo ? 'o' + after.assigneeOdoo.id : after.assigneeId || '');
+      if (k0 !== k1) out.push({ field: 'Assignee', from: a0, to: a1, key: 'assigneeId' });
+      var t0 = trackLabel(before.track), t1 = trackLabel(after.track);
+      if (t0 !== t1) out.push({ field: 'Odoo target', from: t0 || '—', to: t1 || '—', key: 'track' });
+    }
     return out;
   }
   function byId(list, id) {
@@ -274,10 +330,20 @@
     if (!title) fail('Give the task a title.', 'title');
     var due = str(input.due, 10);
     if (due && !dateStr(due)) fail('Enter a valid due date.', 'due');
-    var assignee = input.assigneeId ? String(input.assigneeId) : '';
+    var odooAssignee = cleanOdooAssignee(input.assigneeOdoo);
+    var assignee = !odooAssignee && input.assigneeId ? String(input.assigneeId) : '';
     if (assignee && !byId(state.people, assignee)) fail('That person is no longer in the directory.', 'assigneeId');
+    var track = cleanTrack(input.track);
+    if (input.track && !track) fail('The Odoo target is incomplete — pick an Odoo task or a metric.', 'track');
+    if (track && track.kind !== 'odoo-task') {
+      if (!odooAssignee) fail('Choose an Odoo employee to track a target for.', 'assigneeId');
+      if (!(track.goal > 0)) fail('Enter a target number greater than zero.', 'goal');
+      if (track.from && track.to && track.to < track.from) fail('The target window ends before it starts.', 'due');
+      if (track.kind === 'metric' && !track.metric) fail('Pick what to count in Odoo.', 'metric');
+      if (track.kind === 'custom' && !(track.model && track.userField)) fail('A custom target needs an Odoo model and the field that holds the employee.', 'metric');
+    }
     return {
-      title: title, notes: str(input.notes, 1000), assigneeId: assignee,
+      title: title, notes: str(input.notes, 1000), assigneeId: assignee, assigneeOdoo: odooAssignee, track: track,
       priority: oneOf(input.priority, PRIORITIES, 'medium'), status: oneOf(input.status, STATUSES, 'todo'), due: due
     };
   }
@@ -285,14 +351,20 @@
     var data = cleanTask(input || {}), now = Date.now();
     var t = Object.assign({ id: uid('t'), sample: !!(meta && meta.sample), created: now, updated: now, completedAt: data.status === 'done' ? now : 0 }, data);
     state.tasks.unshift(t);
-    var who = t.assigneeId ? byId(state.people, t.assigneeId).name : 'Unassigned';
-    log('created', 'task', t.id, t.title, who + ' · ' + L.priority[t.priority] + ' priority' + (t.due ? ' · due ' + fmtDate(t.due) : ''));
+    var who = assigneeLabel(t);
+    log('created', 'task', t.id, t.title, who + ' · ' + L.priority[t.priority] + ' priority' + (t.due ? ' · due ' + fmtDate(t.due) : '') + (t.track ? ' · auto-tracked: ' + trackLabel(t.track) : ''));
     commit();
     return t;
   }
   function updateTask(id, patch) {
     var t = byId(state.tasks, id); if (!t) fail('That task no longer exists.');
-    var next = cleanTask(Object.assign({}, t, patch));
+    var merged = Object.assign({}, t, patch);
+    if (patch && 'assigneeOdoo' in patch && patch.assigneeOdoo) merged.assigneeId = '';
+    else if (patch && 'assigneeId' in patch && patch.assigneeId && !('assigneeOdoo' in patch)) merged.assigneeOdoo = null;
+    var next = cleanTask(merged);
+    if (next.track && t.track && trackKey(next) === trackKey(t)) {   /* same target → keep the progress already measured */
+      next.track.value = t.track.value; next.track.checked = t.track.checked; next.track.state = t.track.state; next.track.error = t.track.error;
+    }
     var changes = diff('task', t, next);
     if (!changes.length) return t;
     var keys = changes.map(function (c) { return c.key; });
@@ -302,6 +374,33 @@
     log(action, 'task', t.id, t.title, changes.map(function (c) { return c.field + ': ' + c.from + ' → ' + c.to; }).join(' · '), stripKeys(changes));
     commit();
     return t;
+  }
+  /* Called by the Odoo target sync. Records the latest live progress silently (no audit noise)
+     and writes an audit entry only when the sync itself changes a task's status. */
+  function applyTracking(id, result) {
+    var t = byId(state.tasks, id); if (!t || !t.track || !result) return false;
+    var tr = t.track, changed = false, now = Date.now();
+    var value = result.value == null ? tr.value : Math.max(0, +result.value || 0);
+    var nextState = result.error ? 'error' : 'ok', nextError = result.error ? str(result.error, 200) : '';
+    if (tr.value !== value) { tr.value = value; changed = true; }
+    if (tr.state !== nextState || tr.error !== nextError) { tr.state = nextState; tr.error = nextError; changed = true; }
+    tr.checked = now;
+    var summary = value + ' / ' + tr.goal + ' · ' + trackLabel(tr);
+    if (!result.error && t.status !== 'done' && value >= tr.goal && tr.goal > 0) {
+      var from = t.status;
+      t.status = 'done'; t.completedAt = now; t.updated = now;
+      log('moved', 'task', t.id, t.title, 'Auto-completed from Odoo · ' + summary,
+        [{ field: 'Status', from: L.status[from], to: L.status.done }], 'Odoo sync');
+      changed = true; commit(); return 'done';
+    }
+    if (!result.error && t.status === 'todo' && value > 0) {
+      t.status = 'progress'; t.updated = now;
+      log('moved', 'task', t.id, t.title, 'Started automatically — Odoo activity detected · ' + summary,
+        [{ field: 'Status', from: L.status.todo, to: L.status.progress }], 'Odoo sync');
+      commit(); return 'progress';
+    }
+    if (changed) commit();
+    return changed ? 'updated' : false;
   }
   function removeTask(id) {
     var t = byId(state.tasks, id); if (!t) return false;
@@ -488,6 +587,13 @@
     hires: function () { return state.hires; }, audit: function () { return state.audit; },
     person: function (id) { return byId(state.people, id); }, task: function (id) { return byId(state.tasks, id); },
     hire: function (id) { return byId(state.hires, id); },
+    openTasksForOdoo: function (empId) { return state.tasks.filter(function (t) { return t.assigneeOdoo && t.assigneeOdoo.id === empId && t.status !== 'done'; }); },
+    assigneeOf: function (t) {
+      if (t.assigneeOdoo) return { key: 'o:' + t.assigneeOdoo.id, name: t.assigneeOdoo.name, odoo: true, id: t.assigneeOdoo.id };
+      var p = t.assigneeId ? byId(state.people, t.assigneeId) : null;
+      return p ? { key: p.id, name: p.name, odoo: false, id: p.id } : null;
+    },
+    trackLabel: trackLabel, applyTracking: applyTracking,
     openTasksFor: function (personId) { return state.tasks.filter(function (t) { return t.assigneeId === personId && t.status !== 'done'; }); },
     isOverdue: function (t) { return t.status !== 'done' && !!t.due && t.due < today(); },
     persistent: function () { return !memoryOnly; },

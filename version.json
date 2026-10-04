@@ -1,13 +1,25 @@
 {
-  "version": "2.9.0",
+  "version": "2.10.0",
   "build": "2026.10.04",
   "released": "2026-10-04",
   "notes": [
-    "Rebuilt: People, Task assignments and Audit log from scratch - one shared workspace store, validated forms, kanban board, hiring pipeline and field-level audit history",
-    "Improved: every People, Task and Hiring change is recorded automatically in the Audit log, with search, filters, paging and CSV export",
-    "Fixed: overdue dates use the local calendar day, tasks of a deleted person are unassigned, duplicate emails are rejected and drag-and-drop works on the task board"
+    "New: People tab reads live from Odoo - CVs received, interviews held and upcoming, hiring funnel, positions, sources, employee directory with time off and open work, departments",
+    "New: Task assignment lists your Odoo employees and can set an automatic target (a count, an Odoo task or a custom query) - the task is marked Done by itself when Odoo reaches it",
+    "New: Team tab reads employees, departments, time off and workload live from Odoo with search, filters and CSV export",
+    "Security: removed the built-in admin123 login - the local admin is set up by you, stored as a salted PBKDF2 hash, locked out after repeated failures and signed out after 30 idle minutes; the sign-in API now throttles per account, hides whether an email exists and enforces the password policy"
   ],
   "history": [
+    {
+      "version": "2.10.0",
+      "date": "2026-10-04",
+      "notes": [
+        "New: People tab reads live from Odoo - CVs received, interviews held and upcoming, hiring funnel, positions, sources, employee directory with time off and open work, departments",
+        "New: Task assignment lists your Odoo employees and can set an automatic target (a count, an Odoo task or a custom query) - the task is marked Done by itself when Odoo reaches it",
+        "New: Team tab reads employees, departments, time off and workload live from Odoo with search, filters and CSV export",
+        "Security: removed the built-in admin123 login - the local admin is set up by you, stored as a salted PBKDF2 hash, locked out after repeated failures and signed out after 30 idle minutes; the sign-in API now throttles per account, hides whether an email exists and enforces the password policy"
+      ],
+      "critical": false
+    },
     {
       "version": "2.9.0",
       "date": "2026-10-04",
@@ -192,5 +204,5 @@
     }
   ],
   "critical": false,
-  "size": 2297025
+  "size": 2633585
 }

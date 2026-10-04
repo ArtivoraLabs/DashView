@@ -45,21 +45,145 @@
   }
   function isBackendMode() { return getMode() === 'backend'; }
 
-  /* ── "simple" mode: one built-in admin account, checked in the browser.
-     Change the password by editing SIMPLE_USER below — it never leaves
-     this file and nothing is sent over the network to check it. ── */
-  var SIMPLE_USER = { email: 'admin@workspace.local', password: 'admin123', name: 'Admin' };
+  /* ── "simple" mode: one local admin account, set up by YOU the first time.
+     There is no built-in password. The password you choose is never stored:
+     only a salted PBKDF2-SHA256 hash (210k rounds) is kept in this browser,
+     failed sign-ins are slowed down and locked out, and the session ends after
+     30 idle minutes (or 12 hours in total). This is a convenience gate for a
+     static site — it cannot stop someone who controls this browser's storage.
+     For real multi-user security turn on the accounts backend. ── */
+  var CRED_KEY = 'dv_simple_cred';
+  var LOCK_KEY = 'dv_simple_lock';
   var SIMPLE_SESSION_KEY = 'dv_simple_session';
+  var PBKDF2_ITER = 210000, MIN_PASSWORD = 12;
+  var IDLE_MS = 30 * 60 * 1000, MAX_SESSION_MS = 12 * 60 * 60 * 1000;
+  var FREE_TRIES = 5, BASE_LOCK_MS = 30 * 1000, MAX_LOCK_MS = 15 * 60 * 1000;
+  var COMMON = ['admin123', 'password', 'password123', 'password1234', '123456789012', 'qwertyuiop12', 'adminadmin12', 'welcome12345', 'letmein12345', 'iloveyou1234', 'dashview1234', 'workspace123'];
+
+  function readJSON(key, fallback) {
+    try { var v = JSON.parse(localStorage.getItem(key)); return v == null ? fallback : v; } catch (e) { return fallback; }
+  }
+  function writeJSON(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch (e) { return false; }
+  }
+  function toB64(bytes) { var s = ''; for (var i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]); return btoa(s); }
+  function fromB64(str) { var r = atob(str), out = new Uint8Array(r.length); for (var i = 0; i < r.length; i++) out[i] = r.charCodeAt(i); return out; }
+  function cryptoReady() { return !!(window.crypto && window.crypto.subtle && window.crypto.getRandomValues); }
+  function derive(password, salt, iterations) {
+    var enc = new TextEncoder();
+    return window.crypto.subtle.importKey('raw', enc.encode(String(password)), 'PBKDF2', false, ['deriveBits']).then(function (key) {
+      return window.crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: salt, iterations: iterations }, key, 256);
+    }).then(function (bits) { return new Uint8Array(bits); });
+  }
+  function sameBytes(a, b) {
+    if (a.length !== b.length) return false;
+    var diff = 0; for (var i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
+    return diff === 0;
+  }
+  function audit(action, detail, status) { try { if (window.DVSec && window.DVSec.log) window.DVSec.log(action, detail, status); } catch (e) {} }
+
+  function loadCred() {
+    var c = readJSON(CRED_KEY, null);
+    if (!c || typeof c.email !== 'string' || typeof c.hash !== 'string' || c.hash.split('$').length !== 4) return null;
+    return c;
+  }
+  function hasSimpleAccount() { return !!loadCred(); }
+
+  /* Password rules shared by set-up, change-password and organization sign-up. */
+  function passwordProblem(password, email) {
+    var p = String(password || '');
+    if (p.length < MIN_PASSWORD) return 'Use at least ' + MIN_PASSWORD + ' characters.';
+    if (p.length > 256) return 'Use 256 characters or fewer.';
+    if (/^(.)\1+$/.test(p)) return 'Do not repeat a single character.';
+    var low = p.toLowerCase();
+    if (COMMON.indexOf(low) > -1) return 'That password is too common. Choose something unique.';
+    var mail = String(email || '').trim().toLowerCase(), local = mail.indexOf('@') > 0 ? mail.split('@')[0] : '';
+    if (mail && (low === mail || (local.length >= 4 && low.indexOf(local) > -1))) return 'The password must not contain your email name.';
+    var classes = [/[a-z]/, /[A-Z]/, /[0-9]/, /[^A-Za-z0-9]/].filter(function (re) { return re.test(p); }).length;
+    if (classes < 2 && p.length < 16) return 'Mix letters with numbers or symbols, or use 16+ characters.';
+    return '';
+  }
+
+  /* Slow down guessing: 5 free tries, then 30 s, 60 s, 2 min … up to 15 min. Survives reloads. */
+  function lockState() { var l = readJSON(LOCK_KEY, null); return l && typeof l.fails === 'number' ? l : { fails: 0, until: 0 }; }
+  function lockWait() { var l = lockState(), left = l.until - Date.now(); return left > 0 ? left : 0; }
+  function waitText(ms) { var s = Math.ceil(ms / 1000); return s < 90 ? s + ' seconds' : Math.ceil(s / 60) + ' minutes'; }
+  function noteFailure() {
+    var l = lockState(); l.fails += 1;
+    if (l.fails >= FREE_TRIES) l.until = Date.now() + Math.min(MAX_LOCK_MS, BASE_LOCK_MS * Math.pow(2, l.fails - FREE_TRIES));
+    writeJSON(LOCK_KEY, l);
+    audit('Failed sign-in', 'Attempt #' + l.fails, 'blocked');
+    return l;
+  }
+  function clearFailures() { try { localStorage.removeItem(LOCK_KEY); } catch (e) {} }
+
+  /* Session: created at sign-in, refreshed by activity, ended by idleness. */
+  var lastActive = Date.now();
+  function readSession() { try { return JSON.parse(sessionStorage.getItem(SIMPLE_SESSION_KEY)); } catch (e) { return null; } }
   function simpleSignedIn() {
-    try { return sessionStorage.getItem(SIMPLE_SESSION_KEY) === '1'; } catch (e) { return false; }
+    var s = readSession();
+    if (!s || typeof s.at !== 'number') return false;
+    var now = Date.now();
+    if (now - s.at > MAX_SESSION_MS || now - Math.max(s.last || 0, lastActive) > IDLE_MS) { try { sessionStorage.removeItem(SIMPLE_SESSION_KEY); } catch (e) {} return false; }
+    return true;
+  }
+  function startSimpleSession() {
+    var now = Date.now(); lastActive = now;
+    try { sessionStorage.setItem(SIMPLE_SESSION_KEY, JSON.stringify({ at: now, last: now })); } catch (e) {}
+  }
+  function simpleLogout() { try { sessionStorage.removeItem(SIMPLE_SESSION_KEY); } catch (e) {} }
+
+  function setupSimpleAccount(name, email, password, confirm) {
+    if (!cryptoReady()) return Promise.reject(new Error('This browser cannot protect a password here. Open DashView over HTTPS (or localhost) and try again.'));
+    if (hasSimpleAccount()) return Promise.reject(new Error('An admin account already exists on this device. Sign in instead.'));
+    var cleanEmail = String(email || '').trim().toLowerCase(), cleanName = String(name || '').trim().slice(0, 100) || 'Admin';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail) || cleanEmail.length > 320) return Promise.reject(new Error('Enter a valid email address.'));
+    var problem = passwordProblem(password, cleanEmail);
+    if (problem) return Promise.reject(new Error(problem));
+    if (password !== confirm) return Promise.reject(new Error('The two passwords do not match.'));
+    var salt = window.crypto.getRandomValues(new Uint8Array(16));
+    return derive(password, salt, PBKDF2_ITER).then(function (hash) {
+      var ok = writeJSON(CRED_KEY, { v: 1, name: cleanName, email: cleanEmail, hash: 'pbkdf2$' + PBKDF2_ITER + '$' + toB64(salt) + '$' + toB64(hash), created: Date.now() });
+      if (!ok) throw new Error('Browser storage is blocked, so the admin account cannot be saved.');
+      clearFailures(); startSimpleSession(); audit('Admin account created', cleanEmail, 'ok');
+    });
+  }
+
+  function verifySimple(email, password) {
+    var cred = loadCred();
+    if (!cred) return Promise.reject(new Error('No admin account exists yet. Set one up first.'));
+    var wait = lockWait();
+    if (wait) return Promise.reject(new Error('Too many attempts. Try again in ' + waitText(wait) + '.'));
+    if (!cryptoReady()) return Promise.reject(new Error('This browser cannot check passwords here. Open DashView over HTTPS (or localhost).'));
+    var parts = cred.hash.split('$'), iter = parseInt(parts[1], 10), salt = fromB64(parts[2]), expected = fromB64(parts[3]);
+    return derive(password, salt, iter).then(function (got) {
+      var emailOk = String(email || '').trim().toLowerCase() === cred.email;
+      return sameBytes(got, expected) && emailOk;   /* the hash is always computed, so timing does not reveal which part was wrong */
+    });
   }
   function simpleLogin(email, password) {
-    var ok = String(email || '').trim().toLowerCase() === SIMPLE_USER.email && password === SIMPLE_USER.password;
-    if (ok) { try { sessionStorage.setItem(SIMPLE_SESSION_KEY, '1'); } catch (e) {} }
-    return ok;
+    return verifySimple(email, password).then(function (ok) {
+      if (!ok) {
+        var l = noteFailure(), left = lockWait();
+        throw new Error(left ? 'Too many attempts. Try again in ' + waitText(left) + '.' : 'Incorrect email or password. ' + Math.max(0, FREE_TRIES - l.fails) + ' tries left before a temporary lock.');
+      }
+      clearFailures(); startSimpleSession(); audit('Signed in', 'Local admin', 'ok');
+      return true;
+    });
   }
-  function simpleLogout() {
-    try { sessionStorage.removeItem(SIMPLE_SESSION_KEY); } catch (e) {}
+  function changeSimplePassword(current, next) {
+    var cred = loadCred(); if (!cred) return Promise.reject(new Error('No admin account exists on this device.'));
+    return verifySimple(cred.email, current).then(function (ok) {
+      if (!ok) { noteFailure(); throw new Error('Current password is incorrect.'); }
+      var problem = passwordProblem(next, cred.email); if (problem) throw new Error(problem);
+      if (next === current) throw new Error('Choose a different password from the current one.');
+      var salt = window.crypto.getRandomValues(new Uint8Array(16));
+      return derive(next, salt, PBKDF2_ITER).then(function (hash) {
+        cred.hash = 'pbkdf2$' + PBKDF2_ITER + '$' + toB64(salt) + '$' + toB64(hash); cred.changed = Date.now();
+        if (!writeJSON(CRED_KEY, cred)) throw new Error('Browser storage is blocked, so the new password could not be saved.');
+        clearFailures(); audit('Admin password changed', cred.email, 'ok');
+      });
+    });
   }
 
   function guestSession() {
@@ -69,9 +193,11 @@
   function currentUser() {
     if (!isBackendMode()) {
       if (!simpleSignedIn()) return guestSession();
+      var cred = loadCred() || { name: 'Admin', email: '' };
       return {
-        id: 1, orgId: 1, name: SIMPLE_USER.name, email: SIMPLE_USER.email,
-        orgRole: 'owner', role: ROLES.ADMIN, initials: 'AD', guest: false
+        id: 1, orgId: 1, name: cred.name || 'Admin', email: cred.email,
+        orgRole: 'owner', role: ROLES.ADMIN,
+        initials: String(cred.name || 'Admin').trim().split(/\s+/).slice(0, 2).map(function (x) { return x[0]; }).join('').toUpperCase() || 'AD', guest: false
       };
     }
     var user = window.AL_API && window.AL_API.user && window.AL_API.user();
@@ -98,7 +224,7 @@
       render();
       return currentUser();
     }
-    if (!simpleLogin(email, password)) throw new Error('Incorrect email or password.');
+    await simpleLogin(email, password);
     render();
     return currentUser();
   }
@@ -150,6 +276,7 @@
       '    <div class="field" id="dvNameField" hidden><label for="dvAuthName">Full name</label><input type="text" id="dvAuthName" maxlength="100" autocomplete="name"/></div>' +
       '    <div class="field"><label for="dvAuthEmail">Email</label><input type="email" id="dvAuthEmail" maxlength="320" autocomplete="username"/></div>' +
       '    <div class="field"><label for="dvAuthPassword">Password</label><input type="password" id="dvAuthPassword" placeholder="••••••••" autocomplete="current-password"/></div>' +
+      '    <div class="field" id="dvConfirmField" hidden><label for="dvAuthConfirm">Confirm password</label><input type="password" id="dvAuthConfirm" autocomplete="new-password" maxlength="256"/></div>' +
       '    <p class="settings-note" id="dvPasswordHelp">Use your organization password.</p>' +
       '    <p class="formula-error" id="dvAuthError" style="display:none;"></p>' +
       '    <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:var(--sp-3);">Sign in</button>' +
@@ -165,17 +292,23 @@
     overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
     var authMode = 'login';
     function setAuthMode(mode) {
-      authMode = isBackendMode() ? mode : 'login'; // simple mode never registers
-      var signup = authMode === 'register';
+      var backend = isBackendMode();
+      if (!backend) mode = hasSimpleAccount() ? 'login' : 'setup';   // simple mode never registers an organization
+      authMode = mode;
+      var signup = mode === 'register', setup = mode === 'setup';
       byId('dvOrgField').hidden = !signup;
-      byId('dvNameField').hidden = !signup;
-      byId('dvAuthTitle').textContent = signup ? 'Create your organization' : (isBackendMode() ? 'Sign in to DashView' : 'Sign in');
-      byId('dvAuthIntro').textContent = signup
-        ? 'This creates your workspace and grants you the first owner account.'
-        : (isBackendMode() ? 'Use your organization account to continue.' : "Sign in with this workspace's built-in admin account.");
-      byId('dvAuthPassword').setAttribute('autocomplete', signup ? 'new-password' : 'current-password');
-      byId('dvPasswordHelp').textContent = signup ? 'Choose a unique password with at least 12 characters.' : (isBackendMode() ? 'Use your organization password.' : 'See Settings → Account & login for the built-in credentials.');
-      byId('dvAuthForm').querySelector('button[type="submit"]').textContent = signup ? 'Create owner account' : 'Sign in';
+      byId('dvNameField').hidden = !(signup || setup);
+      byId('dvConfirmField').hidden = !setup;
+      byId('dvAuthTitle').textContent = setup ? 'Set up your admin account' : signup ? 'Create your organization' : (backend ? 'Sign in to DashView' : 'Sign in');
+      byId('dvAuthIntro').textContent = setup
+        ? 'There is no default password. Choose your own admin email and password. They stay on this device and the password is stored only as a salted hash.'
+        : signup ? 'This creates your workspace and grants you the first owner account.'
+        : (backend ? 'Use your organization account to continue.' : 'Sign in with the admin account you set up on this device.');
+      byId('dvAuthPassword').setAttribute('autocomplete', signup || setup ? 'new-password' : 'current-password');
+      byId('dvPasswordHelp').textContent = signup || setup
+        ? 'At least 12 characters. Mix letters with numbers or symbols, and avoid common passwords.'
+        : (backend ? 'Use your organization password.' : 'Five wrong attempts in a row lock sign-in for a short time.');
+      byId('dvAuthForm').querySelector('button[type="submit"]').textContent = setup ? 'Create admin account' : signup ? 'Create owner account' : 'Sign in';
       byId('dvAuthModeToggle').textContent = signup ? 'Already have an account? Sign in' : 'Create organization account';
     }
     function applyModeVisibility() {
@@ -184,7 +317,7 @@
       byId('dvAuthModeToggle').hidden = !backend;
       byId('dvAuthFooterNote').textContent = backend
         ? 'Guest access is read-only. Accounts require the configured DashView API.'
-        : 'Guest access is read-only. Sign in with the built-in admin account above.';
+        : 'Guest access is read-only. This account lives only on this device.';
       setAuthMode('login');
     }
     byId('dvApiBase').value = window.AL_API ? window.AL_API.base() : '';
@@ -200,8 +333,14 @@
       byId('dvAuthError').style.display = 'none';
       try {
         if (isBackendMode()) window.AL_API.setBase(byId('dvApiBase').value);
-        if (authMode === 'register') {
-          if (password.length < 12) throw new Error('Password must be at least 12 characters.');
+        if (authMode === 'setup') {
+          await setupSimpleAccount(byId('dvAuthName').value, byId('dvAuthEmail').value, password, byId('dvAuthConfirm').value);
+          render();
+          byId('dvAuthConfirm').value = '';
+          if (window.showToast) window.showToast('Admin account created. You are signed in.');
+        } else if (authMode === 'register') {
+          var weak = passwordProblem(password, byId('dvAuthEmail').value);
+          if (weak) throw new Error(weak);
           await window.AL_API.register(byId('dvOrgName').value, byId('dvAuthName').value,
             byId('dvAuthEmail').value.trim(), password);
           render();
@@ -216,6 +355,7 @@
         byId('dvAuthError').style.display = 'block';
       } finally {
         submit.disabled = false;
+        byId('dvAuthPassword').value = '';
       }
     });
     applyModeVisibility();
@@ -254,7 +394,7 @@
       '</div>' +
       '<div class="dv-account-menu-role"><span class="dv-role-dot" style="background:' + ROLE_COLOR[user.role] + '"></span>' + ROLE_LABEL[user.role] + (user.guest ? ' · Guest session' : (backend ? '' : ' · Built-in admin')) + '</div>' +
       (backend && can('manageUsers') ? '<button type="button" class="dv-account-menu-item" id="dvMenuUsers">Manage organization users</button>' : '') +
-      (backend && !user.guest ? '<button type="button" class="dv-account-menu-item" id="dvMenuPassword">Change password</button>' : '') +
+      (!user.guest ? '<button type="button" class="dv-account-menu-item" id="dvMenuPassword">Change password</button>' : '') +
       (user.guest ? '<button type="button" class="dv-account-menu-item" id="dvMenuSignin">Sign in</button>' : '<button type="button" class="dv-account-menu-item" id="dvMenuSignout">Sign out</button>');
     var signInBtn = document.getElementById('dvMenuSignin');
     if (signInBtn) signInBtn.addEventListener('click', function () { menu.classList.remove('open'); window.__dvOpenAuthModal(); });
@@ -366,7 +506,7 @@
   }
 
   function openPasswordModal() {
-    if (!isBackendMode() || !window.AL_API || currentUser().guest) return;
+    if (currentUser().guest || (isBackendMode() && !window.AL_API)) return;
     var overlay = document.getElementById('dvPasswordModal');
     if (!overlay) {
       overlay = document.createElement('div');
@@ -389,8 +529,14 @@
         event.preventDefault();
         var feedback = document.getElementById('dvPasswordFeedback');
         try {
-          await window.AL_API.updatePassword(document.getElementById('dvCurrentPassword').value,
-            document.getElementById('dvNextPassword').value);
+          var currentPw = document.getElementById('dvCurrentPassword').value, nextPw = document.getElementById('dvNextPassword').value;
+          if (isBackendMode()) {
+            var weakNext = passwordProblem(nextPw, currentUser().email);
+            if (weakNext) throw new Error(weakNext);
+            await window.AL_API.updatePassword(currentPw, nextPw);
+          } else {
+            await changeSimplePassword(currentPw, nextPw);
+          }
           event.currentTarget.reset();
           feedback.textContent = 'Password updated.';
         } catch (error) {
@@ -420,7 +566,7 @@
         if (window.__dvRefreshAuthModalMode) window.__dvRefreshAuthModalMode();
         if (window.showToast) window.showToast(nextBackend
           ? 'DashView accounts backend enabled — sign in or create an organization to continue.'
-          : 'Switched to the built-in simple admin login.');
+          : 'Switched to the simple local admin login.');
       }
       renderAccountsSettings();
     });
@@ -432,7 +578,7 @@
     var backend = isBackendMode();
     toggle.checked = backend;
     var tag = document.getElementById('dvAccountsModeTag');
-    if (tag) tag.textContent = backend ? 'DashView accounts (backend)' : 'Simple (built-in)';
+    if (tag) tag.textContent = backend ? 'DashView accounts (backend)' : (hasSimpleAccount() ? 'Simple (this device)' : 'Simple (set-up needed)');
   }
 
   function ready(fn) { if (document.readyState !== 'loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
@@ -475,9 +621,35 @@
     if (signInBtn) signInBtn.addEventListener('click', function () { window.__dvOpenAuthModal(); });
   });
 
+  /* Idle sign-out: 30 minutes without activity ends the session in either mode. */
+  (function watchIdle() {
+    var saved = 0;
+    ['mousemove', 'keydown', 'click', 'touchstart', 'scroll'].forEach(function (ev) {
+      window.addEventListener(ev, function () {
+        var n = Date.now(); lastActive = n;
+        if (n - saved > 15000) {
+          saved = n;
+          var sess = readSession();
+          if (sess && !isBackendMode()) { sess.last = n; try { sessionStorage.setItem(SIMPLE_SESSION_KEY, JSON.stringify(sess)); } catch (e) {} }
+        }
+      }, { passive: true });
+    });
+    setInterval(function () {
+      if (Date.now() - lastActive < IDLE_MS) return;
+      var wasIn = isBackendMode() ? !!(window.AL_API && window.AL_API.isConnected && window.AL_API.isConnected()) : !!readSession();
+      if (!wasIn) return;
+      if (isBackendMode()) { if (window.AL_API) window.AL_API.disconnect(); } else simpleLogout();
+      audit('Signed out', 'Inactive for 30 minutes', 'ok');
+      render();
+      if (window.showToast) window.showToast('Signed out after 30 minutes of inactivity.');
+    }, 20000);
+  })();
+
   window.DVAuth = {
     ROLES: ROLES, ROLE_LABEL: ROLE_LABEL, ROLE_COLOR: ROLE_COLOR,
     currentUser: currentUser, can: can, login: login, logout: logout,
-    applyGates: applyGates, openUsers: openUsersModal
+    applyGates: applyGates, openUsers: openUsersModal,
+    passwordProblem: passwordProblem, hasLocalAccount: hasSimpleAccount, isBackend: isBackendMode,
+    setupLocalAccount: setupSimpleAccount, changeLocalPassword: changeSimplePassword
   };
 })();

@@ -1,6 +1,6 @@
 {
   "name": "dashview",
-  "version": "2.9.0",
+  "version": "2.10.0",
   "private": true,
   "license": "MIT",
   "description": "DashView — static, installable, offline-capable web app for laptop and mobile.",

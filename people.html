@@ -8,7 +8,7 @@
 <meta name="referrer" content="no-referrer"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>People — DashView</title>
-<meta name="description" content="DashView People — your team directory, hiring pipeline, departments and workload in one place. Works offline, no account needed."/>
+<meta name="description" content="DashView People — employees, CVs received, interviews, hiring pipeline and departments, live from Odoo."/>
 <meta name="theme-color" content="#f2f3ef"/>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png"/>
@@ -23,6 +23,7 @@
 <link rel="stylesheet" href="css/chart-polish.css"/>
 <link rel="stylesheet" href="css/pro-detail.css"/>
 <link rel="stylesheet" href="css/ws.css"/>
+<link rel="stylesheet" href="css/hr-live.css"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="DashView"/>
@@ -138,10 +139,13 @@
         </div>
       </div>
 
+      <div class="hr-livebar" id="pplLive" hidden></div>
+
       <div class="seg ws-tabs" id="pplTabs" role="group" aria-label="People sections">
         <button type="button" class="active" data-tab="overview" aria-pressed="true">Overview</button>
         <button type="button" data-tab="directory" aria-pressed="false">Directory</button>
         <button type="button" data-tab="hiring" aria-pressed="false">Hiring</button>
+        <button type="button" data-tab="interviews" aria-pressed="false" hidden>Interviews</button>
         <button type="button" data-tab="departments" aria-pressed="false">Departments</button>
       </div>
 
@@ -208,10 +212,13 @@
 </div>
 
 <script src="js/dv-security.js"></script>
+<script src="js/odoo-client.js"></script>
 <script src="js/dashview-api.js"></script>
 <script src="js/auth-service.js"></script>
 <script src="js/people-shell.js"></script>
 <script src="js/ws-store.js"></script>
+<script src="js/odoo-hr.js"></script>
+<script src="js/people-live.js"></script>
 <script src="js/people.js"></script>
 <script src="js/tabbar.js"></script>
 </body>

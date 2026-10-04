@@ -37,7 +37,81 @@
 
     function teamIsLive() { return !!(window.DVOdoo && window.DVOdoo.isConnected && window.DVOdoo.isConnected()); }
     function displayedTeam() { return teamIsLive() ? ODOO_TEAM : TEAM; }
+    /* Live team from Odoo through the shared HR data layer (js/odoo-hr.js). The older per-account path below stays as a fallback. */
+    var HR = window.DVHR, PL = window.PeopleLive, TF = { q: '', dept: '', avail: '', sort: 'name' };
+    function hrLive() { return !!(HR && HR.live()); }
+    function loadLiveTeam(force) { if (hrLive()) HR.ensure('team', !!force); }
+    function teamFiltered() {
+      var q = TF.q.toLowerCase();
+      var list = HR.employees().filter(function (e) {
+        if (TF.dept === '__none' ? e.deptId : (TF.dept && String(e.deptId) !== TF.dept)) return false;
+        if (TF.avail === 'available' && e.leave) return false;
+        if (TF.avail === 'leave' && !e.leave) return false;
+        if (TF.avail === 'busy' && !(e.open >= 8 || e.overdue > 0)) return false;
+        if (TF.avail === 'nouser' && e.userId) return false;
+        return !q || (e.name + ' ' + e.job + ' ' + e.dept + ' ' + e.manager + ' ' + e.email).toLowerCase().indexOf(q) > -1;
+      });
+      return list.sort(function (a, b) {
+        if (TF.sort === 'load') return (b.open - a.open) || (b.overdue - a.overdue) || a.name.localeCompare(b.name);
+        if (TF.sort === 'dept') return (a.dept || '~').localeCompare(b.dept || '~') || a.name.localeCompare(b.name);
+        return a.name.localeCompare(b.name);
+      });
+    }
+    function renderLiveTeam() {
+      var st = HR.status(), all = HR.employees(), n = function (x) { return (Number(x) || 0).toLocaleString(); };
+      var firstLoad = !st.firstLoadDone && !all.length;
+      var note = byId('teamSourceNote');
+      if (note) note.textContent = firstLoad ? 'Loading live employees from Odoo…'
+        : st.failed.length && !all.length ? 'Odoo — live source unavailable. ' + (st.errors.employees || '')
+        : 'Live from Odoo · employees, departments, time off and open work · read-only' + (st.lastSynced ? ' · synced ' + new Date(st.lastSynced).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '');
+      var imp = byId('teamImportBtn'), exp = byId('teamExportBtn'), inv = byId('inviteTeamBtn');
+      if (imp) imp.hidden = true; if (exp && exp.parentElement) exp.parentElement.hidden = true; if (inv) inv.hidden = true;
+      var rb = byId('teamRefresh'), eb = byId('teamLiveExport'); if (rb) { rb.hidden = false; rb.disabled = st.loading; } if (eb) eb.hidden = false;
+      var away = all.filter(function (e) { return e.leave; }).length, open = all.reduce(function (s2, e) { return s2 + e.open; }, 0), late = all.reduce(function (s2, e) { return s2 + e.overdue; }, 0);
+      var kp = byId('teamKpis'), fl = byId('teamFilters');
+      if (kp) { kp.hidden = !all.length; kp.innerHTML = [['Employees', n(all.length), HR.departmentsSummary().length + ' departments', ''], ['Available today', n(all.length - away), 'not on approved time off', 'is-ok'],
+        ['On time off', n(away), away ? 'away right now' : 'everyone is in', away ? 'is-warn' : ''], ['Open tasks', n(open), late ? n(late) + ' overdue' : 'none overdue', '']]
+        .map(function (c) { return '<div class="hr-kpi ' + c[3] + '"><span>' + c[0] + '</span><b>' + c[1] + '</b><small>' + c[2] + '</small></div>'; }).join(''); }
+      if (fl) {
+        fl.hidden = !all.length;
+        var ds = byId('teamDept'), cur = TF.dept;
+        ds.innerHTML = '<option value="">All departments</option>' + HR.departmentsSummary().filter(function (d) { return d.count; }).map(function (d) { return '<option value="' + (d.id || '__none') + '">' + esc(d.short) + ' (' + d.count + ')</option>'; }).join('');
+        ds.value = cur; if (ds.value !== cur) { TF.dept = ''; ds.value = ''; }
+      }
+      var grid = byId('teamGrid'), list = all.length ? teamFiltered() : [];
+      var maxOpen = Math.max(10, list.reduce(function (m, e) { return Math.max(m, e.open); }, 0));
+      if (firstLoad) grid.innerHTML = '<div class="tk-empty"><h3>Loading live employees…</h3><p>Reading the employee directory from Odoo.</p></div>';
+      else if (!all.length) grid.innerHTML = '<div class="tk-empty"><h3>' + (st.errors.employees ? 'Live team unavailable' : 'No active Odoo employees') + '</h3><p>' + esc(st.errors.employees || 'Odoo returned no active employees for the selected companies.') + '</p><button type="button" class="btn btn-outline btn-sm" id="teamRetry">Retry</button></div>';
+      else if (!list.length) grid.innerHTML = '<div class="tk-empty"><h3>No one matches these filters</h3><p>Try a different search or clear the filters.</p></div>';
+      else grid.innerHTML = list.map(function (m) {
+        var meta = [m.dept, m.manager ? 'Reports to ' + m.manager : ''].filter(Boolean).join(' · ') || 'Odoo employee';
+        var load = m.userId ? '<div class="hr-load" title="Open tasks in Odoo Project"><div class="hr-load-track"><i class="' + (m.open >= 8 || m.overdue ? 'is-high' : '') + '" style="width:' + Math.min(100, Math.round(m.open / maxOpen * 100)) + '%"></i></div><span>' + m.open + ' open' + (m.overdue ? ' · <b class="hr-late">' + m.overdue + ' late</b>' : '') + '</span></div>' : '<div class="hr-load"><span>No linked Odoo user</span></div>';
+        return '<button type="button" class="team-card hr-team-card" data-team-emp="' + m.id + '" aria-label="Open ' + esc(m.name) + '">'
+          + '<div class="team-avatar-wrap"><div class="team-avatar" style="background:' + hashColor(m.name) + '">' + initials(m.name) + '</div><span class="team-status-dot ' + (m.leave ? 'away' : 'online') + '" title="' + (m.leave ? 'On time off' : 'Available') + '"></span></div>'
+          + '<div style="flex:1;min-width:0;"><p class="team-card-name">' + esc(m.name) + '</p><p class="team-card-role">' + esc(m.job || '') + '</p><p class="team-card-meta">' + esc(meta) + '</p>'
+          + (m.leave ? '<p class="team-card-meta"><span class="ws-pill leave">' + esc(m.leave.type) + '</span></p>' : '') + load + '</div></button>';
+      }).join('');
+      if (byId('teamSubhead')) byId('teamSubhead').textContent = all.length ? (list.length === all.length ? n(all.length) + ' active Odoo employee' + (all.length === 1 ? '' : 's') : 'Showing ' + n(list.length) + ' of ' + n(all.length) + ' employees') : 'Team directory';
+      if (byId('teamRetry')) byId('teamRetry').addEventListener('click', function () { loadLiveTeam(true); });
+    }
+    function wireLiveTeam() {
+      if (!HR) return;
+      HR.want('team');
+      HR.subscribe(function () { if (hrLive()) renderTeam(); });
+      var grid = byId('teamGrid');
+      grid.addEventListener('click', function (e) { var c = e.target.closest && e.target.closest('[data-team-emp]'); if (c && hrLive() && PL && PL.openEmployee) PL.openEmployee(c.getAttribute('data-team-emp')); });
+      var q; var s1 = byId('teamSearch'); if (s1) s1.addEventListener('input', function () { var v = this.value.trim().slice(0, 120); clearTimeout(q); q = setTimeout(function () { TF.q = v; renderTeam(); }, 150); });
+      [['teamDept', 'dept'], ['teamAvail', 'avail'], ['teamSort', 'sort']].forEach(function (p2) { var el = byId(p2[0]); if (el) el.addEventListener('change', function () { TF[p2[1]] = this.value; renderTeam(); }); });
+      var rb = byId('teamRefresh'); if (rb) rb.addEventListener('click', function () { loadLiveTeam(true); });
+      var eb = byId('teamLiveExport'); if (eb) eb.addEventListener('click', function () {
+        var list = teamFiltered(); if (!list.length) { toast('There are no employees to export.'); return; }
+        var rows = [['Name', 'Job', 'Department', 'Manager', 'Type', 'Work email', 'Availability', 'Open Odoo tasks', 'Overdue tasks']].concat(list.map(function (e) { return [e.name, e.job, e.dept, e.manager, e.type, e.email, e.leave ? 'On time off' : 'Available', e.open, e.overdue]; }));
+        if (window.WS) { window.WS.download('dashview-odoo-team-' + window.WS.today() + '.csv', window.WS.csv(rows)); toast('Exported ' + list.length + ' employee' + (list.length === 1 ? '' : 's') + '.'); }
+      });
+      if (hrLive()) loadLiveTeam(false);
+    }
     function loadOdooTeam() {
+      if (hrLive()) { loadLiveTeam(false); renderTeam(); return; }
       if (!teamIsLive()) { teamError = ''; teamLoading = false; renderTeam(); return; }
       if (!window.AL_API || !window.AL_API.isConnected()) {
         teamError = 'Sign in to DashView to read employees through the authenticated Node API.';
@@ -71,6 +145,8 @@
     }
 
     function renderTeam() {
+      if (hrLive()) { renderLiveTeam(); return; }
+      ['teamKpis', 'teamFilters', 'teamRefresh', 'teamLiveExport'].forEach(function (id) { var el = byId(id); if (el) el.hidden = true; });
       var live = teamIsLive(), rows = displayedTeam();
       var canEdit = !live && can('manageTeam');
       var note = byId('teamSourceNote');
@@ -118,6 +194,7 @@
         });
       });
     }
+    wireLiveTeam();
     renderTeam();
     document.querySelectorAll('[data-view="team"]').forEach(function (link) { link.addEventListener('click', loadOdooTeam); });
     document.addEventListener('dv:odoo-config-saved', loadOdooTeam);
