@@ -17,8 +17,7 @@
         { label: 'Confirmed revenue', model: 'sale.order', domain: CONF, measure: 'amount_total', kind: 'money', sub: 'All confirmed orders' },
         { label: 'Revenue (30 days)', model: 'sale.order', domain: CONF.concat([['date_order', '>=', '$d30']]), measure: 'amount_total', kind: 'money', sub: 'Confirmed in the last 30 days' },
         { label: 'Open quotations', model: 'sale.order', domain: [['state', 'in', ['draft', 'sent']]], measure: 'amount_total', kind: 'count', sub: 'Waiting to be confirmed' },
-        { label: 'Orders (30 days)', model: 'sale.order', domain: CONF.concat([['date_order', '>=', '$d30']]), kind: 'count', sub: 'Confirmed in the last 30 days' },
-        { label: 'Products', model: 'product.template', domain: [], kind: 'count', sub: 'Open to check names and references' }
+        { label: 'Orders (30 days)', model: 'sale.order', domain: CONF.concat([['date_order', '>=', '$d30']]), kind: 'count', sub: 'Confirmed in the last 30 days' }
       ],
       charts: [
         { title: 'Revenue by month', model: 'sale.order', domain: CONF, groupby: 'date_order:month', measure: 'amount_total', type: 'bar', last: 12 },
@@ -197,7 +196,8 @@
         { label: 'Revenue', model: 'sale.order', domain: CONF, date: 'date_order', measure: 'amount_total', kind: 'money' },
         { label: 'Confirmed orders', model: 'sale.order', domain: CONF, date: 'date_order', kind: 'count' },
         { label: 'Average order value', kind: 'ratio', of: [0, 1], money: true },
-        { label: 'New quotations', model: 'sale.order', domain: [['state', 'in', ['draft', 'sent']]], date: 'create_date', kind: 'count' }],
+        { label: 'New quotations', model: 'sale.order', domain: [['state', 'in', ['draft', 'sent']]], date: 'create_date', kind: 'count' },
+        { label: 'Products', model: 'product.template', domain: [], kind: 'count', sub: 'Open for Data checks: names and references' }],
       trend: { title: 'Revenue — last 12 months', model: 'sale.order', domain: CONF, groupby: 'date_order:month', measure: 'amount_total', type: 'bar', last: 12 },
       charts: [P.sale.charts[2], P.sale.charts[3]],
       alerts: [{ label: 'Open quotations', model: 'sale.order', domain: [['state', 'in', ['draft', 'sent']]], measure: 'amount_total', tone: 'warn' }] },
@@ -227,7 +227,8 @@
     stock: { title: 'Inventory',
       kpis: [
         { label: 'Units on hand', model: 'stock.quant', measure: 'quantity', kind: 'num', sub: 'Across all locations' },
-        { label: 'Transfers completed', model: 'stock.picking', domain: [['state', '=', 'done']], date: 'date_done', kind: 'count' }],
+        { label: 'Transfers completed', model: 'stock.picking', domain: [['state', '=', 'done']], date: 'date_done', kind: 'count' },
+        { label: 'Products', model: 'product.template', domain: [], kind: 'count', sub: 'Open for Data checks: names and references' }],
       trend: { title: 'Transfers — last 12 months', model: 'stock.picking', groupby: 'scheduled_date:month', type: 'line', last: 12 },
       charts: [P.stock.charts[3], P.stock.charts[0]],
       alerts: [
