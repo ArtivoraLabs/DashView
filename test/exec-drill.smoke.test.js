@@ -14,11 +14,27 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   w.localStorage.setItem('dashview_odoo_config', JSON.stringify({ url: 'https://acme.odoo.com', db: 'acme', username: 'a@b.c', apiKey: 'k', proxyUrl: 'https://w.example' }));
 
   const FIELDS = { company_id: { type: 'many2one', relation: 'res.company', string: 'Company' }, partner_id: { type: 'many2one', relation: 'res.partner', string: 'Customer' }, user_id: { type: 'many2one', relation: 'res.users', string: 'Salesperson' }, date_order: { type: 'datetime', string: 'Order date' }, amount_total: { type: 'monetary', string: 'Total' }, state: { type: 'selection', string: 'Status', selection: [['sale', 'Sales Order']] }, name: { type: 'char', string: 'Number' }, create_uid: { type: 'many2one', relation: 'res.users', string: 'Created by' } };
+  const PFIELDS = { name: { type: 'char', string: 'Product Name' }, default_code: { type: 'char', string: 'Internal Reference' }, categ_id: { type: 'many2one', relation: 'product.category', string: 'Product Category' }, list_price: { type: 'float', string: 'Sales Price' }, company_id: { type: 'many2one', relation: 'res.company', string: 'Company' } };
+  const LAWN = [1, 'Lawn'], COT = [2, 'Cotton'];
+  const PRODUCTS = [
+    { id: 1, name: 'Lawn Suit A', default_code: 'MM-100-A', categ_id: LAWN, list_price: 5000, company_id: [1, 'Alpha'] },
+    { id: 2, name: 'Lawn Suit A', default_code: 'MM-100-A', categ_id: LAWN, list_price: 5000, company_id: [1, 'Alpha'] },
+    { id: 3, name: 'Chiffon Set', default_code: 'mm-200', categ_id: LAWN, list_price: 4000, company_id: [1, 'Alpha'] },
+    { id: 4, name: 'Chiffon  Set ', default_code: 'ZR-300', categ_id: LAWN, list_price: 4100, company_id: [1, 'Alpha'] },
+    { id: 5, name: 'Silk Dupatta', default_code: false, categ_id: false, list_price: 100, company_id: [1, 'Alpha'] },
+    { id: 6, name: 'Cotton Kurta', default_code: 'ZR-300', categ_id: COT, list_price: 0, company_id: [1, 'Alpha'] },
+    { id: 7, name: 'Pashmina', default_code: 'ZR-500-A', categ_id: COT, list_price: 900, company_id: [2, 'Beta'] },
+    { id: 8, name: 'Pashmina Shawl', default_code: 'ZR-500-02', categ_id: COT, list_price: 950, company_id: [2, 'Beta'] },
+    { id: 9, name: 'Clean Item', default_code: 'ZR-900', categ_id: COT, list_price: 10, company_id: [2, 'Beta'] },
+    { id: 10, name: 'Lawn Suit A', default_code: 'MM-100-A', categ_id: COT, list_price: 10, company_id: [2, 'Beta'] }
+  ];
   const bodies = [];
   w.fetch = (url, init) => {
     const b = JSON.parse(init.body); bodies.push(b);
     let out;
-    if (b.endpoint === 'companies') out = { ok: true, companies: [{ id: 1, name: 'Alpha', currency_id: [1, 'USD'] }, { id: 2, name: 'Beta', currency_id: [1, 'USD'] }] };
+    if (b.model === 'product.template' && b.endpoint === 'fields') out = { ok: true, fields: PFIELDS };
+    else if (b.model === 'product.template' && b.endpoint === 'records') { const o = b.offset || 0; out = { ok: true, total: PRODUCTS.length, rows: PRODUCTS.slice(o, o + (b.limit || 25)) }; }
+    else if (b.endpoint === 'companies') out = { ok: true, companies: [{ id: 1, name: 'Alpha', currency_id: [1, 'USD'] }, { id: 2, name: 'Beta', currency_id: [1, 'USD'] }] };
     else if (b.endpoint === 'fields') out = { ok: true, fields: FIELDS };
     else if (b.endpoint === 'read-group') {
       const gb = b.groupby || [], prev = JSON.stringify(b.domain).includes('"<"');
@@ -120,6 +136,111 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   ok('opens already filtered when given crumbs', p().querySelectorAll('.dvdr-crumb').length === 2 && /Beta/.test(p().textContent));
   w.DVDrill.close();
   ok('close() removes the panel', !p());
+
+  /* ── v2.11 drill upgrades ─────────────────────────────────────────── */
+  const logged = [];
+  w.DVSec = { isLocked: () => false, cfg: () => JSON.parse(w.localStorage.getItem('dashview_odoo_config') || '{}'), log: (a, dtl) => logged.push(a + '|' + dtl) };
+  w.DVDrill.open({ title: 'Revenue', model: 'sale.order', measure: 'amount_total', date: 'date_order', kind: 'money' });
+  await wait(250);
+  ok('measure switch offers Total / Average / Count', Array.from(p().querySelectorAll('[data-metric]')).map((b) => b.textContent).join() === 'Total,Average,Count');
+  ok('breakdown headings are sortable buttons', p().querySelectorAll('thead button[data-sort]').length >= 3 && p().querySelector('th[aria-sort="none"]'));
+  const firstName = () => (p().querySelector('tbody tr .nm span') || {}).textContent;
+  p().querySelector('button[data-sort="label"]').click(); await wait(30);
+  const asc = firstName();
+  p().querySelector('button[data-sort="label"]').click(); await wait(30);
+  ok('clicking a heading sorts, clicking again reverses', asc && firstName() && asc !== firstName() && p().querySelector('th[aria-sort="descending"]'));
+  p().querySelector('[data-metric="count"]').click(); await wait(250);
+  ok('Count measure shows counts, not currency, and drops the Records column', p().querySelector('[data-metric="count"]').classList.contains('is-on') && !/\$/.test(p().querySelector('tbody').textContent) && !/Records/.test(p().querySelector('thead').textContent));
+  p().querySelector('[data-metric="avg"]').click(); await wait(250);
+  ok('Average measure hides the (meaningless) share column', !/Share/.test(p().querySelector('thead').textContent) && /Average per record/.test(p().querySelector('thead').textContent));
+  p().querySelector('[data-metric="sum"]').click(); await wait(250);
+  ok('insights strip summarises the breakdown', !!p().querySelector('.dvdr-ins') && /Items/.test(p().querySelector('.dvdr-ins').textContent));
+  ok('hero shows average per record for totals', /Average/.test(p().querySelector('.dvdr-meta').textContent));
+  const weekTab = p().querySelector('[data-dim="w"]');
+  ok('time breakdowns include Week, Quarter and Year', weekTab && p().querySelector('[data-dim="q"]') && p().querySelector('[data-dim="y"]'));
+  weekTab.click(); await wait(250);
+  ok('Week tab groups by the :week granularity', bodies.filter((b) => b.endpoint === 'read-group' && b.groupby && b.groupby.length).pop().groupby[0] === 'date_order:week');
+  p().querySelector('[data-dim="rec"]').click(); await wait(250);
+  p().querySelector('button[data-rsort="amount_total"]').click(); await wait(250);
+  ok('record headings sort server-side with a stable tie-breaker', bodies.filter((b) => b.endpoint === 'records').pop().order === 'amount_total desc, id desc' && p().querySelector('th[aria-sort="descending"]'));
+  p().querySelector('button[data-rsort="amount_total"]').click(); await wait(250);
+  ok('second click flips to ascending', bodies.filter((b) => b.endpoint === 'records').pop().order === 'amount_total asc, id desc');
+  p().querySelector('#dvdrCsv').click(); await wait(400);
+  ok('exports are recorded in the security log', logged.some((x) => /^Exported drill records\|sale\.order/.test(x)));
+  w.DVDrill.close();
+
+  /* ── Data checks tab ──────────────────────────────────────────────── */
+  ok('sales orders have no Data checks tab', (w.DVDrill.open({ title: 'Revenue', model: 'sale.order', measure: 'amount_total', date: 'date_order', kind: 'money' }), true));
+  await wait(250);
+  ok('no Data checks tab for models without name + reference fields', !p().querySelector('[data-dim="dq"]'));
+  w.DVDrill.close();
+  w.DVDrill.open({ title: 'Products', model: 'product.template', domain: [], kind: 'count' });
+  await wait(250);
+  ok('product drill offers a Data checks tab', !!p().querySelector('[data-dim="dq"]'));
+  p().querySelector('[data-dim="dq"]').click(); await wait(400);
+  const pr = bodies.filter((b) => b.endpoint === 'records' && b.model === 'product.template').pop();
+  ok('scan pages through records by id with only the fields it needs', pr && pr.order === 'id asc' && pr.limit === 500 && pr.fields.includes('default_code') && pr.fields.includes('name'));
+  const txt = () => p().querySelector('#dvdrBody').textContent;
+  ok('health score counts records with errors or warnings (8 of 10 are affected)', /20\.0%/.test(txt()) && /2 of 10/.test(txt()));
+  const chip = (l) => { const sp = Array.from(p().querySelectorAll('.dvdr-dq-top .dvdr-ins span')).find((x) => x.querySelector('small').textContent === l); return sp && sp.querySelector('b').textContent; };
+  ok('summary chips split errors / warnings / review', chip('Errors') === '9' && chip('Warnings') === '5' && chip('For review') === '4' && chip('Checked') === '10');
+  const titles = Array.from(p().querySelectorAll('.dvdr-dq-t')).map((x) => x.textContent);
+  ok('every expected check is reported', ['Missing internal reference', 'Duplicate internal reference', 'Exact duplicate records', 'Duplicate name, different reference', 'Internal reference format', 'Reference base shared by different names', 'Name format', 'No category', 'Sales price is zero', 'Same reference in more than one company'].every((t) => titles.includes(t)));
+  ok('clean records create no extra checks (no "Missing name")', !titles.includes('Missing name'));
+  ok('errors are listed before warnings', titles.indexOf('Duplicate name, different reference') < titles.indexOf('Internal reference format'));
+  p().querySelector('[data-dq-sev="warn"]').click(); await wait(20);
+  ok('severity filter shows only warnings', Array.from(p().querySelectorAll('.dvdr-sev')).every((x) => x.textContent === 'Warning') && p().querySelectorAll('.dvdr-dq-c').length === 4);
+  p().querySelector('[data-dq-sev="all"]').click(); await wait(20);
+  p().querySelector('[data-dq-toggle="base_conflict"]').click(); await wait(20);
+  const open = p().querySelector('.dvdr-dq-c.is-open');
+  ok('opening a check lists the affected records with an Odoo link and the reason', open && /Pashmina Shawl/.test(open.textContent) && /ZR-500-02/.test(open.textContent) && /Base ZR-500 has 2 different names in Beta/.test(open.textContent) && open.querySelectorAll('a.dvdr-open').length === 2 && p().querySelector('[data-dq-toggle="base_conflict"]').getAttribute('aria-expanded') === 'true');
+  p().querySelector('[data-dq-toggle="ref_format"]').click(); await wait(20);
+  ok('reference format issues name the problem', /lowercase letters/.test(p().querySelector('#dvdrBody').textContent));
+  p().querySelector('[data-dq-toggle="name_dup"]').click(); await wait(20);
+  ok('duplicate-name groups explain the match (normalised name, extra spaces ignored)', /is used 2 times with 2 different references in Alpha/.test(p().querySelector('#dvdrBody').textContent));
+  p().querySelector('[data-dq-toggle="ref_missing"]').click(); await wait(20);
+  p().querySelector('[data-dq-drill="ref_missing"]').click(); await wait(300);
+  const dr = bodies.filter((b) => b.endpoint === 'records' && b.model === 'product.template').pop();
+  ok('drilling into a check adds a crumb and filters Records with its domain', p().querySelectorAll('.dvdr-crumb').length === 2 && /Missing internal reference/.test(p().querySelector('.dvdr-cr').textContent) && JSON.stringify(dr.domain).includes('["default_code","=",false]'));
+  p().querySelector('[data-dim="dq"]').click(); await wait(400);
+  ok('Data checks re-runs inside the drilled selection', JSON.stringify(bodies.filter((b) => b.endpoint === 'records' && b.model === 'product.template').pop().domain).includes('default_code'));
+  w.DVDrill.close();
+  w.DVDrill.open({ title: 'Products', model: 'product.template', domain: [], kind: 'count' });
+  await wait(250);
+  p().querySelector('[data-dim="dq"]').click(); await wait(400);
+  p().querySelector('[data-dq-toggle="ref_dup"]').click(); await wait(20);
+  const dupBox = p().querySelector('#dq-ref_dup');
+  ok('an opened check explains what it means, why it matters, how to fix it and shows a real example', ['Why it matters', 'How to fix', 'Example from your data'].every((h) => dupBox.textContent.includes(h)) && /Keep the record|Decide which record keeps/.test(dupBox.textContent) && /Chiffon/.test(dupBox.querySelector('.dvdr-dq-doc').textContent));
+  ok('duplicate groups have a header and mark the oldest record', dupBox.querySelectorAll('.dvdr-dq-gh').length === 2 && /Reference MM-100-A is used 2 times in Alpha/.test(dupBox.textContent) && /Oldest record/.test(dupBox.textContent) && /Newer record/.test(dupBox.textContent));
+  ok('company chips show how many records each company has for the check', /Alpha\s*4/.test(dupBox.querySelector('.dvdr-dq-cos').textContent) && !/Beta/.test(dupBox.querySelector('.dvdr-dq-cos').textContent));
+  p().querySelector('[data-dq-view="company"]').click(); await wait(20);
+  const mx = p().querySelector('.dvdr-mx');
+  const rowOf = (n) => Array.from(mx.querySelectorAll('tbody tr')).find((r) => r.querySelector('.nm').textContent.trim() === n);
+  ok('By company shows a company x check matrix with a health score per company', mx && rowOf('Alpha') && rowOf('Beta') && /0\.0%/.test(rowOf('Alpha').textContent) && /50\.0%/.test(rowOf('Beta').textContent) && /All companies/.test(mx.querySelector('tfoot').textContent) && /20\.0%/.test(mx.querySelector('tfoot').textContent));
+  ok('matrix cells count records per company and check', rowOf('Beta').querySelector('[data-dq-cell="2|base_conflict"]').textContent === '2' && !rowOf('Beta').querySelector('[data-dq-cell="2|ref_dup"]') && rowOf('Alpha').querySelector('[data-dq-cell="1|ref_dup"]').textContent === '4');
+  rowOf('Beta').querySelector('[data-dq-cell="2|base_conflict"]').click(); await wait(20);
+  ok('clicking a cell opens that check for that company only', p().querySelector('[data-dq-view="check"]').classList.contains('is-on') && p().querySelector('#dvdrDqCo').value === '2' && /Data health · Beta/.test(p().querySelector('.dvdr-dq-score').textContent) && /50\.0%/.test(p().querySelector('.dvdr-dq-score').textContent) && p().querySelector('#dq-base_conflict.is-open') && !/Alpha/.test(p().querySelector('#dq-base_conflict').textContent) && !p().querySelector('#dq-ref_dup'));
+  p().querySelector('#dvdrDqCo').value = '1'; p().querySelector('#dvdrDqCo').dispatchEvent(new w.Event('input', { bubbles: true })); await wait(20);
+  ok('the company selector re-scopes every number and the check list', /Data health · Alpha/.test(p().querySelector('.dvdr-dq-score').textContent) && /0\.0%/.test(p().querySelector('.dvdr-dq-score').textContent) && !p().querySelector('#dq-base_conflict') && !!p().querySelector('#dq-ref_dup'));
+  p().querySelector('[data-dq-toggle="ref_missing"]').click(); await wait(20);
+  p().querySelector('[data-dq-drill="ref_missing"]').click(); await wait(300);
+  ok('drilling from a company scope adds the company to the record filter', /Alpha/.test(p().querySelector('.dvdr-cr').textContent) && JSON.stringify(bodies.filter((b) => b.endpoint === 'records' && b.model === 'product.template').pop().domain).includes('["company_id","=",1]'));
+  w.DVDrill.close();
+  w.DVDrill.open({ title: 'Products', model: 'product.template', domain: [], kind: 'count' });
+  await wait(250);
+  p().querySelector('[data-dim="dq"]').click(); await wait(400);
+  let csvText = '';
+  F.download = (name, text) => { csvText = name + '\n' + text; };
+  p().querySelector('#dvdrCsv').click(); await wait(50);
+  ok('Data checks CSV lists every issue with check, severity, record, reference and details', /^data-checks-product-template-/.test(csvText) && /Company,Check,Severity,Record ID,Name,Internal reference,Reference base,Category,Group,Details,What it means,How to fix/.test(csvText) && /Alpha,Missing internal reference,Error,5,Silk Dupatta/.test(csvText) && csvText.split('\n').length > 15);
+  ok('Data checks runs and exports are written to the security log', logged.some((x) => /^Ran data checks\|product\.template/.test(x)) && logged.some((x) => /^Exported data checks\|product\.template/.test(x)));
+  w.DVDrill.close();
+  w.localStorage.setItem('dashview_odoo_config', JSON.stringify({ url: 'javascript:alert(1)', db: 'a', username: 'u', apiKey: 'k', proxyUrl: 'https://w.example' }));
+  w.DVDrill.open({ title: 'Revenue', model: 'sale.order', measure: 'amount_total', date: 'date_order', kind: 'money', crumbs: [{ label: 'Company: Beta', domain: [['company_id', '=', 2]], dim: 'company_id' }] });
+  await wait(250);
+  p().querySelector('[data-dim="rec"]').click(); await wait(250);
+  ok('"Open in Odoo" links are never built from a non-http(s) URL', p().querySelectorAll('a.dvdr-open').length === 0);
+  w.DVDrill.close();
   w.close();
   console.log(`${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);

@@ -323,14 +323,20 @@
       p.name, p.status, p.progress, p.openPRs, p.lang ? p.lang.name : '', p.updated || '', p.custom ? 'custom' : source, p.url || '',
     ]);
     const csv = [header].concat(rows).map((r) =>
-      r.map((v) => '"' + String(v).replace(/"/g, '""') + '"').join(',')
-    ).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
+      r.map((v) => {
+        let t = String(v == null ? '' : v);
+        /* neutralise spreadsheet formulas (=, +, -, @, tab, CR) so an imported name cannot run in Excel */
+        if (/^\s*[=+\-@\t\r]/.test(t) && !/^\s*-\d+(?:\.\d+)?\s*$/.test(t)) t = "'" + t;
+        return '"' + t.replace(/"/g, '""') + '"';
+      }).join(',')
+    ).join('\r\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = 'projects.csv';
     a.click();
-    URL.revokeObjectURL(a.href);
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    if (window.DVSec && window.DVSec.log) window.DVSec.log('Exported projects', currentRows.length + ' rows');
     showToast('Exported ' + currentRows.length + ' projects to CSV.');
   });
 

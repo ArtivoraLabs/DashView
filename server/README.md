@@ -48,3 +48,6 @@ shared rate limiter at the gateway/load balancer as well.
 
 See `../ODOO_SETUP.md` at the repo root for the full Odoo connectivity
 walkthrough and production-deployment notes.
+
+## Rate limiting
+Built in (in-memory, per IP): 600 requests / 15 min on `/api`, 40 / 15 min on `/api/auth`, 30 / min on `/api/ai`. Behind a reverse proxy set `TRUST_PROXY=true` so the real client IP is used.

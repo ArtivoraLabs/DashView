@@ -7,7 +7,7 @@ const ROOT = path.join(__dirname, '..');
 let html = fs.readFileSync(path.join(ROOT, 'dashboard.html'), 'utf8');
 
 html = html.replace(
-  /<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/chart\.js[^"]*"><\/script>/,
+  /<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/chart\.js[^"]*"[^>]*><\/script>/,
   () => `<script>
     window.matchMedia = window.matchMedia || function () { return { matches: false, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {} }; };
     window.Chart = function (ctx, config) { this.ctx = ctx; this.config = config; this.destroy = function () {}; };

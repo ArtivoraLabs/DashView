@@ -334,7 +334,7 @@
       '<meta name="viewport" content="width=device-width, initial-scale=1" />\n' +
       '<link rel="preconnect" href="https://fonts.googleapis.com">\n' +
       '<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">\n' +
-      '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"><\/script>\n' +
+      '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.js" integrity="sha384-G436+Z2nlA8+PNoeRvWdxKbvOf8E/y+lYxqht2iBwNHTQDV5CJr3+AGVj8fGZi5t" crossorigin="anonymous"><\/script>\n' +
       '<style>\n' +
       ':root{--ink:#12141c;--ink-50:rgba(18,20,28,.55);--ink-30:rgba(18,20,28,.32);--paper-soft:#f4f5f7;--line:#e2e4ea;--signal:#0e7c66;}\n' +
       '*{box-sizing:border-box;}\n' +

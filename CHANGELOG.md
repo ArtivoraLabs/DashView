@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.11.0 - 2026-10-05
+- New: Drill explorer 'Data checks' tab for products and contacts - duplicate names, exact duplicate records, missing / duplicate / badly formatted internal references and reference-base conflicts. Read by check or by company (company x check matrix, health score per company), each error explained (what it means, why it matters, how to fix, example), drill into affected records and CSV export
+- Improved: Drill explorer - Total / Average / Count switch, week, quarter and year levels, sortable columns, insights strip, row filter, keyboard arrows, retry on errors, richer CSV export
+- Fixed: Drill explorer record search no longer loses typed text when a result arrives
+- Improved: Light theme contrast now meets WCAG AA (brand amber, good / bad / flat chips); dark theme chart colours match KPI colours again; one amber accent for focus, selection and scrollbars
+- Security: integrity (SRI) hashes on every CDN script; stricter Content-Security-Policy on all pages; project CSV export neutralises spreadsheet formulas; drill exports are written to the security log; API rate limiting on all routes, sign-in and AI
+
 ## 2.10.0 - 2026-10-04
 - New: People tab reads live from Odoo - CVs received, interviews held and upcoming, hiring funnel, positions, sources, employee directory with time off and open work, departments
 - New: Task assignment lists your Odoo employees and can set an automatic target (a count, an Odoo task or a custom query) - the task is marked Done by itself when Odoo reaches it

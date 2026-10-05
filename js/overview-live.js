@@ -547,6 +547,7 @@
     libState.html2canvas.loading = new Promise(function (resolve, reject) {
       var s = document.createElement('script');
       s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+      s.integrity = 'sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H'; s.crossOrigin = 'anonymous';
       s.onload = function () { libState.html2canvas.loaded = true; resolve(); };
       s.onerror = function () { reject(new Error('Could not load the snapshot library from the CDN.')); };
       document.head.appendChild(s);

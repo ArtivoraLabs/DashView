@@ -12,7 +12,7 @@ const reportCss = fs.readFileSync(path.join(ROOT, 'css', 'dashboard-pro.css'), '
 // pull in a real browser) and stub its two browser entry points so we can
 // inspect exactly what payload the UI handed it, without touching a network.
 html = html.replace(
-  /<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/chart\.js[^"]*"><\/script>/,
+  /<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/chart\.js[^"]*"[^>]*><\/script>/,
   () => `<script>
     window.matchMedia = window.matchMedia || function () { return { matches: false, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {} }; };
     window.Chart = function (ctx, config) {

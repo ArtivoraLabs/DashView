@@ -9,9 +9,11 @@ const orgUserRoutes = require('./routes/org-users.routes');
 const projectRoutes = require('./routes/projects.routes');
 const aiRoutes = require('./routes/ai.routes');
 const odooRoutes = require('./routes/odoo.routes');
+const { rateLimit } = require('./middleware/rateLimit');
 
 const app = express();
 app.disable('x-powered-by');
+if (process.env.TRUST_PROXY) app.set('trust proxy', process.env.TRUST_PROXY === 'true' ? 1 : process.env.TRUST_PROXY);
 const isProduction = process.env.NODE_ENV === 'production';
 const configuredOrigin = (process.env.CORS_ORIGIN || '').trim();
 if (isProduction && (!configuredOrigin || configuredOrigin === '*')) {
@@ -32,6 +34,9 @@ app.use('/api', (req, res, next) => {
 });
 app.use(cors({ origin: configuredOrigin || 'http://localhost:3000' }));
 app.use(express.json({ limit: '256kb' }));
+app.use('/api', rateLimit({ windowMs: 15 * 60 * 1000, max: 600 }));
+app.use('/api/auth', rateLimit({ windowMs: 15 * 60 * 1000, max: 40, message: 'Too many sign-in attempts. Try again in a few minutes.' }));
+app.use('/api/ai', rateLimit({ windowMs: 60 * 1000, max: 30 }));
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 app.use('/api/auth', authRoutes);

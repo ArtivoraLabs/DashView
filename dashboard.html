@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <script>(function(){try{var t=localStorage.getItem('dashview-theme');if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <script>try{var __s=JSON.parse(localStorage.getItem('dv_sec')||'{}');if(__s.pin&&!sessionStorage.getItem('dv_sk'))document.documentElement.classList.add('dv-locked')}catch(e){}</script>
-<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; frame-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
 <meta name="referrer" content="no-referrer"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Workspace — DashView</title>
@@ -37,8 +37,8 @@
 <link rel="stylesheet" href="css/chart-polish.css"/>
 <link rel="stylesheet" href="css/overview-charts-pro.css"/>
 <link rel="stylesheet" href="css/exec-unify.css"/>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.js" integrity="sha384-G436+Z2nlA8+PNoeRvWdxKbvOf8E/y+lYxqht2iBwNHTQDV5CJr3+AGVj8fGZi5t" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"></script>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="DashView"/>
@@ -46,6 +46,7 @@
 <script defer src="js/updater.js"></script>
 <link rel="stylesheet" href="css/pro-detail.css"/>
 <link rel="stylesheet" href="css/ws.css"/>
+<link rel="stylesheet" href="css/theme-final.css"/>
 <script>try{if(localStorage.getItem("dashview_surface")==="glass"){document.documentElement.setAttribute("data-surface","glass");var l=document.createElement("link");l.id="lg-glass-link";l.rel="stylesheet";l.setAttribute("blocking","render");l.href="css/liquid-glass.css";document.head.appendChild(l);}}catch(e){}</script>
 </head>
 <body class="dash-body">

@@ -715,7 +715,7 @@ var DVReportEngine = (function () {
   function loadExcelLib() {
     if (libState.excel.loaded) return Promise.resolve();
     if (libState.excel.loading) return libState.excel.loading;
-    libState.excel.loading = loadScript('https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js')
+    libState.excel.loading = loadScript('https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js', 'sha384-Pqp51FUN2/qzfxZxBCtF0stpc9ONI6MYZpVqmo8m20SoaQCzf+arZvACkLkirlPz')
       .then(function () { libState.excel.loaded = true; })
       .catch(function (err) { libState.excel.loading = null; throw err; });
     return libState.excel.loading;
@@ -723,8 +723,8 @@ var DVReportEngine = (function () {
   function loadPdfLib() {
     if (libState.pdf.loaded) return Promise.resolve();
     if (libState.pdf.loading) return libState.pdf.loading;
-    libState.pdf.loading = loadScript('https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js')
-      .then(function () { return loadScript('https://cdn.jsdelivr.net/npm/jspdf-autotable@5.0.8/dist/jspdf.plugin.autotable.min.js'); })
+    libState.pdf.loading = loadScript('https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js', 'sha384-qovJwSBbRDPP5cEjCp8S0UP66wrvnjaa60XMOGzTNanrThcrGfXfnZkvgY8N1KT3')
+      .then(function () { return loadScript('https://cdn.jsdelivr.net/npm/jspdf-autotable@5.0.8/dist/jspdf.plugin.autotable.min.js', 'sha384-5jk55M0XWoAw7LyhlXJe19ErOr3doBAPzxw9vahPFbvolqWa2yDk4fhHa2zuYeOa'); })
       .then(function () {
         // jsPDF-AutoTable v5's UMD build exposes a bare `applyPlugin` global rather than
         // self-attaching to jsPDF the way v3 did — wire it up once, idempotently.

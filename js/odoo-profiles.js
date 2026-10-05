@@ -17,7 +17,8 @@
         { label: 'Confirmed revenue', model: 'sale.order', domain: CONF, measure: 'amount_total', kind: 'money', sub: 'All confirmed orders' },
         { label: 'Revenue (30 days)', model: 'sale.order', domain: CONF.concat([['date_order', '>=', '$d30']]), measure: 'amount_total', kind: 'money', sub: 'Confirmed in the last 30 days' },
         { label: 'Open quotations', model: 'sale.order', domain: [['state', 'in', ['draft', 'sent']]], measure: 'amount_total', kind: 'count', sub: 'Waiting to be confirmed' },
-        { label: 'Orders (30 days)', model: 'sale.order', domain: CONF.concat([['date_order', '>=', '$d30']]), kind: 'count', sub: 'Confirmed in the last 30 days' }
+        { label: 'Orders (30 days)', model: 'sale.order', domain: CONF.concat([['date_order', '>=', '$d30']]), kind: 'count', sub: 'Confirmed in the last 30 days' },
+        { label: 'Products', model: 'product.template', domain: [], kind: 'count', sub: 'Open to check names and references' }
       ],
       charts: [
         { title: 'Revenue by month', model: 'sale.order', domain: CONF, groupby: 'date_order:month', measure: 'amount_total', type: 'bar', last: 12 },
