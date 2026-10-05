@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.12.0 - 2026-10-05
+- New: Error investigator - from any product error in Drill explorer > Data checks, open Investigate (or Compare side by side for duplicate groups). Root cause chain (error > product > stock > sales order > qty to deliver > blocked delivery), where-used counts across sales, quotations, deliveries, transfers, receipts, purchase, invoices, bills, manufacturing, BoMs, inventory adjustments, stock moves and reordering rules, stock by location / lot, sales, internal transfer and purchase impact, record lists with filters and Open in Odoo links, and CSV export (Error Type, Product, Reference, Module, Required, Available, Pending, Status, Root Cause)
+- Improved: Data checks can be filtered by product name / reference and category, and each check can be exported with stock impact
+
 ## 2.11.0 - 2026-10-05
 - New: Drill explorer 'Data checks' tab for products and contacts - duplicate names, exact duplicate records, missing / duplicate / badly formatted internal references and reference-base conflicts. Read by check or by company (company x check matrix, health score per company), each error explained (what it means, why it matters, how to fix, example), drill into affected records and CSV export
 - Improved: Drill explorer - Total / Average / Count switch, week, quarter and year levels, sortable columns, insights strip, row filter, keyboard arrows, retry on errors, richer CSV export
