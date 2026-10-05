@@ -117,7 +117,7 @@
     if (!spec || !spec.model) return;
     close(true);
     opener = from || document.activeElement;
-    D = { spec: spec, crumbs: (spec.crumbs || []).map(function (c) { return { label: c.label, domain: c.domain, dim: c.dim || '' }; }), days: periodDays(), all: !spec.date, dims: [], dim: null, rows: [], tot: null, mode: 'dim', recOffset: 0, searchTerm: '', recSeq: 0, metric: spec.measure ? 'sum' : 'count', sort: null, rowFilter: '', recSort: null, dq: null, dqSev: 'all', dqView: 'check', dqCo: 'all', dqOpen: {}, dqShow: {} };
+    D = { spec: spec, crumbs: (spec.crumbs || []).map(function (c) { return { label: c.label, domain: c.domain, dim: c.dim || '' }; }), days: periodDays(), all: !spec.date, dims: [], dim: null, rows: [], tot: null, mode: 'dim', recOffset: 0, searchTerm: '', recSeq: 0, metric: spec.measure ? 'sum' : 'count', sort: null, rowFilter: '', recSort: null, dq: null, dqSev: 'all', dqView: 'check', dqCo: 'all', dqOpen: {}, dqShow: {}, dqQ: '', dqCat: '', dqGroups: {} };
     var el = document.createElement('div'); el.id = 'dvdr'; el.className = 'dvdr';
     el.innerHTML = '<div class="dvdr-back" data-x="1"></div><aside class="dvdr-panel" role="dialog" aria-modal="true" aria-labelledby="dvdrT">' +
       '<header class="dvdr-h"><div><small>Drill explorer</small><h3 id="dvdrT">' + esc(spec.title || spec.model) + '</h3></div><button type="button" class="dvdr-x" data-x="1" aria-label="Close drill explorer">\u2715</button></header>' +
@@ -188,6 +188,9 @@
     var dqs = t.closest('[data-dq-sev]'); if (dqs) { D.dqSev = dqs.getAttribute('data-dq-sev'); paintDq(); return; }
     var dqt = t.closest('[data-dq-toggle]'); if (dqt) { var tid = dqt.getAttribute('data-dq-toggle'); D.dqOpen[tid] = !D.dqOpen[tid]; paintDq(); var again = document.querySelector('[data-dq-toggle="' + tid + '"]'); if (again) again.focus(); return; }
     var dqm = t.closest('[data-dq-more]'); if (dqm) { var mid = dqm.getAttribute('data-dq-more'); D.dqShow[mid] = (D.dqShow[mid] || DQ_SHOW) + 50; paintDq(); return; }
+    var dqi = t.closest('[data-dq-inv]'); if (dqi) { var ia = dqi.getAttribute('data-dq-inv').split('|'); invOpen([+ia[1]], ia[0], 'investigate', dqi); return; }
+    var dqg = t.closest('[data-dq-cmp]'); if (dqg) { var gr = D.dqGroups[dqg.getAttribute('data-dq-cmp')]; if (gr) invOpen(gr.ids, gr.check, 'compare', dqg); return; }
+    var dqx = t.closest('[data-dq-impact]'); if (dqx) { dqImpact(dqx.getAttribute('data-dq-impact'), dqx); return; }
     var dqd = t.closest('[data-dq-drill]'); if (dqd) { dqDrill(dqd.getAttribute('data-dq-drill')); return; }
     var cr = t.closest('[data-crumb]'); if (cr) { D.crumbs = D.crumbs.slice(0, +cr.getAttribute('data-crumb')); D.triedAlt = false; D.dim = pickDefault(); D.recOffset = 0; D.searchTerm = ''; D.recSort = null; resetRows(); refresh(); return; }
     var per = t.closest('[data-per]'); if (per) { D.all = per.getAttribute('data-per') === 'all'; D.recOffset = 0; refresh(); return; }
@@ -203,6 +206,12 @@
   function onInput(e) {
     if (!e.target || !D) return;
     if (e.target.id === 'dvdrDqCo') { D.dqCo = e.target.value === 'all' ? 'all' : +e.target.value; paintDq(); var sel = $('dvdrDqCo'); if (sel) sel.focus(); return; }
+    if (e.target.id === 'dvdrDqCat') { D.dqCat = e.target.value; paintDq(); var cs = $('dvdrDqCat'); if (cs) cs.focus(); return; }
+    if (e.target.id === 'dvdrDqQ') {
+      D.dqQ = e.target.value.trim().toLowerCase(); paintDq();
+      var qi = $('dvdrDqQ'); if (qi) { qi.focus(); try { qi.setSelectionRange(qi.value.length, qi.value.length); } catch (x) {} }
+      return;
+    }
     if (e.target.id === 'dvdrRowFilter') {
       D.rowFilter = e.target.value.trim().toLowerCase();
       var dm = curDim(); if (dm && D.rows.length) paintDim(dm);
@@ -592,6 +601,8 @@
       h += '<div class="dvdr-per dvdr-dq-sev" role="group" aria-label="Severity">' + [['all', 'All'], ['error', 'Errors'], ['warn', 'Warnings'], ['info', 'For review']].map(function (s2) {
         return '<button type="button" class="dvdr-pb' + (D.dqSev === s2[0] ? ' is-on' : '') + '" data-dq-sev="' + s2[0] + '" aria-pressed="' + (D.dqSev === s2[0]) + '">' + s2[1] + '</button>';
       }).join('') + '</div>';
+      h += '<label class="dvdr-dq-co">Product<input id="dvdrDqQ" type="search" maxlength="60" placeholder="Name or reference" value="' + esc(D.dqQ) + '" autocomplete="off"></label>';
+      var cats = dqCats(q); if (cats.length) h += '<label class="dvdr-dq-co">Category<select id="dvdrDqCat"><option value="">All categories</option>' + cats.map(function (c2) { return '<option value="' + esc(c2) + '"' + (D.dqCat === c2 ? ' selected' : '') + '>' + esc(short(c2, 30)) + '</option>'; }).join('') + '</select></label>';
       if (q.multi) h += '<label class="dvdr-dq-co">Company<select id="dvdrDqCo"><option value="all">All companies</option>' + q.companies.map(function (c) { return '<option value="' + c.key + '"' + (D.dqCo === c.key ? ' selected' : '') + '>' + esc(c.label) + ' (' + F.num(c.total, 0) + ')</option>'; }).join('') + '</select></label>';
     }
     return h + '</div>';
@@ -627,32 +638,62 @@
     return '<p class="dvdr-dq-lead">Errors by company. Each number is the count of ' + esc(p.noun) + 's with that problem; red headings are errors, amber warnings, blue for review.</p><div class="dvdr-scroll"><table class="dvdr-tb dvdr-mx"><thead>' + head + '</thead><tbody>' + rows + '</tbody><tfoot>' + foot + '</tfoot></table></div>';
   }
   function dqChecks(q, p) {
+    D.dqGroups = {};
     var sc = dqScope(q, D.dqCo), c = C.cfg ? C.cfg() : {}, base = odooBase(c);
     var list = sc.checks.filter(function (ch) { return D.dqSev === 'all' || ch.sev === D.dqSev; });
     var html = '';
     if (!sc.checks.length) return '<div class="dvdr-dq-ok"><b>No problems found</b><span>No duplicate names, missing or duplicate internal references, or reference-base conflicts' + (D.dqCo !== 'all' ? ' for ' + esc(dqCoLabel(D.dqCo)) : ' in this selection') + '.</span></div>';
     if (!list.length) return '<div class="dvdr-empty">Nothing in this group.</div>';
     list.forEach(function (ch) {
-      var open = !!D.dqOpen[ch.id], shown = D.dqShow[ch.id] || DQ_SHOW, rows = ch.list.slice(0, shown), ex = ch.list[0];
-      html += '<section class="dvdr-dq-c is-' + ch.sev + (open ? ' is-open' : '') + '" id="dq-' + ch.id + '"><button type="button" class="dvdr-dq-h" data-dq-toggle="' + ch.id + '" aria-expanded="' + open + '"><span class="dvdr-sev">' + SEV[ch.sev] + '</span><span class="dvdr-dq-t">' + esc(ch.title) + '</span><span class="dvdr-dq-n">' + F.num(ch.records, 0) + ' ' + esc(p.noun) + (ch.records === 1 ? '' : 's') + '</span><i aria-hidden="true">' + (open ? '\u25B2' : '\u25BC') + '</i></button><p class="dvdr-dq-why">' + esc(ch.means) + '</p>';
+      var cl = dqFiltered(ch); if (!cl.length) return;
+      var open = !!D.dqOpen[ch.id], shown = D.dqShow[ch.id] || DQ_SHOW, rows = cl.slice(0, shown), ex = cl[0], inv = invOk(), recs = (D.dqQ || D.dqCat) ? dqUnique(cl).length : ch.records;
+      html += '<section class="dvdr-dq-c is-' + ch.sev + (open ? ' is-open' : '') + '" id="dq-' + ch.id + '"><button type="button" class="dvdr-dq-h" data-dq-toggle="' + ch.id + '" aria-expanded="' + open + '"><span class="dvdr-sev">' + SEV[ch.sev] + '</span><span class="dvdr-dq-t">' + esc(ch.title) + '</span><span class="dvdr-dq-n">' + F.num(recs, 0) + ' ' + esc(p.noun) + (recs === 1 ? '' : 's') + '</span><i aria-hidden="true">' + (open ? '\u25B2' : '\u25BC') + '</i></button><p class="dvdr-dq-why">' + esc(ch.means) + '</p>';
       if (open) {
         var dom = dqDomain(ch), multiCo = q.multi && D.dqCo === 'all';
         html += '<div class="dvdr-dq-doc"><div><h5>Why it matters</h5><p>' + esc(ch.why) + '</p></div><div><h5>How to fix</h5><p>' + esc(ch.fix) + '</p></div><div><h5>Example from your data</h5><p>' + esc(short(ex.it.name.trim() || '(no name)', 40)) + ' \u00B7 <code>' + esc(ex.it.ref || 'no reference') + '</code>' + (ex.head ? '<br>' + esc(ex.head) : ex.detail ? '<br>' + esc(ex.detail) : '') + '</p></div></div>';
         if (multiCo) {
-          var per = {}; ch.list.forEach(function (x) { (per[x.it.ck] = per[x.it.ck] || {})[x.it.id] = 1; });
+          var per = {}; cl.forEach(function (x) { (per[x.it.ck] = per[x.it.ck] || {})[x.it.id] = 1; });
           html += '<div class="dvdr-dq-cos"><small>By company</small>' + q.companies.filter(function (co) { return per[co.key]; }).map(function (co) { return '<button type="button" class="dvdr-chip" data-dq-cell="' + co.key + '|' + ch.id + '">' + esc(short(co.label, 26)) + ' <b>' + Object.keys(per[co.key]).length + '</b></button>'; }).join('') + '</div>';
         }
-        var cols = 3 + (multiCo ? 1 : 0) + (p.cat ? 1 : 0), last = null;
+        var cols = 3 + (multiCo ? 1 : 0) + (p.cat ? 1 : 0), last = null, gseq = 0;
         html += '<div class="dvdr-scroll"><table class="dvdr-tb dvdr-dq-tb"><thead><tr><th>Name</th><th>Internal reference</th>' + (multiCo ? '<th>Company</th>' : '') + (p.cat ? '<th>Category</th>' : '') + '<th>Issue</th><th></th></tr></thead><tbody>' + rows.map(function (x) {
-          var gh = x.head && x.gk !== last ? '<tr class="dvdr-dq-gh"><td colspan="' + (cols + 1) + '">' + esc(x.head) + '</td></tr>' : '';
+          var gh = '';
+          if (x.head && x.gk !== last) {
+            var gid = ch.id + '|' + (++gseq), members = cl.filter(function (m) { return m.gk === x.gk; });
+            D.dqGroups[gid] = { ids: dqUnique(members).map(function (m) { return m.it.id; }), check: ch.id };
+            gh = '<tr class="dvdr-dq-gh"><td colspan="' + (cols + 1) + '">' + esc(x.head) + (inv && D.dqGroups[gid].ids.length > 1 && D.dqGroups[gid].ids.length <= 6 ? ' <button type="button" class="dvdr-open dvinv-lk" data-dq-cmp="' + gid + '">Compare side by side</button>' : '') + '</td></tr>';
+          }
           last = x.gk;
           var link = base ? '<a class="dvdr-open" target="_blank" rel="noopener noreferrer" href="' + esc(base + '/web#id=' + encodeURIComponent(x.it.id) + '&model=' + encodeURIComponent(D.spec.model) + '&view_type=form') + '">Open in Odoo \u2197</a>' : '';
-          return gh + '<tr class="dvdr-r"><td class="nm"><span title="' + esc(x.it.name) + '">' + esc(short(x.it.name || '\u2013', 44)) + '</span></td><td>' + (x.it.ref ? '<code>' + esc(x.it.ref.replace(/ /g, '\u00B7')) + '</code>' : '<span class="dvdr-na">\u2013</span>') + '</td>' + (multiCo ? '<td>' + esc(short(x.it.co, 24)) + '</td>' : '') + (p.cat ? '<td>' + (x.it.cat ? esc(short(x.it.cat, 28)) : '<span class="dvdr-na">\u2013</span>') + '</td>' : '') + '<td>' + (x.head && !multiCo && x.detail === x.it.co ? '<span class="dvdr-na">\u2013</span>' : esc(x.detail)) + '</td><td>' + link + '</td></tr>';
-        }).join('') + '</tbody></table></div><div class="dvdr-dq-act">' + (ch.list.length > shown ? '<button type="button" class="btn btn-outline btn-sm" data-dq-more="' + ch.id + '">Show 50 more (' + F.num(ch.list.length - shown, 0) + ' left)</button>' : '') + (dom ? '<button type="button" class="btn btn-primary btn-sm" data-dq-drill="' + ch.id + '">Drill into these records \u2192</button>' : '') + '</div>';
+          return gh + '<tr class="dvdr-r"><td class="nm"><span title="' + esc(x.it.name) + '">' + esc(short(x.it.name || '\u2013', 44)) + '</span></td><td>' + (x.it.ref ? '<code>' + esc(x.it.ref.replace(/ /g, '\u00B7')) + '</code>' : '<span class="dvdr-na">\u2013</span>') + '</td>' + (multiCo ? '<td>' + esc(short(x.it.co, 24)) + '</td>' : '') + (p.cat ? '<td>' + (x.it.cat ? esc(short(x.it.cat, 28)) : '<span class="dvdr-na">\u2013</span>') + '</td>' : '') + '<td>' + (x.head && !multiCo && x.detail === x.it.co ? '<span class="dvdr-na">\u2013</span>' : esc(x.detail)) + '</td><td>' + link + (inv ? ' <button type="button" class="dvdr-open dvinv-lk" data-dq-inv="' + ch.id + '|' + x.it.id + '">Investigate</button>' : '') + '</td></tr>';
+        }).join('') + '</tbody></table></div><div class="dvdr-dq-act">' + (cl.length > shown ? '<button type="button" class="btn btn-outline btn-sm" data-dq-more="' + ch.id + '">Show 50 more (' + F.num(cl.length - shown, 0) + ' left)</button>' : '') + (inv ? '<button type="button" class="btn btn-outline btn-sm" data-dq-impact="' + ch.id + '">Export with stock impact</button>' : '') + (dom ? '<button type="button" class="btn btn-primary btn-sm" data-dq-drill="' + ch.id + '">Drill into these records \u2192</button>' : '') + '</div>';
       }
       html += '</section>';
     });
     return html;
+  }
+  /* ── filters + hand-off to the Error Investigator (js/exec-errors.js) ── */
+  function invOk() { return !!window.DVInvestigate && !!(D && D.spec && /^product\./.test(D.spec.model)); }
+  function dqUnique(list) { var seen = {}, out = []; list.forEach(function (x) { if (!seen[x.it.id]) { seen[x.it.id] = 1; out.push(x); } }); return out; }
+  function dqCats(q) { var m = {}; q.checks.forEach(function (ch) { ch.list.forEach(function (x) { if (x.it.cat) m[x.it.cat] = 1; }); }); return Object.keys(m).sort(); }
+  function dqFiltered(ch) {
+    var t = D.dqQ, c = D.dqCat; if (!t && !c) return ch.list;
+    return ch.list.filter(function (x) { return (!c || x.it.cat === c) && (!t || (x.it.name + ' ' + x.it.ref).toLowerCase().indexOf(t) > -1); });
+  }
+  function dqCheckById(id) { var sc = D.dq && dqScope(D.dq, D.dqCo); return sc && sc.checks.filter(function (x) { return x.id === id; })[0]; }
+  function invOpen(ids, checkId, mode, from) {
+    var ch = dqCheckById(checkId); if (!window.DVInvestigate || !ch || !ids.length) return;
+    window.DVInvestigate.open({ model: D.spec.model, ids: ids, mode: mode, check: { id: ch.id, title: ch.title, sev: ch.sev, means: ch.means, why: ch.why, fix: ch.fix } }, from);
+  }
+  function dqImpact(checkId, btn) {
+    var ch = dqCheckById(checkId), I = window.DVInvestigate; if (!ch || !I) return;
+    var items = dqUnique(dqFiltered(ch)).slice(0, 300).map(function (x) { return { id: x.it.id, name: x.it.name, ref: x.it.ref, detail: x.head || x.detail || '' }; });
+    var old = btn.textContent; btn.disabled = true; btn.textContent = 'Reading stock and sales\u2026';
+    I.impactRows(D.spec.model, items, { title: ch.title }).then(function (rows) {
+      F.download('error-impact-' + ch.id + '-' + new Date().toISOString().slice(0, 10) + '.csv', F.csv([I.HEAD].concat(rows)));
+      secLog('Exported error impact', D.spec.model + ' \u00B7 ' + ch.id + ' \u00B7 ' + rows.length + ' rows');
+      if (window.showToast) window.showToast('Exported ' + F.num(rows.length, 0) + ' rows' + (dqUnique(dqFiltered(ch)).length > 300 ? ' (first 300 records)' : '') + '.');
+    }).catch(function (e) { if (window.showToast) window.showToast((e && e.message) || 'Could not export the impact.'); }).then(function () { btn.disabled = false; btn.textContent = old; });
   }
   /* Odoo accepts at most 100 values per "in" list, so very large groups are reviewed in this panel and exported instead. */
   function dqDomain(ch) {
