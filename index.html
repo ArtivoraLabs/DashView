@@ -9,13 +9,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>DashView — Your Odoo data, ready to act on</title>
 <meta name="description" content="DashView connects to Odoo read-only and shows sales, hiring, tasks and teams in one live dashboard, with an AI assistant and a BI studio on the same data."/>
-<meta name="theme-color" content="#0a0e13"/>
+<meta name="theme-color" content="#0f0b09"/>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png"/>
 <link rel="manifest" href="manifest.json"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;700;800&family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 :root{
   --bg:#0a0c0b;--surface:#0f1210;--elevated:#141815;--card:#171c18;
@@ -435,6 +435,34 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
   </div>
 </section>
 
+<!-- ══════════ PRODUCT SHOT ══════════ -->
+<section class="section shot" id="product">
+  <div class="container">
+    <div class="shot-frame">
+      <div class="shot-bar"><span class="sd"></span><span class="sd"></span><span class="sd"></span><em>dashview · overview</em><b>Sample data</b></div>
+      <div class="shot-body">
+        <aside class="shot-side"><i class="on">Dashboard</i><i>People</i><i>Tasks</i><i>Team</i><i>Data Studio</i><i>AI Assistant</i></aside>
+        <div class="shot-main">
+          <div class="shot-kpis">
+            <div><span>Revenue</span><strong>$482k</strong><em>+8.4%</em></div>
+            <div><span>Open orders</span><strong>1,284</strong><em>+12%</em></div>
+            <div><span>CVs received</span><strong>86</strong><em>+9</em></div>
+            <div><span>Interviews</span><strong>23</strong><em>+4</em></div>
+          </div>
+          <div class="shot-row">
+            <div class="shot-card"><h4>Sales this quarter</h4>
+              <div class="shot-bars" aria-hidden="true"><i style="height:34%"></i><i style="height:46%"></i><i style="height:41%"></i><i style="height:58%"></i><i style="height:52%"></i><i style="height:70%"></i><i style="height:64%"></i><i style="height:82%"></i><i style="height:76%"></i><i style="height:94%"></i><i style="height:88%"></i><i style="height:100%"></i></div></div>
+            <div class="shot-card"><h4>Team targets</h4>
+              <div class="shot-prog"><span>Recruitment</span><b><u style="width:86%"></u></b><em>86%</em></div>
+              <div class="shot-prog"><span>Sales team</span><b><u style="width:64%"></u></b><em>64%</em></div>
+              <div class="shot-prog"><span>Support</span><b><u style="width:92%"></u></b><em>92%</em></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ══════════ MODULES ══════════ -->
 <section class="section" id="capabilities">
   <div class="container">
@@ -466,6 +494,18 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
         <div class="bento-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="4"/></svg></div>
         <div><h3>Data Studio &amp; AI Assistant</h3><p>Import a CSV or Excel file, or ask a question in plain language. Both run in the browser by default.</p></div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ ROLES ══════════ -->
+<section class="section-tight" style="border-top:1px solid var(--border)">
+  <div class="container">
+    <div class="section-head wide"><p class="kicker">Who it's for</p><h2>One view for every person who runs the business.</h2></div>
+    <div class="role-grid">
+      <div class="role-card"><h3>Owners and managers</h3><p>See sales and team progress first thing in the morning, then drill into any number.</p></div>
+      <div class="role-card"><h3>HR and recruiters</h3><p>Track CVs received and interviews held without building a spreadsheet.</p></div>
+      <div class="role-card"><h3>Team leads</h3><p>Assign targets to people and watch them close as work is done in Odoo.</p></div>
     </div>
   </div>
 </section>
@@ -642,7 +682,7 @@ function applyTheme(t) {
   document.documentElement.setAttribute('data-theme', t);
   try { localStorage.setItem('dashview-theme', t); } catch (e) {}
   const meta = qs('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', t === 'light' ? '#f6f8fa' : '#0a0e13');
+  if (meta) meta.setAttribute('content', t === 'light' ? '#fbf6ef' : '#0f0b09');
   const btn = qs('#themeToggle');
   if (btn) btn.setAttribute('aria-label', t === 'light' ? 'Switch to dark theme' : 'Switch to light theme');
 }
