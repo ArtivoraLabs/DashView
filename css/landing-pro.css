@@ -1,0 +1,77 @@
+/* landing-pro.css — theme refresh + detailing for index.html. Loads last, so it wins. Delete the <link> to revert. */
+
+/* ── Theme: deep slate + teal. Variable names are unchanged, so every existing rule picks this up. ── */
+:root{
+  --bg:#0a0e13;--surface:#0f141b;--elevated:#131a22;--card:#161e28;
+  --border:rgba(148,170,200,.14);--border-b:rgba(60,201,173,.38);
+  --amber:#3cc9ad;--amber2:#6fdcc6;--green:#4fc08a;--red:#ef6b5b;
+  --grad:linear-gradient(120deg,#2fb89c,#3cc9ad);
+  --text:#e8eef5;--text2:rgba(232,238,245,.68);--text3:rgba(232,238,245,.46);
+  --shadow-md:0 12px 32px -14px rgba(0,0,0,.6);--shadow-lg:0 30px 70px -24px rgba(0,0,0,.75);
+  --nav-bg:rgba(10,14,19,.82);--r-md:10px;--r-lg:16px;
+}
+html[data-theme="light"]{
+  --bg:#f6f8fa;--surface:#ffffff;--elevated:#ffffff;--card:#eef2f6;
+  --border:rgba(15,23,42,.1);--border-b:rgba(15,118,110,.34);
+  --amber:#0f766e;--amber2:#115e59;--green:#15803d;--red:#c2410c;
+  --text:#0f172a;--text2:rgba(15,23,42,.68);--text3:rgba(15,23,42,.5);
+  --shadow-md:0 12px 30px -14px rgba(15,23,42,.16);--shadow-lg:0 26px 60px -22px rgba(15,23,42,.2);
+  --nav-bg:rgba(246,248,250,.86);
+}
+html{scroll-padding-top:calc(var(--nav-h) + 16px)}
+
+/* Colours that were hard-coded to the old amber */
+.btn-primary{color:#04201a}
+html[data-theme="light"] .btn-primary{color:#fff}
+.btn-primary:hover{background:var(--amber2)}
+.btn-outline:hover,.nav-links a:hover{background:color-mix(in srgb,var(--amber) 9%,transparent)}
+.hero-glow{background:radial-gradient(ellipse,color-mix(in srgb,var(--amber) 20%,transparent),transparent 68%)}
+.hero-badge{background:color-mix(in srgb,var(--amber) 8%,transparent)}
+.bento-icon{background:color-mix(in srgb,var(--amber) 12%,transparent)}
+.nav-logo-ring svg path{stroke:#04201a}
+html[data-theme="light"] .nav-logo-ring svg path{stroke:#fff}
+
+/* Hero: tighter headline, plain-language badge, stronger panel */
+.hero-h1{font-size:clamp(2.5rem,5.4vw,4.2rem);max-width:12em}
+.hero-badge{font-family:var(--f-body);font-weight:500}
+.hero-proof{gap:40px}
+.hero-proof-item strong{font-size:1.05rem}
+.hero-proof-item span{font-size:.8125rem}
+.hero-panel{border-radius:var(--r-lg);box-shadow:var(--shadow-lg),0 0 0 1px color-mix(in srgb,var(--amber) 6%,transparent)}
+
+/* Module strip: quiet labels, not logos */
+.trust{padding:40px 0}
+.trust-row{gap:14px 40px}
+.trust-row span{font-size:.9375rem;font-weight:600;opacity:1;color:var(--text2)}
+.trust-row span::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--amber);margin-right:10px;vertical-align:middle}
+
+/* Cards: one calm hover, consistent radius */
+.bento-card,.sec-card,.dash-frame,.hero-panel{border-radius:var(--r-lg)}
+.bento-card{padding:28px;background:var(--surface)}
+.bento-card:hover{transform:none;border-color:var(--border-b);box-shadow:var(--shadow-md)}
+.bento-card h3{font-size:1.0625rem}
+.bento-card p{color:var(--text2)}
+.bento{grid-auto-rows:minmax(190px,auto)}
+
+/* Steps: three rows read better with softer numbering */
+.step-num{background:color-mix(in srgb,var(--amber) 10%,var(--surface));color:var(--amber);font-family:var(--f-display);font-weight:700}
+.step-visual{border-radius:var(--r-md);background:var(--surface)}
+
+/* Dashboard sample + FAQ + CTA */
+.dash-chart i{background:linear-gradient(180deg,var(--amber2),var(--amber));opacity:.9}
+.dash-frame-bar span:last-child{color:var(--amber)}
+.faq-item{border-radius:var(--r-md)}
+.faq-item[open] summary{color:var(--amber)}
+.cta-band{border-radius:var(--r-xl);background:linear-gradient(160deg,color-mix(in srgb,var(--amber) 10%,var(--surface)),var(--surface) 70%);border:1px solid var(--border-b)}
+.cta-band h2{margin-bottom:10px}
+.cta-input{border-radius:10px}
+
+/* Footer */
+.footer-bottom{color:var(--text3)}
+
+@media(max-width:900px){
+  .hero-h1{max-width:none}
+  .hero-proof{gap:24px}
+  .bento-card{padding:22px}
+}
+@media(prefers-reduced-motion:reduce){.hero-badge-dot{animation:none}}
