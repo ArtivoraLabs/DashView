@@ -366,6 +366,7 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
 </head>
 <body>
 <!-- ══════════ NAV ══════════ -->
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 <header class="nav" id="nav">
   <div class="nav-inner">
     <a href="index.html" class="nav-brand">
@@ -460,6 +461,12 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
         </div>
       </div>
     </div>
+    <div class="shot-feats">
+      <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Light and dark themes, on desktop and phone</span>
+      <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Export reports and share read-only views</span>
+      <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Install it as an app on your device</span>
+      <a href="dashboard.html" class="btn btn-outline btn-sm">Open the live dashboard</a>
+    </div>
   </div>
 </section>
 
@@ -476,6 +483,7 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
         <div><div class="bento-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 20V10M12 20V4M20 20v-7"/></svg></div>
         <h3>Sales dashboard</h3>
         <p>Revenue, orders and trends straight from Odoo, with drill-downs from company level to a single record.</p></div>
+        <svg class="spark" viewBox="0 0 400 90" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".32"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path d="M0 72C40 68 60 54 100 57S160 32 200 40 270 22 310 26 370 10 400 14V90H0Z" fill="url(#sg)"/><path d="M0 72C40 68 60 54 100 57S160 32 200 40 270 22 310 26 370 10 400 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="400" cy="14" r="4" fill="currentColor"/></svg>
         <div class="bento-mini"><div><span class="dot"></span>Company, retail and error views</div><div><span class="dot"></span>Drill from a total to its records</div><div><span class="dot"></span>Share a read-only view</div></div>
       </div>
       <div class="bento-card b-md">
@@ -528,36 +536,6 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
         <div class="step-text"><h3>Watch it complete</h3><p>As records change in Odoo, dashboards and targets update without anyone filling in a status report.</p></div>
         <div class="step-visual"><div class="add">Target completed</div><div>Detected from Odoo activity</div></div></div></div>
     </div></div>
-  </div>
-</section>
-
-<!-- ══════════ PREVIEW ══════════ -->
-<section class="section" style="border-top:1px solid var(--border)">
-  <div class="container">
-    <div class="dash-preview">
-      <div>
-        <p class="kicker">The dashboard</p>
-        <h2 style="margin-bottom:16px">Open it in the morning. Know where things stand.</h2>
-        <p style="font-size:.95rem;margin-bottom:26px;max-width:420px">Key numbers sit at the top, trends underneath, and every figure links back to the Odoo records behind it.</p>
-        <ul class="dash-list">
-          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg><span>Light and dark themes, on desktop and phone</span></li>
-          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg><span>Export reports and share read-only views</span></li>
-          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg><span>Install it as an app on your device</span></li>
-        </ul>
-        <a href="dashboard.html" class="btn btn-outline" style="margin-top:8px">Open the live dashboard</a>
-      </div>
-      <div class="dash-frame">
-        <div class="dash-frame-bar"><span>overview</span><span>Sample data</span></div>
-        <div class="dash-frame-body">
-          <div class="dash-kpis">
-            <div class="dash-kpi"><span>Orders</span><strong>1,284<em>+12%</em></strong></div>
-            <div class="dash-kpi"><span>CVs received</span><strong>86<em>+9</em></strong></div>
-            <div class="dash-kpi"><span>Targets done</span><strong>14/18</strong></div>
-          </div>
-          <div class="dash-chart" aria-hidden="true"><i style="height:38%"></i><i style="height:52%"></i><i style="height:44%"></i><i style="height:68%"></i><i style="height:60%"></i><i style="height:82%"></i><i style="height:71%"></i><i style="height:90%"></i><i style="height:78%"></i><i style="height:94%"></i></div>
-        </div>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -829,6 +807,26 @@ on(document, 'keydown', e => {
   function inst(){var t=window.DV&&DV.status();ip.hidden=!(t&&t.canInstall&&!t.installed)}
   ib.addEventListener('click',function(){DV.install().then(inst)});
   addEventListener('dv:installable',inst);addEventListener('dv:installed',inst);inst();
+})();
+</script>
+<script>
+(function(){
+  var h=document.documentElement;
+  var rv=[].slice.call(document.querySelectorAll('.section-head,.bento-card,.role-card,.step,.sec-card,.faq-item,.shot-frame,.shot-feats,.cta-band'));
+  if('IntersectionObserver' in window){
+    h.classList.add('js-rv');
+    var io2=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io2.unobserve(e.target)}})},{threshold:.12,rootMargin:'0px 0px -6% 0px'});
+    rv.forEach(function(el){if(el.getBoundingClientRect().top<innerHeight)return;el.classList.add('rv');io2.observe(el)});
+    var links=[].slice.call(document.querySelectorAll('.nav-links a[href^="#"]'));
+    var spy=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+e.target.id)})}})},{rootMargin:'-45% 0px -50% 0px'});
+    links.forEach(function(a){var t=document.querySelector(a.getAttribute('href'));if(t)spy.observe(t)});
+  }
+  var bar=document.getElementById('scrollProgress');
+  function sp(){var m=h.scrollHeight-innerHeight;bar.style.transform='scaleX('+(m>0?Math.min(scrollY/m,1):0)+')'}
+  addEventListener('scroll',sp,{passive:true});sp();
+  document.querySelectorAll('.bento-card,.role-card,.sec-card,.shot-card').forEach(function(c){
+    c.addEventListener('pointermove',function(e){var r=c.getBoundingClientRect();c.style.setProperty('--mx',(e.clientX-r.left)+'px');c.style.setProperty('--my',(e.clientY-r.top)+'px')});
+  });
 })();
 </script>
 </body>

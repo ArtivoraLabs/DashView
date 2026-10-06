@@ -287,3 +287,75 @@ html[data-theme="light"] .hero-float i b{background:linear-gradient(90deg,var(--
   .shot-body{grid-template-columns:1fr}.shot-side{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--border);padding:12px}.shot-side i{white-space:nowrap}
   .shot-kpis{grid-template-columns:repeat(2,1fr)}.shot-row,.role-grid{grid-template-columns:1fr}
 }
+
+/* ══ Executive polish: type, motion, interaction ══ */
+h1,h2,h3{text-wrap:balance}
+p,.faq-item p,.role-card p{text-wrap:pretty}
+.shot-kpis strong,.dash-kpi strong,.hero-float strong,.hero-proof-item strong,.shot-prog em{font-variant-numeric:tabular-nums}
+::selection{background:color-mix(in srgb,var(--amber) 38%,transparent);color:var(--text)}
+html{scrollbar-color:color-mix(in srgb,var(--amber) 40%,var(--card)) var(--bg);scrollbar-width:thin}
+
+/* Reading progress */
+.scroll-progress{position:fixed;top:0;left:0;right:0;height:2px;z-index:300;background:var(--grad);transform:scaleX(0);transform-origin:0 50%;will-change:transform}
+
+/* Nav: active section */
+.nav-links a.active{color:var(--text);background:color-mix(in srgb,var(--amber) 12%,transparent)}
+.nav.scrolled{backdrop-filter:blur(22px) saturate(160%)}
+
+/* Reveal: one calm entrance per block, only when JS is on */
+.js-rv .rv{opacity:0;transform:translateY(16px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
+.js-rv .rv.in{opacity:1;transform:none}
+.js-rv .bento-card.rv:nth-child(2n).in,.js-rv .role-card.rv:nth-child(2).in,.js-rv .sec-card.rv:nth-child(2).in{transition-delay:.08s}
+.js-rv .role-card.rv:nth-child(3).in,.js-rv .sec-card.rv:nth-child(3).in{transition-delay:.16s}
+.js-rv .sec-card.rv:nth-child(4).in{transition-delay:.24s}
+@media(prefers-reduced-motion:reduce){.js-rv .rv{opacity:1;transform:none;transition:none}}
+
+/* Hero: one gentle drift on the floating cards */
+@keyframes dv-drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.hf-b{animation:dv-drift 7s ease-in-out infinite}
+.hf-a{animation:dv-drift 8s ease-in-out -3s infinite}
+@media(prefers-reduced-motion:reduce){.hf-a,.hf-b{animation:none}}
+
+/* Buttons: tactile */
+.btn{transition:transform .2s cubic-bezier(.16,1,.3,1),box-shadow .2s,filter .2s,background-color .2s,border-color .2s,color .2s}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn-primary:hover{box-shadow:0 14px 34px -10px color-mix(in srgb,var(--amber) 75%,transparent)}
+
+/* Cards: cursor spotlight + hairline highlight */
+.bento-card,.role-card,.sec-card,.shot-card{position:relative;overflow:hidden}
+.bento-card::before,.role-card::before,.sec-card::before,.shot-card::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .35s;background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),color-mix(in srgb,var(--amber) 15%,transparent),transparent 70%)}
+.bento-card:hover::before,.role-card:hover::before,.sec-card:hover::before,.shot-card:hover::before{opacity:1}
+.bento-card>*,.role-card>*,.sec-card>*,.shot-card>*{position:relative}
+.role-card{transition:border-color .25s,box-shadow .25s}
+.role-card:hover{box-shadow:var(--shadow-md);border-right-color:var(--border-b);border-bottom-color:var(--border-b);border-left-color:var(--border-b)}
+
+/* Sales card sparkline */
+.spark{display:block;width:100%;height:84px;margin:auto 0 18px;color:var(--amber)}
+
+/* Product feature strip */
+.shot-feats{display:flex;flex-wrap:wrap;align-items:center;gap:14px 32px;margin-top:28px}
+.shot-feats span{display:inline-flex;align-items:center;gap:10px;font-size:.9375rem;color:var(--text2)}
+.shot-feats svg{color:var(--amber);flex-shrink:0}
+.shot-feats .btn{margin-left:auto}
+
+/* FAQ: heading left, answers right */
+#faq .container{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:24px 72px;align-items:start}
+#faq .section-head{margin-bottom:0;position:sticky;top:calc(var(--nav-h) + 24px)}
+#faq .faq-list{max-width:none}
+.faq-item{transition:background-color .2s}
+.faq-item summary .plus{transition:transform .25s cubic-bezier(.16,1,.3,1)}
+.faq-item[open] summary .plus{transform:rotate(45deg)}
+.faq-item[open]{background:color-mix(in srgb,var(--amber) 4%,transparent)}
+
+/* Section dividers fade at the edges instead of hard lines */
+.footer{border-top:0;position:relative}
+.footer::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border-b),transparent)}
+.cta-band{position:relative;overflow:hidden}
+.cta-band::after{content:"";position:absolute;inset:-40% -10% auto auto;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.18),transparent 68%);pointer-events:none}
+
+@media(max-width:900px){
+  #faq .container{grid-template-columns:1fr}
+  #faq .section-head{position:static}
+  .shot-feats .btn{margin-left:0}
+}
