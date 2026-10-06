@@ -75,3 +75,58 @@ html[data-theme="light"] .nav-logo-ring svg path{stroke:#fff}
   .bento-card{padding:22px}
 }
 @media(prefers-reduced-motion:reduce){.hero-badge-dot{animation:none}}
+
+/* ══ Detail pass ══ */
+/* Console: dark in both themes so the one live element always reads clearly */
+.hero-panel{background:#0b1117;border-color:rgba(148,170,200,.18)}
+.hero-panel-bar{background:#101821;border-color:rgba(148,170,200,.14)}
+.hero-panel .hp-title{color:rgba(232,238,245,.55)}
+.hero-panel-body{min-height:340px;color:#e8eef5}
+.hero-panel .t-prompt{color:#3cc9ad}
+.hero-panel .t-cmd{color:#e8eef5}
+.hero-panel .t-out{color:rgba(232,238,245,.62)}
+.hero-panel .t-ok{color:#4fc08a}
+.hero-panel .hp-dots span{opacity:.9}
+
+/* Module cards: even rhythm, details pinned to the bottom */
+.bento-card{justify-content:flex-start;gap:0}
+.bento-card h3{margin-top:18px}
+.bento-card .bento-mini{margin-top:auto}
+.bento-card.b-lg>div:first-child{margin-bottom:24px}
+.bento-icon{width:40px;height:40px;border-radius:10px;border-color:color-mix(in srgb,var(--amber) 28%,transparent)}
+
+/* Steps: one line per row, stable in both themes */
+.step-visual>div{padding:1px 0}
+.step-visual .add{color:var(--green)}
+.step-num{width:36px;height:36px;border-radius:10px}
+.step-text h3{font-size:1.1875rem}
+
+/* Section rhythm and headings */
+.section-head h2{font-size:clamp(1.75rem,3.2vw,2.5rem);letter-spacing:-.03em}
+.kicker{color:var(--amber);font-weight:600}
+.trust-label{text-transform:none;letter-spacing:0;font-family:var(--f-body);font-size:.875rem}
+
+/* Security grid and KPI tiles */
+.sec-card{padding:30px 26px}
+.sec-card h3{margin-bottom:6px}
+.sec-card p{font-size:.875rem;color:var(--text2)}
+.dash-kpi{border-radius:10px}
+.dash-kpi strong{font-size:1.3rem;letter-spacing:-.02em}
+.dash-frame{box-shadow:var(--shadow-lg)}
+
+/* Nav and focus polish */
+.nav.scrolled{box-shadow:0 1px 0 var(--border)}
+.btn:focus-visible,.faq-item summary:focus-visible,.theme-toggle:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+.faq-item summary{font-size:1rem;font-weight:600}
+.faq-item p{max-width:62ch;color:var(--text2)}
+.footer-col a,.footer-col button{color:var(--text2)}
+.footer-col a:hover,.footer-col button:hover{color:var(--amber)}
+
+/* Step visuals: stack lines (index-pro.css makes this a flex row) */
+.step-visual{flex-direction:column;align-items:flex-start;justify-content:center;gap:2px}
+.hero-panel .t-out{color:rgba(232,238,245,.72)}
+
+/* Console window dots: conventional red / yellow / green */
+.hp-dots span:nth-child(1){background:#ef6b5b}
+.hp-dots span:nth-child(2){background:#e8b43d}
+.hp-dots span:nth-child(3){background:#4fc08a}
