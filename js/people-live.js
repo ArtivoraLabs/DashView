@@ -199,10 +199,10 @@
       head(f, 'name', 'Name') + head(f, 'job', 'Job') + head(f, 'dept', 'Department') + head(f, 'manager', 'Manager') + head(f, 'type', 'Type') + head(f, 'status', 'Availability') +
       (showTasks ? head(f, 'open', 'Open tasks', 'num') : '') + head(f, 'joined', 'Joined') + '</tr></thead><tbody>' + slice.map(function (e) {
         return '<tr><td><span class="ws-person">' + av(e.name) + '<span><button type="button" class="ws-cell-title" data-lv="emp" data-id="' + e.id + '">' + esc(e.name) + '</button>' +
-          (e.email ? '<br><small class="ws-muted">' + esc(e.email) + '</small>' : '') + '</span></span></td><td>' + dash(e.job) + '</td><td>' + dash(e.dept) + '</td><td>' + dash(e.manager) + '</td><td>' + esc(e.type) + '</td>' +
+          (e.email ? '<br><small class="ws-muted">' + esc(e.email) + '</small>' : '') + '</span></span></td><td>' + dash(e.job) + '</td><td>' + dash(e.dept) + '</td><td>' + dash(e.manager) + '</td><td class="nw">' + esc(e.type) + '</td>' +
           '<td>' + (e.leave ? '<span class="ws-pill leave" title="' + esc(e.leave.type) + '">On time off</span>' : '<span class="ws-pill active">Available</span>') + '</td>' +
           (showTasks ? '<td class="num">' + (e.userId ? e.open + (e.overdue ? ' <small class="hr-late" title="Overdue">(' + e.overdue + ' late)</small>' : '') : '<span class="ws-muted" title="No linked Odoo user">—</span>') + '</td>' : '') +
-          '<td>' + (e.joined ? esc(WS.fmtDate(e.joined)) : '<span class="ws-muted">—</span>') + '</td></tr>';
+          '<td class="nw">' + (e.joined ? esc(WS.fmtDate(e.joined)) : '<span class="ws-muted">—</span>') + '</td></tr>';
       }).join('') + '</tbody></table></div>' + pager(f, list.length, 'employees');
   }
 
@@ -313,8 +313,8 @@
           var iv = nextInterview(a);
           return '<tr><td><span class="ws-person">' + av(a.name) + '<span>' + esc(a.name) + (a.email ? '<br><small class="ws-muted">' + esc(a.email) + '</small>' : '') + '</span></span></td><td>' + dash(a.job) + '</td>' +
             '<td><span class="ws-pill ' + (a.status === 'hired' ? 'hired' : a.status === 'ongoing' ? (HR.reachedInterview(a) ? 'interview' : 'applied') : 'rejected') + '">' + esc(a.status === 'refused' || a.status === 'archived' ? 'Not selected' : a.stage) + '</span></td>' +
-            '<td>' + dash(a.source) + '</td><td>' + dash(a.recruiter) + '</td><td>' + esc(dateShort(a.created)) + ' <small class="ws-muted">' + esc(ago(a.created)) + '</small></td>' +
-            '<td>' + (iv ? (iv.upcoming ? '<span class="hr-chip is-soon">' + esc(dateShort(iv.at)) + '</span>' : esc(dateShort(iv.at)) + ' <small class="ws-muted">done</small>') : '<span class="ws-muted">—</span>') + '</td><td>' + odooLink('hr.applicant', a.id, 'Open ' + a.name + ' in Odoo') + '</td></tr>';
+            '<td>' + dash(a.source) + '</td><td>' + dash(a.recruiter) + '</td><td class="nw">' + esc(dateShort(a.created)) + ' <small class="ws-muted">' + esc(ago(a.created)) + '</small></td>' +
+            '<td class="nw">' + (iv ? (iv.upcoming ? '<span class="hr-chip is-soon">' + esc(dateShort(iv.at)) + '</span>' : esc(dateShort(iv.at)) + ' <small class="ws-muted">done</small>') : '<span class="ws-muted">—</span>') + '</td><td>' + odooLink('hr.applicant', a.id, 'Open ' + a.name + ' in Odoo') + '</td></tr>';
         }).join('') + '</tbody></table></div>' + pager(f, list.length, 'applications');
     }
     return errors('hiring') + recFilters() + summary + body;

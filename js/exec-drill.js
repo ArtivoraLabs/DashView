@@ -293,11 +293,17 @@
     if (D.spec.date && f[D.spec.date]) cols.push(D.spec.date);
     if (D.spec.measure && f[D.spec.measure]) cols.push(D.spec.measure);
     cols = cols.filter(function (v, i, a) { return a.indexOf(v) === i; });
+    D.refMode = refMode();
+    if (D.refMode === 'self') {                        /* products: Internal Reference right after the name */
+      cols = cols.filter(function (k) { return k !== 'default_code'; });
+      var ni = cols.indexOf('name'); cols.splice(ni < 0 ? 0 : ni + 1, 0, 'default_code');
+    }
     var domain = baseDomain().concat(window_(false), searchDomain(f));
     D.recCols = cols;
     C.records(D.spec.model, Object.assign({ domain: domain, fields: cols.length ? cols : undefined, limit: PAGE_SIZE, offset: D.recOffset, order: recOrder(f) }, ids())).then(function (r) {
       if (!alive(my) || myRec !== D.recSeq) return;
-      D.sortRetried = false; D.recRows = r.rows || []; D.recTotal = r.total || 0; paintRecords();
+      D.sortRetried = false; D.recRows = r.rows || []; D.recTotal = r.total || 0;
+      loadRefInfo().then(function () { if (alive(my) && myRec === D.recSeq) paintRecords(); });
     }).catch(function (e) {
       if (!alive(my) || myRec !== D.recSeq) return;
       if (D.recSort && !D.sortRetried) { D.sortRetried = true; D.recSort = null; loadRecords(my); return; }   /* a field Odoo cannot sort by: fall back to the default order */
@@ -433,9 +439,62 @@
     }
   }
   function hover(evt, els) { var c = evt && evt.native && evt.native.target; if (c) c.style.cursor = els && els.length ? 'pointer' : 'default'; }
+  /* ── Internal references on record lists ─────────────────────────────────
+     Products show their Internal Reference (SKU); documents with a product line (orders, invoices, moves)
+     get an extra "Internal reference" column. Missing and duplicated references are flagged in place. */
+  function refMode() {
+    var f = D.fields || {}, m = D.spec.model;
+    if ((m === 'product.template' || m === 'product.product') && f.default_code) return 'self';
+    var pf = f.product_id; return pf && pf.type === 'many2one' && /^product\.(product|template)$/.test(pf.relation || '') ? 'line' : '';
+  }
+  function refModel() { return D.refMode === 'self' ? D.spec.model : (D.fields.product_id && D.fields.product_id.relation); }
+  function loadRefInfo() {
+    D.refDup = {}; D.refMap = {};
+    var rows = D.recRows || [], mode = D.refMode;
+    if (!mode || !rows.length) return Promise.resolve();
+    var pull;
+    if (mode === 'self') { pull = Promise.resolve(rows.map(function (r) { return str(r.default_code); })); }
+    else {
+      var pids = []; rows.forEach(function (r) { if (Array.isArray(r.product_id) && pids.indexOf(r.product_id[0]) < 0) pids.push(r.product_id[0]); });
+      if (!pids.length) return Promise.resolve();
+      pull = C.records(refModel(), Object.assign({ domain: [['id', 'in', pids]], fields: ['default_code'], limit: pids.length }, ids())).then(function (res) {
+        (res.rows || []).forEach(function (x) { D.refMap[x.id] = str(x.default_code); });
+        return pids.map(function (id) { return D.refMap[id]; });
+      });
+    }
+    return pull.then(function (list) {
+      var refs = list.filter(function (v, i, a) { return v && a.indexOf(v) === i; });
+      if (!refs.length) return;
+      return C.readGroup(refModel(), Object.assign({ domain: [['default_code', 'in', refs]], fields: [], groupby: ['default_code'] }, ids())).then(function (gs) {
+        (gs || []).forEach(function (g) { var n = g.__count || g.default_code_count || 0; if (g.default_code && n > 1) D.refDup[g.default_code] = n; });
+      });
+    }).catch(function () { /* best effort: the list still shows without flags */ });
+  }
+  function recRef(r) {
+    if (D.refMode === 'self') return str(r.default_code);
+    return Array.isArray(r.product_id) ? str(D.refMap && D.refMap[r.product_id[0]]) : null;
+  }
+  function refCell(ref) {
+    if (ref === null) return '<span class="dvdr-na">\u2013</span>';
+    if (!ref) return '<span class="dvdr-flag is-err" title="This product has no internal reference (SKU)">No reference</span>';
+    var n = (D.refDup && D.refDup[ref]) || 0;
+    return '<code class="dvdr-ref" title="Internal reference">' + esc(short(ref, 30)) + '</code>' +
+      (n > 1 ? ' <span class="dvdr-flag is-warn" title="' + esc(ref) + ' is used by ' + n + ' products">Duplicate \u00D7' + n + '</span>' : '');
+  }
+  function refBar(rows) {
+    if (!D.refMode || !rows.length) return '';
+    var miss = 0, dup = 0, seen = {};
+    rows.forEach(function (r) { var ref = recRef(r); if (ref === null) return; if (!ref) miss++; else if (D.refDup[ref] && !seen[ref + r.id]) dup++; });
+    var bad = miss + dup, what = D.refMode === 'self' ? 'products' : 'lines';
+    var dq = dqProfile() ? ' <button type="button" class="dvdr-link" data-dim="dq">Review in Data checks</button>' : '';
+    return '<div class="dvdr-refbar ' + (bad ? 'is-warn' : 'is-ok') + '" role="status"><span>' + (bad
+      ? '<b>' + F.num(miss, 0) + '</b> without internal reference \u00B7 <b>' + F.num(dup, 0) + '</b> with a duplicated reference <small>(on this page of ' + F.num(rows.length, 0) + ' ' + what + ')</small>'
+      : 'Every ' + (D.refMode === 'self' ? 'product' : 'line') + ' on this page has a unique internal reference.') + '</span>' + dq + '</div>';
+  }
   function paintRecords() {
     var body = $('dvdrBody'); if (!body) return;
-    var f = D.fields || {}, cols = D.recCols || [], rows = D.recRows || [], c = C.cfg ? C.cfg() : {}, base = odooBase(c);
+    var f = D.fields || {}, cols = (D.recCols || []).slice(), rows = D.recRows || [], c = C.cfg ? C.cfg() : {}, base = odooBase(c);
+    if (D.refMode === 'line') { var pi = cols.indexOf('product_id'); if (pi > -1) cols.splice(pi + 1, 0, '__ref'); }
     var textFields = ['name', 'display_name', 'ref', 'origin', 'default_code'].filter(function (k) { return f[k] && (f[k].type === 'char' || f[k].type === 'text'); });
     if (document.activeElement !== $('dvdrSearch')) $('dvdrSearch').value = D.searchTerm || '';
     $('dvdrSearch').disabled = !textFields.length;
@@ -445,18 +504,20 @@
     $('dvdrRecordTools').querySelector('[data-page="next"]').disabled = D.recOffset + rows.length >= D.recTotal;
     if (!rows.length) { body.innerHTML = '<div class="dvdr-empty">' + (D.searchTerm ? 'No records match this search.' : 'No records match this selection.') + '</div>'; $('dvdrNote').textContent = 'Search applies to the current drill selection. Export is capped at ' + F.num(EXPORT_LIMIT, 0) + ' records.'; return; }
     function recHead(k) {
+      if (k === '__ref') return '<th>Internal reference</th>';
       var fd = f[k], num = fd && (fd.type === 'monetary' || fd.type === 'float'), can = fd && SORTABLE.indexOf(fd.type) > -1, on = D.recSort && D.recSort.field === k, lbl = esc((fd && fd.string) || k);
       return '<th' + (num ? ' class="n"' : '') + (on ? ' aria-sort="' + (D.recSort.dir === 1 ? 'ascending' : 'descending') + '"' : '') + '>' +
         (can ? '<button type="button" class="dvdr-sh' + (on ? ' is-on' : '') + '" data-rsort="' + esc(k) + '">' + lbl + (on ? '<i aria-hidden="true">' + (D.recSort.dir === 1 ? '\u25B2' : '\u25BC') + '</i>' : '') + '</button>' : lbl) + '</th>';
     }
     function cell(r, k) {
+      if (k === '__ref' || (k === 'default_code' && D.refMode === 'self')) return refCell(recRef(r));
       var v = r[k], t = f[k] && f[k].type;
       if (Array.isArray(v)) return esc(short(v[1], 28));
       if (v === false || v == null) return '<span class="dvdr-na">\u2013</span>';
       if (t === 'monetary' || t === 'float') return esc(F.num(Number(v), 2));
       return esc(short(String(v), 34));
     }
-    body.innerHTML = '<div class="dvdr-scroll"><table class="dvdr-tb dvdr-rec"><thead><tr>' + cols.map(recHead).join('') + '<th></th></tr></thead><tbody>' +
+    body.innerHTML = refBar(rows) + '<div class="dvdr-scroll"><table class="dvdr-tb dvdr-rec"><thead><tr>' + cols.map(recHead).join('') + '<th></th></tr></thead><tbody>' +
       rows.map(function (r) {
         var link = base ? '<a class="dvdr-open" target="_blank" rel="noopener noreferrer" href="' + esc(base + '/web#id=' + encodeURIComponent(r.id) + '&model=' + encodeURIComponent(D.spec.model) + '&view_type=form') + '">Open in Odoo \u2197</a>' : '';
         return '<tr class="dvdr-r">' + cols.map(function (k) { return '<td' + (f[k] && (f[k].type === 'monetary' || f[k].type === 'float') ? ' class="n"' : '') + '>' + cell(r, k) + '</td>'; }).join('') + '<td class="n">' + link + '</td></tr>';

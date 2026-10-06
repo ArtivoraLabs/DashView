@@ -179,3 +179,17 @@
 .dvdr-hp.is-bad { background: color-mix(in srgb, var(--st-bad) 14%, transparent); color: var(--st-bad); }
 @media (max-width: 760px) { .dvdr-dq-doc { grid-template-columns: 1fr; } .dvdr-dq-co { margin-left: 0; } }
 @media print { .dvdr { display: none; } }
+
+/* ── Internal references on record lists ─────────────────────────────────── */
+.dvdr-ref { display: inline-block; padding: 2px 8px; border-radius: 6px; font-family: var(--f-mono, ui-monospace, monospace); font-size: 12px; font-weight: 600; letter-spacing: .02em; white-space: nowrap; color: var(--ink); background: var(--signal-10); border: 1px solid color-mix(in srgb, var(--signal) 35%, transparent); }
+.dvdr-flag { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; white-space: nowrap; vertical-align: middle; }
+.dvdr-flag.is-err { color: var(--danger); background: var(--danger-10); border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent); }
+.dvdr-flag.is-warn { color: #8a5a00; background: color-mix(in srgb, var(--signal) 18%, transparent); border: 1px solid color-mix(in srgb, var(--signal) 50%, transparent); }
+html[data-theme="dark"] .dvdr-flag.is-warn { color: #f0b45a; }
+.dvdr-refbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px; margin: 0 0 12px; padding: 10px 14px; border-radius: 12px; font-size: 13px; border: 1px solid var(--line); background: var(--paper-soft); color: var(--ink-70); }
+.dvdr-refbar b { color: var(--ink); }
+.dvdr-refbar.is-warn { border-color: color-mix(in srgb, var(--signal) 50%, transparent); background: color-mix(in srgb, var(--signal) 10%, transparent); }
+.dvdr-refbar.is-ok { border-color: color-mix(in srgb, #2e9b63 40%, transparent); }
+.dvdr-link { padding: 6px 2px; font-size: 13px; font-weight: 600; color: var(--signal); background: none; border: 0; cursor: pointer; }
+.dvdr-link:hover { text-decoration: underline; }
+.dvdr-link:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; border-radius: 6px; }

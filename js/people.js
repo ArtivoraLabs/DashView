@@ -135,8 +135,8 @@
         return '<tr><td><span class="ws-person">' + av(p.name) + '<span><button type="button" class="ws-cell-title" data-edit-person="' + esc(p.id) + '">' + esc(p.name) + '</button>' +
           (p.email ? '<br><small class="ws-muted">' + esc(p.email) + '</small>' : '') + '</span></span></td>' +
           '<td>' + (esc(p.role) || '<span class="ws-muted">—</span>') + '</td><td>' + (esc(p.dept) || '<span class="ws-muted">—</span>') + '</td>' +
-          '<td><span class="ws-pill ' + p.status + '">' + L.personStatus[p.status] + '</span></td><td>' + esc(p.type) + '</td>' +
-          '<td class="num">' + n + '</td><td>' + (p.start ? esc(WS.fmtDate(p.start)) : '<span class="ws-muted">—</span>') + '</td>' +
+          '<td><span class="ws-pill ' + p.status + '">' + L.personStatus[p.status] + '</span></td><td class="nw">' + esc(p.type) + '</td>' +
+          '<td class="num">' + n + '</td><td class="nw">' + (p.start ? esc(WS.fmtDate(p.start)) : '<span class="ws-muted">—</span>') + '</td>' +
           '<td><div class="ws-row-actions"><button type="button" class="ws-icon-btn" data-edit-person="' + esc(p.id) + '" title="Edit" aria-label="Edit ' + esc(p.name) + '">✎</button></div></td></tr>';
       }).join('') + '</tbody></table></div>' +
       '<div class="ws-pager"><span>' + (f.page * PAGE + 1) + '–' + (f.page * PAGE + slice.length) + ' of ' + list.length + ' people</span>' +

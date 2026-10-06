@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<script>(function(){try{var t=localStorage.getItem('dashview-theme');if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; frame-src 'none'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<meta name="referrer" content="no-referrer"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="robots" content="noindex"/>
+<title>Sign in — DashView</title>
+<meta name="description" content="Sign in to your DashView workspace."/>
+<meta name="theme-color" content="#f2f3ef"/>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/base.css"/>
+<link rel="stylesheet" href="css/components.css"/>
+<link rel="stylesheet" href="css/merged.css"/>
+<link rel="stylesheet" href="css/theme-final.css"/>
+<link rel="stylesheet" href="css/login.css"/>
+<script src="js/config.js"></script>
+</head>
+<body class="dvl-body">
+<a class="dvl-skip" href="#dvAuthMount">Skip to sign-in</a>
+
+<header class="dvl-top">
+  <a class="dvl-home" href="index.html" aria-label="DashView home">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="#e8a33d" stroke-width="1.6"/><path d="M7 13l3-5 2 3 2-4 3 6" stroke="#e8a33d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>DashView</span>
+  </a>
+  <div class="dvl-top-actions">
+    <button type="button" class="dvl-iconbtn" id="dvlTheme" aria-label="Switch theme" title="Switch theme">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="dvl-page">
+  <main id="main" aria-label="Sign in">
+    <div id="dvAuthMount"></div>
+    <div class="dvl-card is-page" id="dvSignedIn" hidden style="max-width:520px;grid-template-columns:minmax(0,1fr);">
+      <section class="dvl-main">
+        <p class="eyebrow dvl-eyebrow">Secure workspace access</p>
+        <h1 class="dvl-title">You are signed in</h1>
+        <div class="dvl-signedin">
+          <div class="dvl-who"><span class="dvl-avatar" id="dvWhoAvatar" aria-hidden="true">?</span><div><strong id="dvWhoName"></strong><br/><small id="dvWhoMeta" style="color:var(--ink-50)"></small></div></div>
+          <a class="dvl-submit" href="dashboard.html" id="dvContinue" style="text-decoration:none">Continue to dashboard</a>
+          <button type="button" class="dvl-btn2" id="dvSignOut">Sign out</button>
+        </div>
+      </section>
+    </div>
+    <noscript><p class="dvl-note" style="text-align:center">Sign-in needs JavaScript. Please enable it and reload.</p></noscript>
+  </main>
+</div>
+
+<script src="js/dv-security.js"></script>
+<script src="js/dashview-api.js"></script>
+<script src="js/auth-service.js"></script>
+<script>
+(function () {
+  var root = document.documentElement;
+  document.getElementById('dvlTheme').addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('dashview-theme', next); } catch (e) {}
+  });
+  /* Already signed in: offer to continue instead of showing the form again. */
+  function sync() {
+    if (window.__dvAuthRedirect || !window.DVAuth) return;
+    var u = DVAuth.currentUser(), card = document.getElementById('dvSignedIn'), form = document.getElementById('dvAuthMount');
+    var signedIn = !u.guest;
+    card.hidden = !signedIn; form.hidden = signedIn;
+    if (!signedIn) return;
+    document.getElementById('dvWhoName').textContent = u.name || 'Account';
+    document.getElementById('dvWhoMeta').textContent = [u.email, (DVAuth.ROLE_LABEL || {})[u.role]].filter(Boolean).join(' · ');
+    document.getElementById('dvWhoAvatar').textContent = u.initials || 'U';
+  }
+  document.addEventListener('dv:session-changed', sync);
+  document.getElementById('dvSignOut').addEventListener('click', function () { DVAuth.logout(); });
+  window.addEventListener('DOMContentLoaded', function () { setTimeout(sync, 0); });
+})();
+</script>
+</body>
+</html>
