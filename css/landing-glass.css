@@ -361,3 +361,22 @@ html[data-theme="light"] .modal-overlay { background: rgba(80,40,10,.18); }
   .nav-inner::after, .bento-card::after, .role-card::after, .sec-card::after, .hero-panel::after { display: none; }
 }
 @media print { .lg-ambient { display: none; } }
+
+/* ── 12 · iOS-style details ─────────────────────────────────────────────── */
+/* Nav capsule morphs: it tightens and lifts when you scroll */
+.nav-inner { transition: max-width .55s var(--e), box-shadow .3s, background .3s; }
+.nav.scrolled .nav-inner { max-width: 1060px; }
+/* Refracted panes: lighter fill so the bent background actually shows; stronger rim to define the lens */
+html.lg-refract .nav-inner.lg-lens, html.lg-refract .hero-float.lg-lens, html.lg-refract .modal-card.lg-lens {
+  background: linear-gradient(155deg, rgba(255,255,255,.09), rgba(255,255,255,.025) 50%, rgba(255,255,255,.05)), rgba(20,14,11,.22);
+}
+html[data-theme="light"].lg-refract .nav-inner.lg-lens, html[data-theme="light"].lg-refract .hero-float.lg-lens, html[data-theme="light"].lg-refract .modal-card.lg-lens {
+  background: linear-gradient(155deg, rgba(255,255,255,.62), rgba(255,255,255,.3) 50%, rgba(255,255,255,.45)), rgba(255,246,236,.12);
+}
+html.lg-refract .nav.scrolled .nav-inner.lg-lens { background: linear-gradient(155deg, rgba(255,255,255,.13), rgba(255,255,255,.05)), rgba(20,14,11,.4); }
+html[data-theme="light"].lg-refract .nav.scrolled .nav-inner.lg-lens { background: linear-gradient(155deg, rgba(255,255,255,.78), rgba(255,255,255,.55)), rgba(255,246,236,.2); }
+html.lg-refract .modal-card.lg-lens { background: var(--g-fill-strong), var(--g-under-strong); }
+/* Pressed state, like a physical glass key */
+.btn:active, .theme-toggle:active { transform: scale(.96); }
+/* The open mobile menu must not sit inside a backdrop-filter (it would trap the fixed panel) */
+.nav.menu-open .nav-inner { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }

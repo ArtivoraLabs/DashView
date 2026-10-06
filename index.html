@@ -863,5 +863,76 @@ on(document, 'keydown', e => {
   },{passive:true});
 })();
 </script>
+<script>
+/* Liquid glass · real edge refraction (Chromium only; other browsers keep the frosted glass).
+   Each small pane gets its own SVG filter: a lens map built from its exact size and corner radius,
+   with a slight red/green/blue split at the edge, like iOS Liquid Glass. */
+(function(){
+  var ua=navigator.userAgent;
+  var chromium=/Chrome\//.test(ua)&&!/CriOS|FxiOS/.test(ua);
+  var ok=chromium&&matchMedia('(min-width:721px)').matches&&matchMedia('(hover:hover)').matches
+    &&!matchMedia('(prefers-reduced-transparency:reduce)').matches;
+  if(!ok)return;
+  var NS='http://www.w3.org/2000/svg',n=0;
+  var svg=document.createElementNS(NS,'svg');
+  svg.setAttribute('aria-hidden','true');svg.setAttribute('xmlns:xlink','http://www.w3.org/1999/xlink');
+  svg.setAttribute('style','position:absolute;width:0;height:0;overflow:hidden;pointer-events:none');
+  document.body.appendChild(svg);
+  var sel='.nav-inner,.hero-float,.modal-card,.btn-outline,.hero-badge,.theme-toggle';
+  var cv=document.createElement('canvas');
+
+  function lensMap(w,h,r,b){
+    cv.width=w;cv.height=h;
+    var cx=cv.getContext('2d'),img=cx.createImageData(w,h),d=img.data,hx=w/2,hy=h/2,k=0;
+    for(var y=0;y<h;y++)for(var x=0;x<w;x++,k+=4){
+      var px=x+.5-hx,py=y+.5-hy,sx=px<0?-1:1,sy=py<0?-1:1;
+      var qx=Math.abs(px)-(hx-r),qy=Math.abs(py)-(hy-r);
+      var ox=Math.max(qx,0),oy=Math.max(qy,0),len=Math.sqrt(ox*ox+oy*oy);
+      var dist=-(len+Math.min(Math.max(qx,qy),0)-r);          /* distance inside the edge */
+      var nx,ny;
+      if(len>0){nx=ox/len*sx;ny=oy/len*sy}else if(qx>qy){nx=sx;ny=0}else{nx=0;ny=sy}
+      var f=dist<b?Math.pow(1-Math.max(dist,0)/b,2):0;         /* strongest at the rim */
+      d[k]=128+(-nx*f)*127;d[k+1]=128+(-ny*f)*127;d[k+2]=128;d[k+3]=255;
+    }
+    cx.putImageData(img,0,0);
+    return cv.toDataURL('image/png');
+  }
+  function build(el){
+    var w=Math.round(el.offsetWidth),h=Math.round(el.offsetHeight);
+    if(w<20||h<20)return;
+    var r=Math.min(parseFloat(getComputedStyle(el).borderTopLeftRadius)||0,Math.min(w,h)/2);
+    var b=Math.max(12,Math.min(34,Math.min(w,h)*.5)),S=b*2.1;   /* displacement scale = 2 x max shift */
+    var id=el.__lgid||(el.__lgid='lgf'+(++n));
+    var old=svg.querySelector('#'+id);if(old)old.remove();
+    var uri=lensMap(w,h,r,b);
+    var f=document.createElementNS(NS,'filter');
+    f.setAttribute('id',id);f.setAttribute('filterUnits','userSpaceOnUse');f.setAttribute('primitiveUnits','userSpaceOnUse');
+    f.setAttribute('x','0');f.setAttribute('y','0');f.setAttribute('width',w);f.setAttribute('height',h);
+    f.setAttribute('color-interpolation-filters','sRGB');
+    function ch(m,sc,out){return '<feDisplacementMap color-interpolation-filters="sRGB" in="SourceGraphic" in2="map" scale="'+sc.toFixed(2)+'" xChannelSelector="R" yChannelSelector="G" result="d'+out+'"/>'+
+      '<feColorMatrix color-interpolation-filters="sRGB" in="d'+out+'" type="matrix" values="'+m+'" result="'+out+'"/>';}
+    f.innerHTML='<feImage href="'+uri+'" xlink:href="'+uri+'" x="0" y="0" width="'+w+'" height="'+h+'" preserveAspectRatio="none" color-interpolation-filters="sRGB" result="map"/>'+
+      ch('1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0',S,'R')+
+      ch('0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0',S*.93,'G')+
+      ch('0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0',S*.86,'B')+
+      '<feBlend in="R" in2="G" mode="screen" result="RG"/><feBlend in="RG" in2="B" mode="screen"/>';
+    svg.appendChild(f);
+    var blur=el.matches('.btn,.theme-toggle,.hero-badge')?'blur(3px)':'blur(7px)';
+    var v='url(#'+id+') '+blur+' saturate(190%) brightness(1.06)';
+    el.style.backdropFilter=v;el.style.webkitBackdropFilter=v;
+    el.classList.add('lg-lens');
+  }
+  var timers=new WeakMap();
+  var ro=new ResizeObserver(function(es){es.forEach(function(e){
+    clearTimeout(timers.get(e.target));
+    timers.set(e.target,setTimeout(function(){build(e.target)},120));
+  })});
+  function start(){
+    document.documentElement.classList.add('lg-refract');
+    document.querySelectorAll(sel).forEach(function(el){build(el);ro.observe(el)});
+  }
+  (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(start);
+})();
+</script>
 </body>
 </html>
