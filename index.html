@@ -362,8 +362,11 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
 <script defer src="js/updater.js"></script>
 <link rel="stylesheet" href="css/index-pro.css"/>
 <link rel="stylesheet" href="css/pro-detail.css"/>
+<link rel="stylesheet" href="css/index-glass.css"/>
 </head>
 <body>
+<div class="ambient" aria-hidden="true"><i class="a1"></i><i class="a2"></i><i class="a3"></i></div>
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 <!-- ══════════ NAV ══════════ -->
 <header class="nav" id="nav">
   <div class="nav-inner">
@@ -402,7 +405,7 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
   <div class="hero-glow" aria-hidden="true"></div>
   <div class="hero-grid" aria-hidden="true"></div>
   <div class="hero-inner">
-    <div>
+    <div class="hero-copy">
       <div class="hero-badge">
         <span class="hero-badge-dot"></span>
         <span>Onboarding design partners — limited spots</span>
@@ -420,12 +423,16 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
         <div class="hero-proof-item"><strong>99.97%</strong><span>pipeline uptime</span></div>
       </div>
     </div>
+    <div class="hero-panel-wrap">
+    <div class="chip c1" aria-hidden="true"><b>✓</b><span>212 tests passed<small>coverage 94%</small></span></div>
+    <div class="chip c2" aria-hidden="true"><b>↗</b><span>PR #482 opened<small>3 files · +64 −6</small></span></div>
     <div class="hero-panel">
       <div class="hero-panel-bar">
         <div class="hp-dots"><span></span><span></span><span></span></div>
         <span class="hp-title">agent · live session · acme-corp/api</span>
       </div>
       <div class="hero-panel-body" id="terminal"></div>
+    </div>
     </div>
   </div>
 </section>
@@ -438,9 +445,7 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
 <section class="trust">
   <div class="container">
     <p class="trust-label">Works inside the stack you already run</p>
-    <div class="trust-row">
-      <span>GitHub</span><span>GitLab</span><span>Bitbucket</span><span>Jira</span><span>Linear</span><span>Slack</span><span>CircleCI</span><span>Vercel</span>
-    </div>
+    <div class="marquee"><div class="marquee-track"><span class="trust-chip">GitHub</span><span class="trust-chip">GitLab</span><span class="trust-chip">Bitbucket</span><span class="trust-chip">Jira</span><span class="trust-chip">Linear</span><span class="trust-chip">Slack</span><span class="trust-chip">CircleCI</span><span class="trust-chip">Vercel</span><span class="trust-chip" style="display:none"></span><span class="trust-chip" aria-hidden="true">GitHub</span><span class="trust-chip" aria-hidden="true">GitLab</span><span class="trust-chip" aria-hidden="true">Bitbucket</span><span class="trust-chip" aria-hidden="true">Jira</span><span class="trust-chip" aria-hidden="true">Linear</span><span class="trust-chip" aria-hidden="true">Slack</span><span class="trust-chip" aria-hidden="true">CircleCI</span><span class="trust-chip" aria-hidden="true">Vercel</span></div></div>
   </div>
 </section>
 <!-- ══════════ PROBLEM / APPROACH ══════════ -->
@@ -476,10 +481,10 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
 <section class="section-tight" style="border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
   <div class="container">
     <div class="bento" style="grid-auto-rows:auto">
-      <div class="bento-card b-sm" style="grid-column:span 1"><h3 class="t-display" data-target="12400" style="font-size:1.9rem">0</h3><p style="font-size:.8rem">Pull requests merged</p></div>
-      <div class="bento-card b-sm" style="grid-column:span 1"><h3 class="t-display" data-target="340" style="font-size:1.9rem">0</h3><p style="font-size:.8rem">Engineering teams onboard</p></div>
-      <div class="bento-card b-sm" style="grid-column:span 1"><h3 class="t-display" style="font-size:1.9rem">99.97%</h3><p style="font-size:.8rem">Pipeline uptime</p></div>
-      <div class="bento-card b-sm" style="grid-column:span 1"><h3 class="t-display" data-target="4200000" style="font-size:1.9rem">0</h3><p style="font-size:.8rem">Lines reviewed / month</p></div>
+      <div class="bento-card b-sm stat" style="grid-column:span 1"><h3 class="t-display" data-target="12400" style="font-size:1.9rem">0</h3><p style="font-size:.8rem">Pull requests merged</p></div>
+      <div class="bento-card b-sm stat" style="grid-column:span 1"><h3 class="t-display" data-target="340" style="font-size:1.9rem">0</h3><p style="font-size:.8rem">Engineering teams onboard</p></div>
+      <div class="bento-card b-sm stat" style="grid-column:span 1"><h3 class="t-display" style="font-size:1.9rem">99.97%</h3><p style="font-size:.8rem">Pipeline uptime</p></div>
+      <div class="bento-card b-sm stat" style="grid-column:span 1"><h3 class="t-display" data-target="4200000" style="font-size:1.9rem">0</h3><p style="font-size:.8rem">Lines reviewed / month</p></div>
     </div>
   </div>
 </section>
@@ -1053,5 +1058,6 @@ on(document, 'keydown', e => {
   addEventListener('dv:installable',inst);addEventListener('dv:installed',inst);inst();
 })();
 </script>
+<script defer src="js/index-glass.js"></script>
 </body>
 </html>

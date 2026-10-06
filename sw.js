@@ -24,6 +24,8 @@ var PRECACHE = [
  "css/pro-detail.css",
  "css/assistant.css",
  "css/index-pro.css",
+ "css/index-glass.css",
+ "js/index-glass.js",
  "css/landing.css",
  "css/navbar.css",
  "css/components.css",
