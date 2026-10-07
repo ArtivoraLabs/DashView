@@ -46,7 +46,7 @@
 .aiw :focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
 
 /* ── body grid ──────────────────────────────────────────────────────────── */
-.aiw-body { flex: 1; min-height: 0; display: grid; grid-template-columns: var(--aiw-rail) minmax(0, 1fr) 0; position: relative; transition: grid-template-columns .25s ease; }
+.aiw-body { flex: 1; min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr); grid-template-columns: var(--aiw-rail) minmax(0, 1fr) 0; position: relative; transition: grid-template-columns .25s ease; }
 .aiw[data-rail="closed"] .aiw-body { grid-template-columns: 0 minmax(0, 1fr) 0; }
 .aiw[data-insp="open"] .aiw-body { grid-template-columns: var(--aiw-rail) minmax(0, 1fr) var(--aiw-insp); }
 .aiw[data-rail="closed"][data-insp="open"] .aiw-body { grid-template-columns: 0 minmax(0, 1fr) var(--aiw-insp); }
@@ -497,4 +497,23 @@ button.aiw-drow:hover .go { opacity: 1; }
   .aiw-hero { padding-top: var(--sp-5); }
   .aiw-hero h2 { font-size: var(--fs-lg); }
   .aiw-status-row { gap: 6px; }
+}
+
+/* ── Chat layout fix (v2.13.1) ───────────────────────────────────────────────
+   The grid row was auto-sized to its content, so a long conversation stretched the rail and the chat
+   column past the card. The card clips overflow, which hid the message box and pushed the page into a
+   second scrollbar. The row is now exactly the card height; only the message list scrolls. */
+.aiw-body > .aiw-rail, .aiw-body > .aiw-main, .aiw-body > .aiw-insp { min-height: 0; max-height: 100%; }
+.aiw-rail { display: flex; flex-direction: column; overflow: hidden; }
+.aiw-rail .aiw-threads { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+.aiw-main { overflow: hidden; }
+.aiw-main .aiw-messages { overscroll-behavior: contain; }
+.aiw-main .aiw-composer-wrap { flex: none; }
+.aiw-insp { overflow: hidden; }
+.aiw-insp .aiw-insp-body { min-height: 0; overflow-y: auto; }
+
+/* Desktop: the card sits under a 80px top bar with 32px above and 48px below it, so subtract all 160px.
+   The old 118px left the card 42px too tall, which added a second page scrollbar next to the chat. */
+@media (min-width: 761px) {
+  .aiw { height: calc(100vh - 160px); height: calc(100dvh - 160px); }
 }
