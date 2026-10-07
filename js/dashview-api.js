@@ -67,7 +67,7 @@
     if (t) headers.Authorization = 'Bearer ' + t;
     const resp = await fetch(window.AL_API_BASE + path, Object.assign({}, opts, { headers }));
     const data = await resp.json().catch(() => ({}));
-    if (!resp.ok) throw new Error(data.error || ('Request failed (' + resp.status + ')'));
+    if (!resp.ok) { const err = new Error(data.error || ('Request failed (' + resp.status + ')')); err.status = resp.status; throw err; }
     return data;
   }
 

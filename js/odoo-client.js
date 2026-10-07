@@ -65,7 +65,31 @@
       }, function () { throw new Error('Cannot reach the Worker. Check the Worker URL, your connection and ALLOWED_ORIGINS.'); });
   }
 
+  /* -- Fast repeat reads ------------------------------------------------------
+     Identical read-only requests that are already on the way share one answer, and a finished answer is reused for
+     READ_TTL ms. Re-opening a drill, switching tabs back and forth, or several widgets asking the same thing now
+     cost nothing. Any Refresh control (or api.reset / api.invalidate) clears it, so a manual refresh is always fresh. */
+  var READ_TTL = 20000, READ_OPS = { records: 1, 'read-group': 1, fields: 1, companies: 1, modules: 1 }, _reads = {};
+  function _clearReads() { _reads = {}; }
+  document.addEventListener('click', function (e) {
+    var t = e.target && e.target.closest && e.target.closest('[id*="efresh"],[class*="efresh"],[data-refresh],[aria-label*="efresh"]');
+    if (t) _clearReads();
+  }, true);
+
   function call(endpoint, extra) {
+    if (READ_OPS[endpoint] && !(extra && extra.fresh)) {
+      var key = endpoint + '|' + JSON.stringify(extra || {}) + '|' + (activeIds().join(',')), hit = _reads[key];
+      if (hit && Date.now() - hit.at < READ_TTL) return hit.p;
+      var p = _call(endpoint, extra);
+      _reads[key] = { at: Date.now(), p: p };
+      p.catch(function () { if (_reads[key] && _reads[key].p === p) delete _reads[key]; });
+      return p;
+    }
+    if (extra && extra.fresh) { extra = Object.assign({}, extra); delete extra.fresh; }
+    return _call(endpoint, extra);
+  }
+
+  function _call(endpoint, extra) {
     var s = state();
     if (s !== 'ok') { var err = new Error(MSG[s]); err.code = s; return Promise.reject(err); }
     var c = cfg(), t0 = Date.now();
@@ -96,7 +120,8 @@
   var api = {
     state: state, cfg: cfg, call: call, lastLatency: null,
     message: function (s) { return MSG[s || state()] || ''; },
-    reset: function () { memo = {}; companyList = null; _queue = []; _inFlight = 0; },
+    reset: function () { memo = {}; companyList = null; _queue = []; _inFlight = 0; _reads = {}; },
+    invalidate: function () { _reads = {}; },
     test: function () { return call('test'); },
     modules: function () { return cached('modules', function () { return call('modules').then(function (d) { return d.modules || []; }); }); },
     fields: function (model) { return cached('f:' + model, function () { return call('fields', { model: model }).then(function (d) { return d.fields || {}; }); }); },

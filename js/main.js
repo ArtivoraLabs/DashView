@@ -246,7 +246,7 @@ function initHeroAI() {
 
   function submitToAssistant(question) {
     if (!question) return;
-    window.location.href = 'ai.html?q=' + encodeURIComponent(question);
+    window.location.href = 'dashboard.html?q=' + encodeURIComponent(question) + '#ai';
   }
 
   on(form, 'submit', (e) => {

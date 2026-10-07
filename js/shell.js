@@ -95,14 +95,25 @@
         } catch (e) {}
       });
     }
-    if (history.replaceState) history.replaceState(null, '', '#' + name);
+    // Keep an in-view route such as #ai/c/<chat>/m/<answer> when the same view is already showing it.
+    var curHash = location.hash.slice(1);
+    var keepSub = curHash.split('/')[0] === name && curHash.indexOf('/') > -1;
+    if (!keepSub && history.replaceState) history.replaceState(null, '', location.pathname + location.search + '#' + name);
     byId('sidebar').classList.remove('open');
+    document.dispatchEvent(new CustomEvent('dv:view', { detail: { view: name, route: location.hash.slice(1).split('/').slice(1) } }));
   }
   window.dashviewShowView = showView;
+  // Back/forward and typed #ai/... links: open the right view; views with sub-routes read the rest of the hash themselves.
+  window.addEventListener('hashchange', function () {
+    var h = location.hash.slice(1).split('/')[0];
+    if (!h) return;
+    if (h === 'agent-tasks') h = 'task-assignments';
+    if (views.indexOf(h) > -1) showView(h);
+  });
   document.querySelectorAll('[data-view]').forEach(function (link) {
     on(link, 'click', function (e) { e.preventDefault(); showView(link.dataset.view); });
   });
-  var startHash = location.hash.slice(1) === 'agent-tasks' ? 'task-assignments' : location.hash.slice(1); // old bookmarks
+  var startHash = location.hash.slice(1).split('/')[0] === 'agent-tasks' ? 'task-assignments' : location.hash.slice(1).split('/')[0]; // old bookmarks; #ai/... keeps its sub-route
   if (!startHash) {
     try {
       var landing = localStorage.getItem('dv-pref-landing');

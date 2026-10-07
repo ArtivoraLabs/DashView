@@ -24,7 +24,12 @@
    sent; security models and secret-looking fields are blocked here and in the
    Worker.
 
-   Exposes window.DVOdooAgent { ask, status, statusReport, looksLikeStatusQuestion }
+   Path & drill (v2.13): askDetailed() also returns `trace` — every step, the
+   exact read-only queries (model, domain, group-by, measures, timing, status)
+   and compact result rows. Dashboard rows carry Odoo's own `__domain`, so the
+   UI can drill from an answer into the exact records behind a number.
+
+   Exposes window.DVOdooAgent { ask, askDetailed, status, statusReport, looksLikeStatusQuestion, health }
    ========================================================================== */
 (function () {
   'use strict';
@@ -288,10 +293,18 @@
     return O.rpc('read-group', { model: q.model, domain: q.domain, fields: q.fields, groupby: q.groupby, orderby: q.orderby, limit: q.limit }).then(function (r) { return { ok: true, op: 'read-group', model: q.model, groups: r.groups || [] }; });
   }
 
+  /* One automatic retry for a dropped connection / timeout (never for Odoo errors such as access or bad fields). */
+  function retryTransient(fn) {
+    return fn().catch(function (e) {
+      if (!/failed to fetch|networkerror|timed out|load failed|network request failed/i.test(msg(e))) throw e;
+      return new Promise(function (res) { setTimeout(res, 700); }).then(fn);
+    });
+  }
+
   /* One batch call; if the Worker predates "batch", run them individually (3 at a time). */
   function execute(queries) {
     if (!queries.length) return Promise.resolve({});
-    return window.DVOdoo.rpc('batch', { queries: queries.map(toWorkerQuery) }).then(function (r) { return r.results || {}; }).catch(function (e) {
+    return retryTransient(function () { return window.DVOdoo.rpc('batch', { queries: queries.map(toWorkerQuery) }); }).then(function (r) { return r.results || {}; }).catch(function (e) {
       if (!/unknown endpoint|HTTP 404|At most/i.test(msg(e))) {
         var all = {}; queries.forEach(function (q) { all[q.id] = { ok: false, error: msg(e) }; }); return all;
       }
@@ -346,6 +359,11 @@
     return text.length > RESULT_CHARS_TOTAL ? text.slice(0, RESULT_CHARS_TOTAL) + '\n…(truncated)' : text;
   }
 
+  /* Odoo's own group domain (read_group → __domain) so the UI can drill into the records behind a number. */
+  function drillDomain(d) {
+    try { return Array.isArray(d) && d.length <= 25 && JSON.stringify(d).length < 900 && validDomain(d) ? d : null; } catch (e) { return null; }
+  }
+
   function isDashboardQuestion(question) {
     return /\b(dashboards?|dash-board|board\s+report|visual(?:ization)?s?\s+dashboards?)\b/i.test(String(question || ''));
   }
@@ -363,7 +381,7 @@
       if (q.op === 'count') {
         if (typeof res.count === 'number' && isFinite(res.count)) {
           kpis.push({ label: q.model + ' records', value: res.count, queryId: q.id });
-          metrics.push({ title: q.model + ' matching records', model: q.model, queryId: q.id, groupBy: [], measure: 'count', chartType: 'bar', rows: [{ label: 'Matching records', value: res.count, count: res.count }] });
+          metrics.push({ title: q.model + ' matching records', model: q.model, queryId: q.id, groupBy: [], measure: 'count', chartType: 'bar', rows: [{ label: 'Matching records', value: res.count, count: res.count, domain: drillDomain(q.domain || []) }] });
         }
         return;
       }
@@ -380,7 +398,7 @@
           var value = g[measure] != null ? g[measure] : (g[field + ':sum'] != null ? g[field + ':sum'] : g[field]);
           var count = g.__count != null ? g.__count : g.count;
           if (typeof value !== 'number' || !isFinite(value)) return null;
-          return { label: clip(key, 100), value: value, count: typeof count === 'number' && isFinite(count) ? count : null };
+          return { label: clip(key, 100), value: value, count: typeof count === 'number' && isFinite(count) ? count : null, domain: drillDomain(g.__domain) };
         }).filter(Boolean);
         if (rows.length) metrics.push({
           title: field.replace(/_/g, ' ') + (groupby.length ? ' by ' + groupby.map(function (x) { return x.split(':')[0].replace(/_/g, ' '); }).join(' / ') : ''),
@@ -396,7 +414,7 @@
             return cell(value);
           }).join(' / ') || 'All returned records';
           var count = g.__count != null ? g.__count : g.count;
-          return typeof count === 'number' && isFinite(count) ? { label: clip(key, 100), value: count, count: count } : null;
+          return typeof count === 'number' && isFinite(count) ? { label: clip(key, 100), value: count, count: count, domain: drillDomain(g.__domain) } : null;
         }).filter(Boolean);
         if (countRows.length) metrics.push({
           title: 'record count' + (groupby.length ? ' by ' + groupby.map(function (x) { return x.split(':')[0].replace(/_/g, ' '); }).join(' / ') : ''),
@@ -420,6 +438,57 @@
       metrics: metrics.slice(0, 6),
       kpis: kpis.slice(0, 6)
     };
+  }
+
+  /* ── path / trace: a compact, storable record of how an answer was produced ── */
+  function traceRow(r) {
+    var o = {}, n = 0;
+    Object.keys(r || {}).forEach(function (k) {
+      if (k === 'id') { o.id = r.id; return; }
+      if (n >= 9 || SECRET_FIELD.test(k)) return;
+      o[k] = cell(r[k]); n++;
+    });
+    return o;
+  }
+
+  function compactTrace(executed, results, s, t) {
+    var queries = executed.map(function (q) {
+      var r = results[q.id] || {};
+      var o = { id: q.id, op: q.op, model: q.model, domain: q.domain || [], groupby: q.groupby || [], fields: q.fields || [], order: q.order || q.orderby || '', limit: q.limit || null, ok: !!r.ok };
+      if (!r.ok) { o.error = clip(r.error || 'no result returned', 220); return o; }
+      if (q.op === 'count') o.count = r.count;
+      else if (q.op === 'records') { o.total = r.total; o.rows = (r.rows || []).slice(0, 25).map(traceRow); }
+      else if (q.op === 'read-group') {
+        var measure = (q.fields || []).filter(function (f) { return f !== '__count'; })[0] || '';
+        o.measure = measure;
+        o.groups = (r.groups || []).slice(0, 30).map(function (g) {
+          var label = (q.groupby || []).map(function (by) { return cell(g[by] != null ? g[by] : g[by.split(':')[0]]); }).join(' / ') || 'All records';
+          var count = g.__count != null ? g.__count : g.count;
+          var val = measure ? (g[measure] != null ? g[measure] : g[measure.split(':')[0] + ':sum'] != null ? g[measure.split(':')[0] + ':sum'] : g[measure.split(':')[0]]) : count;
+          return { label: clip(label, 90), value: typeof val === 'number' ? Math.round(val * 100) / 100 : null, count: typeof count === 'number' ? count : null, domain: drillDomain(g.__domain) };
+        });
+      } else if (q.op === 'fields') o.fieldCount = Object.keys(r.fields || {}).length;
+      return o;
+    });
+    return {
+      kind: 'odoo', ms: t.ms, rounds: t.rounds, failed: t.failed, at: Date.now(),
+      status: s ? { version: s.version || '', latencyMs: s.latencyMs || null, company: s.company || '', currency: s.currency || '' } : null,
+      queries: queries
+    };
+  }
+
+  /* Structured connection health (for the AI workspace connection panel). Never rejects. */
+  function health(force) {
+    var t0 = Date.now();
+    return getStatus(!!force).then(function (s) {
+      var areas = Object.keys(s.areas || {}).map(function (n) { var a = s.areas[n]; return { name: n, model: a.model, status: a.status, records: a.records == null ? null : a.records, detail: a.detail || '' }; });
+      return {
+        ok: !!s.ok, stage: s.stage || '', error: s.error || '', fix: s.fix || '',
+        version: s.version || '', company: s.company || '', currency: s.currency || '',
+        latencyMs: s.latencyMs || (Date.now() - t0), limited: !!s.limited, apps: s.apps || [],
+        areas: areas, readable: areas.filter(function (a) { return a.status === 'ok'; }).length, checkedAt: Date.now()
+      };
+    });
   }
 
   /* ── prompts ───────────────────────────────────────────────────────────── */
@@ -499,13 +568,28 @@
     opts = opts || {};
     var trace = { queries: 0, ms: 0, failed: 0, rounds: 0 };
     var t0 = Date.now();
+    var steps = [];
+    function step(key, label) {
+      var now = Date.now();
+      if (steps.length) steps[steps.length - 1].ms = now - steps[steps.length - 1].t;
+      steps.push({ key: key, label: label, t: now, ms: null });
+      if (typeof opts.onStep === 'function') { try { opts.onStep(key, label); } catch (e) { /* UI callback must never break the query */ } }
+    }
+    function closeSteps() {
+      if (steps.length && steps[steps.length - 1].ms == null) steps[steps.length - 1].ms = Date.now() - steps[steps.length - 1].t;
+      return steps.map(function (x) { return { key: x.key, label: x.label, ms: x.ms }; });
+    }
 
-    if (looksLikeStatusQuestion(question)) return statusReport(true).then(function (content) { return { content: content, dashboard: null }; });
+    if (looksLikeStatusQuestion(question)) {
+      step('connect', 'Checking the Odoo connection');
+      return statusReport(true).then(function (content) { return { content: content, dashboard: null, trace: { kind: 'status', ms: Date.now() - t0, at: Date.now(), steps: closeSteps(), queries: [] } }; });
+    }
 
+    step('connect', 'Checking the Odoo connection');
     return getStatus(false).then(function (s) {
       if (!s.ok) {
         return statusReport(false).then(function (r) {
-          return { content: r + '\n\nMain jab tak Odoo se connection theek nahi hota aapke data ka jawab nahi de sakta — pehle upar wala fix karein. (Type **status** anytime to re-check.)', dashboard: null };
+          return { content: r + '\n\nMain jab tak Odoo se connection theek nahi hota aapke data ka jawab nahi de sakta — pehle upar wala fix karein. (Type **status** anytime to re-check.)', dashboard: null, trace: { kind: 'status', ms: Date.now() - t0, at: Date.now(), failed: 1, steps: closeSteps(), queries: [] } };
         });
       }
       var executed = [], results = {};
@@ -513,12 +597,14 @@
 
       function round(n, prior) {
         trace.rounds = n;
+        step('plan', n > 1 ? 'Repairing the query plan (round ' + n + ')' : 'Planning read-only Odoo queries');
         return planQueries(question, history, s, prior, allowedOps).then(function (plan) {
           if (!plan) return { planFailed: true };
           // A new query that reuses the id of an already-successful one gets a fresh id; a failed id is a correction and is re-run.
           var fresh = plan.queries;
           fresh.forEach(function (q) { if (results[q.id] && results[q.id].ok) q.id = q.id + 'r' + n; });
           if (!fresh.length) return { done: true, notes: plan.notes };
+          step('fetch', 'Reading ' + fresh.length + ' quer' + (fresh.length === 1 ? 'y' : 'ies') + ' from Odoo');
           return execute(fresh).then(function (res) {
             fresh.forEach(function (q) { executed = executed.filter(function (e) { return e.id !== q.id; }); executed.push(q); results[q.id] = res[q.id]; });
             var errs = fresh.filter(function (q) { return !res[q.id] || !res[q.id].ok; });
@@ -536,16 +622,19 @@
         trace.failed = executed.filter(function (q) { return !results[q.id] || !results[q.id].ok; }).length;
         trace.ms = Date.now() - t0;
         if (r.planFailed && !executed.length) {
+          step('answer', 'Falling back to a fixed company snapshot');
           return legacyFallback(question, history, opts, 'the query planner did not return valid JSON').then(function (content) {
-            return { content: content, dashboard: null };
+            return { content: content, dashboard: null, trace: { kind: 'fallback', ms: Date.now() - t0, at: Date.now(), rounds: trace.rounds, failed: 1, steps: closeSteps(), queries: [], status: s ? { version: s.version || '', latencyMs: s.latencyMs || null, company: s.company || '', currency: s.currency || '' } : null } };
           });
         }
 
         var dataQueries = executed.filter(function (q) { return q.op !== 'fields'; });
         var block = dataQueries.length ? formatAll(dataQueries, results) : '(no Odoo query was needed or none returned data)';
+        step('answer', 'Writing the answer from the returned rows');
+        var fileBlock = opts.fileContext ? 'ATTACHED FILE DATA (uploaded by the user in this chat; treat as user-supplied, unverified, and never mix it with Odoo numbers without saying which is which):\n' + clip(opts.fileContext, 9000) : '';
         var system = [opts.systemPrompt, ANSWER_RULES,
           'TODAY: ' + iso(new Date()) + (s.currency ? ' · company currency: ' + s.currency : '') + (s.company ? ' · company: ' + s.company : '') + '\n' + areasLine(s),
-          'LIVE QUERY RESULTS (' + trace.queries + ' queries, ' + trace.ms + ' ms):\n' + block].filter(Boolean).join('\n\n');
+          'LIVE QUERY RESULTS (' + trace.queries + ' queries, ' + trace.ms + ' ms):\n' + block, fileBlock].filter(Boolean).join('\n\n');
         return callLLM(history, system).then(function (text) {
           var foot = dataQueries.length
             ? '\n\n*Live Odoo · ' + dataQueries.length + ' quer' + (dataQueries.length === 1 ? 'y' : 'ies') + ' (' + uniq(dataQueries.map(function (q) { return q.model; })).join(', ') + ') · ' + (trace.ms / 1000).toFixed(1) + 's' + (trace.failed ? ' · ' + trace.failed + ' failed' : '') + '*'
@@ -556,7 +645,10 @@
             return '';
           });
           var artifact = isDashboardQuestion(question) ? dashboardArtifact(question, dataQueries, results, s) : null;
-          return { content: text + foot, dashboard: artifact, liveOdoo: dataQueries.length > 0, followups: followups };
+          trace.ms = Date.now() - t0;
+          var full = compactTrace(executed, results, s, trace);
+          full.steps = closeSteps();
+          return { content: text + foot, dashboard: artifact, liveOdoo: dataQueries.length > 0, followups: followups, trace: full };
         });
       });
     });
@@ -578,7 +670,7 @@
   }
 
   window.DVOdooAgent = {
-    ask: ask, askDetailed: askDetailed, status: getStatus, statusReport: statusReport, looksLikeStatusQuestion: looksLikeStatusQuestion,
+    ask: ask, askDetailed: askDetailed, health: health, status: getStatus, statusReport: statusReport, looksLikeStatusQuestion: looksLikeStatusQuestion,
     _t: { parseJsonLoose: parseJsonLoose, sanitizePlan: sanitizePlan, dateTable: dateTable, formatResult: formatResult, validDomain: validDomain, configProblem: configProblem, cell: cell, isDashboardQuestion: isDashboardQuestion, dashboardArtifact: dashboardArtifact, reset: function () { status = { at: 0, data: null }; } }
   };
 })();
