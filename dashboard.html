@@ -90,7 +90,7 @@
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
         <span>Reports</span>
       </a>
-      <a href="ai.html" class="dash-nav-link" data-view="ai">
+      <a href="#ai" class="dash-nav-link" data-view="ai">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2c-1.7 0-3 1.2-3 3v1H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2V5c0-1.8-1.3-3-3-3Z"/><circle cx="12" cy="13" r="2"/></svg>
         <span>AI Assistant</span>
       </a>
@@ -382,32 +382,64 @@
 
       <!-- ══════════════════════ AI ASSISTANT (embedded SPA view) ══════════════════════ -->
       <section class="view-panel" id="view-ai">
-        <div class="ov-head">
-          <div><h1>AI Assistant</h1><p>Local engine · runs in this tab, no network calls</p></div>
-          <div class="ov-head-actions">
-            <button class="btn btn-outline btn-sm" id="aiEmbedNewChatBtn">+ New chat</button>
-            <button class="btn btn-outline btn-sm" id="aiEmbedExportBtn">Export chat</button>
-          </div>
-        </div>
-        <div class="ai-embed-shell panel">
-          <div class="ai-embed-messages" id="aiEmbedMessages">
-            <div class="ai-embed-empty" id="aiEmbedEmpty">
-              <div class="ai-embed-empty-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M7 13l3-5 2 3 2-4 3 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-              <h3>What can I help you with?</h3>
-              <p>Local intelligence engine — no API key, no account, nothing leaves this tab. Paste code to debug, ask about a DashView feature, or just tell me how things are going.</p>
-              <div class="ai-embed-suggest-grid">
-                <button class="ai-embed-suggest-card" data-prompt="How does the auto-suggest engine in Data Studio decide which charts and KPIs to recommend?">How does Data Studio work?</button>
-                <button class="ai-embed-suggest-card" data-prompt="What's the safest way to roll out a risky deploy and roll it back if something breaks?">Deploys &amp; rollbacks</button>
-                <button class="ai-embed-suggest-card" data-prompt="What does the region filter and date range do on the Overview board?">What do the dashboard filters do?</button>
-                <button class="ai-embed-suggest-card" data-prompt="Honestly, I'm feeling pretty overwhelmed with everything on my plate right now.">Just need to talk something through</button>
-              </div>
+        <div class="aiw" id="aiw" data-rail="open" data-insp="closed">
+          <header class="aiw-head">
+            <button type="button" class="aiw-iconbtn aiw-only-narrow" id="aiwRailBtn" aria-label="Show chats" title="Chats">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h12"/></svg>
+            </button>
+            <div class="aiw-titlebox">
+              <nav class="aiw-route" id="aiwRoute" aria-label="AI route"></nav>
+              <h1 class="aiw-title">AI Assistant</h1>
             </div>
+            <div class="aiw-chips" id="aiwChips">
+              <button type="button" class="aiw-chip" id="aiwOdooChip" data-state="unknown" title="Odoo connection — open details"><i></i><span>Odoo</span></button>
+              <button type="button" class="aiw-chip" id="aiwProvChip" data-state="local" title="AI provider — open settings"><i></i><span>Local engine</span></button>
+            </div>
+            <div class="aiw-actions">
+              <button type="button" class="btn btn-outline btn-sm" id="aiwNewBtn">+ New chat</button>
+              <button type="button" class="btn btn-outline btn-sm" id="aiwExportBtn">Export</button>
+              <button type="button" class="aiw-iconbtn" id="aiwInspBtn" aria-label="Toggle details panel" aria-pressed="false" title="Path, connection and files">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></svg>
+              </button>
+            </div>
+          </header>
+          <div class="aiw-body">
+            <aside class="aiw-rail" id="aiwRail" aria-label="Chats">
+              <div class="aiw-rail-top">
+                <label class="aiw-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input type="search" id="aiwSearch" placeholder="Search chats" aria-label="Search chats" autocomplete="off"/></label>
+              </div>
+              <div class="aiw-threads" id="aiwThreads"></div>
+              <div class="aiw-rail-foot"><span id="aiwRailNote">Chats stay in this browser.</span></div>
+            </aside>
+            <main class="aiw-main" id="aiwMain">
+              <div class="aiw-messages" id="aiwMessages" role="log" aria-live="polite" aria-label="Conversation"></div>
+              <div class="aiw-composer-wrap">
+                <div class="aiw-tray" id="aiwTray" hidden></div>
+                <div class="aiw-composer">
+                  <button type="button" class="aiw-iconbtn" id="aiwAttach" aria-label="Attach a file for analysis" title="Attach CSV, Excel, JSON or TXT">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m21.4 11.1-9.2 9.2a5.5 5.5 0 0 1-7.8-7.8l9.2-9.2a3.7 3.7 0 0 1 5.2 5.2l-9.2 9.2a1.8 1.8 0 0 1-2.6-2.6l8.5-8.5"/></svg>
+                  </button>
+                  <input type="file" id="aiwFile" multiple hidden/>
+                  <textarea id="aiwInput" rows="1" placeholder="Ask about your Odoo data, attach a file to report on it…" aria-label="Message DashView AI"></textarea>
+                  <button type="button" class="btn btn-signal btn-sm aiw-send" id="aiwSend" disabled>Send</button>
+                </div>
+                <p class="aiw-hint"><span>Enter to send · Shift+Enter for a new line · drop a file anywhere</span><button type="button" class="aiw-link" id="aiwPrivacyBtn">What is sent where?</button></p>
+              </div>
+              <div class="aiw-drop" id="aiwDrop" hidden><div><strong>Drop to analyse</strong><span>CSV, Excel, JSON or TXT — read in your browser</span></div></div>
+            </main>
+            <aside class="aiw-insp" id="aiwInsp" aria-label="Details">
+              <div class="aiw-insp-head">
+                <div class="aiw-tabs" id="aiwInspTabs" role="tablist">
+                  <button type="button" role="tab" data-tab="path" class="active">Path</button>
+                  <button type="button" role="tab" data-tab="connection">Connection</button>
+                  <button type="button" role="tab" data-tab="files">Files</button>
+                </div>
+                <button type="button" class="aiw-iconbtn" id="aiwInspClose" aria-label="Close details">✕</button>
+              </div>
+              <div class="aiw-insp-body" id="aiwInspBody"></div>
+            </aside>
           </div>
-          <div class="ai-embed-composer">
-            <textarea id="aiEmbedInput" placeholder="Message DashView AI…" rows="1"></textarea>
-            <button class="btn btn-signal btn-sm" id="aiEmbedSendBtn" disabled>Send</button>
-          </div>
-          <p class="ai-embed-footnote">DashView AI · local engine · <a href="ai.html">Open full-page chat ↗</a></p>
+          <div class="aiw-scrim" id="aiwScrim" hidden></div>
         </div>
       </section>
 
@@ -1052,7 +1084,7 @@
 
                   <div class="stg-action-row">
                     <button class="btn btn-signal btn-sm" id="aiSaveBtn">Save</button>
-                    <a href="ai.html" class="btn btn-outline btn-sm">Open AI Assistant</a>
+                    <a href="#ai" class="btn btn-outline btn-sm" data-view="ai">Open AI Assistant</a>
                     <span class="stg-field-help" id="aiSaveStatus" style="margin-left:auto;"></span>
                   </div>
                 </div>
@@ -1812,6 +1844,7 @@
 <script src="js/ai-settings-ui.js"></script>
 <script src="js/settings-pro.js"></script>
 <script src="js/settings-overview.js"></script>
+<script src="js/ai-files.js"></script>
 <script src="js/ai-embed.js"></script>
 <script src="js/tabbar.js"></script>
 </body>

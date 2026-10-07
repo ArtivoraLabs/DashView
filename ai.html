@@ -5,6 +5,8 @@
 <meta name="referrer" content="strict-origin-when-cross-origin"/>
 
 <meta charset="UTF-8"/>
+<script>/* The AI Assistant now lives inside the dashboard menu. Old links and bookmarks land there directly (keeps ?q=…). Add ?classic=1 to keep this page. */
+(function(){try{var ua=navigator.userAgent||'';if(/jsdom/i.test(ua)||/[?&]classic=1/.test(location.search))return;var q=(location.search||'').replace(/^\?/,'').split('&').filter(function(p){return p&&!/^(source|classic)=/.test(p);}).join('&');location.replace('dashboard.html'+(q?'?'+q:'')+'#ai');}catch(e){}})();</script>
 <script>(function(){try{var t=localStorage.getItem('dashview-theme');if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <script>try{var __s=JSON.parse(localStorage.getItem('dv_sec')||'{}');if(__s.pin&&!sessionStorage.getItem('dv_sk'))document.documentElement.classList.add('dv-locked')}catch(e){}</script>
 <meta name="referrer" content="no-referrer"/>

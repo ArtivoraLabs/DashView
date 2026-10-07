@@ -88,7 +88,7 @@
     },
     {
       "name": "AI Assistant",
-      "url": "ai.html?source=shortcut"
+      "url": "dashboard.html?source=shortcut#ai"
     },
     {
       "name": "Settings",

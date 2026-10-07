@@ -7,8 +7,8 @@
 <meta charset="UTF-8"/>
 <script>(function(){try{var t=localStorage.getItem('dashview-theme');if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>DashView — Describe the ticket. Review the PR.</title>
-<meta name="description" content="DashView reads your repo, plans the change, writes it, runs your tests, and opens a pull request — with a live dashboard tracking every decision along the way."/>
+<title>DashView — Every number in Odoo, one click from its records</title>
+<meta name="description" content="DashView turns your Odoo into an executive dashboard and an AI analyst. Ask in plain words, drill from any KPI to the exact records, and reconcile files with live Odoo data — read-only, with every query shown."/>
 <meta name="theme-color" content="#0a0c0b"/>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml"/>
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png"/>
@@ -363,10 +363,9 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
 <link rel="stylesheet" href="css/index-pro.css"/>
 <link rel="stylesheet" href="css/pro-detail.css"/>
 <link rel="stylesheet" href="css/index-glass.css"/>
+<script defer src="js/index-demo.js"></script>
 </head>
 <body>
-<div class="ambient" aria-hidden="true"><i class="a1"></i><i class="a2"></i><i class="a3"></i></div>
-<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 <!-- ══════════ NAV ══════════ -->
 <header class="nav" id="nav">
   <div class="nav-inner">
@@ -375,15 +374,14 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
       DashView
     </a>
     <nav class="nav-links" id="navLinks">
-      <a class="nav-menu-only" href="#approach">Why it works</a>
       <a href="#how">How it works</a>
-      <a href="#capabilities">Capabilities</a>
+      <a href="#features">Features</a>
       <a href="#security">Security</a>
-      <a href="#pricing">Free access</a>
+      <a href="#faq">FAQ</a>
       <a href="dashboard.html">Dashboard</a>
       <a href="people.html">People</a>
       <a href="data-studio.html">Data Studio</a>
-      <a class="nav-menu-only" href="ai.html">AI Assistant</a>
+      <a class="nav-menu-only" href="dashboard.html#ai">AI Assistant</a>
       <a class="nav-menu-only" href="dashboard.html#settings">Settings</a>
       <button class="nav-menu-only nav-menu-theme" type="button" id="menuTheme">Switch theme</button>
       <button class="nav-menu-only" type="button" id="menuLogin">Sign in</button>
@@ -400,427 +398,152 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
   </div>
 </header>
 
-<!-- ══════════ HERO ══════════ -->
-<section class="hero">
-  <div class="hero-glow" aria-hidden="true"></div>
-  <div class="hero-grid" aria-hidden="true"></div>
-  <div class="hero-inner">
-    <div class="hero-copy">
-      <div class="hero-badge">
-        <span class="hero-badge-dot"></span>
-        <span>Onboarding design partners — limited spots</span>
-      </div>
-      <h1 class="hero-h1">Describe the ticket.<br/>Review the <span class="grad-text">PR.</span></h1>
-      <p class="hero-sub">DashView reads your repo, plans the change, writes it, runs your tests, and opens a pull request — while a live dashboard tracks every decision along the way.</p>
-      <div class="hero-cta">
-        <button class="btn btn-primary btn-lg" id="heroWaitlistBtn">Request early access →</button>
-        <a href="dashboard.html" class="btn btn-outline btn-lg">Open the dashboard</a>
+<div class="ig-bg" aria-hidden="true"><span class="ig-blob a"></span><span class="ig-blob b"></span><span class="ig-blob c"></span></div>
+
+<main class="ig" id="top">
+
+<!-- ═══════ HERO ═══════ -->
+<section class="ig-hero">
+  <div class="ig-wrap ig-hero-grid">
+    <div>
+      <span class="ig-kicker rv"><i></i> Live on your Odoo · read-only</span>
+      <h1 class="ig-h1" aria-label="Every number in Odoo, one click from its records.">
+        <span class="word" style="--i:0">Every</span> <span class="word" style="--i:1">number</span> <span class="word" style="--i:2">in</span> <span class="word" style="--i:3">Odoo,</span><br/>
+        <span class="word ig-grad" style="--i:4">one</span> <span class="word ig-grad" style="--i:5">click</span> <span class="word" style="--i:6">from</span> <span class="word" style="--i:7">its</span> <span class="word" style="--i:8">records.</span>
+      </h1>
+      <p class="ig-sub rv" style="--d:.25s">DashView turns your Odoo into an executive dashboard and an AI analyst. Ask in plain words, then drill from any KPI down to the exact invoice behind it — with every query shown and nothing ever written back.</p>
+      <div class="ig-cta rv" style="--d:.35s">
+        <a href="dashboard.html" class="btn btn-primary btn-lg">Open the dashboard</a>
+        <a href="#explore" class="btn btn-outline btn-lg">Try the live demo ↓</a>
       </div>
       <p class="hero-install" id="heroInstall" hidden><button type="button" class="link-btn" id="installAppBtn">Install DashView as an app</button> for a full-screen window on this device.</p>
-      <div class="hero-proof">
-        <div class="hero-proof-item"><strong id="statRepos">0</strong><span>repos connected</span></div>
-        <div class="hero-proof-item"><strong id="statPRs">0</strong><span>PRs shipped</span></div>
-        <div class="hero-proof-item"><strong>99.97%</strong><span>pipeline uptime</span></div>
+      <div class="ig-chips rv" style="--d:.45s">
+        <span class="ig-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.4 8.4 8 9 4.6-.6 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg>Read-only by design</span>
+        <span class="ig-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h5l2-6 3 12 2-6h4"/></svg>KPI → record in 3 clicks</span>
+        <span class="ig-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Light · Dark · Liquid Glass</span>
       </div>
     </div>
-    <div class="hero-panel-wrap">
-    <div class="chip c1" aria-hidden="true"><b>✓</b><span>212 tests passed<small>coverage 94%</small></span></div>
-    <div class="chip c2" aria-hidden="true"><b>↗</b><span>PR #482 opened<small>3 files · +64 −6</small></span></div>
-    <div class="hero-panel">
-      <div class="hero-panel-bar">
-        <div class="hp-dots"><span></span><span></span><span></span></div>
-        <span class="hp-title">agent · live session · acme-corp/api</span>
-      </div>
-      <div class="hero-panel-body" id="terminal"></div>
-    </div>
-    </div>
-  </div>
-</section>
 
-<div class="diff-divider" aria-hidden="true">
-  <span class="plus">+ 6,214</span><span class="minus">− 1,382</span><span>212 files</span><span>48 repos</span><span>320 PRs merged</span>
-</div>
-
-<!-- ══════════ TRUST BAR ══════════ -->
-<section class="trust">
-  <div class="container">
-    <p class="trust-label">Works inside the stack you already run</p>
-    <div class="marquee"><div class="marquee-track"><span class="trust-chip">GitHub</span><span class="trust-chip">GitLab</span><span class="trust-chip">Bitbucket</span><span class="trust-chip">Jira</span><span class="trust-chip">Linear</span><span class="trust-chip">Slack</span><span class="trust-chip">CircleCI</span><span class="trust-chip">Vercel</span><span class="trust-chip" style="display:none"></span><span class="trust-chip" aria-hidden="true">GitHub</span><span class="trust-chip" aria-hidden="true">GitLab</span><span class="trust-chip" aria-hidden="true">Bitbucket</span><span class="trust-chip" aria-hidden="true">Jira</span><span class="trust-chip" aria-hidden="true">Linear</span><span class="trust-chip" aria-hidden="true">Slack</span><span class="trust-chip" aria-hidden="true">CircleCI</span><span class="trust-chip" aria-hidden="true">Vercel</span></div></div>
-  </div>
-</section>
-<!-- ══════════ PROBLEM / APPROACH ══════════ -->
-<section class="section-tight" id="approach">
-  <div class="container">
-    <div class="section-head wide">
-      <p class="kicker">a backlog ticket, two ways</p>
-      <h2>Every ticket costs a context switch. Most of your week is context switching.</h2>
-      <p>The work itself — the actual diff — is usually small. Everything around it (re-reading the code, remembering the convention, writing the tests, waiting for review) is what eats the day.</p>
-    </div>
-    <div class="compare-grid">
-      <div class="compare-col bad">
-        <h4>— Without DashView</h4>
-        <div class="compare-line"><span class="compare-mark">01</span><span>Ticket sits in the backlog until someone has a free afternoon.</span></div>
-        <div class="compare-line"><span class="compare-mark">02</span><span>Engineer re-reads the module to remember how it works.</span></div>
-        <div class="compare-line"><span class="compare-mark">03</span><span>Writes the change, then writes tests for it separately.</span></div>
-        <div class="compare-line"><span class="compare-mark">04</span><span>Opens a PR, waits, gets asked to add a missing edge case.</span></div>
-        <div class="compare-time">~1 engineering day, interrupted</div>
-      </div>
-      <div class="compare-col good">
-        <h4>+ With DashView</h4>
-        <div class="compare-line"><span class="compare-mark">01</span><span>Ticket is pasted in; DashView reads the surrounding code first.</span></div>
-        <div class="compare-line"><span class="compare-mark">02</span><span>A step-by-step plan appears in under a minute for you to approve.</span></div>
-        <div class="compare-line"><span class="compare-mark">03</span><span>Code and matching tests are written together, then run against CI.</span></div>
-        <div class="compare-line"><span class="compare-mark">04</span><span>A PR opens with green checks — you review outcomes, not busywork.</span></div>
-        <div class="compare-time">~11 minutes, reviewed in one sitting</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════ STATS ══════════ -->
-<section class="section-tight" style="border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
-  <div class="container">
-    <div class="bento" style="grid-auto-rows:auto">
-      <div class="bento-card b-sm stat" style="grid-column:span 1"><h3 class="t-display" data-target="12400" style="font-size:1.9rem">0</h3><p style="font-size:.8rem">Pull requests merged</p></div>
-      <div class="bento-card b-sm stat" style="grid-column:span 1"><h3 class="t-display" data-target="340" style="font-size:1.9rem">0</h3><p style="font-size:.8rem">Engineering teams onboard</p></div>
-      <div class="bento-card b-sm stat" style="grid-column:span 1"><h3 class="t-display" style="font-size:1.9rem">99.97%</h3><p style="font-size:.8rem">Pipeline uptime</p></div>
-      <div class="bento-card b-sm stat" style="grid-column:span 1"><h3 class="t-display" data-target="4200000" style="font-size:1.9rem">0</h3><p style="font-size:.8rem">Lines reviewed / month</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════ HOW IT WORKS ══════════ -->
-<section class="section" id="how">
-  <div class="container">
-    <div class="section-head wide">
-      <p class="kicker">how it works</p>
-      <h2>Five steps, one review.</h2>
-      <p>DashView doesn't skip straight to a diff. It plans out loud first, so what lands in your review queue is something you already agreed to.</p>
-    </div>
-    <div class="steps">
-      <div class="steps-list">
-        <div class="step">
-          <div class="step-num">01</div>
-          <div class="step-body">
-            <div class="step-text"><h3>Describe the ticket</h3><p>Paste a Jira ticket, a Linear issue, or a plain-English request. No special syntax required.</p></div>
-            <div class="step-visual"><span class="am">&gt;</span> <span class="hl">"Add a sliding-window rate limiter to the public API"</span></div>
-          </div>
+    <div class="ig-stage rv" style="--d:.2s" id="explore">
+      <div class="ig-float ig-glass f1"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m5 12 4 4 10-10"/></svg></span><div><b id="igFloatA">—</b><small>collected this period</small></div></div>
+      <div class="ig-float ig-glass f2"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg></span><div><b id="igFloatB">—</b><small>overdue invoices</small></div></div>
+      <div class="ig-win ig-glass" id="igWin">
+        <div class="ig-win-bar"><span class="ig-dots"><i></i><i></i><i></i></span><span class="ig-win-title">DashView · Executive overview</span><span class="ig-pill">Sample data</span></div>
+        <div class="ig-win-tools">
+          <div class="ig-seg" id="igPeriod" role="tablist" aria-label="Period"><span class="thumb"></span><button type="button" role="tab" data-p="month">Month</button><button type="button" role="tab" data-p="quarter" class="on">Quarter</button><button type="button" role="tab" data-p="year">Year</button></div>
+          <span class="ig-hint">Click a card or bar to drill in</span>
         </div>
-        <div class="step">
-          <div class="step-num">02</div>
-          <div class="step-body">
-            <div class="step-text"><h3>Review the plan</h3><p>DashView reads the repo, checks existing patterns, and drafts a step-by-step plan before writing a line of code.</p></div>
-            <div class="step-visual">1. Add rateLimiter.ts (Redis-backed)<br/>2. Wire into route middleware<br/>3. Add config + env defaults<br/>4. Write unit + integration tests</div>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-num">03</div>
-          <div class="step-body">
-            <div class="step-text"><h3>Code gets written</h3><p>Following your repo's existing conventions — not generic boilerplate pulled from nowhere.</p></div>
-            <div class="step-visual"><span class="add">+ export function rateLimiter(opts: Opts) {</span><br/><span class="add">+   return slidingWindow(opts.redis, opts.max)</span><br/><span class="add">+ }</span><br/><span class="rm">- // TODO: add rate limiting</span></div>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-num">04</div>
-          <div class="step-body">
-            <div class="step-text"><h3>Tests run automatically</h3><p>Existing suites run first; new tests are written for the exact change. Nothing opens on red CI.</p></div>
-            <div class="step-visual">Running 212 tests…<br/><span class="add">212 passed · coverage 94%</span></div>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-num">05</div>
-          <div class="step-body">
-            <div class="step-text"><h3>A pull request opens</h3><p>With commit-level history, a written summary, and a link to the live run — ready for a human to approve.</p></div>
-            <div class="step-visual">PR #482 opened<br/>3 files changed · +64 −6 · reviewers: @you</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-<!-- ══════════ CAPABILITIES (BENTO) ══════════ -->
-<section class="section" id="capabilities" style="border-top:1px solid var(--border)">
-  <div class="container">
-    <div class="section-head wide">
-      <p class="kicker">capabilities</p>
-      <h2>Everything a senior engineer would do, automated.</h2>
-      <p>DashView reasons about your repo, runs your tests, and stops to ask when something's ambiguous — just like a teammate would.</p>
-    </div>
-    <div class="bento">
-      <div class="bento-card b-lg">
-        <div><div class="bento-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg></div>
-        <h3>Plans before it codes</h3>
-        <p>Breaks tasks into a reviewable step-by-step plan before touching a single file. You approve, it executes — nothing runs unsupervised.</p></div>
-        <div class="bento-mini">
-          <div><span class="dot"></span>Add rateLimiter.ts (Redis-backed)</div>
-          <div><span class="dot"></span>Wire into route middleware</div>
-          <div><span class="dot"></span>Write unit + integration tests</div>
-        </div>
-      </div>
-      <div class="bento-card b-md">
-        <div class="bento-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 18l-6-6 6-6M15 6l6 6-6 6"/></svg></div>
-        <div><h3>Ships real pull requests</h3><p>Commit-level history, not one squashed diff you can't reason about.</p></div>
-      </div>
-      <div class="bento-card b-md">
-        <div class="bento-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 6 9 17l-5-5"/></svg></div>
-        <div><h3>Runs your test suite</h3><p>Executes existing tests and writes new ones. Green CI before a PR opens.</p></div>
-      </div>
-      <div class="bento-card b-sm">
-        <div class="bento-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 20V10M12 20V4M20 20v-7"/></svg></div>
-        <div><h3>Live observability</h3><p>Every action streams to a dashboard your team can watch in real time.</p></div>
-      </div>
-      <div class="bento-card b-sm">
-        <div class="bento-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73M12 2c5.52 0 10 4.58 10 10.25 0 4.53-2.87 8.37-6.84 9.73"/><path d="M12 2v20"/></svg></div>
-        <div><h3>Repo-aware context</h3><p>Reads your existing patterns instead of generating generic boilerplate.</p></div>
-      </div>
-      <div class="bento-card b-sm">
-        <div class="bento-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
-        <div><h3>Human approval gates</h3><p>Nothing merges to your default branch without a reviewer signing off.</p></div>
+        <div class="ig-kpis" id="igKpis"></div>
+        <div class="ig-chart" id="igChart"></div>
       </div>
     </div>
   </div>
 </section>
 
-<div class="diff-divider" aria-hidden="true">
-  <span class="am">Live dashboard</span><span>updates streamed per action</span><span>audit-logged</span>
-</div>
-
-<!-- ══════════ DASHBOARD PREVIEW ══════════ -->
-<section class="section">
-  <div class="container">
-    <div class="dash-preview">
-      <div>
-        <p class="kicker">see what shipped, and why</p>
-        <h2 style="margin-bottom:16px">Every run reports itself — nobody has to ask for a status update.</h2>
-        <p style="font-size:.95rem;margin-bottom:26px;max-width:420px">A live dashboard tracks throughput, review time, and test coverage across every repo DashView touches, so your team reviews outcomes instead of chasing updates.</p>
-        <ul class="dash-list">
-          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg><span>Revenue-style throughput charts for PR volume and review time</span></li>
-          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg><span>Per-repo breakdown of what changed and which tests ran</span></li>
-          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg><span>A full audit trail — every decision, timestamped and reviewable</span></li>
-        </ul>
-        <a href="dashboard.html" class="btn btn-outline" style="margin-top:8px">Open the live dashboard →</a>
-      </div>
-      <div class="dash-frame">
-        <div class="dash-frame-bar"><span>overview · acme-corp</span><span>Last 30 days</span></div>
-        <div class="dash-frame-body">
-          <div class="dash-kpis">
-            <div class="dash-kpi"><span>PRs shipped</span><strong>128<em>+18%</em></strong></div>
-            <div class="dash-kpi"><span>Avg. review time</span><strong>14m<em>−62%</em></strong></div>
-            <div class="dash-kpi"><span>Test coverage</span><strong>94%<em>+6%</em></strong></div>
-          </div>
-          <div class="dash-chart" aria-hidden="true">
-            <i style="height:38%"></i><i style="height:52%"></i><i style="height:44%"></i><i style="height:68%"></i><i style="height:60%"></i><i style="height:82%"></i><i style="height:71%"></i><i style="height:90%"></i><i style="height:78%"></i><i style="height:95%"></i>
-          </div>
-        </div>
-      </div>
-    </div>
+<!-- integrations -->
+<section class="ig-strip rv">
+  <div class="ig-wrap">
+    <p>Works with what you already run</p>
+    <div class="ig-marquee"><div class="ig-track" id="igTrack"></div></div>
   </div>
 </section>
-<!-- ══════════ PRODUCT TOUR ══════════ -->
-<section class="section" id="tour" style="border-top:1px solid var(--border)">
-  <div class="container">
-    <div class="section-head wide">
-      <p class="kicker">see it live</p>
-      <h2>One platform, three surfaces.</h2>
-      <p>The dashboard, the built-in BI tool, and the AI assistant all read from the same live data — no exports, no syncing.</p>
+
+<!-- ═══════ AI PATH ═══════ -->
+<section class="ig-sec" id="ai">
+  <div class="ig-wrap ig-two">
+    <div class="rv">
+      <span class="ig-kicker">Ask your Odoo</span>
+      <div class="ig-head" style="margin-bottom:0"><h2>An answer you can <span class="ig-grad">audit</span>, not just read.</h2>
+      <p>Ask in plain words — English or Roman Urdu. The assistant plans read-only queries, runs them on your Odoo and writes the answer from the rows that came back. Every step and every filter is on screen, and every number opens its records.</p></div>
+      <ol class="ig-list">
+        <li><span class="n">1</span><div><b>Connect &amp; plan</b><span class="d">Checks the connection, then chooses the models, filters and group-bys.</span></div></li>
+        <li><span class="n">2</span><div><b>Read, never write</b><span class="d">Only record, group and count reads are possible. Secret-looking fields are blocked.</span></div></li>
+        <li><span class="n">3</span><div><b>Drill into the proof</b><span class="d">Click any number to open the exact records, then a single record in Odoo.</span></div></li>
+      </ol>
     </div>
-    <div class="tour-tabs">
-      <button class="tour-tab active" data-tab="dashboard">Dashboard</button>
-      <button class="tour-tab" data-tab="studio">Data Studio</button>
-      <button class="tour-tab" data-tab="ai">AI Assistant</button>
-    </div>
-    <div class="tour-panel active" data-panel="dashboard">
-      <div class="tour-frame">
-        <div class="tour-frame-bar"><span class="tour-frame-dot"></span><span style="font-family:var(--f-mono);font-size:.75rem;color:var(--text3);margin-left:8px">dashboard.html · live session</span></div>
-        <div class="tour-frame-body">
-          <div class="dash-kpis" style="margin-bottom:20px">
-            <div class="dash-kpi"><span>Repos connected</span><strong>48</strong></div>
-            <div class="dash-kpi"><span>Open PRs</span><strong>7</strong></div>
-            <div class="dash-kpi"><span>Uptime</span><strong>99.97%</strong></div>
-          </div>
-          <div style="background:var(--elevated);border:1px solid var(--border);border-radius:var(--r-md);padding:20px;text-align:center;color:var(--text3);font-size:.875rem">Full interactive charts available in <a href="dashboard.html" style="color:var(--amber)">Dashboard →</a></div>
-        </div>
-      </div>
-    </div>
-    <div class="tour-panel" data-panel="studio">
-      <div class="tour-frame">
-        <div class="tour-frame-bar"><span class="tour-frame-dot"></span><span style="font-family:var(--f-mono);font-size:.75rem;color:var(--text3);margin-left:8px">data-studio.html · zero API keys</span></div>
-        <div class="tour-frame-body">
-          <p style="font-size:.9rem;margin-bottom:18px">Import a spreadsheet, and Data Studio types every column, flags data-health issues, and drafts a full BI dashboard — entirely client-side, with no network calls.</p>
-          <div style="background:var(--elevated);border:1px solid var(--border);border-radius:var(--r-md);padding:20px;text-align:center;color:var(--text3);font-size:.875rem">Try it with sample data in <a href="data-studio.html" style="color:var(--amber)">Data Studio →</a></div>
-        </div>
-      </div>
-    </div>
-    <div class="tour-panel" data-panel="ai">
-      <div class="tour-frame">
-        <div class="tour-frame-bar"><span class="tour-frame-dot"></span><span style="font-family:var(--f-mono);font-size:.75rem;color:var(--text3);margin-left:8px">ai.html · rule-based, on-device</span></div>
-        <div class="tour-frame-body">
-          <div style="display:flex;flex-direction:column;gap:16px">
-            <div style="display:flex;gap:12px"><div style="width:32px;height:32px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.75rem;color:var(--amber);font-weight:600">AK</div><div style="background:var(--elevated);border:1px solid var(--border);border-radius:0 var(--r-lg) var(--r-lg) var(--r-lg);padding:12px 16px;font-size:.875rem;color:var(--text2);max-width:380px">What's our best performing product category this quarter?</div></div>
-            <div style="display:flex;gap:12px;justify-content:flex-end"><div style="background:rgba(232,163,61,.08);border:1px solid var(--border);border-radius:var(--r-lg) 0 var(--r-lg) var(--r-lg);padding:12px 16px;font-size:.875rem;color:var(--text2);max-width:420px"><strong style="color:var(--amber)">Electronics leads at $94.2k (+18% QoQ)</strong>, followed by Home ($67.8k) and Beauty ($51.3k). Recommend increasing inventory allocation ~15% heading into Q4.</div></div>
-          </div>
-          <div style="margin-top:20px;text-align:center"><a href="ai.html" class="btn btn-outline btn-sm">Open AI Assistant →</a></div>
-        </div>
-      </div>
+    <div class="ig-ai ig-glass rv" style="--d:.15s" id="igAi">
+      <div class="ig-ai-qs" id="igAiQs" role="tablist" aria-label="Example questions"></div>
+      <div class="ig-bubble" id="igAiQ"><span class="caret"></span></div>
+      <div class="ig-steps" id="igAiSteps" aria-live="polite"></div>
+      <div class="ig-ans" id="igAiAns"><p>Pick a question above — the path appears step by step.</p></div>
     </div>
   </div>
 </section>
 
-<!-- ══════════ SECURITY ══════════ -->
-<section class="section-tight" id="security" style="border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
-  <div class="container">
-    <div class="section-head wide">
-      <p class="kicker">security &amp; governance</p>
-      <h2>An autonomous agent still answers to your rules.</h2>
-      <p>DashView runs inside guardrails your team already trusts — nothing it does is invisible or irreversible.</p>
+<!-- ═══════ RECONCILE ═══════ -->
+<section class="ig-sec" id="reconcile">
+  <div class="ig-wrap ig-two flip">
+    <div class="rv">
+      <span class="ig-kicker">Bring a file</span>
+      <div class="ig-head" style="margin-bottom:0"><h2>Drop a spreadsheet. <span class="ig-grad">Reconcile it with Odoo.</span></h2>
+      <p>Attach a CSV, Excel or JSON file and get an instant report — then match its SKUs, emails or invoice numbers against live Odoo records. See what is missing, duplicated or different, and drill into each list.</p></div>
+      <ol class="ig-list">
+        <li><span class="n">✓</span><div><b>Instant report, in your browser</b><span class="d">KPIs, charts and data-quality checks. The file is never uploaded.</span></div></li>
+        <li><span class="n">⇄</span><div><b>Read-only lookups</b><span class="d">Products, contacts, orders, invoices, employees and more — matched on the field you choose.</span></div></li>
+        <li><span class="n">↓</span><div><b>PDF &amp; Excel out</b><span class="d">Hand the result to finance or procurement in one click.</span></div></li>
+      </ol>
     </div>
-    <div class="sec-grid">
-      <div class="sec-card">
-        <div class="bento-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M3 7l9-4 9 4"/></svg></div>
-        <h3>Sandboxed execution</h3><p>Every run happens in an isolated container with no access beyond the repo it's working in.</p>
-      </div>
-      <div class="sec-card">
-        <div class="bento-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3v12a3 3 0 0 0 3 3h12M6 9h12"/></svg></div>
-        <h3>Branch protection respected</h3><p>DashView opens PRs against your existing rules — required reviews and status checks still apply.</p>
-      </div>
-      <div class="sec-card">
-        <div class="bento-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg></div>
-        <h3>Full audit trail</h3><p>Every plan, edit, and decision is timestamped and reviewable — nothing happens off the record.</p>
-      </div>
-      <div class="sec-card">
-        <div class="bento-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></div>
-        <h3>Scoped permissions</h3><p>Access is granted per-repo, per-team, with revocable tokens — never a blanket org-wide key.</p>
-      </div>
+    <div class="ig-rec ig-glass rv" style="--d:.15s" id="igRec">
+      <div class="ig-rec-head"><span class="ig-file"><i>CSV</i>stock-count-sep.csv<small style="color:var(--text3);font-weight:500">8 rows</small></span><button type="button" class="btn btn-primary btn-sm" id="igRecRun">Reconcile with Odoo</button></div>
+      <div class="ig-tbl" id="igRecTbl"><div class="ig-scan" id="igScan"></div><table><thead><tr><th>SKU</th><th>Product</th><th>Qty in file</th><th>Result</th></tr></thead><tbody id="igRecBody"></tbody></table></div>
+      <div class="ig-recout" id="igRecOut"></div>
+      <p class="ig-note">Sample data. In your workspace the lookup is a read-only Odoo query on the field you pick.</p>
     </div>
   </div>
 </section>
 
-<!-- ══════════ INTEGRATIONS ══════════ -->
-<section class="section-tight">
-  <div class="container">
-    <div class="section-row">
-      <div class="section-head" style="margin-bottom:0">
-        <p class="kicker">integrations</p>
-        <h2>Plugs into the tools your team already uses.</h2>
-      </div>
-    </div>
-    <div class="int-grid">
-      <div class="int-card"><div class="int-icon">Gh</div><div><strong>GitHub</strong><span>Source control &amp; PRs</span></div></div>
-      <div class="int-card"><div class="int-icon">Gl</div><div><strong>GitLab</strong><span>Source control &amp; PRs</span></div></div>
-      <div class="int-card"><div class="int-icon">Ji</div><div><strong>Jira</strong><span>Ticket import</span></div></div>
-      <div class="int-card"><div class="int-icon">Li</div><div><strong>Linear</strong><span>Ticket import</span></div></div>
-      <div class="int-card"><div class="int-icon">Sl</div><div><strong>Slack</strong><span>Run notifications</span></div></div>
-      <div class="int-card"><div class="int-icon">Cc</div><div><strong>CircleCI</strong><span>Test pipelines</span></div></div>
-      <div class="int-card"><div class="int-icon">Vc</div><div><strong>Vercel</strong><span>Preview deploys</span></div></div>
-      <div class="int-card"><div class="int-icon">Bb</div><div><strong>Bitbucket</strong><span>Source control &amp; PRs</span></div></div>
-    </div>
+<!-- ═══════ FEATURES ═══════ -->
+<section class="ig-sec" id="features">
+  <div class="ig-wrap">
+    <div class="ig-head center rv"><span class="ig-kicker">Everything in one workspace</span><h2>Built for the people who read the numbers.</h2><p>Executives, finance, operations and HR work from the same live Odoo data — each with the drill they need.</p></div>
+    <div class="ig-feat" id="igFeat"></div>
   </div>
 </section>
-<!-- ══════════ TESTIMONIALS ══════════ -->
-<section class="section" style="border-top:1px solid var(--border)">
-  <div class="container">
-    <div class="section-head wide">
-      <p class="kicker">from design partners</p>
-      <h2>What engineering teams say after a week of PRs.</h2>
-    </div>
-    <div class="quote-grid">
-      <div class="quote-card">
-        <div class="quote-mark">"</div>
-        <p class="quote-text">The plan-before-code step is what sold the team. We can veto a bad approach before it costs us a diff.</p>
-        <div class="quote-person"><div class="quote-avatar">RS</div><div><strong>Priya Raman</strong><span>Staff Engineer, Vertica</span></div></div>
-      </div>
-      <div class="quote-card">
-        <div class="quote-mark">"</div>
-        <p class="quote-text">Review time dropped once PRs started arriving with tests already green. We stopped bouncing things back.</p>
-        <div class="quote-person"><div class="quote-avatar">JM</div><div><strong>Jonah Marsh</strong><span>Eng Lead, Halyard</span></div></div>
-      </div>
-      <div class="quote-card">
-        <div class="quote-mark">"</div>
-        <p class="quote-text">Branch protection and the audit log made this an easy sell to security — nothing is a black box.</p>
-        <div class="quote-person"><div class="quote-avatar">TC</div><div><strong>Talia Chen</strong><span>CTO, Corsair Labs</span></div></div>
-      </div>
+
+<!-- ═══════ HOW ═══════ -->
+<section class="ig-sec" id="how">
+  <div class="ig-wrap">
+    <div class="ig-head center rv"><span class="ig-kicker">Up in minutes</span><h2>Connect once. Drill everywhere.</h2></div>
+    <div class="ig-steps3" id="igSteps3">
+      <div class="ig-s ig-glass rv"><span class="num">1</span><h3>Add your Odoo</h3><p>Paste the Worker URL, your Odoo address, database and an API key in Settings. The connection check shows exactly which apps are readable.</p></div>
+      <div class="ig-s ig-glass rv" style="--d:.12s"><span class="num">2</span><h3>Pick your view</h3><p>Overview for executives, People for HR, Data Studio for any file, or just ask the assistant. Light, dark or Liquid Glass.</p></div>
+      <div class="ig-s ig-glass rv" style="--d:.24s"><span class="num">3</span><h3>Drill to the record</h3><p>KPI → group → records → one record, with the query shown at every step and Open-in-Odoo links.</p></div>
     </div>
   </div>
 </section>
 
-<!-- ══════════ FREE ACCESS ══════════ -->
-<section class="section-tight" id="pricing" style="border-top:1px solid var(--border)">
-  <div class="container">
-    <div class="section-head wide">
-      <p class="kicker">no subscription</p>
-      <h2>Free for every engineering team. No seat fees.</h2>
-      <p>DashView is free to connect, free to run, and free to scale across every repo your team owns — no credit card, no per-seat billing, no locked tiers.</p>
-    </div>
-    <div class="price-grid" style="grid-template-columns:1fr">
-      <div class="price-card featured" style="max-width:640px;margin:0 auto;text-align:left">
-        <span class="price-tag">Always free</span>
-        <p class="price-name">Full access</p>
-        <div class="price-amount"><strong>$0</strong><span>forever, unlimited repos</span></div>
-        <p class="price-desc">Everything DashView does, included from the first connected repo — no add-ons held back for a paid tier.</p>
-        <ul class="price-feats" style="columns:2;gap:20px">
-          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Unlimited repos</li>
-          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Live dashboard</li>
-          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Full audit trail</li>
-          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Branch protection</li>
-          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Slack + Jira/Linear</li>
-          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Community support</li>
-        </ul>
-        <button class="btn btn-primary btn-block btn-lg" id="priceTeamBtn">Get started free →</button>
-      </div>
-    </div>
+<!-- ═══════ SECURITY ═══════ -->
+<section class="ig-sec" id="security">
+  <div class="ig-wrap">
+    <div class="ig-head center rv"><span class="ig-kicker">Trust, in the details</span><h2>Powerful to read. Impossible to write.</h2><p>The assistant answers from your data without ever being able to change it.</p></div>
+    <div class="ig-sec-grid" id="igSecGrid"></div>
   </div>
 </section>
 
-<!-- ══════════ FAQ ══════════ -->
-<section class="section-tight" style="border-top:1px solid var(--border)">
-  <div class="container">
-    <div class="section-head">
-      <p class="kicker">frequently asked</p>
-      <h2>Questions engineering leads actually ask.</h2>
-    </div>
-    <div class="faq-list">
-      <details class="faq-item">
-        <summary>Can it merge code without a human?<span class="plus">+</span></summary>
-        <p>No. DashView opens pull requests and respects your existing branch protection rules — a reviewer always has to approve before anything reaches your default branch.</p>
-      </details>
-      <details class="faq-item">
-        <summary>What happens if a task is ambiguous?<span class="plus">+</span></summary>
-        <p>DashView stops at the planning step and asks a clarifying question instead of guessing. You'll never see a PR for a task it wasn't confident about.</p>
-      </details>
-      <details class="faq-item">
-        <summary>Does it work with our existing test suite?<span class="plus">+</span></summary>
-        <p>Yes — it runs your existing tests first and writes new ones in the same framework and style already used in your repo.</p>
-      </details>
-      <details class="faq-item">
-        <summary>Can we self-host it?<span class="plus">+</span></summary>
-        <p>Enterprise plans support self-hosted and VPC deployments, so code never has to leave your own infrastructure.</p>
-      </details>
-      <details class="faq-item">
-        <summary>Is it really free for a growing team?<span class="plus">+</span></summary>
-        <p>Yes — DashView has no per-seat billing and no subscription. Every repo you connect gets the full feature set, whether you're a team of 3 or 300.</p>
-      </details>
-      <details class="faq-item">
-        <summary>What languages and frameworks are supported?<span class="plus">+</span></summary>
-        <p>DashView reads whatever conventions already exist in your repo, so it isn't limited to a fixed language list — support is broadest for common backend and frontend stacks.</p>
-      </details>
-    </div>
+<!-- ═══════ FAQ ═══════ -->
+<section class="ig-sec" id="faq">
+  <div class="ig-wrap">
+    <div class="ig-head center rv"><span class="ig-kicker">Good questions</span><h2>Before you connect.</h2></div>
+    <div class="ig-faq rv" id="igFaq"></div>
   </div>
 </section>
 
-<!-- ══════════ CTA ══════════ -->
-<section class="cta-section">
-  <div class="container">
-    <div class="cta-band">
-      <p class="kicker" style="margin-bottom:16px">give your backlog a signal</p>
-      <h2>Ready to ship faster?</h2>
-      <p>Join engineering teams already shipping production PRs with DashView every week.</p>
+<!-- ═══════ CTA ═══════ -->
+<section class="ig-sec" style="padding-top:0">
+  <div class="ig-wrap">
+    <div class="ig-cta-band ig-glass rv">
+      <span class="ig-kicker">Give your numbers a source</span>
+      <h2>See your own Odoo this way.</h2>
+      <p>Request access, or open the dashboard and connect your Odoo in Settings. It takes a few minutes.</p>
       <div class="cta-email">
-        <input class="cta-input" type="email" placeholder="your@email.com" id="ctaEmail"/>
+        <input class="cta-input" type="email" placeholder="your@email.com" id="ctaEmail" aria-label="Work email"/>
         <button class="btn btn-primary" id="ctaSubmitBtn">Request access →</button>
       </div>
     </div>
   </div>
 </section>
+</main>
+
 <!-- ══════════ FOOTER ══════════ -->
 <footer class="footer">
   <div class="container">
@@ -830,7 +553,7 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
           <div class="nav-logo-ring"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M7 13l3-5 2 3 2-4 3 6" stroke="#191008" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
           DashView
         </a>
-        <p>An autonomous coding agent that plans, ships, and reports on its own work — so your team reviews outcomes, not busywork.</p>
+        <p>Your Odoo as an executive dashboard and an AI analyst. Ask in plain words, drill to the exact records, and reconcile files — read-only, with every query shown.</p>
         <div class="footer-social">
           <a href="https://github.com/artivoralabs/Dashview" rel="noopener" aria-label="GitHub"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.03-.01-1.87-2.78.62-3.37-1.22-3.37-1.22-.46-1.19-1.11-1.51-1.11-1.51-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.32 9.32 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg></a>
         </div>
@@ -840,14 +563,14 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
         <a href="dashboard.html">Dashboard</a>
         <a href="people.html">People</a>
         <a href="data-studio.html">Data Studio</a>
-        <a href="ai.html">AI Assistant</a>
+        <a href="dashboard.html#ai">AI Assistant</a>
       </div>
       <div class="footer-col">
         <h5>Learn more</h5>
         <a href="#how">How it works</a>
-        <a href="#capabilities">Capabilities</a>
+        <a href="#features">Features</a>
         <a href="#security">Security</a>
-        <a href="#pricing">Free access</a>
+        <a href="#faq">FAQ</a>
       </div>
       <div class="footer-col">
         <h5>Get started</h5>
@@ -858,10 +581,11 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
     </div>
     <div class="footer-bottom">
       <span>© 2026 DashView. All rights reserved.</span>
-      <span>Built for engineering teams that ship.</span>
+      <span>Read-only by design. Built for teams that run on Odoo.</span>
     </div>
   </div>
 </footer>
+
 
 <!-- ══════════ MODAL ══════════ -->
 <div class="modal-overlay" id="waitlistModal">
@@ -869,7 +593,7 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
     <button class="modal-close" id="modalCloseBtn" type="button" aria-label="Close waitlist dialog"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     <p class="kicker" style="margin-bottom:6px">early access</p>
     <h3>Join the waitlist</h3>
-    <p>We're onboarding design partners in small batches. Tell us where to reach you.</p>
+    <p>Tell us where to reach you and we will get you set up.</p>
     <div id="waitlistFormWrap">
       <div class="field"><label for="wlName">Full name</label><input type="text" id="wlName" placeholder="Jane Smith" autocomplete="name"/></div>
       <div class="field"><label for="wlEmail">Work email</label><input type="email" id="wlEmail" placeholder="jane@company.com" autocomplete="email"/></div>
@@ -941,72 +665,15 @@ const io = new IntersectionObserver(entries => {
 }, {threshold: 0.3});
 document.querySelectorAll('[data-target]').forEach(el => io.observe(el));
 
-// ── Hero stat counters ──
-setTimeout(() => {
-  let r = 0, p = 0;
-  const ri = setInterval(() => { qs('#statRepos').textContent = ++r; if(r>=48)clearInterval(ri); }, 40);
-  const pi = setInterval(() => { qs('#statPRs').textContent = ++p; if(p>=320)clearInterval(pi); }, 6);
-}, 500);
-
-// ── Terminal animation ──
-const LINES = [
-  {type:'prompt', cmd:'analyze repo acme/platform-api'},
-  {type:'out', txt:'Scanning 847 files...'},
-  {type:'out', txt:'Found: 12 middleware files, 43 route handlers'},
-  {type:'ok', txt:'Context indexed ✓'},
-  {type:'prompt', cmd:'plan task "Add sliding-window rate limiter"'},
-  {type:'out', txt:'Checking existing patterns...'},
-  {type:'out', txt:'Selecting implementation: Redis + sliding window'},
-  {type:'ok', txt:'Plan ready — 6 steps, 3 files'},
-  {type:'prompt', cmd:'execute plan --auto-test'},
-  {type:'out', txt:'[1/6] Creating rateLimiter.ts'},
-  {type:'ok', txt:'[2/6] Tests written (coverage: 94%)'},
-  {type:'out', txt:'[3/6] Running CI...'},
-  {type:'ok', txt:'[6/6] PR #482 opened ↗'},
-];
-const terminal = qs('#terminal');
-let li = 0;
-function addLine() {
-  if (!terminal) return;
-  if (li >= LINES.length) { li = 0; terminal.innerHTML=''; }
-  const l = LINES[li++];
-  const div = document.createElement('div');
-  div.className = 't-line';
-  if (l.type === 'prompt') {
-    div.innerHTML = `<span class="t-prompt">▸</span><span class="t-cmd">${l.cmd}</span>`;
-  } else if (l.type === 'ok') {
-    div.innerHTML = `<span class="t-out t-ok">${l.txt}</span>`;
-  } else {
-    div.innerHTML = `<span class="t-out">${l.txt}</span>`;
-  }
-  terminal.appendChild(div);
-  requestAnimationFrame(() => div.classList.add('show'));
-  terminal.scrollTop = terminal.scrollHeight;
-  setTimeout(addLine, l.type === 'prompt' ? 1200 : 600);
-}
-setTimeout(addLine, 700);
-
-// ── Tour tabs ──
-document.querySelectorAll('.tour-tab').forEach(btn => {
-  on(btn, 'click', () => {
-    document.querySelectorAll('.tour-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tour-panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    qs(`[data-panel="${btn.dataset.tab}"]`)?.classList.add('active');
-  });
-});
-
 // ── Modal logic ──
 function openModal() {
   qs('#waitlistModal').classList.add('open');
   qs('#wlName')?.focus();
 }
 function closeModal() { qs('#waitlistModal').classList.remove('open'); }
-['waitlistBtn','heroWaitlistBtn','footerWaitlistBtn','priceTeamBtn'].forEach(id => {
+['loginBtn','waitlistBtn','heroWaitlistBtn','footerWaitlistBtn','priceTeamBtn'].forEach(id => {
   on(qs('#'+id), 'click', openModal);
 });
-// "Sign in" goes to the real sign-in page (it used to open the waitlist form)
-on(qs('#loginBtn'), 'click', () => { window.location.href = 'login.html'; });
 on(qs('#modalCloseBtn'), 'click', closeModal);
 on(qs('#waitlistModal'), 'click', e => { if(e.target===e.currentTarget) closeModal(); });
 on(qs('#wlSubmitBtn'), 'click', () => {
@@ -1058,6 +725,5 @@ on(document, 'keydown', e => {
   addEventListener('dv:installable',inst);addEventListener('dv:installed',inst);inst();
 })();
 </script>
-<script defer src="js/index-glass.js"></script>
 </body>
 </html>
