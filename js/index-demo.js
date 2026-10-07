@@ -106,6 +106,10 @@
     d.innerHTML = '<div class="ig-pop-back" data-pop="close"></div><div class="ig-pop-card"><div class="ig-pop-top"><div><small id="igPopKind">Drill</small><h3 id="igPopTitle"></h3></div><button type="button" class="ig-x" data-pop="close" aria-label="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="ig-crumbs" id="igPopCrumbs"></div><div class="ig-pop-body" id="igPopBody"></div><div class="ig-pop-foot" id="igPopFoot"></div></div>';
     doc.body.appendChild(d); pop.el = d;
     d.addEventListener('click', onPopClick);
+    d.addEventListener('input', function (e) {
+      if (e.target.id !== 'igFq') return; var f = pop.stack[pop.stack.length - 1]; if (!f) return; f.q = e.target.value; var pos = e.target.selectionStart; paint();
+      var q = $('igFq'); if (q) { q.focus(); try { q.setSelectionRange(pos, pos); } catch (x) {} }
+    });
     return d;
   }
   function openPop(frame, opener) {
@@ -121,9 +125,13 @@
     if (pop.opener && pop.opener.focus) try { pop.opener.focus({ preventScroll: true }); } catch (e) {}
   }
   function toFrame(i) { pop.stack = pop.stack.slice(0, i + 1); paint(); }
+  function visible(f) {
+    var st = f.status || 'all', q = (f.q || '').trim().toLowerCase();
+    return f.list.filter(function (v) { return (st === 'all' || v.status === st) && (!q || (v.no + ' ' + v.customer + ' ' + v.sales).toLowerCase().indexOf(q) > -1); });
+  }
   function tableRows(f) {
     if (f.type === 'invoices') {
-      var s = f.sort, list = f.list.slice().sort(function (a, b) { var x = a[s.k], y = b[s.k]; return (x < y ? -1 : x > y ? 1 : 0) * s.d; });
+      var s = f.sort, list = visible(f).slice().sort(function (a, b) { var x = a[s.k], y = b[s.k]; return (x < y ? -1 : x > y ? 1 : 0) * s.d; });
       return { cols: ['Number', 'Customer', 'Date', 'Due', 'Total', 'Due now', 'Status'], keys: ['no', 'customer', 'date', 'due', 'amount', 'residual', 'status'], rows: list };
     }
     return null;
@@ -145,17 +153,18 @@
     var body = $('igPopBody'), foot = $('igPopFoot'), html = '', btns = '', info = '', exportRows = null;
     if (f.type === 'group') {
       html += '<div class="ig-big"><b data-count="' + f.total + '" data-fmt="' + (f.pct ? 'pct' : 'money') + '">' + esc(f.pct ? '' : money(f.total)) + '</b><span>' + (f.pct ? 'average across ' + f.groups.length + ' months' : 'total · ' + f.count + ' invoice' + (f.count === 1 ? '' : 's') + ' in ' + f.groups.length + ' group' + (f.groups.length === 1 ? '' : 's')) + '</span></div>';
-      html += '<div class="ig-tipbar">Click a row to open the invoices behind it.</div><div class="ig-glist">' + f.groups.map(function (g, i) {
-        return '<button type="button" class="ig-g" style="--i:' + i + ';--w:' + Math.max(3, g.value / f.max * 100).toFixed(1) + '%" data-pop="group" data-i="' + i + '"><span class="rk">' + (i + 1) + '</span><span class="nm">' + esc(g.label || g.name) + '</span><span class="tr"><i></i></span><b>' + esc(f.fmt(g.value)) + '</b><span class="ch">›</span></button>';
+      html += '<div class="ig-tipbar">Click a row (or use ↑ ↓ and Enter) to open the invoices behind it.</div><div class="ig-glist">' + f.groups.map(function (g, i) {
+        return '<button type="button" class="ig-g" style="--i:' + i + ';--w:' + Math.max(3, g.value / f.max * 100).toFixed(1) + '%" data-pop="group" data-i="' + i + '"><span class="rk">' + (i + 1) + '</span><span class="nm">' + esc(g.label || g.name) + (f.pct || !f.total ? '' : '<span class="sh">' + (g.value / f.total * 100).toFixed(1) + '%</span>') + '</span><span class="tr"><i></i></span><b>' + esc(f.fmt(g.value)) + '</b><span class="ch">›</span></button>';
       }).join('') + '</div>';
       info = f.meta ? f.meta[0] + ' · ' + f.meta.slice(1).join(' · ') : '';
       exportRows = { cols: ['Group', f.measure, 'Invoices'], rows: f.groups.map(function (g) { return [g.label || g.name, Math.round(g.value * 100) / 100, g.items.length]; }) };
     } else if (f.type === 'invoices') {
-      var t = tableRows(f), total = sum(f.list, function (v) { return v.amount; });
-      html += '<div class="ig-big"><b>' + f.list.length + '</b><span>invoice' + (f.list.length === 1 ? '' : 's') + ' · ' + full(total) + ' billed · ' + full(sum(f.list, function (v) { return v.residual; })) + ' still due</span></div>';
+      var t = tableRows(f), vis = t.rows, total = sum(vis, function (v) { return v.amount; }), cnt = { all: f.list.length }; f.list.forEach(function (v) { cnt[v.status] = (cnt[v.status] || 0) + 1; });
+      html += '<div class="ig-fbar"><input id="igFq" type="search" placeholder="Search number, customer, salesperson…" aria-label="Filter invoices" value="' + esc(f.q || '') + '"/>' + [['all', 'All'], ['paid', 'Paid'], ['open', 'Open'], ['over', 'Overdue']].map(function (c) { return '<button type="button" class="ig-chip' + ((f.status || 'all') === c[0] ? ' on' : '') + '" data-pop="status" data-v="' + c[0] + '">' + c[1] + ' ' + (cnt[c[0]] || 0) + '</button>'; }).join('') + '</div>';
+      html += '<div class="ig-big"><b>' + vis.length + '</b><span>invoice' + (vis.length === 1 ? '' : 's') + ' · ' + full(total) + ' billed · ' + full(sum(vis, function (v) { return v.residual; })) + ' still due' + (vis.length !== f.list.length ? ' · filtered from ' + f.list.length : '') + '</span></div>';
       html += '<div class="ig-tw"><table class="ig-dt"><thead><tr>' + t.cols.map(function (c, i) { var on = f.sort.k === t.keys[i]; return '<th class="' + (on ? 's' : '') + '" data-pop="sort" data-k="' + t.keys[i] + '"' + (on ? ' data-d="' + (f.sort.d > 0 ? '↑' : '↓') + '"' : '') + '>' + c + '</th>'; }).join('') + '</tr></thead><tbody>' +
         t.rows.slice(0, 60).map(function (v, i) { return '<tr class="r" style="--i:' + Math.min(i, 14) + '" data-pop="rec" data-id="' + v.id + '" tabindex="0"><td>' + v.no + '</td><td>' + esc(v.customer) + '</td><td>' + v.date + '</td><td>' + v.due + '</td><td class="n">' + full(v.amount) + '</td><td class="n">' + full(v.residual) + '</td><td><span class="ig-tag ' + TAG[v.status][0] + '">' + TAG[v.status][1] + (v.daysLate ? ' · ' + v.daysLate + 'd' : '') + '</span></td></tr>'; }).join('') + '</tbody></table></div>';
-      info = 'Showing ' + Math.min(60, f.list.length) + ' of ' + f.list.length + ' · click a row for the full record';
+      info = vis.length ? 'Showing ' + Math.min(60, vis.length) + ' of ' + vis.length + ' · click a row for the full record' : 'No invoice matches this filter';
       exportRows = { cols: t.cols, rows: t.rows.map(function (v) { return [v.no, v.customer, v.date, v.due, v.amount, v.residual, TAG[v.status][1]]; }) };
     } else if (f.type === 'record') {
       var v = f.rec;
@@ -185,6 +194,7 @@
     if (a === 'back') return toFrame(pop.stack.length - 2);
     if (a === 'group') { var g = f.groups[+t.getAttribute('data-i')]; return openPop(invFrame((g.label || g.name) + ' · invoices', g.items, g.label || g.name), t); }
     if (a === 'rec') { var rec = INV.filter(function (v) { return String(v.id) === t.getAttribute('data-id'); })[0]; return openPop({ type: 'record', title: rec.no, crumb: rec.no, rec: rec }, t); }
+    if (a === 'status') { f.status = t.getAttribute('data-v'); return paint(); }
     if (a === 'sort') { var k = t.getAttribute('data-k'); f.sort = { k: k, d: f.sort.k === k ? -f.sort.d : (k === 'amount' || k === 'residual' ? -1 : 1) }; return paint(); }
     if (a === 'csv' && pop.export) { download('dashview-demo-' + (f.crumb || 'rows').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.csv', csvOf(pop.export.cols, pop.export.rows)); }
   }
@@ -192,6 +202,9 @@
     if (!pop.el || !pop.el.classList.contains('open')) return;
     if (e.key === 'Escape') { e.preventDefault(); pop.stack.length > 1 ? toFrame(pop.stack.length - 2) : closePop(); }
     else if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('tr[data-pop]')) { e.preventDefault(); e.target.click(); }
+    else if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && e.target.closest && e.target.closest('.ig-g')) {
+      e.preventDefault(); var gs = [].slice.call(pop.el.querySelectorAll('.ig-g')), ix = gs.indexOf(e.target.closest('.ig-g')), nx = gs[ix + (e.key === 'ArrowDown' ? 1 : -1)]; if (nx) nx.focus();
+    }
     else if (e.key === 'Tab') {
       var els = pop.el.querySelectorAll('button:not([disabled]), a[href], [tabindex="0"]'); if (!els.length) return;
       var first = els[0], last = els[els.length - 1];
@@ -295,10 +308,15 @@
     function showAnswer() {
       if (tok !== ai.token) return;
       var max = Math.max.apply(null, res.rows.map(function (r) { return r.value; }).concat([1]));
-      ans.innerHTML = '<p>' + res.text + '</p>' + res.rows.map(function (r, j) {
+      var nrows = res.queries.reduce(function (a, s) { return a + s.n; }, 0);
+      ans.innerHTML = '<div class="ig-badges"><span class="ok">● Read-only</span><span>' + res.queries.length + ' quer' + (res.queries.length === 1 ? 'y' : 'ies') + ' · ' + nrows + ' rows</span><span>sample data</span></div><p>' + res.text + '</p>' + res.rows.map(function (r, j) {
         return '<button type="button" class="ig-row" style="--i:' + j + ';--w:' + Math.max(3, r.value / max * 100).toFixed(1) + '%" data-ai-row="' + j + '"><span class="l">' + esc(r.label || r.name) + '</span><span class="t"><i></i></span><b>' + esc(res.fmt(r.value)) + '</b></button>';
-      }).join('') + '<div class="ig-src">' + res.queries.map(function (s) { return '<button type="button" data-ai-src="1">' + s.m + ' · ' + s.op + ' <b>' + s.n + '</b></button>'; }).join('') + '<button type="button" data-ai-code="1">Show query</button></div><pre class="ig-code" id="igCode">' + esc(res.code) + '</pre>';
+      }).join('') + '<div class="ig-src">' + res.queries.map(function (s) { return '<button type="button" data-ai-src="1">' + s.m + ' · ' + s.op + ' <b>' + s.n + '</b></button>'; }).join('') + '<button type="button" data-ai-code="1">Show query</button></div><div class="ig-follow"><button type="button" data-ai-open="1">Drill into all groups</button><button type="button" data-ai-csv="1">Export CSV</button><button type="button" data-ai-copy="1">Copy answer</button></div><pre class="ig-code" id="igCode">' + esc(res.code) + '</pre>';
       ans.onclick = function (e) {
+        var fo = e.target.closest('[data-ai-open]'), fc = e.target.closest('[data-ai-csv]'), fy = e.target.closest('[data-ai-copy]');
+        if (fo) return openPop(res.frame, fo);
+        if (fc) return download('dashview-demo-' + q.q.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40) + '.csv', csvOf(['Group', 'Value'], res.rows.map(function (g) { return [g.label || g.name, Math.round(g.value * 100) / 100]; })));
+        if (fy) { var plain = ans.querySelector('p').textContent; try { navigator.clipboard.writeText(plain); fy.textContent = 'Copied ✓'; } catch (x) { fy.textContent = 'Copy not available'; } return; }
         var r = e.target.closest('[data-ai-row]'), s = e.target.closest('[data-ai-src]'), c = e.target.closest('[data-ai-code]');
         if (r) { var g = res.rows[+r.getAttribute('data-ai-row')]; openPop(invFrame((g.label || g.name) + ' · invoices', g.items, g.label || g.name), r); }
         else if (s) openPop(res.frame, s);
@@ -311,6 +329,14 @@
     if (!$('igAiQs')) return;
     $('igAiQs').innerHTML = QS.map(function (q, i) { return '<button type="button" role="tab" data-i="' + i + '">' + esc(q.q) + '</button>'; }).join('');
     $('igAiQs').addEventListener('click', function (e) { var b = e.target.closest('button[data-i]'); if (b) runAi(+b.getAttribute('data-i')); });
+    var KW = [['revenue', 'top', 'customer', 'customers', 'best', 'biggest', 'sales', 'quarter', 'leading'], ['overdue', 'late', '30', 'days', 'owe', 'owes', 'unpaid', 'delinquent'], ['aging', 'ageing', 'aged', 'receivable', 'receivables', 'bucket', 'outstanding', 'balance']];
+    var form = $('igAsk');
+    if (form) form.addEventListener('submit', function (e) {
+      e.preventDefault(); var v = $('igAskIn').value.toLowerCase(), note = $('igAskNote'); if (!v.trim()) return;
+      var tk = v.split(/[^a-z0-9]+/).filter(Boolean), sc = KW.map(function (ws) { return ws.reduce(function (a, w) { return a + (tk.indexOf(w) > -1 ? 1 : 0); }, 0); }), mx = Math.max.apply(null, sc), best = sc.indexOf(mx);
+      if (mx === 0) { note.textContent = 'The live assistant answers anything your Odoo user can read. This demo knows revenue, overdue and aging — try one of those.'; return; }
+      note.textContent = 'Matched: “' + QS[best].q + '”'; runAi(best);
+    });
     var started = false;
     new IntersectionObserver(function (en, o) { if (en[0].isIntersecting && !started) { started = true; runAi(0); o.disconnect(); } }, { threshold: .35 }).observe($('igAi'));
   }

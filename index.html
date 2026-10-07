@@ -364,6 +364,7 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
 <link rel="stylesheet" href="css/pro-detail.css"/>
 <link rel="stylesheet" href="css/index-glass.css"/>
 <script defer src="js/index-demo.js"></script>
+<script defer src="js/cursor.js"></script>
 </head>
 <body>
 <!-- ══════════ NAV ══════════ -->
@@ -463,6 +464,8 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
     </div>
     <div class="ig-ai ig-glass rv" style="--d:.15s" id="igAi">
       <div class="ig-ai-qs" id="igAiQs" role="tablist" aria-label="Example questions"></div>
+      <form class="ig-ask" id="igAsk" autocomplete="off"><input id="igAskIn" type="text" maxlength="120" placeholder="Or type your own: overdue, aging, top customers…" aria-label="Ask your own question"/><button type="submit">Ask</button></form>
+      <div class="ig-note" id="igAskNote" aria-live="polite"></div>
       <div class="ig-bubble" id="igAiQ"><span class="caret"></span></div>
       <div class="ig-steps" id="igAiSteps" aria-live="polite"></div>
       <div class="ig-ans" id="igAiAns"><p>Pick a question above — the path appears step by step.</p></div>

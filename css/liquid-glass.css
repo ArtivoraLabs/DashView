@@ -29,6 +29,7 @@
   --lg-surface:         color-mix(in srgb, rgb(25 28 27) calc((76 + var(--glass-d, 0)) * 1%), transparent);
   --lg-surface-hover:   color-mix(in srgb, rgb(34 38 37) calc((84 + var(--glass-d, 0)) * 1%), transparent);
   --lg-surface-strong:  rgba(20, 23, 22, 0.92);
+  --lg-toast-ink:       #e7ede7;
   --lg-surface-inner:   rgba(231, 237, 231, 0.045);
   --lg-surface-sunken:  rgba(0, 0, 0, 0.30);
   --lg-cell:            rgba(22, 25, 24, 0.88);
@@ -58,6 +59,7 @@ html[data-theme="light"] {
   --lg-surface:         color-mix(in srgb, rgb(237 242 246) calc((78 + var(--glass-d, 0)) * 1%), transparent);
   --lg-surface-hover:   color-mix(in srgb, rgb(243 247 250) calc((86 + var(--glass-d, 0)) * 1%), transparent);
   --lg-surface-strong:  rgba(242, 246, 249, 0.94);
+  --lg-toast-ink:       #141813;
   --lg-surface-inner:   rgba(255, 255, 255, 0.30);
   --lg-surface-sunken:  rgba(220, 229, 236, 0.48);
   --lg-cell:            rgba(242, 246, 249, 0.90);
@@ -149,6 +151,7 @@ html[data-theme="light"] {
 .modal-card, .cmd-box, .toast, .notif-panel, .olx-kd-panel,
 .studio-dropdown, .col-menu-popover, .slicer-dropdown {
   background-color: var(--lg-surface-strong) !important;
+  color: var(--lg-toast-ink, #e7ede7);
   background-image: var(--lg-sheen);
   border: 1px solid var(--lg-edge-strong);
   box-shadow: var(--lg-rim), var(--lg-e2);
@@ -384,3 +387,6 @@ html[data-surface="glass"] .stg-tab.active:not(.dv-item) {
 }
 /* Chart tracks and legends follow the active glass instead of a fixed tone */
 html[data-surface="glass"] .olx-leg, html[data-surface="glass"] .ov-bar-track { background: var(--lg-surface-inner); }
+
+/* toast text must stay readable on every theme / glass surface */
+.toast, .toast * { color: var(--lg-toast-ink, #e7ede7) !important; text-shadow: none; }
