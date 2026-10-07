@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.14.0 - 2026-10-07
+- New: Overview drill-in - every KPI card, trend month, bar, donut slice and legend row, top customer and product, pipeline stage, invoice status, shop / warehouse and recent order opens the Drill Explorer (break down by customer, product, month and more, then the Odoo records with Open in Odoo links). Period figures follow the 30D / 90D / 1Y switch; pipeline, receivables and customers are snapshots
+- New: Revenue trend summary chips (total, peak month, latest month vs previous, average per month) that open their records; top customers show each share of revenue
+- Fixed: Overview charts drew solid black bars and slices - colour arrays now reach Chart.js correctly, so every chart follows your chart colour scheme and accent (also fixes the same bug on other pages)
+- Fixed: single-series bar charts printed every value label twice
+- Improved: CRM pipeline bars are colour-coded (lost, won, open); Drill Explorer can open with Average as the default measure
+
 ## 2.12.0 - 2026-10-05
 - New: Error investigator - from any product error in Drill explorer > Data checks, open Investigate (or Compare side by side for duplicate groups). Root cause chain (error > product > stock > sales order > qty to deliver > blocked delivery), where-used counts across sales, quotations, deliveries, transfers, receipts, purchase, invoices, bills, manufacturing, BoMs, inventory adjustments, stock moves and reordering rules, stock by location / lot, sales, internal transfer and purchase impact, record lists with filters and Open in Odoo links, and CSV export (Error Type, Product, Reference, Module, Required, Available, Pending, Status, Root Cause)
 - Improved: Data checks can be filtered by product name / reference and category, and each check can be exported with stock impact

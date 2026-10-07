@@ -438,6 +438,17 @@
     }
   };
   function makeDim(c) { var f = function (ctx) { var el = ctx.element; return el && el.options && el.options.dvDim ? String(c).slice(0, 7) + '40' : c; }; f._base = c; return f; }
+  /* One scriptable function for a whole colour array. Chart.js only calls a function that is the option itself;
+     a function sitting inside an array is handed to the canvas as-is and every bar / slice painted black. */
+  function makeDimArr(arr) {
+    var f = function (ctx) {
+      var c = arr[(ctx && ctx.dataIndex || 0) % arr.length];
+      if (typeof c === 'function') c = c(ctx);
+      var el = ctx && ctx.element;
+      return el && el.options && el.options.dvDim && typeof c === 'string' ? c.slice(0, 7) + '40' : c;
+    };
+    f._arr = arr; return f;
+  }
   function focusHover(ch, evt, active) {
     var type = ch.config.type; if (type !== 'bar' && type !== 'doughnut' && type !== 'pie') return;
     ch.data.datasets.forEach(function (d, di) {
@@ -534,12 +545,12 @@
         else if (sc.grid) sc.grid = Object.assign({ drawTicks: false }, sc.grid);
       });
     }
-    if (type === 'bar' && ds.length === 1 && (ds[0].data || []).length <= 12 && opt.plugins.dvBarLabels == null) { opt.plugins.dvBarLabels = { enabled: true }; opt.layout = Object.assign({ padding: { top: 18, right: horiz ? 34 : 6 } }, opt.layout || {}); config.plugins = (config.plugins || []).concat([barLabelsPlugin]); }
+    if (type === 'bar' && ds.length === 1 && (ds[0].data || []).length <= 12 && opt.plugins.dvBarLabels == null) { opt.plugins.dvBarLabels = { enabled: true }; opt.plugins.dashviewValueLabels = false; opt.layout = Object.assign({ padding: { top: 18, right: horiz ? 34 : 6 } }, opt.layout || {}); config.plugins = (config.plugins || []).concat([barLabelsPlugin]); }
     if (type === 'bar' || type === 'line') opt.animation = Object.assign({ duration: 700, delay: function (c) { return c.type === 'data' && c.mode === 'default' ? c.dataIndex * 35 : 0; } }, opt.animation || {});
     if (type === 'doughnut') opt.animation = Object.assign({ animateRotate: true, animateScale: true, duration: 900 }, opt.animation || {});
     if (type === 'bar' || type === 'doughnut') {
       var prevHover = opt.onHover; opt.onHover = function (e, a, ch) { focusHover(ch, e, a); ch.draw(); if (prevHover) prevHover(e, a, ch); };
-      ds.forEach(function (d) { ['backgroundColor'].forEach(function (k) { var base = d[k]; if (Array.isArray(base)) d[k] = base.map(makeDim); }); });
+      ds.forEach(function (d) { ['backgroundColor'].forEach(function (k) { var base = d[k]; if (Array.isArray(base) && base.length) d[k] = makeDimArr(base); }); });
     }
     if (type === 'line' || type === 'bar') opt.interaction = Object.assign({ mode: 'index', intersect: false }, opt.interaction || {});
     return config;
@@ -568,6 +579,7 @@
     if (typeof v === 'string') return mapColor(v, from, to);
     if (Array.isArray(v)) return v.map(function (x) { return remapVal(x, from, to); });
     if (typeof v === 'function' && v._g) return gradientTagged(mapColor(v._g[0], from, to), v._g[1], v._g[2], v._g[3]);
+    if (typeof v === 'function' && v._arr) return makeDimArr(remapVal(v._arr, from, to));
     if (typeof v === 'function' && v._base) return makeDim(remapVal(v._base, from, to));
     return v;
   }

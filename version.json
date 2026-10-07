@@ -1,18 +1,27 @@
 {
-  "version": "2.13.0",
-  "build": "2026.10.06",
-  "released": "2026-10-06",
+  "version": "2.14.0",
+  "build": "2026.10.07",
+  "released": "2026-10-07",
   "notes": [
-    "New: Redesigned home page in Liquid Glass - an interactive drillable demo (KPI to group to invoices to one record), an animated 'ask Odoo' answer path and a file-vs-Odoo reconcile demo, all matching the app's light and dark themes",
-    "New: AI Assistant is now one tab inside the dashboard menu - every AI link (home page, People, Settings, shortcuts, old bookmarks) opens it directly; chats from the old page are imported automatically",
-    "New: Answer path - every Odoo answer shows the steps taken and the exact read-only queries (model, filter in plain words, group-by, results). Click any number to open the records behind it in an animated pop-up, then a single record, with Open in Odoo links",
-    "New: Attach a CSV / Excel / JSON / TXT file for an instant report (KPIs, charts, data-quality checks, drill into rows, PDF and Excel export), or reconcile it against live Odoo products, contacts, orders, invoices and more",
-    "New: Odoo connection panel with live health, per-app access, response time, AI provider test, copyable diagnostics and a clear 'what is sent where' note",
-    "Improved: Repeated Odoo reads and drills are reused for a few seconds and warmed on hover, so re-opening a drill is instant; any Refresh button fetches fresh data",
-    "Fixed: People page showed the account menu as loose text under the page and had no user block in the sidebar",
-    "Fixed: being signed out after the screen locked or the computer slept - time while the window is locked, hidden or asleep no longer counts as idle, and a dropped connection no longer ends your session"
+    "New: Overview drill-in - every KPI card, trend month, bar, donut slice and legend row, top customer and product, pipeline stage, invoice status, shop / warehouse and recent order opens the Drill Explorer (break down by customer, product, month and more, then the Odoo records with Open in Odoo links). Period figures follow the 30D / 90D / 1Y switch; pipeline, receivables and customers are snapshots",
+    "New: Revenue trend summary chips (total, peak month, latest month vs previous, average per month) that open their records; top customers show each share of revenue",
+    "Fixed: Overview charts drew solid black bars and slices - colour arrays now reach Chart.js correctly, so every chart follows your chart colour scheme and accent (also fixes the same bug on other pages)",
+    "Fixed: single-series bar charts printed every value label twice",
+    "Improved: CRM pipeline bars are colour-coded (lost, won, open); Drill Explorer can open with Average as the default measure"
   ],
   "history": [
+    {
+      "version": "2.14.0",
+      "date": "2026-10-07",
+      "notes": [
+        "New: Overview drill-in - every KPI card, trend month, bar, donut slice and legend row, top customer and product, pipeline stage, invoice status, shop / warehouse and recent order opens the Drill Explorer (break down by customer, product, month and more, then the Odoo records with Open in Odoo links). Period figures follow the 30D / 90D / 1Y switch; pipeline, receivables and customers are snapshots",
+        "New: Revenue trend summary chips (total, peak month, latest month vs previous, average per month) that open their records; top customers show each share of revenue",
+        "Fixed: Overview charts drew solid black bars and slices - colour arrays now reach Chart.js correctly, so every chart follows your chart colour scheme and accent (also fixes the same bug on other pages)",
+        "Fixed: single-series bar charts printed every value label twice",
+        "Improved: CRM pipeline bars are colour-coded (lost, won, open); Drill Explorer can open with Average as the default measure"
+      ],
+      "critical": false
+    },
     {
       "version": "2.12.0",
       "date": "2026-10-05",
@@ -236,5 +245,5 @@
     }
   ],
   "critical": false,
-  "size": 2656776
+  "size": 3167015
 }

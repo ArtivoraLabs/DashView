@@ -5,8 +5,9 @@
   "description": "Unit tests for js/studio-core.js, plus headless DOM smoke tests for the Data Studio, AI Assistant and People/Tasks/Audit workspace.",
   "scripts": {
     "test:updater": "node updater.smoke.test.js",
-    "test": "npm run test:pwa && npm run test:updater && npm run test:core && npm run test:studio && npm run test:report && npm run test:health && npm run test:roles && npm run test:assistant && npm run test:ai-context && npm run test:people && npm run test:render && npm run test:agent && npm run test:ai-dashboard && npm run test:worker && npm run test:odoo && npm run test:spreadsheet && npm run test:overview && npm run test:settings && npm run test:company && npm run test:drill && npm run test:errors",
+    "test": "npm run test:pwa && npm run test:updater && npm run test:core && npm run test:studio && npm run test:report && npm run test:health && npm run test:roles && npm run test:assistant && npm run test:ai-context && npm run test:people && npm run test:render && npm run test:agent && npm run test:ai-dashboard && npm run test:worker && npm run test:odoo && npm run test:spreadsheet && npm run test:overview && npm run test:colors && npm run test:settings && npm run test:company && npm run test:drill && npm run test:errors",
     "test:pwa": "node pwa-updates.smoke.test.js",
+    "test:colors": "node chart-colors.smoke.test.js",
     "test:core": "node studio-core.test.js",
     "test:studio": "node studio-ui.smoke.test.js",
     "test:report": "node report-engine.smoke.test.js",

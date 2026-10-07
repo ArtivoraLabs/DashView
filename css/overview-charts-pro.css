@@ -58,4 +58,53 @@ html[data-theme=light] #view-overview { --ov-line: rgba(20,24,40,.13); --ov-defa
   #view-overview .ov-canvas { height: 240px; } #view-overview #ovTrendB .ov-canvas { height: 280px; }
   #view-overview .olx-leg { grid-template-columns: 14px minmax(0, 1fr) 40px; } #view-overview .olx-leg b { display: none; }
 }
+/* ==========================================================================
+   Drill-in (v2.14): every KPI, bar, slice, legend row, ranked row and order
+   opens the Drill Explorer. Colours follow the theme accent (--signal).
+   ========================================================================== */
+#view-overview .is-drill { cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .15s, box-shadow .15s, transform .15s, border-color .15s; }
+#view-overview .is-drill:focus-visible, #view-overview .ov-chip:focus-visible, #view-overview .ov-more .btn:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+
+/* KPI cards */
+#view-overview .kpi-card.is-drill:hover, #view-overview .kpi-card.is-drill:focus-visible { border-color: color-mix(in srgb, var(--signal) 55%, var(--ov-line)); box-shadow: 0 10px 26px -14px color-mix(in srgb, var(--signal) 60%, transparent); }
+#view-overview .kpi-card .ov-go { position: absolute; top: 14px; right: 14px; font-size: 11px; font-weight: 700; letter-spacing: .02em; color: var(--signal-bright, var(--signal)); opacity: 0; transform: translateX(-4px); transition: opacity .15s, transform .15s; pointer-events: none; }
+#view-overview .kpi-card.is-drill:hover .ov-go, #view-overview .kpi-card.is-drill:focus-visible .ov-go { opacity: 1; transform: none; }
+@media (hover: none) { #view-overview .kpi-card .ov-go { opacity: .75; transform: none; } }
+
+/* Panel header hint */
+#view-overview .ov-grid .chart-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+#view-overview .ov-drill-hint { flex: none; margin-top: 2px; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; white-space: nowrap; color: var(--ov-sub);
+  background: color-mix(in srgb, var(--signal) 9%, transparent); border: 1px solid color-mix(in srgb, var(--signal) 28%, transparent); transition: color .15s, background .15s; }
+#view-overview .ov-grid > .panel:hover .ov-drill-hint { color: var(--ov-ink); background: color-mix(in srgb, var(--signal) 16%, transparent); }
+
+/* Legend rows (donuts) */
+#view-overview .olx-leg.is-drill:hover, #view-overview .olx-leg.is-drill:focus-visible { background: color-mix(in srgb, var(--c, var(--signal)) 10%, transparent); }
+#view-overview .olx-leg.is-drill:hover span { text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--c, var(--signal)) 60%, transparent); text-underline-offset: 3px; }
+
+/* Ranked lists */
+#view-overview .ov-bar-row.is-drill { margin: 0 -10px; padding: 7px 10px; border-radius: 10px; }
+#view-overview .ov-bar-row.is-drill:hover, #view-overview .ov-bar-row.is-drill:focus-visible { background: color-mix(in srgb, var(--bc, var(--signal)) 10%, transparent); }
+#view-overview .ov-bar-top b em { margin-left: 6px; font-style: normal; font-size: 11.5px; font-weight: 700; color: var(--ov-sub); }
+
+/* Trend summary chips */
+#view-overview .ov-chips { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+#view-overview .ov-chips:empty { display: none; }
+#view-overview .ov-chip { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 10px 12px; text-align: left; font: inherit; color: var(--ov-ink); cursor: pointer;
+  background: var(--paper-soft, transparent); border: 1px solid var(--ov-line); border-radius: 12px; transition: border-color .15s, background .15s, transform .15s; }
+#view-overview .ov-chip:hover { border-color: color-mix(in srgb, var(--signal) 55%, var(--ov-line)); background: color-mix(in srgb, var(--signal) 8%, var(--paper-soft, transparent)); transform: translateY(-1px); }
+#view-overview .ov-chip span { font-size: 11px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: var(--ov-sub); }
+#view-overview .ov-chip b { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#view-overview .ov-chip small { font-size: 11.5px; color: var(--ov-sub); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#view-overview .ov-chip small.is-up { color: var(--ok, #0a8f6b); font-weight: 700; } #view-overview .ov-chip small.is-down { color: var(--danger, #d1342a); font-weight: 700; }
+
+/* Recent orders */
+#view-overview tr.is-drill:hover td, #view-overview tr.is-drill:focus-visible td { background: color-mix(in srgb, var(--signal) 9%, transparent); }
+#view-overview .ov-more { display: flex; justify-content: flex-end; padding-top: 12px; }
+
+@media (max-width: 760px) {
+  #view-overview .ov-chips { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #view-overview .ov-drill-hint { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { #view-overview .is-drill, #view-overview .ov-chip, #view-overview .kpi-card .ov-go { transition: none; } }
+
 @media print { #view-overview * { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }

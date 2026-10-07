@@ -14,7 +14,7 @@
    • Exports are written to the local security log (what, how many rows).
    • Data checks tab (products, contacts): duplicate names, missing / duplicate / badly formatted internal
      references and reference-base conflicts, with severity, drill into the affected records and CSV export.
-   API: DVDrill.open({ title, model, domain, measure, date, kind, inverse, crumbs, companyIds })
+   API: DVDrill.open({ title, model, domain, measure, date, kind, inverse, crumbs, companyIds, metric })
    ========================================================================== */
 (function () {
   'use strict';
@@ -117,7 +117,7 @@
     if (!spec || !spec.model) return;
     close(true);
     opener = from || document.activeElement;
-    D = { spec: spec, crumbs: (spec.crumbs || []).map(function (c) { return { label: c.label, domain: c.domain, dim: c.dim || '' }; }), days: periodDays(), all: !spec.date, dims: [], dim: null, rows: [], tot: null, mode: 'dim', recOffset: 0, searchTerm: '', recSeq: 0, metric: spec.measure ? 'sum' : 'count', sort: null, rowFilter: '', recSort: null, dq: null, dqSev: 'all', dqView: 'check', dqCo: 'all', dqOpen: {}, dqShow: {}, dqQ: '', dqCat: '', dqGroups: {} };
+    D = { spec: spec, crumbs: (spec.crumbs || []).map(function (c) { return { label: c.label, domain: c.domain, dim: c.dim || '' }; }), days: periodDays(), all: !spec.date, dims: [], dim: null, rows: [], tot: null, mode: 'dim', recOffset: 0, searchTerm: '', recSeq: 0, metric: spec.measure && /^(sum|avg|count)$/.test(spec.metric || '') ? spec.metric : (spec.measure ? 'sum' : 'count'), sort: null, rowFilter: '', recSort: null, dq: null, dqSev: 'all', dqView: 'check', dqCo: 'all', dqOpen: {}, dqShow: {}, dqQ: '', dqCat: '', dqGroups: {} };
     var el = document.createElement('div'); el.id = 'dvdr'; el.className = 'dvdr';
     el.innerHTML = '<div class="dvdr-back" data-x="1"></div><aside class="dvdr-panel" role="dialog" aria-modal="true" aria-labelledby="dvdrT">' +
       '<header class="dvdr-h"><div><small>Drill explorer</small><h3 id="dvdrT">' + esc(spec.title || spec.model) + '</h3></div><button type="button" class="dvdr-x" data-x="1" aria-label="Close drill explorer">\u2715</button></header>' +

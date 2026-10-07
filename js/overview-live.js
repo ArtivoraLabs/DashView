@@ -116,14 +116,15 @@
       if (banner) banner.parentNode.insertBefore(filter, banner);
     }
     $('ovKpis').innerHTML = KPIS.map(function (k) {
-      return '<div class="kpi-card ' + k[2] + '" id="ovk-' + k[0] + '"><div class="kpi-top"><div class="kpi-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + ICON[k[0]] + '</svg></div></div>' +
+      return '<div class="kpi-card is-drill ' + k[2] + '" id="ovk-' + k[0] + '" data-dr="k-' + k[0] + '" role="button" tabindex="0" aria-label="Open the Odoo records behind ' + k[1] + '"><span class="ov-go" aria-hidden="true">Drill \u203a</span><div class="kpi-top"><div class="kpi-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + ICON[k[0]] + '</svg></div></div>' +
         '<p class="kpi-label">' + k[1] + '</p><p class="kpi-value">–</p><p class="kpi-delta neutral">&nbsp;</p></div>';
     }).join('');
     var panel = function (cls, id, title, sub, extra) {
-      return '<div class="panel ' + cls + '"><div class="chart-header"><div><h3 id="' + id + 'T">' + title + '</h3><p class="chart-subtitle" id="' + id + 'S">' + sub + '</p></div></div><div class="ov-body" id="' + id + 'B"><div class="olx-skel"></div></div>' + (extra || '') + '</div>';
+      var hint = id === 'ovOps' ? '' : '<span class="ov-drill-hint" title="Click any bar, slice, row or figure to open the Odoo records behind it">Click to drill \u203a</span>';
+      return '<div class="panel ' + cls + '"><div class="chart-header"><div><h3 id="' + id + 'T">' + title + '</h3><p class="chart-subtitle" id="' + id + 'S">' + sub + '</p></div>' + hint + '</div><div class="ov-body" id="' + id + 'B"><div class="olx-skel"></div></div>' + (extra || '') + '</div>';
     };
     $('ovGrid').innerHTML =
-      panel('ov-span-2', 'ovTrend', 'Revenue trend', 'Confirmed sales · last 12 months') +
+      panel('ov-span-2', 'ovTrend', 'Revenue trend', 'Confirmed sales · last 12 months', '<div class="ov-chips" id="ovTrendChips"></div>') +
       panel('', 'ovCat', 'Sales by category', 'Selected period', '<div class="olx-legend" id="ovCatL"></div>') +
       panel('', 'ovTop', 'Top customers', 'Selected period') +
       panel('', 'ovPipe', 'CRM pipeline', 'Expected revenue by stage') +
@@ -131,7 +132,7 @@
       panel('ov-span-2', 'ovShops', 'Sales by shop / location', 'Selected period') +
       panel('', 'ovShopProd', 'Best-selling products', 'Selected period') +
       panel('ov-span-3', 'ovOps', 'Operations & fulfilment', 'Active BOMs · transaction counts for the selected period') +
-      panel('ov-span-3', 'ovRec', 'Recent orders', 'Latest sales orders and quotations');
+      panel('ov-span-3', 'ovRec', 'Recent orders', 'Latest sales orders and quotations', '<div class="ov-more"><button type="button" class="btn btn-outline btn-sm" data-dr="all-orders">View all sales orders \u203a</button></div>');
   }
   function body(id, html) { var el = $(id + 'B'); if (el) el.innerHTML = html; }
   function fail(id, e) { body(id, '<div class="olx-empty-s is-error">' + esc(friendly(e)) + '</div>'); var l = $(id + 'L'); if (l) l.innerHTML = ''; }
@@ -223,30 +224,30 @@
     return readGroup('sale.order', { domain: CONF.concat([['date_order', '>=', iso(370)]]), fields: ['amount_total:sum'], groupby: ['date_order:month'] }).then(function (g) {
       if (seq !== S.seq) return;
       g = g.slice(-12);
-      S.trend = { labels: g.map(function (x) { return shortMonth(x['date_order:month']); }), rev: S.currency ? g.map(function (x) { return Number(x.amount_total) || 0; }) : [], cnt: g.map(function (x) { return x.__count || 0; }) };
+      S.trend = { raw: g.map(function (x) { return String(x['date_order:month']); }), dom: g.map(function (x) { return x.__domain && x.__domain.length ? x.__domain : null; }), labels: g.map(function (x) { return shortMonth(x['date_order:month']); }), rev: S.currency ? g.map(function (x) { return Number(x.amount_total) || 0; }) : [], cnt: g.map(function (x) { return x.__count || 0; }) };
       drawTrend();
     }).catch(function (e) { if (seq !== S.seq) return; fail('ovTrend', e); });
   }
   function jobCategory(days, seq) {
-    var d = iso(days), done = function (title, sub, g, key) {
+    var d = iso(days), done = function (title, sub, g, key, meta) {
       if (seq !== S.seq) return;
-      var rows = S.currency ? g.map(function (x) { return { label: label(x[key], 'Uncategorised'), value: Number(x.price_subtotal) || 0 }; }).filter(function (r) { return r.value > 0; }).sort(function (a, b) { return b.value - a.value; }) : [];
-      if (rows.length > 6) { var rest = rows.slice(5).reduce(function (s, r) { return s + r.value; }, 0); rows = rows.slice(0, 5).concat([{ label: 'Other', value: rest }]); }
-      S.cat = { title: title, sub: sub, rows: rows }; drawCat();
+      var rows = S.currency ? g.map(function (x) { var id = Array.isArray(x[key]) ? x[key][0] : false; return { label: label(x[key], 'Uncategorised'), value: Number(x.price_subtotal) || 0, id: id, dom: [[key, '=', id]] }; }).filter(function (r) { return r.value > 0; }).sort(function (a, b) { return b.value - a.value; }) : [];
+      if (rows.length > 6) { var tail = rows.slice(5), rest = tail.reduce(function (s, r) { return s + r.value; }, 0); rows = rows.slice(0, 5).concat([{ label: 'Other', value: rest, dom: [[key, 'in', tail.map(function (r) { return r.id; })]] }]); }
+      S.cat = { title: title, sub: sub, rows: rows, meta: meta }; drawCat();
     };
     return C.fields('sale.report').then(function (f) {
       if (seq !== S.seq) return;
       var key = f.categ_id ? 'categ_id' : (f.product_categ_id ? 'product_categ_id' : null);
       if (!key) throw new Error('no category field');
-      return readGroup('sale.report', { domain: [['state', 'in', ['sale', 'done']], ['date', '>=', d]], fields: ['price_subtotal:sum'], groupby: [key] }).then(function (g) { done('Sales by category', 'Product category · selected period', g, key); });
+      return readGroup('sale.report', { domain: [['state', 'in', ['sale', 'done']], ['date', '>=', d]], fields: ['price_subtotal:sum'], groupby: [key] }).then(function (g) { done('Sales by category', 'Product category · selected period', g, key, { title: 'Sales by category', noun: 'Category', model: 'sale.report', domain: [['state', 'in', ['sale', 'done']]], date: 'date', measure: 'price_subtotal' }); });
     }).catch(function () {
-      return readGroup('sale.order.line', { domain: [['state', 'in', ['sale', 'done']], ['create_date', '>=', d]], fields: ['price_subtotal:sum'], groupby: ['product_id'] }).then(function (g) { done('Top products', 'Revenue by product · selected period', g, 'product_id'); });
+      return readGroup('sale.order.line', { domain: [['state', 'in', ['sale', 'done']], ['create_date', '>=', d]], fields: ['price_subtotal:sum'], groupby: ['product_id'] }).then(function (g) { done('Top products', 'Revenue by product · selected period', g, 'product_id', { title: 'Top products', noun: 'Product', model: 'sale.order.line', domain: [['state', 'in', ['sale', 'done']]], date: 'create_date', measure: 'price_subtotal' }); });
     }).catch(function (e) { if (seq !== S.seq) return; fail('ovCat', e); });
   }
   function jobTop(days, seq) {
     return readGroup('sale.order', { domain: CONF.concat([['date_order', '>=', iso(days)]]), fields: ['amount_total:sum'], groupby: ['partner_id'] }).then(function (g) {
       if (seq !== S.seq) return;
-      S.top = g.map(function (x) { return { label: label(x.partner_id), value: Number(x.amount_total) || 0 }; }).sort(function (a, b) { return b.value - a.value; }).slice(0, 6);
+      S.top = g.map(function (x) { var id = Array.isArray(x.partner_id) ? x.partner_id[0] : false; return { label: label(x.partner_id), value: Number(x.amount_total) || 0, id: id, dom: [['partner_id', '=', id]] }; }).sort(function (a, b) { return b.value - a.value; }).slice(0, 6);
       drawTop();
     }).catch(function (e) { if (seq !== S.seq) return; fail('ovTop', e); });
   }
@@ -254,7 +255,7 @@
     var open = [['type', '=', 'opportunity'], ['probability', '<', 100]];
     return Promise.all([readGroup('crm.lead', { domain: [['type', '=', 'opportunity']], fields: ['expected_revenue:sum'], groupby: ['stage_id'] }), sum('crm.lead', open, 'expected_revenue')]).then(function (r) {
       if (seq !== S.seq) return;
-      S.pipe = r[0].map(function (x) { return { label: label(x.stage_id), value: Number(x.expected_revenue) || 0, count: x.__count || 0 }; });
+      S.pipe = r[0].map(function (x) { var id = Array.isArray(x.stage_id) ? x.stage_id[0] : false; return { label: label(x.stage_id), value: Number(x.expected_revenue) || 0, count: x.__count || 0, id: id, dom: [['stage_id', '=', id]] }; });
       kpi('pipe', money(r[1].sum, r[1].sum >= 1e5), S.currency ? r[1].count + ' open opportunities' : 'Select one company for financial totals', 'neutral'); drawPipe();
     }).catch(function (e) { if (seq !== S.seq) return; kpiErr('pipe', e); fail('ovPipe', e); });
   }
@@ -264,19 +265,21 @@
       readGroup('account.move', { domain: base, fields: ['amount_total:sum'], groupby: ['payment_state'] }), C.fields('account.move')]).then(function (r) {
       if (seq !== S.seq) return;
       var sel = {}; ((r[3].payment_state || {}).selection || []).forEach(function (x) { sel[x[0]] = x[1]; });
-      S.inv = r[2].map(function (x) { return { label: sel[x.payment_state] || label(x.payment_state), value: Number(x.amount_total) || 0 }; }).filter(function (x) { return x.value > 0; });
+      S.inv = r[2].map(function (x) { return { label: sel[x.payment_state] || label(x.payment_state), value: Number(x.amount_total) || 0, dom: [['payment_state', '=', x.payment_state]] }; }).filter(function (x) { return x.value > 0; });
       kpi('ar', money(r[0].sum, r[0].sum >= 1e5), !S.currency ? 'Select one company for financial totals' : (r[1].sum > 0 ? money(r[1].sum, true) + ' overdue' : 'Nothing overdue'), S.currency && r[1].sum > 0 ? 'down' : 'neutral'); drawInv();
     }).catch(function (e) { if (seq !== S.seq) return; kpiErr('ar', e); fail('ovInv', e); });
   }
   function jobCustomers(seq) {
+    S.custDom = [['customer_rank', '>', 0]];
     return records('res.partner', { domain: [['customer_rank', '>', 0]], fields: ['id'], limit: 1 }).then(function (r) { return r.total || 0; }).catch(function () {
       if (seq !== S.seq) throw new Error('stale overview request');
+      S.custDom = [['is_company', '=', true]];
       return records('res.partner', { domain: [['is_company', '=', true]], fields: ['id'], limit: 1 }).then(function (r) { return r.total || 0; });
     })
       .then(function (n) { if (seq !== S.seq) return; S.customers = n; kpi('cust', F.num(n), 'Partners with sales', 'neutral'); }).catch(function (e) { if (seq !== S.seq) return; kpiErr('cust', e); });
   }
   function jobRecent(seq) {
-    return records('sale.order', { fields: ['name', 'partner_id', 'amount_total', 'state', 'date_order', 'user_id', 'company_id'], limit: 8, order: 'date_order desc' }).then(function (r) {
+    return records('sale.order', { fields: ['id', 'name', 'partner_id', 'amount_total', 'state', 'date_order', 'user_id', 'company_id'], limit: 8, order: 'date_order desc' }).then(function (r) {
       if (seq !== S.seq) return;
       S.recent = r.rows || []; drawRecent();
     }).catch(function (e) { if (seq !== S.seq) return; fail('ovRec', e); });
@@ -293,7 +296,8 @@
       if (seq !== S.seq) return;
       if (!g.length) throw new Error('no POS data');
       S.shopProdSource = 'pos';
-      S.shops = g.map(function (x) { return { label: label(x.config_id, 'Unknown shop'), value: Number(x.amount_total) || 0, count: x.__count || 0 }; })
+      S.shopsMeta = { title: 'Sales by POS shop', noun: 'Shop', model: 'pos.order', domain: [['state', 'in', ['done', 'invoiced']]], date: 'date_order', measure: 'amount_total' };
+      S.shops = g.map(function (x) { var id = Array.isArray(x.config_id) ? x.config_id[0] : false; return { label: label(x.config_id, 'Unknown shop'), value: Number(x.amount_total) || 0, count: x.__count || 0, id: id, dom: [['config_id', '=', id]] }; })
         .sort(function (a, b) { return b.value - a.value; }).slice(0, 8);
       $('ovShopsT').textContent = 'Sales by POS shop';
       $('ovShopsS').textContent = 'Revenue per point-of-sale · selected period';
@@ -307,7 +311,8 @@
         fields: ['amount_total:sum'], groupby: ['warehouse_id']
       }).then(function (g) {
         if (seq !== S.seq) return;
-        S.shops = g.map(function (x) { return { label: label(x.warehouse_id, 'Default'), value: Number(x.amount_total) || 0, count: x.__count || 0 }; })
+        S.shopsMeta = { title: 'Sales by warehouse', noun: 'Warehouse', model: 'sale.order', domain: CONF.slice(), date: 'date_order', measure: 'amount_total' };
+        S.shops = g.map(function (x) { var id = Array.isArray(x.warehouse_id) ? x.warehouse_id[0] : false; return { label: label(x.warehouse_id, 'Default'), value: Number(x.amount_total) || 0, count: x.__count || 0, id: id, dom: [['warehouse_id', '=', id]] }; })
           .sort(function (a, b) { return b.value - a.value; }).slice(0, 8);
         $('ovShopsT').textContent = 'Sales by warehouse / location';
         $('ovShopsS').textContent = 'Revenue per warehouse · selected period';
@@ -320,19 +325,82 @@
     var d = iso(days);
     var posDom = [['order_id.state', 'in', ['done', 'invoiced']], ['order_id.date_order', '>=', d]];
     var saleDom = [['order_id.state', 'in', ['sale', 'done']], ['order_id.date_order', '>=', d]];
+    var meta = { title: 'Best-selling products', noun: 'Product', model: 'pos.order.line', domain: posDom, measure: 'price_subtotal' };
     var src = S.shopProdSource === 'pos' ? readGroup('pos.order.line', { domain: posDom, fields: ['price_subtotal:sum'], groupby: ['product_id'] })
                                          : Promise.reject(new Error('use sale'));
     return src.catch(function () {
       if (seq !== S.seq) throw new Error('stale overview request');
+      meta = { title: 'Best-selling products', noun: 'Product', model: 'sale.order.line', domain: saleDom, measure: 'price_subtotal' };
       return readGroup('sale.order.line', { domain: saleDom, fields: ['price_subtotal:sum'], groupby: ['product_id'] });
     }).then(function (g) {
       if (seq !== S.seq) return;
       if (!g.length) { body('ovShopProd', S.currency ? '<div class="olx-empty-s">No product sales in this period.</div>' : mixedCurrencyNote()); return; }
-      S.shopProd = g.map(function (x) { return { label: label(x.product_id, 'Unknown'), value: Number(x.price_subtotal) || 0, count: x.__count || 0 }; })
+      S.shopProdMeta = meta;
+      S.shopProd = g.map(function (x) { var id = Array.isArray(x.product_id) ? x.product_id[0] : false; return { label: label(x.product_id, 'Unknown'), value: Number(x.price_subtotal) || 0, count: x.__count || 0, id: id, dom: [['product_id', '=', id]] }; })
         .filter(function (r) { return r.value > 0; })
         .sort(function (a, b) { return b.value - a.value; }).slice(0, 8);
       drawShopProd();
     }).catch(function (e) { if (seq !== S.seq) return; fail('ovShopProd', e); });
+  }
+
+  /* -- Drill-in ------------------------------------------------------------------
+     Every figure on this page opens the Drill Explorer (js/exec-drill.js): the KPI cards, a month on
+     the trend, a slice / legend row, a ranked customer or product, a pipeline stage, an invoice status,
+     a shop and a recent order. The explorer then breaks the figure down further (customer, product,
+     salesperson, month ...) and lists the actual Odoo records with Open in Odoo links.
+     Read-only. Period-based figures use the Overview period (30D / 90D / 1Y); snapshot figures
+     (pipeline, receivables, customers) are not period-bound.                                       */
+  var PERIOD_KEY = 'dashview_odoo_period';
+  function toast(m) { if (window.showToast) window.showToast(m); }
+  function periodText() { return S.range === 365 ? 'last 12 months' : 'last ' + S.range + ' days'; }
+  /* amounts only when one currency applies; otherwise the explorer shows counts (never mixed currencies) */
+  function fin(measure) { return S.currency ? { measure: measure, kind: 'money' } : { measure: null, kind: 'count' }; }
+  function monthDom(raw) {
+    var d = new Date('1 ' + raw); if (isNaN(d.getTime())) return null;
+    var f = function (x) { return x.getFullYear() + '-' + ('0' + (x.getMonth() + 1)).slice(-2) + '-01'; };
+    return [['date_order', '>=', f(d)], ['date_order', '<', f(new Date(d.getFullYear(), d.getMonth() + 1, 1))]];
+  }
+  function metaSpec(meta, r) {
+    if (!meta || !r) return null;
+    var m = fin(meta.measure);
+    return { title: meta.title + ' \u00b7 ' + r.label, model: meta.model, domain: meta.domain.slice(), date: meta.date || null, measure: m.measure, kind: m.kind, crumbs: [{ label: meta.noun + ': ' + r.label, domain: r.dom }] };
+  }
+  function specFor(kind, i) {
+    var f, t, o;
+    switch (kind) {
+      case 'k-rev': f = fin('amount_total'); return { title: 'Revenue \u00b7 ' + periodText(), model: 'sale.order', domain: CONF.slice(), date: 'date_order', measure: f.measure, kind: f.kind };
+      case 'k-ord': return { title: 'Orders \u00b7 ' + periodText(), model: 'sale.order', domain: CONF.slice(), date: 'date_order', kind: 'count' };
+      case 'k-aov': f = fin('amount_total'); return { title: 'Average order value \u00b7 ' + periodText(), model: 'sale.order', domain: CONF.slice(), date: 'date_order', measure: f.measure, kind: f.kind, metric: 'avg' };
+      case 'k-pipe': f = fin('expected_revenue'); return { title: 'Open pipeline', model: 'crm.lead', domain: [['type', '=', 'opportunity'], ['probability', '<', 100]], measure: f.measure, kind: f.kind };
+      case 'k-ar': f = fin('amount_residual'); return { title: 'Receivable outstanding', model: 'account.move', domain: [['move_type', '=', 'out_invoice'], ['state', '=', 'posted'], ['payment_state', 'in', ['not_paid', 'partial']]], measure: f.measure, kind: f.kind, inverse: true };
+      case 'k-cust': return { title: 'Customers', model: 'res.partner', domain: (S.custDom || [['customer_rank', '>', 0]]).slice(), kind: 'count' };
+      case 'trend':
+        t = S.trend; if (!t || !t.labels[i]) return null; f = fin('amount_total');
+        var dom = t.dom[i] || monthDom(t.raw[i]);
+        return { title: 'Revenue \u00b7 ' + t.labels[i], model: 'sale.order', domain: CONF.slice(), measure: f.measure, kind: f.kind, crumbs: dom ? [{ label: 'Month: ' + t.labels[i], domain: dom }] : [] };
+      case 'trend-all': f = fin('amount_total'); return { title: 'Revenue \u00b7 last 12 months', model: 'sale.order', domain: CONF.slice(), date: 'date_order', measure: f.measure, kind: f.kind, days: 365 };
+      case 'cat': return S.cat ? metaSpec(S.cat.meta, S.cat.rows[i]) : null;
+      case 'top': return metaSpec({ title: 'Top customers', noun: 'Customer', model: 'sale.order', domain: CONF.slice(), date: 'date_order', measure: 'amount_total' }, (S.top || [])[i]);
+      case 'pipe': return metaSpec({ title: 'CRM pipeline', noun: 'Stage', model: 'crm.lead', domain: [['type', '=', 'opportunity']], measure: 'expected_revenue' }, (S.pipe || [])[i]);
+      case 'inv': return metaSpec({ title: 'Customer invoices', noun: 'Payment status', model: 'account.move', domain: [['move_type', '=', 'out_invoice'], ['state', '=', 'posted']], measure: 'amount_total' }, (S.inv || [])[i]);
+      case 'shop': return metaSpec(S.shopsMeta, (S.shops || [])[i]);
+      case 'prod': return metaSpec(S.shopProdMeta, (S.shopProd || [])[i]);
+      case 'rec':
+        o = S.recent[i]; if (!o || !o.id) return null; f = fin('amount_total');
+        return { title: 'Order ' + o.name, model: 'sale.order', domain: [], measure: f.measure, kind: f.kind, crumbs: [{ label: 'Order: ' + o.name, domain: [['id', '=', o.id]] }] };
+      case 'all-orders': f = fin('amount_total'); return { title: 'Sales orders \u00b7 ' + periodText(), model: 'sale.order', domain: [], date: 'date_order', measure: f.measure, kind: f.kind };
+    }
+    return null;
+  }
+  function openDrill(spec, from) {
+    if (!spec) return;
+    if (C.state() !== 'ok') { toast('Connect Odoo first \u2014 there is nothing to drill into yet.'); return; }
+    if (!window.DVDrill) { toast('Drill Explorer is unavailable. Reload DashView and try again.'); return; }
+    var days = spec.days || S.range; delete spec.days;
+    if (spec.date) { try { localStorage.setItem(PERIOD_KEY, JSON.stringify(days)); } catch (e) {} }
+    spec.domain = scopedDomain(spec.model, spec.domain || []);
+    spec.companyIds = companyIds();
+    window.DVDrill.open(spec, from);
   }
 
   /* -- Drawing ------------------------------------------------------------------ */
@@ -366,62 +434,79 @@
 
   function drawTrend() {
     var t = S.trend, th = F.theme(); if (!t) return;
-    if (!S.currency) return body('ovTrend', mixedCurrencyNote());
-    if (!t.rev.length) return body('ovTrend', '<div class="olx-empty-s">No confirmed sales in the last 12 months.</div>');
+    if (!S.currency) { drawTrendChips(); return body('ovTrend', mixedCurrencyNote()); }
+    if (!t.rev.length) { drawTrendChips(); return body('ovTrend', '<div class="olx-empty-s">No confirmed sales in the last 12 months.</div>'); }
     var p = P(), id = canvas('ovTrend');
     F.chart(id, { type: 'bar', data: { labels: t.labels, datasets: [
       { type: 'line', label: 'Revenue', data: t.rev, yAxisID: 'y', borderColor: p.blue, backgroundColor: p.blue + '26', fill: true, tension: 0, cubicInterpolationMode: 'monotone', borderWidth: 3, pointRadius: 4, pointHoverRadius: 7, pointBackgroundColor: '#fff', pointBorderColor: p.blue, pointBorderWidth: 2, order: 1 },
       { type: 'bar', label: 'Orders', data: t.cnt, yAxisID: 'y1', backgroundColor: p.amber + 'b3', borderColor: p.amber, borderWidth: 0, borderRadius: 5, maxBarThickness: 28, order: 2 }] },
-      options: { interaction: { mode: 'index', intersect: false }, plugins: { legend: { display: true, position: 'bottom', labels: { color: th.text, boxWidth: 12, boxHeight: 12, padding: 18, usePointStyle: true, font: { size: 12, weight: '600' } } }, tooltip: { callbacks: { label: function (c) { return ' ' + c.dataset.label + ': ' + (c.datasetIndex === 0 ? money(c.raw) : F.num(c.raw)); } } } },
+      options: { interaction: { mode: 'index', intersect: false }, onClick: function (e, els) { if (els && els.length) openDrill(specFor('trend', els[0].index), e && e.native && e.native.target); }, plugins: { legend: { display: true, position: 'bottom', labels: { color: th.text, boxWidth: 12, boxHeight: 12, padding: 18, usePointStyle: true, font: { size: 12, weight: '600' } } }, tooltip: { callbacks: { label: function (c) { return ' ' + c.dataset.label + ': ' + (c.datasetIndex === 0 ? money(c.raw) : F.num(c.raw)); } } } },
         scales: { x: { grid: { display: false }, ticks: { color: th.text } },
           y: { grid: { color: th.grid }, title: axisTitle('Revenue', th), ticks: { color: th.text, callback: COMPACT }, beginAtZero: true },
           y1: { position: 'right', grid: { display: false }, title: axisTitle('Orders', th), ticks: { color: th.text, precision: 0 }, beginAtZero: true } } } });
+    drawTrendChips();
   }
-  function legend(rows) {
+  /* summary chips under the trend: total, peak month and latest month - each opens its records */
+  function drawTrendChips() {
+    var el = $('ovTrendChips'), t = S.trend; if (!el) return;
+    if (!t || !S.currency || !t.rev.length) { el.innerHTML = ''; return; }
+    var n = t.rev.length, tot = t.rev.reduce(function (a, b) { return a + b; }, 0), ord = t.cnt.reduce(function (a, b) { return a + b; }, 0), hi = 0;
+    t.rev.forEach(function (v, i) { if (v > t.rev[hi]) hi = i; });
+    var last = n - 1, prev = n > 1 ? t.rev[n - 2] : 0, ch = prev ? (t.rev[last] - prev) / prev * 100 : null;
+    var chg = ch == null ? '<small>First month with sales</small>' : '<small class="' + (ch >= 0 ? 'is-up' : 'is-down') + '">' + (ch >= 0 ? '\u2191 ' : '\u2193 ') + Math.abs(ch).toFixed(1) + '% vs ' + esc(t.labels[n - 2]) + '</small>';
+    el.innerHTML =
+      '<button type="button" class="ov-chip" data-dr="trend-all"><span>Total shown</span><b>' + esc(money(tot, tot >= 1e5)) + '</b><small>' + F.num(ord) + ' orders \u00b7 ' + n + ' month' + (n === 1 ? '' : 's') + '</small></button>' +
+      '<button type="button" class="ov-chip" data-dr="trend" data-i="' + hi + '"><span>Peak month</span><b>' + esc(money(t.rev[hi], t.rev[hi] >= 1e5)) + '</b><small>' + esc(t.labels[hi]) + ' \u00b7 ' + F.num(t.cnt[hi]) + ' orders</small></button>' +
+      '<button type="button" class="ov-chip" data-dr="trend" data-i="' + last + '"><span>Latest month</span><b>' + esc(money(t.rev[last], t.rev[last] >= 1e5)) + '</b>' + chg + '</button>' +
+      '<button type="button" class="ov-chip" data-dr="trend-all"><span>Average / month</span><b>' + esc(money(tot / n, tot / n >= 1e5)) + '</b><small>' + esc(money(ord ? tot / ord : 0, false)) + ' per order</small></button>';
+  }
+  function legend(rows, kind) {
     var tot = rows.reduce(function (s, r) { return s + r.value; }, 0) || 1;
     return rows.map(function (r, i) {
       var col = rowColor(r, i), pct = Math.round(r.value / tot * 100);
-      return '<div class="olx-leg" style="--c:' + col + ';--p:' + pct + '%"><i style="background:' + col + '"></i><span title="' + esc(r.label) + '">' + esc(r.label) + '</span><b>' + money(r.value, true) + '</b><em>' + pct + '%</em></div>';
+      return '<div class="olx-leg is-drill" role="button" tabindex="0" data-dr="' + kind + '" data-i="' + i + '" aria-label="Open records for ' + esc(r.label) + '" style="--c:' + col + ';--p:' + pct + '%"><i style="background:' + col + '"></i><span title="' + esc(r.label) + '">' + esc(r.label) + '</span><b>' + money(r.value, true) + '</b><em>' + pct + '%</em></div>';
     }).join('');
   }
-  function donut(id, rows) {
+  function donut(id, rows, kind) {
     var th = F.theme(), cv = canvas(id), cols = rows.map(rowColor);
-    F.chart(cv, { type: 'doughnut', data: { labels: rows.map(function (r) { return r.label; }), datasets: [{ data: rows.map(function (r) { return r.value; }), backgroundColor: cols, borderColor: th.light ? '#fff' : 'rgba(255,255,255,0)', borderWidth: 2, hoverOffset: 6 }] }, options: { cutout: '66%', plugins: { tooltip: { callbacks: { label: function (c) { return ' ' + money(c.raw); } } } } } });
-    $(id + 'L').innerHTML = legend(rows);
+    F.chart(cv, { type: 'doughnut', data: { labels: rows.map(function (r) { return r.label; }), datasets: [{ data: rows.map(function (r) { return r.value; }), backgroundColor: cols, borderColor: th.light ? '#fff' : 'rgba(255,255,255,0)', borderWidth: 2, hoverOffset: 6 }] }, options: { cutout: '66%', onClick: function (e, els) { if (els && els.length) openDrill(specFor(kind, els[0].index), e && e.native && e.native.target); }, plugins: { tooltip: { callbacks: { label: function (c) { return ' ' + money(c.raw) + ' \u00b7 ' + Math.round(c.raw / (c.dataset.data.reduce(function (a, b) { return a + b; }, 0) || 1) * 100) + '%'; } } } } } });
+    $(id + 'L').innerHTML = legend(rows, kind);
   }
   function drawCat() {
     var c = S.cat; if (!c) return; $('ovCatT').textContent = c.title; $('ovCatS').textContent = c.sub;
     if (!S.currency) { body('ovCat', mixedCurrencyNote()); $('ovCatL').innerHTML = ''; return; }
     if (!c.rows.length) { body('ovCat', '<div class="olx-empty-s">No sales in this period.</div>'); $('ovCatL').innerHTML = ''; return; }
-    donut('ovCat', c.rows);
+    donut('ovCat', c.rows, 'cat');
   }
   function drawInv() {
     if (!S.inv) return;
     if (!S.currency) { body('ovInv', mixedCurrencyNote()); $('ovInvL').innerHTML = ''; return; }
     if (!S.inv.length) { body('ovInv', '<div class="olx-empty-s">No posted customer invoices.</div>'); $('ovInvL').innerHTML = ''; return; }
-    donut('ovInv', S.inv.map(function (r) { return { label: r.label, value: r.value, color: statusColor(r.label) }; }));
+    donut('ovInv', S.inv.map(function (r) { return { label: r.label, value: r.value, color: statusColor(r.label) }; }), 'inv');
   }
   function drawTop() {
     var rows = S.top || []; if (!rows.length) return body('ovTop', '<div class="olx-empty-s">No sales in this period.</div>');
     if (!S.currency) return body('ovTop', mixedCurrencyNote());
-    var max = rows[0].value || 1, col = P().blue;
+    var max = rows[0].value || 1, col = P().blue, shown = rows.reduce(function (a, r) { return a + r.value; }, 0), totRev = S.sum && S.sum.revenue > 0 ? S.sum.revenue : 0;
+    var topS = $('ovTopS'); if (topS) topS.textContent = totRev ? 'Selected period \u00b7 top ' + rows.length + ' = ' + Math.min(100, Math.round(shown / totRev * 100)) + '% of revenue' : 'Selected period';
     body('ovTop', '<div class="ov-bars">' + rows.map(function (r, i) {
-      return '<div class="ov-bar-row" style="--bc:' + col + '"><span class="ov-rank">' + (i + 1) + '</span><div class="ov-bar-main"><div class="ov-bar-top"><span title="' + esc(r.label) + '">' + esc(r.label) + '</span><b>' + money(r.value, true) + '</b></div><div class="ov-bar-track"><i style="width:' + Math.max(4, Math.round(r.value / max * 100)) + '%;background:' + col + '"></i></div></div></div>';
+      var share = totRev ? ' <em>' + Math.round(r.value / totRev * 100) + '%</em>' : '';
+      return '<div class="ov-bar-row is-drill" role="button" tabindex="0" data-dr="top" data-i="' + i + '" aria-label="Open orders for ' + esc(r.label) + '" style="--bc:' + col + '"><span class="ov-rank">' + (i + 1) + '</span><div class="ov-bar-main"><div class="ov-bar-top"><span title="' + esc(r.label) + '">' + esc(r.label) + '</span><b>' + money(r.value, true) + share + '</b></div><div class="ov-bar-track"><i style="width:' + Math.max(4, Math.round(r.value / max * 100)) + '%;background:' + col + '"></i></div></div></div>';
     }).join('') + '</div>');
   }
   function drawPipe() {
     var th = F.theme(), rows = S.pipe || []; if (!rows.length) return body('ovPipe', '<div class="olx-empty-s">No opportunities in the pipeline.</div>');
     if (!S.currency) return body('ovPipe', mixedCurrencyNote());
-    var cv = canvas('ovPipe'), col = P().violet, cols = rows.map(function () { return col; });
+    var cv = canvas('ovPipe'), pp = P(), cols = rows.map(function (r) { var l = String(r.label).toLowerCase(); return /lost|loss/.test(l) ? pp.coral : /\bwon\b/.test(l) ? pp.teal : pp.violet; });
     F.chart(cv, { type: 'bar', data: { labels: rows.map(function (r) { return r.label; }), datasets: [{ data: rows.map(function (r) { return r.value; }), backgroundColor: cols, borderRadius: 6, maxBarThickness: 40 }] },
-      options: { plugins: { tooltip: { callbacks: { title: function (c) { return rows[c[0].dataIndex].label; }, label: function (c) { return ' ' + money(c.raw) + ' \u00b7 ' + rows[c.dataIndex].count + ' deals'; } } } }, scales: { x: { grid: { display: false }, ticks: { color: th.text, maxRotation: 0, callback: shortTick(14) } }, y: { grid: { color: th.grid }, ticks: { color: th.text, callback: COMPACT }, beginAtZero: true } } } });
+      options: { onClick: function (e, els) { if (els && els.length) openDrill(specFor('pipe', els[0].index), e && e.native && e.native.target); }, plugins: { tooltip: { callbacks: { title: function (c) { return rows[c[0].dataIndex].label; }, label: function (c) { return ' ' + money(c.raw) + ' \u00b7 ' + rows[c.dataIndex].count + ' deals'; } } } }, scales: { x: { grid: { display: false }, ticks: { color: th.text, maxRotation: 0, callback: shortTick(14) } }, y: { grid: { color: th.grid }, ticks: { color: th.text, callback: COMPACT }, beginAtZero: true } } } });
   }
   function drawRecent() {
     var rows = S.recent; if (!rows.length) return body('ovRec', '<div class="olx-empty-s">No sales orders yet.</div>');
     body('ovRec', '<div class="table-wrap"><table class="dash-table"><thead><tr><th>Order</th><th>Customer</th><th>Salesperson</th><th>Date</th><th class="olx-r">Total</th><th>Status</th></tr></thead><tbody>' +
       rows.map(function (o) {
         var company = Array.isArray(o.company_id) ? S.companies.filter(function (c) { return c.id === o.company_id[0]; })[0] : null;
-        return '<tr><td class="mono">' + esc(o.name) + '</td><td>' + esc(label(o.partner_id)) + '</td><td>' + esc(label(o.user_id, '–')) + '</td><td class="mono">' + esc(F.when(o.date_order)) + '</td><td class="olx-r">' + esc(company && company.currency ? moneyFor(o.amount_total, company.currency) : money(o.amount_total)) + '</td>' +
+        return '<tr class="is-drill" role="button" tabindex="0" data-dr="rec" data-i="' + rows.indexOf(o) + '" aria-label="Open order ' + esc(o.name) + '"><td class="mono">' + esc(o.name) + '</td><td>' + esc(label(o.partner_id)) + '</td><td>' + esc(label(o.user_id, '–')) + '</td><td class="mono">' + esc(F.when(o.date_order)) + '</td><td class="olx-r">' + esc(company && company.currency ? moneyFor(o.amount_total, company.currency) : money(o.amount_total)) + '</td>' +
           '<td><span class="status-pill ' + (STATE_CLS[o.state] || 'review') + '">' + esc(STATE_LBL[o.state] || o.state) + '</span></td></tr>';
       }).join('') + '</tbody></table></div>');
   }
@@ -439,17 +524,19 @@
     var cv = canvas('ovShops');
     /* Put badge in the subtitle slot */
     var sub = $('ovShopsS'); if (sub) sub.innerHTML = (sub.textContent || '') + ' &nbsp;' + badge;
-    var base = P().teal, colors = rows.map(function () { return base; });
+    var base = P().teal;
     F.chart(cv, {
       type: 'bar',
       data: { labels: rows.map(function (r) { return r.label; }), datasets: [{
         data: rows.map(function (r) { return r.value; }),
-        backgroundColor: colors,
+        backgroundColor: base,
+        borderColor: base,
         borderWidth: 0,
         borderRadius: 6,
         maxBarThickness: 56
       }] },
       options: {
+        onClick: function (e, els) { if (els && els.length) openDrill(specFor('shop', els[0].index), e && e.native && e.native.target); },
         plugins: { legend: { display: false }, tooltip: { callbacks: { title: function (c) { return rows[c[0].dataIndex].label; }, label: function (c) {
           var r = rows[c.dataIndex];
           return [' Revenue: ' + money(c.raw), ' Orders: ' + F.num(r.count)];
@@ -467,7 +554,7 @@
     if (!rows.length) { body('ovShopProd', '<div class="olx-empty-s">No product data in this period.</div>'); return; }
     var max = rows[0].value || 1, col = P().teal;
     body('ovShopProd', '<div class="ov-bars">' + rows.map(function (r, i) {
-      return '<div class="ov-bar-row" style="--bc:' + col + '">' +
+      return '<div class="ov-bar-row is-drill" role="button" tabindex="0" data-dr="prod" data-i="' + i + '" aria-label="Open sales lines for ' + esc(r.label) + '" style="--bc:' + col + '">' +
         '<span class="ov-rank">' + (i + 1) + '</span>' +
         '<div class="ov-bar-main">' +
           '<div class="ov-bar-top">' +
@@ -671,6 +758,17 @@
         kind: 'count',
         companyIds: companyIds()
       }, button);
+    });
+    root.addEventListener('click', function (e) {
+      var el = e.target.closest('[data-dr]');
+      if (!el || !root.contains(el)) return;
+      openDrill(specFor(el.getAttribute('data-dr'), +el.getAttribute('data-i')), el);
+    });
+    root.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var el = e.target.closest && e.target.closest('[data-dr]');
+      if (!el || el.tagName === 'BUTTON' || e.target !== el) return;
+      e.preventDefault(); el.click();
     });
     ['dv:odoo-config-saved', 'dv:unlocked'].forEach(function (ev) { document.addEventListener(ev, function () { C.reset(); loadAll(); }); });
     window.__overviewExportCSV = exportCsv; // shared hook: command palette \u201cExport\u201d + Reports \u2192 Sales Overview Report
