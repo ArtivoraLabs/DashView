@@ -1,0 +1,17 @@
+DashView - changed files (same paths as the project; replace them as they are)
+
+login.html                    new professional sign-in page (setup + sign in + signed-in card)
+css/login.css                 styles for the new sign-in page
+js/auth-service.js            pages need sign-in; guests go to login.html and come back after login
+js/updater.js                 background maintenance notice -> "Update available" popup (Update now / Later)
+js/settings-pro.js            dashboard Settings update card: maintenance + background states
+css/settings-pro.css          dashboard Settings update card styling
+settings.html                 "My settings" personal view + new Updates status card
+test/updater.smoke.test.js    updated test for the new update flow
+
+After copying, release it so users get the update prompt:
+  node scripts/release.mjs minor "New sign-in page" "Professional update popup with background maintenance notice" "My settings view"
+then deploy.
+
+Optional maintenance window (set before you push, remove after): in version.json
+  "maintenance": { "active": true, "message": "Deploying a new version..." }

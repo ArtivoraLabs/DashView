@@ -205,6 +205,21 @@ html[data-theme="light"] .upd-tag.is-fixed { color: #17814a; }
 html[data-theme="light"] .upd-tag.is-security { color: #c2362a; }
 @media (prefers-reduced-motion: reduce) { .stg-conn-meta-item span.upd-pill.is-info::before { animation: none; } }
 
+/* ── Software update card: professional refresh ─────────────────────────── */
+.stg-conn-meta-item span.upd-pill { padding: 5px 12px 5px 10px; font-size: 12.5px; }
+.upd-prog { position: relative; height: 6px; margin: 6px 0 14px; }
+.upd-prog > i { background: var(--signal, #6fb0dd); }
+.upd-prog.is-ind > i { position: absolute; width: 34%; animation: upd-slide 1.5s ease-in-out infinite; }
+@keyframes upd-slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
+.upd-maint { display: flex; gap: 10px; align-items: flex-start; margin: 4px 0 8px; padding: 12px 14px; border-radius: 12px; font-size: 13px; line-height: 1.5; color: var(--ink-70, inherit); background: color-mix(in srgb, var(--signal, #e8a33d) 11%, transparent); border: 1px solid color-mix(in srgb, var(--signal, #e8a33d) 34%, transparent); }
+.upd-maint[hidden] { display: none; }
+.upd-maint::before { content: ""; flex: none; width: 8px; height: 8px; margin-top: 6px; border-radius: 50%; background: var(--signal, #e8a33d); animation: upd-blink 1.1s ease-in-out infinite; }
+.upd-notes { padding: 14px 16px; border-radius: 14px; }
+.upd-notes-h b { font-size: 13.5px; }
+.upd-notes li { display: flex; gap: 10px; align-items: baseline; padding: 9px 0; line-height: 1.5; }
+.upd-tag { flex: none; min-width: 66px; margin-right: 0; text-align: center; padding: 2px 8px; }
+@media (prefers-reduced-motion: reduce) { .upd-prog.is-ind > i, .upd-maint::before { animation: none; } }
+
 /* ==========================================================================
    Appearance studio  (Settings → Appearance)
    Every colour comes from the live tokens (--signal, --ink, --line, --paper-soft)

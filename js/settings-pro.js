@@ -438,18 +438,19 @@
     /* updater.js is deferred, so wire the update card once it has loaded */
     function wireUpdates() {
     var U = window.DV && DV.updater, st = byId('verStatus'), ver = byId('verAppVersion'), bar = byId('verProgress'), notes = byId('verNotes');
-    var LABEL = { available: 'Download update', downloading: 'Downloading…', ready: 'Install & Restart', failed: 'Retry download' };
+    var LABEL = { available: 'Download update', downloading: 'Updating in background…', ready: 'Update now', failed: 'Try again', maintenance: 'Maintenance in progress…', installing: 'Installing…' };
     function paint() {
       var release = window.DVReleaseInfo && window.DVReleaseInfo();
       if (!U) { if (ver && release) ver.textContent = 'DashView ' + release.version; return; }
       var s2 = U.state(), i = U.info(), versionNumber = i.version && i.version !== '-' ? i.version : release && release.version;
       if (ver && versionNumber) ver.textContent = 'DashView ' + versionNumber + (i.build ? ' (build ' + i.build + ')' : '');
       if (checkEl && s2.lastChecked) checkEl.textContent = fmtWhen(new Date(s2.lastChecked).toISOString()) || 'Just now';
-      var txt = { available: 'Update available · ' + s2.version, downloading: 'Downloading ' + s2.progress + '%', ready: 'Ready to install · ' + s2.version, failed: 'Failed · ' + (s2.error || 'try again'), installing: 'Installing…' }[s2.phase] || 'Up to date';
-      var tone = { available: 'warn', downloading: 'info', installing: 'info', ready: 'ok', failed: 'bad' }[s2.phase] || 'ok';
+      var txt = { available: 'Update available · ' + s2.version, downloading: (s2.background ? 'Maintenance · ' : 'Preparing · ') + s2.progress + '%', ready: 'Update available · ' + s2.version, failed: 'Failed · ' + (s2.error || 'try again'), installing: 'Installing…', maintenance: 'Maintenance in progress' }[s2.phase] || 'Up to date';
+      var tone = { available: 'warn', maintenance: 'warn', downloading: 'info', installing: 'info', ready: 'warn', failed: 'bad' }[s2.phase] || 'ok';
       if (st) { st.textContent = txt; st.className = 'upd-pill is-' + tone; }
-      if (btn) { btn.textContent = LABEL[s2.phase] || 'Check for updates now'; btn.disabled = s2.phase === 'downloading' || s2.phase === 'installing'; }
-      if (bar) { bar.hidden = s2.phase !== 'downloading'; var f = bar.firstElementChild; if (f) f.style.width = s2.progress + '%'; }
+      if (btn) { btn.textContent = LABEL[s2.phase] || 'Check for updates now'; btn.disabled = s2.phase === 'downloading' || s2.phase === 'installing' || s2.phase === 'maintenance'; btn.classList.toggle('btn-primary', s2.phase !== 'current'); }
+      if (bar) { bar.hidden = s2.phase !== 'downloading' && s2.phase !== 'maintenance'; bar.classList.toggle('is-ind', s2.phase === 'maintenance'); var f = bar.firstElementChild; if (f) f.style.width = s2.phase === 'maintenance' ? '' : s2.progress + '%'; }
+      var mn = byId('verMaint'); if (mn) { mn.hidden = s2.phase !== 'maintenance' && !(s2.phase === 'downloading' && s2.background); mn.textContent = s2.phase === 'maintenance' ? s2.maintenance : 'A new version is being installed in the background. You can keep working. We will tell you when it is ready.'; }
       if (notes) {
         var show = (s2.phase === 'available' || s2.phase === 'ready') && s2.notes.length; notes.hidden = !show;
         if (show) {
@@ -470,7 +471,7 @@
     if (btn) btn.addEventListener('click', function () {
       if (!U) { toast('Updates need the installed web app (https).'); return; }
       var p = U.state().phase;
-      if (p === 'available' || p === 'failed') U.download(); else if (p === 'ready') U.install();
+      if (p === 'available' || p === 'failed') U.download(); else if (p === 'ready') U.open(); else if (p === 'maintenance') U.open();
       else U.check(true).then(function () { meta.lastCheck = new Date().toISOString(); saveJSON('dashview_version_meta', meta); paint(); });
     });
     var nb = byId('updNotesBtn'); if (nb) nb.addEventListener('click', function () {
@@ -480,8 +481,10 @@
     });
     window.addEventListener('dv:update-state', paint); paint(); setTimeout(paint, 1500);
     var pf = U && U.prefs ? U.prefs() : null, ac = byId('updAutoCheck'), ad = byId('updAutoDl');
+    if (bar && !byId('verMaint')) { var mm2 = document.createElement('div'); mm2.id = 'verMaint'; mm2.className = 'upd-maint'; mm2.setAttribute('role', 'status'); mm2.hidden = true; bar.parentNode.insertBefore(mm2, bar); }
+    if (ad) { var adl = ad.parentNode && ad.parentNode.querySelector('span'); if (adl) adl.textContent = 'Install updates in the background (you still choose when to restart)'; }
     if (ac && pf) { ac.checked = pf.autoCheck; ac.addEventListener('change', function () { U.setPrefs({ autoCheck: ac.checked }); toast(ac.checked ? 'Automatic update checks on' : 'Automatic update checks off'); }); }
-    if (ad && pf) { ad.checked = pf.autoDownload; ad.addEventListener('change', function () { U.setPrefs({ autoDownload: ad.checked }); toast(ad.checked ? 'Updates will download automatically' : 'You will choose when to download'); }); }
+    if (ad && pf) { ad.checked = pf.autoDownload; ad.addEventListener('change', function () { U.setPrefs({ autoDownload: ad.checked }); toast(ad.checked ? 'Updates will install in the background' : 'You will choose when to download'); }); }
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wireUpdates); else wireUpdates();
 

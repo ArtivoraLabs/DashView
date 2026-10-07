@@ -144,12 +144,56 @@ document.addEventListener('DOMContentLoaded',function(){
  var c=document.getElementById('privClear');if(c)c.onclick=function(){if(!confirm('Clear temporary caches? Your settings and connection stay.'))return;(window.caches?caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return !/shell|static/i.test(k)}).map(function(k){return caches.delete(k)}))}):Promise.resolve()).then(usage)};
 });
 </script>
+<style>
+.upd-hero{display:flex;align-items:center;gap:16px;padding:18px 20px;border-bottom:1px solid var(--line);--t:#4fb477}
+.upd-hero[data-tone=warn]{--t:var(--signal)}.upd-hero[data-tone=info]{--t:#5b9fd0}.upd-hero[data-tone=bad]{--t:#e5654f}
+.upd-ico{flex:none;width:44px;height:44px;border-radius:13px;display:grid;place-items:center;color:var(--t);background:color-mix(in srgb,var(--t) 15%,transparent)}
+.upd-ico svg{width:22px;height:22px}
+.upd-hero[data-tone=info] .upd-ico svg{animation:updspin 2.4s linear infinite}
+.upd-tx{flex:1;min-width:0}.upd-tx b{display:block;font-size:15.5px;letter-spacing:-.01em}.upd-tx span{display:block;margin-top:2px;font-size:13px;color:var(--muted)}
+.upd-bar{position:relative;height:5px;margin-top:10px;border-radius:5px;background:color-mix(in srgb,var(--text) 10%,transparent);overflow:hidden}
+.upd-bar[hidden]{display:none}.upd-bar i{display:block;height:100%;width:0;border-radius:5px;background:var(--t);transition:width .3s ease}
+.upd-bar.ind i{position:absolute;width:34%;animation:updslide 1.5s ease-in-out infinite}
+.upd-hero button{flex:none}
+@keyframes updspin{to{transform:rotate(360deg)}}@keyframes updslide{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}
+@media (max-width:560px){.upd-hero{flex-wrap:wrap}.upd-hero button{width:100%}}
+@media (prefers-reduced-motion:reduce){.upd-hero .upd-ico svg,.upd-bar.ind i{animation:none}}
+</style>
+<style>
+.me-card{padding:20px}.me-who{display:flex;align-items:center;gap:14px}
+.me-av{flex:none;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:16px;color:var(--signal);background:color-mix(in srgb,var(--signal) 16%,transparent)}
+.me-id{flex:1;min-width:0}.me-id b{display:block;font-size:16px;letter-spacing:-.01em}.me-id span{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.me-act{flex:none}.me-lead{margin:16px 0 12px;font-size:13px;color:var(--muted)}
+.me-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.me-t{display:block;padding:12px 14px;border-radius:12px;border:1px solid var(--line);text-decoration:none;color:var(--text);background:var(--bg);transition:border-color .15s}
+.me-t:hover{border-color:var(--signal)}.me-t small{display:block;font-size:12px;color:var(--muted);margin-bottom:3px}
+.me-t b{display:flex;align-items:center;gap:7px;font-size:14px;text-transform:capitalize}
+.me-dot{width:12px;height:12px;border-radius:50%;background:var(--signal)}
+.me-foot{display:flex;gap:18px;flex-wrap:wrap;margin-top:16px;font-size:13px}.me-foot a{color:var(--signal);text-decoration:none;font-weight:600}.me-foot a:hover{text-decoration:underline}
+@media (max-width:560px){.me-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.me-who{flex-wrap:wrap}}
+</style>
 </head>
 <body>
 <header class="bar"><a class="back" id="back" href="dashboard.html#settings">← Dashboard settings</a><h1>Settings</h1></header>
 <div class="wrap">
-<nav class="side" aria-label="Settings sections"><a href="#appearance">Appearance</a><a href="#accessibility">Accessibility</a><a href="#prefs">Preferences</a><a href="#updates">Updates</a><a href="#privacy">Privacy and data</a><a href="#shortcuts">Shortcuts</a><a href="#app">App and offline</a><a href="#backup">Backup and reset</a><a href="#about">About</a><a href="manual.html">User manual</a></nav>
+<nav class="side" aria-label="Settings sections"><a href="#me">My settings</a><a href="#appearance">Appearance</a><a href="#accessibility">Accessibility</a><a href="#prefs">Preferences</a><a href="#updates">Updates</a><a href="#privacy">Privacy and data</a><a href="#shortcuts">Shortcuts</a><a href="#app">App and offline</a><a href="#backup">Backup and reset</a><a href="#about">About</a><a href="manual.html">User manual</a></nav>
 <main>
+<section id="me" class="me"><h2>My settings</h2>
+ <div class="card me-card">
+  <div class="me-who"><span class="me-av" id="meAv" aria-hidden="true">G</span>
+   <div class="me-id"><b id="meName">Guest</b><span id="meMeta">Not signed in</span></div>
+   <a class="btn me-act" id="meAct" href="login.html?next=settings.html">Sign in</a></div>
+  <p class="me-lead">Your choices at a glance. They are saved on this device and apply across DashView. Tap a tile to change it.</p>
+  <div class="me-grid" id="meGrid">
+   <a class="me-t" href="#appearance"><small>Theme</small><b id="meTheme">-</b></a>
+   <a class="me-t" href="#appearance"><small>Accent</small><b><i class="me-dot" id="meDot"></i><span id="meAccent">-</span></b></a>
+   <a class="me-t" href="#appearance"><small>Surface</small><b id="meSurface">-</b></a>
+   <a class="me-t" href="#prefs"><small>Layout</small><b id="meDensity">-</b></a>
+   <a class="me-t" href="#prefs"><small>Opens on</small><b id="meLanding">-</b></a>
+   <a class="me-t" href="#updates"><small>Updates</small><b id="meUpd">-</b></a>
+  </div>
+  <div class="me-foot"><a href="#backup">Back up or move my settings</a><a href="#backup">Reset to defaults</a></div>
+ </div></section>
 <section id="appearance"><h2>Appearance</h2><p class="section-intro">Set your workspace look in one place. Theme, accent and surface material are independent and apply across DashView.</p><div class="card appearance-card">
  <div class="row"><div class="txt"><b>Theme</b><span>System follows your device and switches automatically.</span></div>
   <div class="ctl"><div class="seg" role="radiogroup" aria-label="Theme"><label><input type="radio" name="theme" value="system"><span>System</span></label><label><input type="radio" name="theme" value="light"><span>Light</span></label><label><input type="radio" name="theme" value="dark"><span>Dark</span></label></div></div></div>
@@ -180,8 +224,13 @@ document.addEventListener('DOMContentLoaded',function(){
 </div></section>
 
 <section id="updates"><h2>Updates</h2><div class="card">
+ <div class="upd-hero" id="updHero" data-tone="ok">
+  <div class="upd-ico" id="updIco" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></div>
+  <div class="upd-tx"><b id="updTitle">You’re up to date</b><span id="updSub">Checking version…</span><div class="upd-bar" id="updBar" hidden><i></i></div></div>
+  <button class="primary" id="updBtn" type="button">Check for updates</button>
+ </div>
  <div class="row"><div class="txt"><b>Check for updates automatically</b><span>Checks every 30 minutes while the app is open.</span></div><div class="ctl"><div class="seg" data-pref="autoCheck"><label><input type="radio" name="p_autoCheck" value="1" checked><span>On</span></label><label><input type="radio" name="p_autoCheck" value="0"><span>Off</span></label></div></div></div>
- <div class="row"><div class="txt"><b>Download updates in the background</b><span>The update is prepared silently; you still choose when to install.</span></div><div class="ctl"><div class="seg" data-pref="autoDownload"><label><input type="radio" name="p_autoDownload" value="1"><span>On</span></label><label><input type="radio" name="p_autoDownload" value="0" checked><span>Off</span></label></div></div></div>
+ <div class="row"><div class="txt"><b>Install updates in the background</b><span>New versions are prepared silently while you work. You get an “Update available” popup and choose when to restart.</span></div><div class="ctl"><div class="seg" data-pref="autoDownload"><label><input type="radio" name="p_autoDownload" value="1" checked><span>On</span></label><label><input type="radio" name="p_autoDownload" value="0"><span>Off</span></label></div></div></div>
 </div></section>
 
 <section id="privacy"><h2>Privacy and data</h2><div class="card">
@@ -259,10 +308,69 @@ var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isInter
 Object.keys(map).forEach(function(id){var el=document.getElementById(id);if(el)io.observe(el)});})();
 </script>
 <script>
+(function(){
+ var ICON={ok:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',warn:'<path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/>',info:'<path d="M20 11a8 8 0 0 0-14.5-4M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.5 4M20 20v-4h-4"/>',bad:'<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5"/><path d="M12 16.5h.01"/>',tool:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.1l-5.8 5.8a1.8 1.8 0 0 0 2.6 2.6l5.8-5.8a4 4 0 0 0 5.1-5.4l-2.4 2.4-2.2-.5-.5-2.2 2.4-2.4Z"/>'};
+ function $(i){return document.getElementById(i)}
+ function paint(){
+  var U=window.DV&&DV.updater; if(!U||!U.state||!$('updHero'))return;
+  var s=U.state(),i=U.info(),v=(i.version&&i.version!=='-')?i.version:'',last=s.lastChecked?'Last checked '+new Date(s.lastChecked).toLocaleString([], {dateStyle:'medium',timeStyle:'short'}):'Not checked yet';
+  var m={
+   unsupported:['ok','ok','Updates need the installed web app','Open DashView from its https address to receive updates.','Check for updates',true],
+   idle:['ok','ok','You’re up to date','Version '+v+' · '+last,'Check for updates',false],
+   current:['ok','ok','You’re up to date','Version '+v+' · '+last,'Check for updates',false],
+   available:['warn','warn','Update available','Version '+s.version+' can be installed.','Download update',false],
+   maintenance:['warn','tool','Maintenance in progress',s.maintenance||'A new version is being deployed.','View details',false],
+   downloading:['info','info',s.background?'Maintenance in progress':'Preparing update','Installing version '+s.version+' in the background · '+s.progress+'%','Keep working',true],
+   ready:['warn','warn','Update available','Version '+s.version+' is ready. Update now or later.','Update now',false],
+   installing:['info','info','Updating DashView','Please keep this window open.','Updating…',true],
+   failed:['bad','bad','Update failed',s.error||'Check your connection and try again.','Try again',false]
+  }[s.phase]||['ok','ok','You’re up to date','Version '+v,'Check for updates',false];
+  $('updHero').setAttribute('data-tone',m[0]);
+  $('updIco').firstElementChild.innerHTML=ICON[m[1]];
+  $('updTitle').textContent=m[2]; $('updSub').textContent=m[3];
+  var b=$('updBtn'); b.textContent=m[4]; b.disabled=m[5]; b.className=(s.phase==='current'||s.phase==='idle')?'':'primary';
+  var bar=$('updBar'),on=s.phase==='downloading'||s.phase==='installing'||s.phase==='maintenance';
+  bar.hidden=!on; bar.classList.toggle('ind',s.phase==='maintenance'); bar.firstElementChild.style.width=s.phase==='maintenance'?'':Math.max(4,s.progress)+'%';
+ }
+ document.addEventListener('DOMContentLoaded',function(){
+  var b=$('updBtn'); if(!b)return;
+  b.onclick=function(){var U=window.DV&&DV.updater; if(!U)return; var p=U.state().phase;
+   if(p==='available'||p==='failed')U.download(); else if(p==='ready'||p==='maintenance')U.open(); else U.check(true).then(paint)};
+  window.addEventListener('dv:update-state',paint); setTimeout(paint,600); setTimeout(paint,2000);
+ });
+})();
 function showVer(){if(!window.DV||!DV.updater)return;var i=DV.updater.info();if(!i.version)return;var t=i.lastChecked?'Last checked '+new Date(i.lastChecked).toLocaleString():'Not checked yet';
  document.getElementById('verNow').textContent='Version '+i.version+' (build '+i.build+') · '+t;var a=document.getElementById('verAbout');if(a)a.textContent=i.version;
  document.getElementById('verHist').innerHTML=DV.updater.history().map(function(h){return '<b style="display:inline">'+h.version+'</b> · '+h.date+' — '+h.notes.join('; ')}).join('<br>')}
 addEventListener('load',function(){setTimeout(showVer,900);setTimeout(showVer,2500)});
+</script>
+<script>
+(function(){
+ var $=function(i){return document.getElementById(i)};
+ var ACC={amber:'#e0962a',teal:'#1aa98a',blue:'#3b82f6',violet:'#8b5cf6',rose:'#e8375f'};
+ var LAND={overview:'Overview',studio:'Data Studio',ai:'AI assistant'};
+ function ls(k){try{return localStorage.getItem(k)}catch(e){return null}}
+ function who(){
+  var ses=null,cred=null;try{ses=JSON.parse(sessionStorage.getItem('dv_simple_session'))}catch(e){}try{cred=JSON.parse(ls('dv_simple_cred'))}catch(e){}
+  if(ses&&cred){var n=cred.name||'Admin';$('meName').textContent=n;$('meMeta').textContent=(cred.email||'')+' · Admin';
+   $('meAv').textContent=n.trim().split(/\s+/).slice(0,2).map(function(x){return x[0]}).join('').toUpperCase()||'A';
+   $('meAct').textContent='Switch account';$('meAct').setAttribute('href','login.html')}
+ }
+ function paint(){
+  var c=window.DV&&DV.get?DV.get():{theme:'system',accent:'amber'};
+  $('meTheme').textContent=c.theme;$('meAccent').textContent=c.accent;$('meDot').style.background=ACC[c.accent]||'var(--signal)';
+  $('meSurface').textContent=ls('dashview_surface')==='glass'?'Liquid glass':'Flat';
+  $('meDensity').textContent=ls('dv-pref-density')||'comfortable';
+  $('meLanding').textContent=LAND[ls('dv-pref-landing')||'overview']||'Overview';
+  var U=window.DV&&DV.updater,s=U&&U.state?U.state():{phase:'idle'};
+  $('meUpd').textContent={available:'Update available',ready:'Update available',downloading:'Installing…',maintenance:'Maintenance',failed:'Update failed'}[s.phase]||'Up to date';
+  $('meUpd').style.textTransform='none';
+ }
+ document.addEventListener('DOMContentLoaded',function(){who();paint();
+  document.addEventListener('change',function(){setTimeout(paint,50)});
+  window.addEventListener('storage',paint);window.addEventListener('dv:update-state',paint);
+  if(window.DV&&DV.on)DV.on(paint);setTimeout(paint,1200)});
+})();
 </script>
 </body>
 </html>

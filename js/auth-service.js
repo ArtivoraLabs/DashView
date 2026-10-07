@@ -403,7 +403,7 @@
     var passwordBtn = document.getElementById('dvMenuPassword');
     if (passwordBtn) passwordBtn.addEventListener('click', function () { menu.classList.remove('open'); openPasswordModal(); });
     var signoutBtn = document.getElementById('dvMenuSignout');
-    if (signoutBtn) signoutBtn.addEventListener('click', function () { menu.classList.remove('open'); logout(); if (window.showToast) window.showToast('Signed out. You are now in read-only guest mode.'); });
+    if (signoutBtn) signoutBtn.addEventListener('click', function () { menu.classList.remove('open'); logout(); if (window.showToast) window.showToast('Signed out.'); });
   }
 
   function escapeHtml(str) {
@@ -426,6 +426,19 @@
     if (topAvatar) { topAvatar.textContent = user.initials; topAvatar.style.background = ROLE_COLOR[user.role] + '22'; topAvatar.style.color = ROLE_COLOR[user.role]; }
   }
 
+  /* ── Page guard: DashView pages need a signed-in user. A guest (no session, or the
+     session expired / was signed out) is sent to login.html, and comes back to the
+     page they asked for after signing in. Public pages are never redirected. ── */
+  var PUBLIC_PAGE = /^(login|index|404|manual|share)(\.html)?$/i;
+  function requireSignIn() {
+    if (window.__dvAuthRedirect) return;
+    var here = (location.pathname.split('/').pop() || 'index.html');
+    if (PUBLIC_PAGE.test(here) || !currentUser().guest) return;
+    window.__dvAuthRedirect = true;
+    try { document.documentElement.style.visibility = 'hidden'; } catch (e) {}
+    location.replace('login.html?next=' + encodeURIComponent(here + location.search + location.hash));
+  }
+
   function render() {
     renderSidebar();
     renderMenu();
@@ -434,6 +447,7 @@
     if (banner) banner.style.display = currentUser().guest ? 'flex' : 'none';
     renderAccountsSettings();
     document.dispatchEvent(new CustomEvent('dv:session-changed', { detail: currentUser() }));
+    requireSignIn();
   }
 
   function openUsersModal() {
@@ -582,6 +596,8 @@
   }
 
   function ready(fn) { if (document.readyState !== 'loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
+
+  requireSignIn();
 
   ready(function () {
     try { localStorage.removeItem('dv_auth_users'); localStorage.removeItem('dv_auth_session'); } catch (e) {}
