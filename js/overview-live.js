@@ -347,7 +347,8 @@
   var OV_DARK  = { blue: '#5AA2FF', teal: '#2FD1A5', amber: '#FFB547', coral: '#FF6F61', violet: '#A78BFA', cyan: '#3CCBE6', pink: '#F58AC4', slate: '#94A3B8' };
   var OV_LIGHT = { blue: '#1D5FD1', teal: '#0A8F6B', amber: '#B86E00', coral: '#D1342A', violet: '#6A3FD6', cyan: '#0A7FA0', pink: '#BE2F7E', slate: '#566277' };
   var OV_ORDER = ['blue', 'teal', 'amber', 'coral', 'violet', 'cyan', 'pink', 'slate'];
-  function P() { return F.theme().light ? OV_LIGHT : OV_DARK; }
+  /* tones come from the chosen chart scheme (Settings > Appearance > Chart colours); fallback keeps the originals */
+  function P() { var light = F.theme().light; return (F.semantic && F.semantic(light)) || (light ? OV_LIGHT : OV_DARK); }
   function cycle(i) { return P()[OV_ORDER[i % OV_ORDER.length]]; }
   function rowColor(r, i) { return r.label === 'Other' ? P().slate : (r.color || cycle(i)); }
   function statusColor(lbl) {

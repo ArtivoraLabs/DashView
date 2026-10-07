@@ -216,7 +216,66 @@
      absent: they are reserved for bad/good so a category colour can never read as a verdict. */
   var PAL_DARK = ['#f2b04a', '#5b9cf5', '#a78bfa', '#2dd4bf', '#f472b6', '#38bdf8', '#fb923c', '#818cf8', '#c8d36a', '#94a3b8'];
   var PAL_LIGHT = ['#c2710c', '#2563eb', '#7c3aed', '#0d9488', '#db2777', '#0284c7', '#ea580c', '#4f46e5', '#65a30d', '#64748b'];
-  var PALETTE = (document.documentElement.getAttribute('data-theme') === 'light' ? PAL_LIGHT : PAL_DARK).slice();
+
+  /* ---- Chart colour schemes: scheme x theme (light/dark) x accent -------------------------------
+     Settings > Appearance > Chart colours picks the scheme. 'auto' is the original palette, led by the
+     active accent. Every scheme has a separate dark and light tone set so it stays readable on both. */
+  var SCHEMES = {
+    auto:   { label: 'Theme matched', note: 'Follows your accent and theme', dark: PAL_DARK, light: PAL_LIGHT },
+    vivid:  { label: 'Vivid', note: 'High-energy, strong separation',
+              dark:  ['#ffb020', '#3b82f6', '#a855f7', '#10b981', '#ec4899', '#06b6d4', '#f97316', '#6366f1', '#84cc16', '#94a3b8'],
+              light: ['#c27803', '#1d4ed8', '#7e22ce', '#047857', '#be185d', '#0e7490', '#c2410c', '#4338ca', '#4d7c0f', '#64748b'] },
+    ocean:  { label: 'Ocean', note: 'Cool blues and teals',
+              dark:  ['#38bdf8', '#22d3ee', '#2dd4bf', '#60a5fa', '#818cf8', '#a5b4fc', '#67e8f9', '#5eead4', '#93c5fd', '#94a3b8'],
+              light: ['#0369a1', '#0e7490', '#0f766e', '#1d4ed8', '#4338ca', '#6366f1', '#0891b2', '#0d9488', '#2563eb', '#64748b'] },
+    sunset: { label: 'Sunset', note: 'Warm ambers, corals, magentas',
+              dark:  ['#fbbf24', '#fb923c', '#f87171', '#f472b6', '#e879f9', '#fcd34d', '#fdba74', '#fca5a5', '#c084fc', '#a8a29e'],
+              light: ['#b45309', '#c2410c', '#b91c1c', '#be185d', '#a21caf', '#a16207', '#9a3412', '#dc2626', '#7e22ce', '#78716c'] },
+    forest: { label: 'Forest', note: 'Greens, lime and earth tones',
+              dark:  ['#4ade80', '#a3e635', '#2dd4bf', '#facc15', '#86efac', '#fdba74', '#67e8f9', '#bef264', '#d6d3d1', '#94a3b8'],
+              light: ['#15803d', '#4d7c0f', '#0f766e', '#a16207', '#166534', '#9a3412', '#0e7490', '#3f6212', '#78716c', '#64748b'] },
+    access: { label: 'Colour-blind safe', note: 'Okabe-Ito set, distinguishable for most colour-vision types',
+              dark:  ['#e69f00', '#56b4e9', '#009e73', '#f0e442', '#4c8fe0', '#e8743b', '#cc79a7', '#b8b8b8', '#7fd1c1', '#94a3b8'],
+              light: ['#b87800', '#0072b2', '#007a5a', '#9a8a00', '#2a5db0', '#d55e00', '#a8467f', '#6b6b6b', '#00806b', '#64748b'] },
+    mono:   { label: 'Monochrome', note: 'Shades of your accent colour', mono: true }
+  };
+  var SCHEME_KEY = 'dashview_chart_scheme';
+  var ACC_HEX = { amber: ['#f2b04a', '#c2710c'], teal: ['#2fbf9f', '#0e7c66'], blue: ['#6aa5ff', '#2563eb'], violet: ['#b197fc', '#7c3aed'], rose: ['#fb7a92', '#d61f4c'] };
+  var ACC_SLOT = { amber: 0, blue: 1, violet: 2, teal: 3, rose: 4 };
+  function hexMix(a, b, t) {
+    var x = parseInt(a.slice(1), 16), y = parseInt(b.slice(1), 16), o = 0;
+    [16, 8, 0].forEach(function (sh) { var c = Math.round(((x >> sh) & 255) * (1 - t) + ((y >> sh) & 255) * t); o = (o << 8) | c; });
+    return '#' + ('000000' + o.toString(16)).slice(-6);
+  }
+  function accentKey() { try { var c = JSON.parse(localStorage.getItem('dashview-config')) || {}; return ACC_HEX[c.accent] ? c.accent : 'amber'; } catch (e) { return 'amber'; } }
+  function schemeId() { var v = null; try { v = localStorage.getItem(SCHEME_KEY); } catch (e) {} return SCHEMES[v] ? v : 'auto'; }
+  function paletteFor(id, light, acc) {
+    id = SCHEMES[id] ? id : 'auto'; acc = ACC_HEX[acc] ? acc : 'amber';
+    var sc = SCHEMES[id], a = ACC_HEX[acc][light ? 1 : 0], pal;
+    if (sc.mono) {
+      var ends = light ? [hexMix(a, '#000000', .22), hexMix(a, '#ffffff', .72)] : [hexMix(a, '#ffffff', .18), hexMix(a, '#000000', .55)];
+      pal = []; for (var i = 0; i < 10; i++) pal.push(hexMix(ends[0], ends[1], i / 9));
+      return pal;
+    }
+    pal = (light ? sc.light : sc.dark).slice();
+    if (id === 'auto' && acc !== 'amber') { var slot = ACC_SLOT[acc], keep = pal[0]; pal[slot] = keep; pal[0] = a; }
+    return pal;
+  }
+  /* 8 named tones used by the Overview (revenue / orders / pipeline / ...), derived from the same scheme */
+  var SEM_DARK  = { blue: '#5AA2FF', teal: '#2FD1A5', amber: '#FFB547', coral: '#FF6F61', violet: '#A78BFA', cyan: '#3CCBE6', pink: '#F58AC4', slate: '#94A3B8' };
+  var SEM_LIGHT = { blue: '#1D5FD1', teal: '#0A8F6B', amber: '#B86E00', coral: '#D1342A', violet: '#6A3FD6', cyan: '#0A7FA0', pink: '#BE2F7E', slate: '#566277' };
+  function semantic(light) {
+    var id = schemeId(), acc = accentKey(), base = Object.assign({}, light ? SEM_LIGHT : SEM_DARK);
+    if (id === 'auto') {
+      if (acc !== 'amber') { var key = { blue: 'blue', teal: 'teal', violet: 'violet', rose: 'pink' }[acc], a = ACC_HEX[acc][light ? 1 : 0], old = base.blue; if (key !== 'blue') base[key] = old; base.blue = a; }
+      return base;
+    }
+    var p = paletteFor(id, light, acc), idx = { blue: 0, amber: 1, violet: 2, teal: 3, pink: 4, cyan: 5, coral: 6, slate: 9 };
+    Object.keys(idx).forEach(function (k) { base[k] = p[idx[k]]; });
+    return base;
+  }
+  var PALETTE = paletteFor(schemeId(), document.documentElement.getAttribute('data-theme') === 'light', accentKey());
+  var palSig = '';
   function theme() {
     var light = document.documentElement.getAttribute('data-theme') === 'light';
     return {
@@ -512,10 +571,13 @@
     if (typeof v === 'function' && v._base) return makeDim(remapVal(v._base, from, to));
     return v;
   }
-  var lastLight = document.documentElement.getAttribute('data-theme') === 'light';
+  var curPal = PALETTE.map(function (c) { return c.toLowerCase(); });
+  palSig = (document.documentElement.getAttribute('data-theme') === 'light') + '|' + schemeId() + '|' + accentKey();
   function applyTheme() {
-    var t = theme(); if (t.light === lastLight) return; lastLight = t.light;
-    var from = (t.light ? PAL_DARK : PAL_LIGHT).map(function (c) { return c.toLowerCase(); }), pal = t.light ? PAL_LIGHT : PAL_DARK;
+    var t = theme(), sid = schemeId(), acc = accentKey(), sig = t.light + '|' + sid + '|' + acc;
+    if (sig === palSig) return; palSig = sig;
+    var from = curPal, pal = paletteFor(sid, t.light, acc);
+    curPal = pal.map(function (c) { return c.toLowerCase(); });
     pal.forEach(function (c, i) { PALETTE[i] = c; });
     var to = { pal: pal, light: t.light };
     if (window.Chart) { window.Chart.defaults.color = t.text; }
@@ -532,6 +594,16 @@
     });
   }
   try { new MutationObserver(applyTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] }); } catch (e) {}
+  document.addEventListener('dv:theme', applyTheme);
+  document.addEventListener('dv:chart-scheme', applyTheme);
+  window.addEventListener('storage', function (e) { if (e.key === SCHEME_KEY || e.key === 'dashview-config') applyTheme(); });
+  function setScheme(id) {
+    if (!SCHEMES[id]) id = 'auto';
+    try { if (id === 'auto') localStorage.removeItem(SCHEME_KEY); else localStorage.setItem(SCHEME_KEY, id); } catch (e) {}
+    applyTheme(); document.dispatchEvent(new CustomEvent('dv:chart-scheme', { detail: id }));
+    if (window.applyOverviewChartTheme) { try { window.applyOverviewChartTheme(); } catch (e) {} }
+    return id;
+  }
   function resizeCharts(root) {
     Object.keys(charts).forEach(function (k) { var c = charts[k]; if (c && c.canvas && (!root || root.contains(c.canvas))) { try { c.resize(); } catch (e) {} } });
   }
@@ -539,7 +611,7 @@
   api.currency().then(function (c) { cur = c; }, function () {});
   ['dv:unlocked', 'dv:odoo-config-saved'].forEach(function (ev) { document.addEventListener(ev, function () { memo = {}; api.currency().then(function (c) { cur = c; }); }); });
 
-  window.DVFmt = { esc: esc, num: num, money: money, stripHtml: stripHtml, when: when, isoDaysAgo: isoDaysAgo, csv: csv, safeSpreadsheetValue: safeSpreadsheetValue, download: download, PALETTE: PALETTE, chart: chart, theme: theme, resizeCharts: resizeCharts, getChart: getChart, setCurrency: function (c) { cur = c; } };
+  window.DVFmt = { esc: esc, num: num, money: money, stripHtml: stripHtml, when: when, isoDaysAgo: isoDaysAgo, csv: csv, safeSpreadsheetValue: safeSpreadsheetValue, download: download, PALETTE: PALETTE, scheme: schemeId, setScheme: setScheme, schemes: SCHEMES, paletteFor: paletteFor, semantic: semantic, chart: chart, theme: theme, resizeCharts: resizeCharts, getChart: getChart, setCurrency: function (c) { cur = c; } };
 })();
 
 try { var __d = localStorage.getItem('dv-pref-density'); if (__d) document.documentElement.setAttribute('data-density', __d); } catch (e) {}

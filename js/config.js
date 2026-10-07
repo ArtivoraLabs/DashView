@@ -37,6 +37,36 @@
     var reduce = c.motion === 'reduce' || (c.motion === 'system' && mm('(prefers-reduced-motion: reduce)').matches);
     if (reduce) root.setAttribute('data-reduce-motion', ''); else root.removeAttribute('data-reduce-motion');
   }
+  /* Liquid Glass tuning (blur / opacity / saturation / glow). Applied here, in <head>, so every page
+     paints with the saved glass before first render. Values are only consumed by css/liquid-glass.css. */
+  var GLASS_KEY = 'dashview_glass', GLASS_DEFAULT = { blur: 20, opacity: 0, sat: 155, glow: 14 };
+  var GLASS_RANGE = { blur: [4, 40], opacity: [-30, 20], sat: [100, 220], glow: [0, 34] };
+  function glassGet() {
+    var o = {}, g = {};
+    try { o = JSON.parse(localStorage.getItem(GLASS_KEY)) || {}; } catch (e) {}
+    Object.keys(GLASS_DEFAULT).forEach(function (k) {
+      var n = Number(o[k]), r = GLASS_RANGE[k];
+      g[k] = isFinite(n) && o[k] !== null && o[k] !== '' && o[k] !== undefined ? Math.min(r[1], Math.max(r[0], Math.round(n))) : GLASS_DEFAULT[k];
+    });
+    return g;
+  }
+  function glassApply(g) {
+    g = g || glassGet();
+    var s = root.style;
+    s.setProperty('--glass-blur', g.blur + 'px'); s.setProperty('--glass-sat', g.sat + '%');
+    s.setProperty('--glass-d', String(g.opacity)); s.setProperty('--glass-glow', String(g.glow));
+    return g;
+  }
+  function glassSet(patch, replace) {
+    var g = replace ? Object.assign({}, GLASS_DEFAULT, patch) : Object.assign(glassGet(), patch);
+    try { localStorage.setItem(GLASS_KEY, JSON.stringify(g)); } catch (e) {}
+    glassApply(); window.dispatchEvent(new CustomEvent('dv:glass', { detail: glassGet() }));
+    return glassGet();
+  }
+  function glassReset() { try { localStorage.removeItem(GLASS_KEY); } catch (e) {} glassApply(); window.dispatchEvent(new CustomEvent('dv:glass', { detail: glassGet() })); return glassGet(); }
+  window.addEventListener('storage', function (e) { if (e.key === GLASS_KEY) glassApply(); });
+  glassApply();
+
   function emit(c) { subs.forEach(function (f) { try { f(c); } catch (e) {} }); }
   function refresh() { var c = get(); apply(c); emit(c); return c; }
 
@@ -49,11 +79,12 @@
     return refresh();
   }
   function reset() { try { localStorage.removeItem(KEY); localStorage.removeItem(THEME_KEY); } catch (e) {} return refresh(); }
-  function exportJSON() { return JSON.stringify({ app: 'dashview', version: 1, settings: get() }, null, 2); }
+  function exportJSON() { return JSON.stringify({ app: 'dashview', version: 1, settings: get(), glass: glassGet() }, null, 2); }
   function importJSON(text) {
     var o = JSON.parse(text);
     if (!o || o.app !== 'dashview' || !o.settings) throw new Error('This is not a DashView settings file.');
     Object.keys(CHOICES).forEach(function (k) { set(k, o.settings[k]); });
+    if (o.glass && typeof o.glass === 'object') glassSet(o.glass, true);
     return get();
   }
 
@@ -132,6 +163,7 @@
   window.DV = {
     get: get, set: set, reset: reset, exportJSON: exportJSON, importJSON: importJSON, accents: ACCENTS,
     on: function (f) { subs.push(f); }, install: install, status: status,
-    checkUpdate: checkUpdate, applyUpdate: applyUpdate, usage: usage, clearCache: clearCache
+    checkUpdate: checkUpdate, applyUpdate: applyUpdate, usage: usage, clearCache: clearCache,
+    glass: { get: glassGet, set: glassSet, reset: glassReset, defaults: GLASS_DEFAULT, ranges: GLASS_RANGE }
   };
 })();
