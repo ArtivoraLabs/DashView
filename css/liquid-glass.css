@@ -287,6 +287,10 @@ html[data-theme="light"] .dash-side .dash-nav-link:not(.active):hover { color: #
 html[data-theme="light"] .dash-side .dash-nav-link.active { color: #53320a; }
 html[data-theme="light"] .dash-side .dash-nav-link .badge:not(.new):not(.live) { color: #35434d; }
 html[data-theme="light"] .dash-side .dash-side-user-info span { color: #52616c; }
+/* light + glass: the signed-in name and the collapse button were pale text on a pale pane */
+html[data-theme="light"] .dash-side .dash-side-user-info p { color: #17232c; }
+html[data-theme="light"] .dash-side .dash-side-collapse-btn { color: #35434d; }
+html[data-theme="light"] .dash-side .dash-side-collapse-btn:hover { color: #17232c; background: rgba(255, 255, 255, 0.45); }
 html[data-theme="light"] .dash-side .dash-side-foot {
   background: rgba(255, 255, 255, 0.20);
   border-top-color: var(--lg-edge);

@@ -50,3 +50,15 @@ html.dv-locked body > *:not(#dvLock) { visibility: hidden !important; }
 
 .sec-ring{filter:drop-shadow(0 8px 18px rgba(0,0,0,.35));transition:--p .6s}
 #secGrade{font-weight:600;letter-spacing:.01em}
+
+/* -- Account dropdown menu (shared: dashboard + People) -------------------- */
+.dv-account-menu { position: fixed; z-index: 650; width: 240px; background: var(--paper); border: 1px solid var(--line-strong); border-radius: var(--r-md); box-shadow: var(--shadow-lg); padding: var(--sp-3); opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(6px); transition: opacity .18s ease, transform .18s ease, visibility .18s; }
+.dv-account-menu.open { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0); }
+.dv-account-menu-head { display: flex; align-items: center; gap: 10px; padding-bottom: var(--sp-3); margin-bottom: var(--sp-2); border-bottom: 1px solid var(--line); }
+.dv-account-menu-head p { font-size: var(--fs-sm); font-weight: 700; color: var(--ink); margin: 0; }
+.dv-account-menu-head span { font-size: 11px; color: var(--ink-30); }
+.dv-account-menu-role { display: flex; align-items: center; gap: 7px; font-size: var(--fs-xs); color: var(--ink-70); padding: 6px 4px; }
+.dv-role-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.dv-role-pill { font-size: 10px; border: 1px solid currentColor; border-radius: 99px; padding: 1px 7px; }
+.dv-account-menu-item { display: block; width: 100%; text-align: left; background: none; border: none; color: var(--ink-70); font-size: var(--fs-xs); font-weight: 600; padding: 8px; border-radius: 6px; cursor: pointer; }
+.dv-account-menu-item:hover { background: var(--paper-soft); color: var(--ink); }
