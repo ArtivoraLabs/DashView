@@ -17,7 +17,8 @@
   var doc = document, reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   function $(id) { return doc.getElementById(id); }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-  function money(n) { var a = Math.abs(n); return (n < 0 ? '-' : '') + '$' + (a >= 1e6 ? (a / 1e6).toFixed(2) + 'M' : a >= 1e4 ? Math.round(a / 1e3) + 'K' : Math.round(a).toLocaleString()); }
+  var NUMFULL = (function () { try { return localStorage.getItem('dv-pref-numfmt') === 'full'; } catch (e) { return false; } })();
+  function money(n) { if (NUMFULL) return (n < 0 ? '-' : '') + '$' + Math.round(Math.abs(n)).toLocaleString(); var a = Math.abs(n); return (n < 0 ? '-' : '') + '$' + (a >= 1e6 ? (a / 1e6).toFixed(2) + 'M' : a >= 1e4 ? Math.round(a / 1e3) + 'K' : Math.round(a).toLocaleString()); }
   function full(n) { return '$' + Math.round(n).toLocaleString(); }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
   function iso(y, m, d) { return y + '-' + pad(m + 1) + '-' + pad(d); }
@@ -74,7 +75,7 @@
     { key: 'ovd', label: 'Overdue', fmt: money, calc: function (l) { return sum(l.filter(function (v) { return v.status === 'over'; }), function (v) { return v.residual; }); }, good: -1 },
     { key: 'col', label: 'Collected', fmt: function (n) { return n.toFixed(1) + '%'; }, calc: function (l) { var t = sum(l, function (v) { return v.amount; }); return t ? sum(l, function (v) { return v.amount - v.residual; }) / t * 100 : 0; }, good: 1 }
   ];
-  var state = { period: 'quarter' };
+  var state = { period: (function () { try { var v = localStorage.getItem('dv-pref-period'); return PERIODS[v] ? v : 'quarter'; } catch (e) { return 'quarter'; } })() };
 
   /* ── grouping helpers for drills ────────────────────────────────────── */
   function groupBy(list, keyf, valf) {
@@ -136,9 +137,13 @@
     }
     return null;
   }
+  function pref(k, d) { try { return localStorage.getItem('dv-pref-' + k) || d; } catch (e) { return d; } }
+  var ROWS = parseInt(pref('rows', '50'), 10) || 50, DATEF = pref('datefmt', 'iso'), SHOWQ = pref('showquery', 'on') !== 'off';
+  if (!SHOWQ) doc.documentElement.classList.add('dv-noquery');
+  function fd(iso) { if (!iso || DATEF === 'iso') return iso; var p = iso.split('-'); return DATEF === 'dmy' ? p[2] + '/' + p[1] + '/' + p[0] : p[1] + '/' + p[2] + '/' + p[0]; }
   function csvOf(cols, rows) {
-    var c = function (v) { var s = v == null ? '' : String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
-    return '\ufeff' + [cols].concat(rows).map(function (r) { return r.map(c).join(','); }).join('\r\n');
+    var c = function (v) { var s = v == null ? '' : String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[";,\t\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+    var dl = { comma: ',', semi: ';', tab: '\t' }[pref('csvdelim', 'comma')] || ','; return (pref('csvbom', 'on') === 'off' ? '' : '\ufeff') + [cols].concat(rows).map(function (r) { return r.map(c).join(dl); }).join('\r\n');
   }
   function download(name, text) {
     var url = URL.createObjectURL(new Blob([text], { type: 'text/csv;charset=utf-8' })), a = doc.createElement('a');
@@ -163,8 +168,8 @@
       html += '<div class="ig-fbar"><input id="igFq" type="search" placeholder="Search number, customer, salesperson…" aria-label="Filter invoices" value="' + esc(f.q || '') + '"/>' + [['all', 'All'], ['paid', 'Paid'], ['open', 'Open'], ['over', 'Overdue']].map(function (c) { return '<button type="button" class="ig-chip' + ((f.status || 'all') === c[0] ? ' on' : '') + '" data-pop="status" data-v="' + c[0] + '">' + c[1] + ' ' + (cnt[c[0]] || 0) + '</button>'; }).join('') + '</div>';
       html += '<div class="ig-big"><b>' + vis.length + '</b><span>invoice' + (vis.length === 1 ? '' : 's') + ' · ' + full(total) + ' billed · ' + full(sum(vis, function (v) { return v.residual; })) + ' still due' + (vis.length !== f.list.length ? ' · filtered from ' + f.list.length : '') + '</span></div>';
       html += '<div class="ig-tw"><table class="ig-dt"><thead><tr>' + t.cols.map(function (c, i) { var on = f.sort.k === t.keys[i]; return '<th class="' + (on ? 's' : '') + '" data-pop="sort" data-k="' + t.keys[i] + '"' + (on ? ' data-d="' + (f.sort.d > 0 ? '↑' : '↓') + '"' : '') + '>' + c + '</th>'; }).join('') + '</tr></thead><tbody>' +
-        t.rows.slice(0, 60).map(function (v, i) { return '<tr class="r" style="--i:' + Math.min(i, 14) + '" data-pop="rec" data-id="' + v.id + '" tabindex="0"><td>' + v.no + '</td><td>' + esc(v.customer) + '</td><td>' + v.date + '</td><td>' + v.due + '</td><td class="n">' + full(v.amount) + '</td><td class="n">' + full(v.residual) + '</td><td><span class="ig-tag ' + TAG[v.status][0] + '">' + TAG[v.status][1] + (v.daysLate ? ' · ' + v.daysLate + 'd' : '') + '</span></td></tr>'; }).join('') + '</tbody></table></div>';
-      info = vis.length ? 'Showing ' + Math.min(60, vis.length) + ' of ' + vis.length + ' · click a row for the full record' : 'No invoice matches this filter';
+        t.rows.slice(0, ROWS).map(function (v, i) { return '<tr class="r" style="--i:' + Math.min(i, 14) + '" data-pop="rec" data-id="' + v.id + '" tabindex="0"><td>' + v.no + '</td><td>' + esc(v.customer) + '</td><td>' + fd(v.date) + '</td><td>' + fd(v.due) + '</td><td class="n">' + full(v.amount) + '</td><td class="n">' + full(v.residual) + '</td><td><span class="ig-tag ' + TAG[v.status][0] + '">' + TAG[v.status][1] + (v.daysLate ? ' · ' + v.daysLate + 'd' : '') + '</span></td></tr>'; }).join('') + '</tbody></table></div>';
+      info = vis.length ? 'Showing ' + Math.min(ROWS, vis.length) + ' of ' + vis.length + ' · click a row for the full record' : 'No invoice matches this filter';
       exportRows = { cols: t.cols, rows: t.rows.map(function (v) { return [v.no, v.customer, v.date, v.due, v.amount, v.residual, TAG[v.status][1]]; }) };
     } else if (f.type === 'record') {
       var v = f.rec;
@@ -263,8 +268,50 @@
       var m = +b.getAttribute('data-bar'), list = within(INV, [iso(2026, m, 1), iso(2026, m, 31)]);
       openPop(groupFrame('Revenue by customer · ' + MON[m] + ' 2026', 'Revenue', groupBy(list, function (v) { return v.customer; }, function (v) { return v.amount; }), money, 'invoices', ['account.move', 'invoice_date in ' + MON[m] + ' 2026', 'state = posted']), b);
     });
-    setPeriod('quarter');
+    setPeriod(state.period);
+    initHeroInteractions();
     window.addEventListener('resize', function () { setPeriod(state.period); });
+  }
+
+  /* ═══════ hero: rich hover cards + clickable floats ═══════ */
+  function initHeroInteractions() {
+    var tip = doc.createElement('div'); tip.className = 'ig-tip'; tip.setAttribute('aria-hidden', 'true'); doc.body.appendChild(tip);
+    var win = $('igWin'); if (!win) return;
+    function place(e) {
+      var w = tip.offsetWidth || 232, h = tip.offsetHeight || 140, x = e.clientX + 18, y = e.clientY + 16;
+      if (x + w > innerWidth - 10) x = e.clientX - w - 18; if (y + h > innerHeight - 10) y = e.clientY - h - 16;
+      tip.style.left = Math.max(8, x) + 'px'; tip.style.top = Math.max(8, y) + 'px';
+    }
+    function barTip(m) {
+      var P = PERIODS[state.period], all = [], i;
+      for (i = 0; i < 9; i++) all.push(sum(within(INV, [iso(2026, i, 1), iso(2026, i, 31)]), function (v) { return v.amount; }));
+      var avg = sum(all.map(function (v) { return { v: v }; }), function (o) { return o.v; }) / all.length, list = within(INV, [iso(2026, m, 1), iso(2026, m, 31)]), v = all[m], dv = avg ? (v - avg) / avg * 100 : 0;
+      var g = groupBy(list, function (x) { return x.customer; }, function (x) { return x.amount; }).slice(0, 3), top = g.length ? g[0].value : 1;
+      return '<small>' + MON[m] + ' 2026 · revenue</small><div class="tv"><b>' + money(v) + '</b><em class="' + (dv >= 0 ? '' : 'bad') + '">' + (dv >= 0 ? '▲' : '▼') + ' ' + Math.abs(dv).toFixed(0) + '% vs avg</em></div>' +
+        g.map(function (r) { return '<div class="tr"><span>' + esc(r.name) + '</span><i><u style="width:' + (r.value / top * 100).toFixed(0) + '%"></u></i><b>' + (v ? (r.value / v * 100).toFixed(0) : 0) + '%</b></div>'; }).join('') +
+        '<div class="hint">' + list.length + ' invoices · click to drill →</div>';
+    }
+    function kpiTip(key) {
+      var k = KPI.filter(function (x) { return x.key === key; })[0], P = PERIODS[state.period], cur = within(INV, P.cur), v = k.calc(cur), series = monthSeries(k, 6), mx = Math.max.apply(null, series.concat([1])), prev = k.calc(within(INV, P.prev)), d = prev ? (v - prev) / Math.abs(prev) * 100 : 0, good = k.good * d >= 0;
+      return '<small>' + k.label + ' · ' + P.label + '</small><div class="tv"><b>' + k.fmt(v) + '</b><em class="' + (good ? '' : 'bad') + '">' + (d >= 0 ? '▲' : '▼') + ' ' + Math.abs(d).toFixed(1) + '% ' + P.vs + '</em></div><div class="mini">' +
+        series.map(function (x, i) { return '<i class="' + (i === series.length - 1 ? 'hi' : '') + '" style="height:' + Math.max(8, x / mx * 100).toFixed(0) + '%"></i>'; }).join('') + '</div><small style="text-transform:none;letter-spacing:0">last 6 months</small><div class="hint">click for the breakdown by customer →</div>';
+    }
+    var hot = null;
+    win.addEventListener('pointermove', function (e) {
+      var b = e.target.closest('[data-bar]'), k = e.target.closest('[data-kpi]');
+      if (hot && hot !== b) { hot.classList.remove('hot'); hot = null; }
+      if (b) { b.classList.add('hot'); hot = b; tip.innerHTML = barTip(+b.getAttribute('data-bar')); }
+      else if (k) tip.innerHTML = kpiTip(k.getAttribute('data-kpi'));
+      else { tip.classList.remove('on'); return; }
+      place(e); tip.classList.add('on');
+    });
+    win.addEventListener('pointerleave', function () { tip.classList.remove('on'); if (hot) { hot.classList.remove('hot'); hot = null; } });
+    // floating chips drill too
+    Array.prototype.forEach.call(doc.querySelectorAll('.ig-float'), function (f, i) {
+      f.setAttribute('role', 'button'); f.setAttribute('tabindex', '0'); f.setAttribute('aria-label', i === 0 ? 'Open collected breakdown' : 'Open overdue invoices');
+      function go() { var P = PERIODS[state.period]; if (i === 0) openPop(kpiFrame('col'), f); else openPop(invFrame('Overdue invoices · ' + P.label, within(INV, P.cur).filter(function (v) { return v.status === 'over'; }), 'Overdue'), f); }
+      f.addEventListener('click', go); f.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+    });
   }
 
   /* ═══════ AI answer-path demo ═══════ */

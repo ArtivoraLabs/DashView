@@ -99,3 +99,8 @@
 .toast.leaving { animation: toast-out 0.25s var(--ease) forwards; }
 @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } }
 @keyframes toast-out { to { opacity: 0; transform: translateY(8px); } }
+
+/* Settings → Notifications / Cursor and effects */
+html[data-toastpos="bc"] .toast-stack { left: 50%; right: auto; transform: translateX(-50%); align-items: center; }
+html[data-toastpos="tr"] .toast-stack { top: var(--sp-6); bottom: auto; }
+html[data-glass="lite"] *, html[data-glass="lite"] *::before, html[data-glass="lite"] *::after { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }

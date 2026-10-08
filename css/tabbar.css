@@ -223,3 +223,23 @@ html[data-theme="light"] .stg-rail {
   border-color: color-mix(in srgb, var(--signal, #b87316) 16%, transparent);
   box-shadow: 0 18px 34px -18px color-mix(in srgb, var(--signal, #b87316) 30%, transparent), inset 0 1px 0 #fff;
 }
+
+/* ── Light theme polish ─────────────────────────────────────────────────────
+   The glowing "lamp" is a dark-theme effect: on light surfaces its white core read as a stray blob on top of
+   the active label (Odoo tabs, 30 days / CEO pills). Hidden in light, and the pill is flatter and cleaner. */
+html[data-theme="light"] .dv-lamp { display: none !important; }
+html[data-theme="light"] {
+  --tb-pill-bg: linear-gradient(180deg, color-mix(in srgb, var(--signal, #b87316) 7%, #fff) 0%, color-mix(in srgb, var(--signal, #b87316) 20%, #fff) 100%);
+  --tb-pill-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 0 0 1px color-mix(in srgb, var(--signal, #b87316) 32%, transparent),
+    0 5px 12px -7px color-mix(in srgb, var(--signal, #b87316) 55%, transparent);
+}
+html[data-theme="light"] .dv-tabs.dv-has .dv-item.active,
+html[data-theme="light"] .dv-tabs.dv-has .dv-item[aria-selected="true"] { text-shadow: none; font-weight: 700; }
+html[data-theme="light"] .dv-pill::after { display: none; }
+/* disabled primary buttons ("Installed") must stay readable */
+html[data-theme="light"] .btn-primary:disabled, html[data-theme="light"] .btn-primary[disabled] {
+  opacity: 1; background: color-mix(in srgb, var(--signal, #b87316) 16%, #fff); color: color-mix(in srgb, var(--signal, #b87316) 70%, #000);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--signal, #b87316) 35%, transparent); cursor: default;
+}

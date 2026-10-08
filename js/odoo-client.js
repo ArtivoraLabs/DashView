@@ -627,3 +627,4 @@
 })();
 
 try { var __d = localStorage.getItem('dv-pref-density'); if (__d) document.documentElement.setAttribute('data-density', __d); } catch (e) {}
+try { ['toastpos', 'glass'].forEach(function (k) { var v = localStorage.getItem('dv-pref-' + k); if (v) document.documentElement.setAttribute('data-' + k, v); }); } catch (e) {}

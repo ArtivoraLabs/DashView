@@ -90,7 +90,7 @@
     },
     {
       id: 'scale', kind: 'ops', severity: 'recommended',
-      title: 'Concurrency &amp; caching at director scale',
+      title: 'Concurrency & caching at director scale',
       desc: 'If several directors query heavy reports at once, move off SQLite to Postgres and cache frequent <code>read_group</code> aggregates (e.g. a 15-minute sync) so dashboards load instantly instead of hitting Odoo on every page view.',
       status: function () { return 'warn'; },
       okText: 'Optimized', warnText: 'Plan for scale', blockedText: 'At risk'

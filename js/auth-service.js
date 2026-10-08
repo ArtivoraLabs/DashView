@@ -601,8 +601,8 @@
 
   ready(function () {
     try { localStorage.removeItem('dv_auth_users'); localStorage.removeItem('dv_auth_session'); } catch (e) {}
-    buildModal();
-    buildMenu();
+    var onLoginPage = /(^|\/)login(\.html)?$/i.test(location.pathname); // login.html has its own form: no floating account menu / duplicate modal
+    if (!onLoginPage) { buildModal(); buildMenu(); }
     wireAccountsSettings();
     render();
     if (isBackendMode() && window.AL_API && window.AL_API.isConnected()) {

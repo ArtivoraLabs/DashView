@@ -41,7 +41,18 @@
   <aside class="dash-side" id="sidebar">
     <div class="dash-side-brand">
       <a href="index.html" class="dash-side-brand-link" aria-label="DashView home">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#e8a33d" stroke-width="1.6"/><path d="M7 13l3-5 2 3 2-4 3 6" stroke="#e8a33d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg width="24" height="24" viewBox="0 0 64 64" fill="none" aria-hidden="true"><defs>
+    <linearGradient id="dvg" x1="8" y1="4" x2="58" y2="62" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f8d58a"/><stop offset=".5" stop-color="#e8a33d"/><stop offset="1" stop-color="#c06f12"/></linearGradient>
+    <linearGradient id="dvs" x1="0" y1="0" x2="0" y2="64" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".38"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#dvg)"/>
+  <rect width="64" height="64" rx="16" fill="url(#dvs)"/>
+  <rect x="12" y="35" width="9" height="15" rx="3" fill="#1a1206" fill-opacity=".92"/>
+  <rect x="27.5" y="27" width="9" height="23" rx="3" fill="#1a1206" fill-opacity=".92"/>
+  <rect x="43" y="19" width="9" height="31" rx="3" fill="#1a1206"/>
+  <circle cx="47.5" cy="14" r="6.2" stroke="#1a1206" stroke-width="2.6"/>
+  <circle cx="47.5" cy="14" r="1.9" fill="#1a1206"/>
+</svg>
       <span>DashView</span>
       </a>
       <button class="dash-side-collapse-btn" id="sidebarCollapseBtn" type="button" title="Collapse sidebar" aria-label="Collapse sidebar" aria-expanded="true">
