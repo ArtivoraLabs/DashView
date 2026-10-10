@@ -142,3 +142,78 @@ a, button, summary, select, label, [role="button"], [role="tab"], input[type="ch
   .studio-tabs, .dv-tabs { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); }
   .studio-tabs { scroll-padding-inline: 12px; }
 }
+
+/* ==========================================================================
+   Layout system - one scale for desktop, tablet and phone / app
+   --------------------------------------------------------------------------
+   Before: page titles ranged 22-38px at weight 400 AND 600 depending on the page, the content gutter was 32px
+   even on a 390px phone, and the 232px sidebar stayed open on a tablet. Now every page shares:
+     gutter   32px desktop · 24px tablet · 16px phone      (topbar uses the same value, so edges line up)
+     gap      20px · 16px · 12px                            card padding 20px · 18px · 16px
+     title    24-32px fluid, weight 600, one line-height    subtitle 14px muted
+     targets  44px on touch, 36px with a mouse
+   ========================================================================== */
+:root { --lx-gutter: 32px; --lx-gap: 20px; --lx-card: 20px; }
+@media (max-width: 1100px) { :root { --lx-gutter: 24px; --lx-gap: 16px; --lx-card: 18px; } }
+@media (max-width: 600px)  { :root { --lx-gutter: 16px; --lx-gap: 12px; --lx-card: 16px; } }
+
+.dash-content { padding-left: var(--lx-gutter); padding-right: var(--lx-gutter); }
+.dash-topbar { padding-left: var(--lx-gutter); padding-right: var(--lx-gutter); }
+.dash-content .kpi-grid, .dash-content .dash-grid, .dash-content .widget-grid { gap: var(--lx-gap); }
+
+/* page titles: identical on every page */
+.dash-content h1:not(.aiw-title) {
+  font-size: clamp(24px, 1.1vw + 19px, 32px) !important; font-weight: 600 !important; letter-spacing: -0.022em !important; line-height: 1.15 !important; margin: 0 !important;
+}
+.dash-content h1:not(.aiw-title) + p, .dash-content .ov-head p:not(.eyebrow), .dash-content .studio-page-head p:not(.studio-eyebrow) { font-size: 14px; line-height: 1.5; margin-top: 6px; }
+/* same vertical rhythm under every page head */
+.dash-content .ov-head, .dash-content .studio-page-head, .dash-content .hr-head { margin-bottom: var(--lx-gap); }
+
+/* tablet: the sidebar becomes an icon rail (tap the arrow to open it), so content gets the width */
+@media (min-width: 801px) and (max-width: 1100px) {
+  .dash-shell:not(.collapsed) { grid-template-columns: 68px minmax(0, 1fr); }
+  .dash-shell:not(.collapsed) .dash-side-brand span,
+  .dash-shell:not(.collapsed) .dash-nav-label,
+  .dash-shell:not(.collapsed) .dash-nav-link span:not(.badge),
+  .dash-shell:not(.collapsed) .dash-side-user-info,
+  .dash-shell:not(.collapsed) .dash-nav-link .badge { display: none; }
+  .dash-shell:not(.collapsed) .dash-nav-link { justify-content: center; }
+  .dash-shell:not(.collapsed) .dash-side-brand { padding: 0; justify-content: center; }
+  .dash-shell:not(.collapsed) .dash-side-collapse-btn { display: none; }
+  .dash-shell:not(.collapsed) .dash-side-foot { justify-content: center; padding: var(--sp-3); }
+  /* .collapsed here means "opened by the user": back to the full 232px menu */
+  .dash-shell.collapsed { grid-template-columns: var(--sidebar-w) minmax(0, 1fr); }
+  .dash-shell.collapsed .dash-side-brand span, .dash-shell.collapsed .dash-nav-label, .dash-shell.collapsed .dash-nav-link span:not(.badge),
+  .dash-shell.collapsed .dash-side-user-info { display: revert; }
+  .dash-shell.collapsed .dash-nav-link .badge { display: inline-block; }
+  .dash-shell.collapsed .dash-nav-link { justify-content: flex-start; }
+}
+
+/* phone: stacked page heads with full-width, evenly sized actions */
+@media (max-width: 600px) {
+  .dash-content .ov-head, .dash-content .studio-page-head { align-items: flex-start !important; gap: 12px; }
+  #view-overview .ov-head-actions { display: grid !important; grid-template-columns: 1fr 1fr; width: 100%; gap: 8px; }
+  #view-overview .ov-head-actions > * { min-width: 0; min-height: 44px; }
+  #view-overview .ov-head-actions > :first-child, #view-overview .ov-head-actions > .ov-period, #view-overview .ov-head-actions > [role="group"] { grid-column: 1 / -1; }
+  #view-overview .ov-head-actions .btn { width: 100%; justify-content: center; }
+  .btn { min-height: 44px; } .btn-sm { min-height: 40px; }
+  /* settings health cards: two even columns, an odd last card spans the row, values never wrap */
+  .stgo-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stgo-card:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .stgo-card b { display: block; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* cards breathe the same everywhere */
+  .widget-card, .kpi-card, .dash-card { padding: var(--lx-card); }
+}
+@media (max-width: 400px) { .dash-search { width: auto; flex: 1 1 0; min-width: 0; } .dash-search kbd { display: none; } }
+
+/* wide screens: keep line lengths readable and centre the workspace */
+@media (min-width: 1920px) { .dash-content { margin-inline: auto; } }
+
+/* Settings rail turns into a wrapping row on tablets/phones with position:static, so its sliding pill was positioned against the page
+   and floated over the header. A positioned rail keeps the pill inside it. */
+@media (max-width: 900px) { .stg-rail.dv-tabs { position: relative; top: auto; } }
+/* period switch fills its row evenly instead of leaving a gap on the right */
+@media (max-width: 600px) {
+  #view-overview .date-range { display: grid !important; grid-template-columns: repeat(3, 1fr); width: 100%; text-align: center; }
+  #view-overview #ovStatus { width: 100%; justify-content: flex-start; box-sizing: border-box; }
+}

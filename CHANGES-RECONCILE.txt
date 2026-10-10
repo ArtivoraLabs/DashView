@@ -3,7 +3,7 @@ DashView - changed files (same paths as the project; replace / add them as they 
 js/cursor.js                       smoother pointer: critically-damped time-based spring (same feel at 60/120/144 Hz, no wobble),
                                    dot + ring written together once per frame, style reads cached, no fly-in after leaving the window
 css/cursor.css                     paint containment on the pointer elements
-css/theme-final.css                phone/app fixes (empty pill bar, empty badge, 100vh -> dvh, iOS input zoom, tap targets,
+css/theme-final.css                ONE layout system (see below) + phone/app fixes (empty pill bar, empty badge, 100vh -> dvh, iOS input zoom, tap targets,
                                    safe-area, stray divider, tab-strip fade, toolbar alignment)
 js/studio-reconcile.js             NEW  reconciliation engine (document + line-item level, reasons)
 js/studio-reconcile-ui.js          NEW  "Reconcile" tab: mapping, Odoo fetch, report, export (.xlsx / .csv / copy)
@@ -15,3 +15,10 @@ test/studio-reconcile.test.js      NEW  22 engine tests          test/package.js
 test/studio-ui.smoke.test.js       tab count 4 -> 5
 
 After copying: node scripts/release.mjs minor "Odoo reconciliation in Data Studio" "Smoother pointer" "Phone fixes"   then deploy.
+
+Layout system (css/theme-final.css, end of file) - same scale on desktop, tablet and phone:
+  gutter 32 / 24 / 16 px (topbar uses the same, so edges line up) - gap 20 / 16 / 12 - card padding 20 / 18 / 16
+  page titles: were 22-38px at weight 400 AND 600 depending on the page -> all 24-32px fluid, weight 600
+  tablet (801-1100px): sidebar becomes an icon rail (the arrow opens it) instead of eating 232px
+  phone: evenly sized header actions, period switch fills its row, settings tiles in two even columns
+  fixed: Settings tab pill floated over the page header on tablets/phones
