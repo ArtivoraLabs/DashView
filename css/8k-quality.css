@@ -100,21 +100,95 @@ p, li, figcaption { text-wrap: pretty; }
 button svg, .btn svg, [class*="chip"] svg { flex: none; }
 
 /* ==========================================================================
-   SOFTWARE UPDATE  (look only. DOM, logic, notes, history, progress untouched.)
-   iOS-26 sheet: 28px radius, glass body, capsule buttons, grouped rows.
-   Selectors are doubled (.dvu .x) so they win over the sheet's runtime <style>.
+   SOFTWARE UPDATE - iOS 26 "Software Update" sheet
+   Centered app icon + status badge, inset-grouped Version / Size / Released rows,
+   release notes as grouped lists, full-width capsule action, glass sheet + notice.
+   Logic, phases, notes, history and progress are unchanged (js/updater.js only
+   changed its markup helpers). Selectors carry .dvu .dvu-sheet so they beat the
+   sheet's runtime <style>.
    ========================================================================== */
-.dvu .dvu-sheet { border-radius: 28px; background: color-mix(in srgb, var(--u-bg) 88%, transparent); -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(30px) saturate(180%); }
-.dvu .dvu-tile { border-radius: 16px; }
-.dvu .dvu-hd { padding: 28px 28px 18px; }
-.dvu .dvu-strip { margin: 0 28px 18px; }
-.dvu .dvu-bd { padding: 2px 28px 16px; }
-.dvu .dvu-ft { padding: 18px 28px 22px; }
-.dvu .dvu-prog, .dvu .dvu-more details, .dvu .dvu-err { border-radius: 18px; }
-.dvu .dvu-bar, .dvb .dvb-bar { height: 6px; }
-.dvu .dvu-act button, .dvb .dvb-btns button { border-radius: 999px; min-height: 44px; padding-inline: 20px; font-weight: 600; }
-.dvb .dvb-in { border-radius: 24px; background: color-mix(in srgb, var(--u-bg) 86%, transparent); -webkit-backdrop-filter: blur(28px) saturate(180%); backdrop-filter: blur(28px) saturate(180%); }
-@media (max-width: 480px) { .dvu .dvu-sheet { border-radius: 28px 28px 0 0; } }
+.dvu { background: rgba(8,10,14,.46); -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%); }
+html[data-theme="light"] .dvu { background: rgba(110,120,148,.30); }
+.dvu .dvu-sheet { width: min(440px, 100%); border-radius: 32px; border: 1px solid rgba(255,255,255,.14);
+  background: color-mix(in srgb, var(--u-bg) 82%, transparent);
+  -webkit-backdrop-filter: blur(40px) saturate(190%); backdrop-filter: blur(40px) saturate(190%);
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,.22), inset -1px -1px 0 rgba(255,255,255,.05), 0 40px 90px -24px rgba(0,0,0,.7); }
+html[data-theme="light"] .dvu .dvu-sheet { border-color: rgba(255,255,255,.85); box-shadow: inset 1px 1px 0 #fff, 0 40px 90px -28px rgba(20,28,60,.35); }
+.dvu .dvu-sheet::before { content: ""; position: absolute; z-index: 2; top: 8px; left: 50%; width: 36px; height: 5px; margin-left: -18px; border-radius: 3px; background: var(--u-mute); opacity: .35; pointer-events: none; }
+/* header */
+.dvu .dvu-sheet .dvu-hd { flex-direction: column; align-items: center; text-align: center; gap: 0; padding: 36px 28px 4px; }
+.dvu .dvu-sheet .dvu-app { position: relative; flex: none; width: 88px; height: 88px; margin: 0 auto 18px; }
+.dvu .dvu-sheet .dvu-appimg { display: block; width: 100%; height: 100%; border-radius: 22.4%; box-shadow: 0 16px 32px -12px rgba(110,47,4,.7), 0 2px 6px rgba(0,0,0,.28); }
+.dvu .dvu-sheet .dvu-app .dvu-tile { position: absolute; right: -9px; bottom: -9px; width: 34px; height: 34px; padding: 8px; margin: 0; border-radius: 50%; color: #fff; background: var(--p); border: 3px solid var(--u-bg); box-shadow: 0 4px 10px -2px rgba(0,0,0,.4); }
+.dvu .dvu-sheet .dvu-ht { padding: 0; }
+.dvu .dvu-sheet h2 { font: 700 24px/1.2 -apple-system, "SF Pro Display", Inter, system-ui, sans-serif; letter-spacing: -.025em; }
+.dvu .dvu-sheet .sub { max-width: 34ch; margin: 8px auto 0; font-size: 15px; line-height: 1.45; }
+.dvu .dvu-sheet .dvu-x { top: 16px; right: 16px; width: 32px; height: 32px; padding: 8px; border-radius: 50%; background: var(--u-soft); color: var(--u-mute); }
+/* inset-grouped rows */
+.dvu .dvu-sheet .dvu-strip { display: block; margin: 22px 20px 4px; padding: 0; overflow: hidden; border-radius: 20px; background: var(--u-bg2); }
+.dvu .dvu-sheet .dvu-row { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 16px; font-size: 15px; }
+.dvu .dvu-sheet .dvu-row + .dvu-row::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; height: 1px; background: var(--u-line); }
+.dvu .dvu-sheet .dvu-row span { color: var(--u-mute); }
+.dvu .dvu-sheet .dvu-row b { font-weight: 600; font-variant-numeric: tabular-nums; color: var(--u-ink); text-align: right; }
+.dvu .dvu-sheet .dvu-row s { margin-right: 4px; font-weight: 500; color: var(--u-mute); }
+.dvu .dvu-sheet .dvu-row em { font-style: normal; }
+/* body + release notes */
+.dvu .dvu-sheet .dvu-bd { padding: 8px 20px 8px; }
+.dvu .dvu-sheet .dvu-h, .dvu .dvu-sheet .dvu-ng h4 { margin: 16px 16px 8px; font-size: 13px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: var(--u-mute); }
+.dvu .dvu-sheet .dvu-ng { margin: 0 0 18px; }
+.dvu .dvu-sheet .dvu-ng h4 { margin-top: 0; }
+.dvu .dvu-sheet .dvu-ng ul { padding: 0; overflow: hidden; border-radius: 20px; background: var(--u-bg2); }
+.dvu .dvu-sheet .dvu-ng li { position: relative; padding: 12px 16px 12px 38px; font-size: 15px; line-height: 1.4; border: 0; }
+.dvu .dvu-sheet .dvu-ng li::before { content: ""; position: absolute; left: 16px; top: 19px; width: 8px; height: 8px; border-radius: 50%; background: var(--g); }
+.dvu .dvu-sheet .dvu-ng li + li::after { content: ""; position: absolute; top: 0; left: 38px; right: 0; height: 1px; background: var(--u-line); }
+.dvu .dvu-sheet .dvu-more > summary { padding: 8px 16px; font-size: 15px; font-weight: 500; color: var(--u-acc); }
+.dvu .dvu-sheet .dvu-more details { border: 0; border-radius: 20px; background: var(--u-bg2); }
+/* progress */
+.dvu .dvu-sheet .dvu-prog { margin: 0 0 14px; padding: 8px 6px 0; border: 0; background: transparent; }
+.dvu .dvu-sheet .dvu-prog-t { font-size: 15px; font-weight: 600; }
+.dvu .dvu-sheet .dvu-bar { height: 5px; margin-top: 12px; border-radius: 5px; }
+.dvu .dvu-sheet .dvu-bar i { border-radius: 5px; }
+.dvu .dvu-sheet .dvu-err { margin: 0 0 14px; border-radius: 16px; }
+/* footer: full-width capsule, plain secondary, note below */
+.dvu .dvu-sheet .dvu-ft { flex-direction: column; align-items: stretch; gap: 6px; padding: 14px 20px calc(20px + env(safe-area-inset-bottom, 0px)); border: 0; background: transparent; }
+.dvu .dvu-sheet .dvu-act { flex-direction: column; width: 100%; margin: 0; gap: 4px; }
+.dvu .dvu-sheet .dvu-act button { width: 100%; min-height: 50px; padding: 0 20px; border: 0; border-radius: 999px; background: transparent; color: var(--u-acc); font-size: 17px; font-weight: 600; }
+.dvu .dvu-sheet .dvu-act button:hover { background: var(--u-soft); }
+.dvu .dvu-sheet .dvu-act button.p, .dvu .dvu-sheet .dvu-act button.ok { order: -1; color: var(--u-on-acc);
+  background: linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,0) 55%), var(--u-acc);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 10px 24px -10px color-mix(in srgb, var(--u-acc) 75%, transparent); }
+.dvu .dvu-sheet .dvu-act button.ok { background-color: var(--u-ok); color: #06210f; }
+html[data-theme="light"] .dvu .dvu-sheet .dvu-act button.ok { color: #fff; }
+.dvu .dvu-sheet .dvu-act button:disabled { background: var(--u-soft); color: var(--u-mute); box-shadow: none; }
+.dvu .dvu-sheet .dvu-trust { order: 2; flex: none; justify-content: center; margin: 6px 0 0; text-align: center; font-size: 12.5px; color: var(--u-mute); }
+.dvu .dvu-sheet .dvu-mini { padding: 40px 24px calc(20px + env(safe-area-inset-bottom, 0px)); }
+.dvu .dvu-sheet .dvu-mini .dvu-act { margin-top: 22px; }
+@media (max-width: 480px) { .dvu .dvu-sheet { width: 100%; border-radius: 32px 32px 0 0; } }
+/* notice banner (iOS notification) */
+.dvb .dvb-in { padding: 14px 16px 16px; border-radius: 26px; border-color: rgba(255,255,255,.14);
+  background: color-mix(in srgb, var(--u-bg) 78%, transparent);
+  -webkit-backdrop-filter: blur(30px) saturate(190%); backdrop-filter: blur(30px) saturate(190%);
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,.2), 0 24px 60px -20px rgba(0,0,0,.6); }
+.dvb .dvb-ico { position: relative; width: 44px; height: 44px; padding: 0; border-radius: 10px; background: url("../assets/icon-192.png") center / cover; box-shadow: 0 6px 14px -6px rgba(110,47,4,.7); }
+.dvb .dvb-ico svg { position: absolute; right: -6px; bottom: -6px; width: 20px; height: 20px; padding: 4px; border-radius: 50%; color: #fff; background: var(--p); border: 2px solid var(--u-bg); }
+.dvb .dvb-btns button { min-height: 40px; padding: 0 18px; border-radius: 999px; font-weight: 600; }
 @media (prefers-reduced-transparency: reduce) {
-  .dvu .dvu-sheet, .dvb .dvb-in { background: var(--u-bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .dvu, .dvu .dvu-sheet, .dvb .dvb-in { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .dvu .dvu-sheet, .dvb .dvb-in { background: var(--u-bg); }
 }
+
+/* ==========================================================================
+   LOGO MARKS  (in-app) - same Liquid Glass language as the app icon
+   Amber glass tile + frosted white bars. Inline SVG markup is untouched; the
+   old dark bars (#1a1206) are re-painted from CSS.
+   ========================================================================== */
+.nav-logo-ring, .nav-logo, .sb-logo, .dvl-logo, .dvl-mlogo, .empty-logo {
+  background:
+    radial-gradient(120% 90% at 0% 0%, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 58%),
+    linear-gradient(135deg, #ffd98f 0%, #f0aa43 28%, #c5710f 62%, #6e2f04 100%) !important;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,.75), inset -1px -1px 0 rgba(255,255,255,.18),
+              0 6px 18px -6px rgba(110,47,4,.65) !important;
+}
+:is(.nav-logo-ring, .nav-logo, .sb-logo, .dvl-logo, .dvl-mlogo, .empty-logo) svg { filter: drop-shadow(0 2px 3px rgba(74,32,2,.5)); }
+:is(.nav-logo-ring, .nav-logo, .sb-logo, .dvl-logo, .dvl-mlogo, .empty-logo) svg [fill="#1a1206"] { fill: rgba(255,255,255,.88); }
+:is(.nav-logo-ring, .nav-logo, .sb-logo, .dvl-logo, .dvl-mlogo, .empty-logo) svg [stroke="#1a1206"] { stroke: rgba(255,255,255,.92); }

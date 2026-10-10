@@ -145,8 +145,11 @@
   }
   var closeBtn = '<button type="button" class="dvu-x" aria-label="Close">' + svg('x') + '</button>';
   var act = function (h) { return '<div class="dvu-act">' + h + '</div>'; };
-  var head = function (ico, title, sub, mode) { return '<div class="dvu-hd"><div class="dvu-tile' + (mode ? ' ' + mode : '') + '">' + svg(ico) + '</div><div class="dvu-ht"><h2 id="dvu-t">' + title + '</h2><p class="sub">' + sub + '</p></div></div>'; };
-  var mini = function (ico, title, sub, actions, mode) { return '<div class="dvu-mini"><div class="dvu-tile' + (mode ? ' ' + mode : '') + '">' + svg(ico) + '</div><h2 id="dvu-t">' + title + '</h2><p class="sub">' + sub + '</p>' + act(actions) + '</div>'; };
+  var appMark = function (ico, mode) { return '<div class="dvu-app"><img class="dvu-appimg" src="assets/icon-192.png" alt="" width="88" height="88" draggable="false"><div class="dvu-tile' + (mode ? ' ' + mode : '') + '">' + svg(ico) + '</div></div>'; };
+  var row = function (k, v) { return '<div class="dvu-row"><span>' + k + '</span><b>' + v + '</b></div>'; };
+  var rows = function () { return '<div class="dvu-strip">' + Array.prototype.join.call(arguments, '') + '</div>'; };
+  var head = function (ico, title, sub, mode) { return '<div class="dvu-hd">' + appMark(ico, mode) + '<div class="dvu-ht"><h2 id="dvu-t">' + title + '</h2><p class="sub">' + sub + '</p></div></div>'; };
+  var mini = function (ico, title, sub, actions, mode) { return '<div class="dvu-mini">' + appMark(ico, mode) + '<h2 id="dvu-t">' + title + '</h2><p class="sub">' + sub + '</p>' + act(actions) + '</div>'; };
   var trust = function (t) { return '<p class="dvu-trust">' + svg('shield') + '<span>' + t + '</span></p>'; };
 
   /* ---------- release-note helpers ---------- */
@@ -168,11 +171,10 @@
   }
   function relDate(d) { if (!d) return ''; var days = Math.round((Date.now() - new Date(d).getTime()) / 864e5); return isNaN(days) ? '' : days <= 0 ? 'Released today' : days === 1 ? 'Released yesterday' : 'Released ' + days + ' days ago'; }
   function strip(n, withFrom) {
-    var parts = [];
-    parts.push('<span class="dvu-chip">' + (withFrom && cur.version && n.version && cur.version !== n.version ? '<s>' + esc(cur.version) + '</s> → ' : '') + '<em>' + esc(n.version || cur.version || '-') + '</em></span>');
-    if (n.size) parts.push('<span class="dvu-chip mute">' + esc(size(n.size)) + '</span>');
-    var r = relDate(n.released || (n.history && n.history[0] && n.history[0].date)); if (r) parts.push('<span class="dvu-chip mute">' + esc(r) + '</span>');
-    return '<div class="dvu-strip">' + parts.join('') + '</div>';
+    var out = [row('Version', (withFrom && cur.version && n.version && cur.version !== n.version ? '<s>' + esc(cur.version) + '</s> → ' : '') + '<em>' + esc(n.version || cur.version || '-') + '</em>')];
+    if (n.size) out.push(row('Download size', esc(size(n.size))));
+    var r = relDate(n.released || (n.history && n.history[0] && n.history[0].date)).replace(/^Released\s*/, ''); if (r) out.push(row('Released', esc(r.charAt(0).toUpperCase() + r.slice(1))));
+    return rows.apply(null, out);
   }
 
   /* ---------- state ---------- */
@@ -290,14 +292,14 @@
   function upToDate() {
     var lc = Number(get(K.last)) || Date.now();
     show(head('check', 'You’re up to date', 'DashView is running the latest version.', 'draw') + closeBtn +
-      '<div class="dvu-strip"><span class="dvu-chip"><em>' + esc(cur.version) + '</em></span><span class="dvu-chip mute">Build ' + esc(cur.build || '-') + '</span></div>' +
+      rows(row('Version', '<em>' + esc(cur.version) + '</em>'), row('Build', esc(cur.build || '-'))) +
       '<div class="dvu-bd"><div class="dvu-h">What’s in this version</div>' + notesHtml(cur.notes) + histHtml(cur.version) + '</div>' +
       '<div class="dvu-ft">' + trust('Last checked ' + esc(new Date(lc).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }))) + act('<button type="button" class="p" id="o">Done</button>') + '</div>', 'current');
     $('#o').onclick = hide;
   }
   function done(from) {
     show(head('check', 'Update complete', 'DashView was updated successfully.', 'draw') + closeBtn +
-      '<div class="dvu-strip"><span class="dvu-chip"><s>' + esc(from) + '</s> → <em>' + esc(cur.version) + '</em></span></div>' +
+      rows(row('Updated', '<s>' + esc(from) + '</s> → <em>' + esc(cur.version) + '</em>')) +
       '<div class="dvu-bd"><div class="dvu-h">What’s new</div>' + notesHtml(cur.notes) + histHtml(cur.version) + '</div>' +
       '<div class="dvu-ft">' + trust('Your workspace and settings are unchanged.') + act('<button type="button" class="ok" id="o">Continue</button>') + '</div>', 'done');
     $('#o').onclick = hide;

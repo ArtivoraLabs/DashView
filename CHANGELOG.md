@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.15.4 - 2026-10-10
+- Software Update redesigned as an iOS-style sheet (app icon + status badge, grouped Version/Size/Released rows, grouped release notes, full-width capsule action, glass notice); new Liquid Glass app icon set (favicon, touch, PWA, maskable, 1024) and og-image; glass logo marks in the app
+
 ## 2.15.3 - 2026-10-10
 - iOS 26 pass: refined Liquid Glass (specular rim, concentric radii, capsule controls, press feedback, 44px touch targets), tabular numerals and balanced text alignment, Software Update sheet/banner restyled as iOS glass (content and behaviour unchanged)
 
