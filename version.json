@@ -1,11 +1,19 @@
 {
-  "version": "2.15.1",
+  "version": "2.15.2",
   "build": "2026.10.10",
   "released": "2026-10-10",
   "notes": [
-    "8K quality + grade: wide-gamut (P3/HDR) OKLCH palette with unchanged contrast, one-hue graphite tonal ladder, tinted layered shadows, 2.5K-8K UI scaling, crisper text/SVG, Chart.js at 2x+ device pixels"
+    "AI chat: fixed cut-off input and page scroll on mobile (100vh -> 100dvh with fallback) and the iOS auto-zoom when tapping the chat box (16px field on phones), on both the AI page and the dashboard AI panel"
   ],
   "history": [
+    {
+      "version": "2.15.2",
+      "date": "2026-10-10",
+      "notes": [
+        "AI chat: fixed cut-off input and page scroll on mobile (100vh -> 100dvh with fallback) and the iOS auto-zoom when tapping the chat box (16px field on phones), on both the AI page and the dashboard AI panel"
+      ],
+      "critical": false
+    },
     {
       "version": "2.15.1",
       "date": "2026-10-10",
@@ -261,5 +269,5 @@
     }
   ],
   "critical": false,
-  "size": 3725717
+  "size": 3726400
 }

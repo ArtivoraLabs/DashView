@@ -517,3 +517,6 @@ button.aiw-drow:hover .go { opacity: 1; }
 @media (min-width: 761px) {
   .aiw { height: calc(100vh - 160px); height: calc(100dvh - 160px); }
 }
+
+/* iOS Safari zooms the whole page when a focused field is < 16px; keep the AI chat box at 16px on phones */
+@media (max-width: 768px) { .aiw-composer textarea { font-size: 16px; } }

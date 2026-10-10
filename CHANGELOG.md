@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.15.2 - 2026-10-10
+- AI chat: fixed cut-off input and page scroll on mobile (100vh -> 100dvh with fallback) and the iOS auto-zoom when tapping the chat box (16px field on phones), on both the AI page and the dashboard AI panel
+
 ## 2.15.1 - 2026-10-10
 - 8K quality + grade: wide-gamut (P3/HDR) OKLCH palette with unchanged contrast, one-hue graphite tonal ladder, tinted layered shadows, 2.5K-8K UI scaling, crisper text/SVG, Chart.js at 2x+ device pixels
 
