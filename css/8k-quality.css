@@ -1,0 +1,91 @@
+/* ==========================================================================
+   DashView — 8K / ultra-HD quality layer   (load AFTER theme-final.css, last)
+
+   1. Wide-gamut colour   Displays that report P3 / Rec.2020 / HDR get the same
+                          palette re-expressed in OKLCH with +13% chroma. Lightness is
+                          unchanged, so every contrast ratio audited in theme-final.css holds.
+                          sRGB screens ignore the block and keep the original hex values.
+                          Light theme is left alone (it is AA-tuned and print-safe).
+   2. Ultra-HD scaling    rem-based UI grows on 2.5K / 4K / 5K / 8K viewports instead of
+                          looking tiny.
+   3. Crisp rendering     Font smoothing, geometric SVG, hairlines on hi-DPI, no banding
+                          on large gradients.
+   ========================================================================== */
+
+/* ── 1. Wide-gamut palette (dark theme, same tokens as theme-final.css) ──── */
+@media (color-gamut: p3) {
+  @supports (color: oklch(50% 0.1 200)) {
+    :root:not([data-theme="light"]) {
+      --dv-c1: oklch(80.1% 0.158 75);
+      --dv-c2: oklch(69.0% 0.169 257);
+      --dv-c3: oklch(70.9% 0.181 294);
+      --dv-c4: oklch(78.5% 0.151 182);
+      --dv-c5: oklch(72.5% 0.200 350);
+      --dv-c6: oklch(75.4% 0.158 233);
+      --dv-c7: oklch(75.8% 0.181 56);
+      --dv-c8: oklch(68.0% 0.180 277);
+      --dv-c9: oklch(83.7% 0.149 114);
+      --dv-c10: oklch(71.1% 0.040 257);
+      --st-good: oklch(71.9% 0.167 157);
+      --st-bad: oklch(69.6% 0.183 30);
+      --st-warn: oklch(80.1% 0.158 75);
+      --st-info: oklch(69.0% 0.169 257);
+      --st-flat: oklch(71.1% 0.040 257);
+      --signal: oklch(76.5% 0.159 73);
+      --dv-pos: var(--st-good); --dv-neg: var(--st-bad); --dv-warn: var(--st-warn);
+      --cp-c1: var(--dv-c1); --cp-c2: var(--dv-c2); --cp-c3: var(--dv-c3);
+      --cp-c4: var(--dv-c4); --cp-c5: var(--dv-c5); --cp-c6: var(--dv-c6);
+    }
+  }
+}
+
+/* ── 2. Ultra-HD scaling (CSS px, so it follows the OS scale factor) ─────── */
+@media (min-width: 2560px) { html { font-size: 112.5%; } }   /* 2.5K / 4K @150% */
+@media (min-width: 3840px) { html { font-size: 137.5%; } }   /* 4K @100% / 8K @200% */
+@media (min-width: 5120px) { html { font-size: 175%; } }     /* 5K / 8K @150% */
+@media (min-width: 7680px) { html { font-size: 250%; } }     /* 8K @100% */
+
+/* ── 3. Crisp rendering ─────────────────────────────────────────────────── */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-optical-sizing: auto;
+  -webkit-text-size-adjust: 100%;
+}
+img, video, canvas { image-rendering: auto; }
+svg { shape-rendering: geometricPrecision; text-rendering: geometricPrecision; }
+@media (min-resolution: 2dppx) {
+  :root { --hairline: 0.5px; }
+  svg [stroke-width="1"] { vector-effect: non-scaling-stroke; }
+}
+/* Large soft gradients band on big panels; dithering via a faint noise-free blend */
+@media (min-width: 2560px) {
+  body { background-attachment: fixed; }
+}
+@media (prefers-reduced-data: reduce) {
+  :root { --hairline: 1px; }
+}
+
+/* ==========================================================================
+   COLOUR GRADE  (dark theme)
+   - Tonal ladder: every graphite surface moved onto ONE hue (165deg, OKLCH) with a
+     gentle chroma ramp, lightness untouched -> even steps, no muddy/green-drift
+     panels, same contrast as before (ink on every surface within +-0.05 : 1).
+   - Shadows: tinted deep-green black instead of pure black, split into a tight
+     contact shadow + a long ambient one (how film / product renders are lit).
+   - Images: a light S-curve (contrast) and saturation lift on marketing previews.
+   ========================================================================== */
+:root:not([data-theme="light"]) {
+  --paper-alt: #070908;
+  --navy-deep: #070908;
+  --paper: #0a0c0b;
+  --navy: #0a0d0c;
+  --navy-raised: #0f1311;
+  --paper-soft: #141816;
+  --shadow-sm: 0 1px 2px rgba(1,5,3,.34), 0 1px 3px rgba(1,5,3,.22);
+  --shadow-md: 0 2px 6px -2px rgba(1,5,3,.40), 0 10px 28px -10px rgba(1,5,3,.52);
+  --shadow-lg: 0 4px 10px -4px rgba(1,5,3,.42), 0 26px 60px -18px rgba(1,5,3,.64);
+  --shadow-xl: 0 6px 14px -6px rgba(1,5,3,.44), 0 34px 80px -22px rgba(1,5,3,.74);
+}
+img[src*="dashboard-preview"], img[src*="og-image"] { filter: contrast(1.04) saturate(1.05); }

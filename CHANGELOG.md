@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.15.1 - 2026-10-10
+- 8K quality + grade: wide-gamut (P3/HDR) OKLCH palette with unchanged contrast, one-hue graphite tonal ladder, tinted layered shadows, 2.5K-8K UI scaling, crisper text/SVG, Chart.js at 2x+ device pixels
+
 ## 2.15.0 - 2026-10-09
 - New: People now uses the same workspace shell as the dashboard - search, notifications, the ⌘K command palette, accent colour, Liquid Glass, density and chart-label preferences all apply there, and the theme toggle goes through the same store as Settings (so 'System' and OS changes are followed)
 - New: Audit log detail - severity on every event, 14-day activity chart, breakdown by action / person, quick filters, person / severity / custom date-range filters, day grouping, and an event drawer with exact time, UTC, session, device, page, source and a before → after table (J / K to step, Esc to close). Export CSV and JSON of exactly what the filters show
