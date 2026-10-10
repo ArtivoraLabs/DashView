@@ -319,6 +319,7 @@
               <button class="studio-tab" id="tab-data" role="tab" aria-selected="false" aria-controls="panel-data" tabindex="-1" data-tab="data" type="button">Data<span class="badge" id="dataTabBadge"></span></button>
               <button class="studio-tab" id="tab-pivot" role="tab" aria-selected="false" aria-controls="panel-pivot" tabindex="-1" data-tab="pivot" type="button">Pivot table</button>
               <button class="studio-tab" id="tab-hierarchy" role="tab" aria-selected="false" aria-controls="panel-hierarchy" tabindex="-1" data-tab="hierarchy" type="button">Hierarchy</button>
+              <button class="studio-tab" id="tab-reconcile" role="tab" aria-selected="false" aria-controls="panel-reconcile" tabindex="-1" data-tab="reconcile" type="button">Reconcile</button>
             </div>
 
             <div class="studio-tab-panel studio-print-target" id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" tabindex="0">
@@ -381,6 +382,10 @@
                 </div>
               </div>
               <div class="pivot-table-wrap"><table class="pivot-table" id="pivotTable"></table></div>
+            </div>
+
+            <div class="studio-tab-panel" id="panel-reconcile" role="tabpanel" aria-labelledby="tab-reconcile" tabindex="0" style="display:none;">
+              <div id="reconcileRoot" class="rc-root"></div>
             </div>
 
             <div class="studio-tab-panel" id="panel-hierarchy" role="tabpanel" aria-labelledby="tab-hierarchy" tabindex="0" style="display:none;">
@@ -1897,6 +1902,8 @@
 <script src="js/studio-core.js"></script>
 <script src="js/studio-profile.js"></script>
 <script src="js/studio-ui.js"></script>
+<script src="js/studio-reconcile.js"></script>
+<script src="js/studio-reconcile-ui.js"></script>
 <script src="js/report-engine.js"></script>
 <script src="js/ai-api-config.js"></script>
 <script src="js/ai-config-store.js"></script>

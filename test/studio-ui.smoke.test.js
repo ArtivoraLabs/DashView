@@ -82,7 +82,7 @@ function check(name, fn) {
   });
   check('studio workbench exposes an accessible tablist and named dataset controls', () => {
     assert.strictEqual(document.getElementById('studioTabs').getAttribute('role'), 'tablist');
-    assert.strictEqual(document.querySelectorAll('#studioTabs [role="tab"]').length, 4);
+    assert.strictEqual(document.querySelectorAll('#studioTabs [role="tab"]').length, 5);
     assert.strictEqual(document.querySelector('#tab-overview').getAttribute('aria-selected'), 'true');
     assert.strictEqual(document.getElementById('workbookNameInput').labels.length, 1);
     assert.ok(document.getElementById('fieldSearchInput').getAttribute('aria-label'));

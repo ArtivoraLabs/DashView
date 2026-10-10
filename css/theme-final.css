@@ -92,3 +92,53 @@ a:not([class]) { color: var(--signal); text-underline-offset: 2px; }
   :root, html[data-theme="dark"] { color-scheme: light; }
   ::selection { background: transparent; }
 }
+
+/* ==========================================================================
+   Phone / app (Capacitor) fixes - keep at the very end of the stack
+   ========================================================================== */
+/* no grey flash and no 300 ms delay on taps */
+html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+a, button, summary, select, label, [role="button"], [role="tab"], input[type="checkbox"], input[type="radio"] { touch-action: manipulation; }
+
+/* an empty company bar rendered as a blank pill while Odoo was not connected */
+#view-overview .ov-company-filter:empty { display: none; }
+/* the Data tab badge showed as an empty circle until rows were counted */
+.studio-tab .badge:empty { display: none; }
+
+/* 100vh is taller than the visible screen on phones (address bar / app chrome), which pushed the bottom of the
+   side menu and full-height panels off screen. dvh follows the real visible height. */
+@supports (height: 100dvh) {
+  .dash-shell { min-height: 100dvh; }
+  .dash-side { height: 100dvh; }
+  .ai-shell, body.ai-body { height: 100dvh; }
+  .studio-empty { min-height: calc(100dvh - 56px); }
+  .studio-main { min-height: calc(100dvh - 56px); }
+  .ws-modal .modal-card { max-height: calc(100dvh - 32px); }
+}
+
+@media (max-width: 900px) {
+  /* iOS zooms the whole page when a field under 16px gets focus and never zooms back */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="button"]):not([type="submit"]),
+  select, textarea { font-size: 16px; }
+  /* comfortable tap targets */
+  .dash-icon-btn, .studio-icon-btn, #fieldsToggleBtn { min-width: 44px; min-height: 44px; }
+  .studio-tab { min-height: 44px; }
+  /* keep content clear of the home indicator / gesture bar and off the notch */
+  #toastStack, .back-to-top { margin-bottom: env(safe-area-inset-bottom, 0px); }
+  .dash-topbar { padding-left: max(var(--sp-3, 12px), env(safe-area-inset-left, 0px)); padding-right: max(var(--sp-3, 12px), env(safe-area-inset-right, 0px)); }
+  /* rubber-band overscroll was dragging the whole app shell */
+  body { overscroll-behavior-y: none; }
+}
+
+@media (max-width: 760px) {
+  /* a lone vertical divider floated between the Hierarchy selectors once they wrapped */
+  #view-studio .hierarchy-controls .studio-divider-v { display: none; }
+}
+
+@media (max-width: 600px) {
+  /* "Saved / No changes yet" sat 12px left of the workbook name above it */
+  #view-studio .studio-save-state { padding-left: 12px; }
+  /* tab strips scroll sideways - show that more is there instead of cutting a label in half */
+  .studio-tabs, .dv-tabs { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); }
+  .studio-tabs { scroll-padding-inline: 12px; }
+}

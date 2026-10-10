@@ -28,7 +28,10 @@
   var TEXT = 'input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]):not([type="color"]):not([type="image"]),textarea,[contenteditable=""],[contenteditable="true"]';
   var DRILL = '[data-bar],[data-kpi],[data-pop="group"],[data-pop="rec"],[data-ai-row],.ig-row,.ig-g,.ig-float';
 
-  var K = 0.2, DAMP = 0.7;           /* ring spring: stiffness, damping (per 60fps frame) */
+  /* Ring physics: critically damped spring ("smooth damp"), time based, so it is
+     identical at 60 / 120 / 144 Hz and never overshoots or wobbles.
+     TAU = response time in seconds (smaller = snappier). */
+  var TAU_POS = 0.062, TAU_DOCK = 0.085, TAU_SIZE = 0.075;
   var dot = null, ring = null, label = null;
   var enabled = false, live = false, failed = false, listening = false;
   var fx = 'rich', raf = 0, last = 0, moved = false, down = false, away = false;
@@ -37,7 +40,9 @@
   var T = { x: -200, y: -200, w: 30, h: 30, r: 15 };
   var cur = { src: null, el: null, kind: 'none', label: '', dis: false, busy: false, drag: false, radius: 8 };
   var cls = {}, labelText = '', labelTimer = 0, labelW = 0;
-  var applied = { w: 0, h: 0, r: 0, tx: 1e9, ty: 1e9 };
+  var applied = { w: 0, h: 0, r: 0, tx: 1e9, ty: 1e9, dx: 1e9, dy: 1e9 };
+  var radiusCache = (typeof WeakMap === 'function') ? new WeakMap() : null;   /* getComputedStyle only once per element */
+  var forceResolve = true;
 
   function wanted() {
     if (failed || !mqFine.matches || mqForced.matches) return false;
@@ -101,8 +106,13 @@
           var r = pickRect(el);
           cur.kind = (r.width > 520 || r.height > 160 || r.width * r.height > 70000) ? 'area' : 'link';
           if (cur.kind === 'link') {
-            var br = parseFloat(getComputedStyle(el).borderTopLeftRadius);
-            cur.radius = isFinite(br) ? br : 6;
+            var cached = radiusCache && radiusCache.get(el);
+            if (cached === undefined || cached === null) {
+              var br = parseFloat(getComputedStyle(el).borderTopLeftRadius);
+              cached = isFinite(br) ? br : 6;
+              if (radiusCache) radiusCache.set(el, cached);
+            }
+            cur.radius = cached;
           }
           cur.label = cur.dis ? 'Unavailable' : cur.busy ? 'Working' : labelFor(el);
         }
@@ -144,20 +154,33 @@
       T.x = px; T.y = py; T.w = s; T.h = s; T.r = s / 2;
     }
   }
-  function step(k, dt) {
-    R['v' + k] = (R['v' + k] + (T[k] - R[k]) * K * dt) * Math.pow(DAMP, dt);
-    R[k] += R['v' + k] * dt;
+  function step(k, dt, tau) {
+    var vk = 'v' + k, om = 2 / tau, x = om * dt;
+    var e = 1 / (1 + x + 0.48 * x * x + 0.235 * x * x * x);
+    var ch = R[k] - T[k], tmp = (R[vk] + om * ch) * dt;
+    R[vk] = (R[vk] - om * tmp) * e;
+    R[k] = T[k] + (ch + tmp) * e;
   }
   function loop(ts) {
     raf = 0;
     if (!enabled || !live || !ring) return;
     try {
-      var dt = last ? Math.min(2.5, (ts - last) / 16.667) : 1; last = ts;
-      if (moved) { moved = false; resolve(); }
+      /* dt in seconds, clamped so a stalled frame (tab switch, GC) cannot fling the ring */
+      var dt = last ? Math.min(0.05, Math.max(0.001, (ts - last) / 1000)) : 1 / 60; last = ts;
+      /* 1) READ phase - hit-test only when the pointer or the page actually moved */
+      if (moved) {
+        moved = false;
+        forceResolve = false; resolve();
+      }
       aim();
-      step('x', dt); step('y', dt); step('w', dt); step('h', dt); step('r', dt);
+      /* 2) integrate (dock morphs a bit slower than free follow, so it feels like it settles on the control) */
+      var docked = cur.kind === 'link' && !cur.dis;
+      step('x', dt, docked ? TAU_DOCK : TAU_POS); step('y', dt, docked ? TAU_DOCK : TAU_POS);
+      step('w', dt, TAU_SIZE); step('h', dt, TAU_SIZE); step('r', dt, TAU_SIZE);
+      /* 3) WRITE phase - one batch, compositor-only where possible */
       var w = Math.max(R.w, 4), h = Math.max(R.h, 4), r = Math.max(0, Math.min(R.r, Math.min(w, h) / 2 + 0.5));
-      var tx = Math.round((R.x - w / 2) * 10) / 10, ty = Math.round((R.y - h / 2) * 10) / 10;
+      var tx = Math.round((R.x - w / 2) * 100) / 100, ty = Math.round((R.y - h / 2) * 100) / 100;
+      if (px !== applied.dx || py !== applied.dy) { dot.style.transform = 'translate3d(' + px + 'px,' + py + 'px,0)'; applied.dx = px; applied.dy = py; }
       if (Math.abs(w - applied.w) > 0.05 || Math.abs(h - applied.h) > 0.05) { ring.style.width = w.toFixed(1) + 'px'; ring.style.height = h.toFixed(1) + 'px'; applied.w = w; applied.h = h; }
       if (Math.abs(r - applied.r) > 0.05) { ring.style.borderRadius = r.toFixed(1) + 'px'; applied.r = r; }
       if (tx !== applied.tx || ty !== applied.ty) { ring.style.transform = 'translate3d(' + tx + 'px,' + ty + 'px,0)'; applied.tx = tx; applied.ty = ty; }
@@ -167,9 +190,10 @@
         if (ly + 30 > innerHeight) ly = py - 36;
         label.style.transform = 'translate3d(' + Math.round(lx) + 'px,' + Math.round(ly) + 'px,0)';
       }
-      var settled = Math.abs(T.x - R.x) + Math.abs(T.y - R.y) + Math.abs(T.w - R.w) + Math.abs(T.h - R.h) + Math.abs(T.r - R.r) < 0.3 &&
-        Math.abs(R.vx) + Math.abs(R.vy) + Math.abs(R.vw) + Math.abs(R.vh) + Math.abs(R.vr) < 0.06;
+      var settled = Math.abs(T.x - R.x) + Math.abs(T.y - R.y) + Math.abs(T.w - R.w) + Math.abs(T.h - R.h) + Math.abs(T.r - R.r) < 0.15 &&
+        Math.abs(R.vx) + Math.abs(R.vy) + Math.abs(R.vw) + Math.abs(R.vh) + Math.abs(R.vr) < 0.4;
       if (settled) { R.x = T.x; R.y = T.y; R.w = T.w; R.h = T.h; R.r = T.r; R.vx = R.vy = R.vw = R.vh = R.vr = 0; last = 0; }
+      /* a docked ring must keep tracking its control while the page scrolls / animates */
       else raf = requestAnimationFrame(loop);
     } catch (e) { fail(); }
   }
@@ -198,13 +222,16 @@
       live = true; R.x = T.x = px; R.y = T.y = py;
       setCls('dvc-on', true);
     }
-    if (away) { away = false; setCls('dvc-away', false); }
-    dot.style.transform = 'translate3d(' + px + 'px,' + py + 'px,0)';
+    if (away) { /* re-entering the window: do not fly in from the old spot */
+      away = false; setCls('dvc-away', false);
+      R.x = T.x = px; R.y = T.y = py; R.vx = R.vy = 0;
+      applied.tx = applied.ty = 1e9;
+    }
     wake();
   }
   function onDown(e) {
     if (!enabled || !live || e.button !== 0) return;
-    px = e.clientX; py = e.clientY; moved = true;
+    px = e.clientX; py = e.clientY; moved = true; forceResolve = true;
     setDown(true); ripple(); wake();
   }
   function onUp() { setDown(false); }
@@ -212,8 +239,8 @@
     if (e && e.relatedTarget) return;
     away = true; setCls('dvc-away', true);
   }
-  function onDragOver(e) { if (enabled && live) { px = e.clientX; py = e.clientY; if (dot) dot.style.transform = 'translate3d(' + px + 'px,' + py + 'px,0)'; moved = true; wake(); } }
-  function onScroll() { if (enabled && live) { moved = true; wake(); } }
+  function onDragOver(e) { if (enabled && live) { px = e.clientX; py = e.clientY; moved = true; wake(); } }
+  function onScroll() { if (enabled && live) { moved = true; forceResolve = true; wake(); } }
   function listen() {
     if (listening) return; listening = true;
     addEventListener('pointermove', onMove, { passive: true });
@@ -228,7 +255,7 @@
     de.addEventListener('mouseleave', onAway);
     addEventListener('scroll', onScroll, { passive: true, capture: true });
     addEventListener('resize', onScroll, { passive: true });
-    d.addEventListener('visibilitychange', function () { if (d.hidden) onAway(); });
+    d.addEventListener('visibilitychange', function () { last = 0; if (d.hidden) onAway(); });
     /* Settings → Cursor toggles write localStorage after their own handler ran */
     d.addEventListener('change', function (e) {
       if (e.target && e.target.closest && e.target.closest('[data-pref="cursor"],[data-pref="cursorFx"]')) setTimeout(refresh, 0);

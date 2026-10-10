@@ -39,6 +39,9 @@
     dirty: false,
   };
 
+  /* Read-only window for the Reconcile tab (js/studio-reconcile-ui.js): it needs the open dataset and file name, nothing else. */
+  window.DVStudioBridge = { dataset: function () { return state.dataset; }, fileName: function () { return state.sourceFileName || state.workbookName || ''; } };
+
   var chartInstances = {};
   var autosaveTimer = null;
   var openFieldName = null; // field whose popover is open
@@ -185,6 +188,7 @@
     else if (state.activeTab === 'data') renderDataTab();
     else if (state.activeTab === 'pivot') renderPivotTab();
     else if (state.activeTab === 'hierarchy') renderHierarchyTab();
+    else if (state.activeTab === 'reconcile' && window.DVReconcileUI) window.DVReconcileUI.render();
   }
 
   function switchTab(tab) {
@@ -195,7 +199,7 @@
       b.setAttribute('aria-selected', active ? 'true' : 'false');
       b.tabIndex = active ? 0 : -1;
     });
-    ['overview', 'data', 'pivot', 'hierarchy'].forEach(function (t) { var p = byId('panel-' + t); if (p) p.style.display = t === tab ? '' : 'none'; });
+    ['overview', 'data', 'pivot', 'hierarchy', 'reconcile'].forEach(function (t) { var p = byId('panel-' + t); if (p) p.style.display = t === tab ? '' : 'none'; });
     renderFieldsList(); // pivot tab shows extra R/C/V/F buttons on field rows
     renderActiveTab();
   }

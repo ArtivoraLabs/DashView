@@ -45,7 +45,7 @@ html.dvc-on [contenteditable="true"] { cursor: text !important; }
 
 .dvc-dot, .dvc-ring, .dvc-label, .dvc-ripple {
   position: fixed; left: 0; top: 0; z-index: 2147483600;
-  pointer-events: none; opacity: 0; will-change: transform;
+  pointer-events: none; opacity: 0; will-change: transform; contain: layout style;
 }
 .dvc-dot {
   width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%;

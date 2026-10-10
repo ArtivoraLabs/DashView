@@ -80,6 +80,8 @@ var PRECACHE = [
  "js/studio.js",
  "js/studio-core.js",
  "js/studio-ui.js",
+ "js/studio-reconcile.js",
+ "js/studio-reconcile-ui.js",
  "js/tasks.js",
  "js/widget-builder.js",
  "assets/favicon.svg",

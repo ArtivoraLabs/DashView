@@ -5,7 +5,7 @@
   "description": "Unit tests for js/studio-core.js, plus headless DOM smoke tests for the Data Studio, AI Assistant and People/Tasks/Audit workspace.",
   "scripts": {
     "test:updater": "node updater.smoke.test.js",
-    "test": "npm run test:pwa && npm run test:updater && npm run test:core && npm run test:studio && npm run test:report && npm run test:health && npm run test:roles && npm run test:assistant && npm run test:ai-context && npm run test:people && npm run test:render && npm run test:agent && npm run test:ai-dashboard && npm run test:worker && npm run test:odoo && npm run test:spreadsheet && npm run test:overview && npm run test:colors && npm run test:settings && npm run test:company && npm run test:drill && npm run test:errors && npm run test:studio-grid && npm run test:studio-profile && npm run test:audit && npm run test:people-chrome && npm run test:cursor && npm run test:people-live && npm run test:team-live && npm run test:hr-live && npm run test:tasks-targets && npm run test:hr-targets && npm run test:auth && npm run test:widgets",
+    "test": "npm run test:pwa && npm run test:updater && npm run test:core && npm run test:studio && npm run test:report && npm run test:health && npm run test:roles && npm run test:assistant && npm run test:ai-context && npm run test:people && npm run test:render && npm run test:agent && npm run test:ai-dashboard && npm run test:worker && npm run test:odoo && npm run test:spreadsheet && npm run test:overview && npm run test:colors && npm run test:settings && npm run test:company && npm run test:drill && npm run test:errors && npm run test:studio-grid && npm run test:studio-profile && npm run test:audit && npm run test:people-chrome && npm run test:cursor && npm run test:people-live && npm run test:team-live && npm run test:hr-live && npm run test:tasks-targets && npm run test:hr-targets && npm run test:auth && npm run test:widgets && npm run test:reconcile",
     "test:pwa": "node pwa-updates.smoke.test.js",
     "test:colors": "node chart-colors.smoke.test.js",
     "test:core": "node studio-core.test.js",
@@ -38,7 +38,8 @@
     "test:tasks-targets": "node tasks-targets.smoke.test.js",
     "test:hr-targets": "node hr-targets.smoke.test.js",
     "test:auth": "node auth-hardening.smoke.test.js",
-    "test:widgets": "node widget-builder.smoke.test.js"
+    "test:widgets": "node widget-builder.smoke.test.js",
+    "test:reconcile": "node studio-reconcile.test.js"
   },
   "devDependencies": {
     "jsdom": "^30.0.1"
