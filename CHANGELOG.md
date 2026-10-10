@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.16.0 - 2026-10-10
+- Redesigned: sign-in page in Liquid Glass - graded amber / copper / teal scene, frosted glass card with pointer-following specular light, glass brand panel with animated revenue preview
+- Improved: sign-in detailing - field icons, on-theme autofill, password strength label, caps-lock chip, error shake, glossy Sign in button, sun / moon theme toggle that also updates the browser theme colour, reduced-motion / reduced-transparency / forced-colors fallbacks
+
 ## 2.15.5 - 2026-10-10
 - Fixed: a slow or hung Odoo/Worker request could freeze Overview, People, Team and Task targets forever - every Odoo call now has a 45 s timeout and releases its slot
 - Fixed: resetting the Odoo connection left queued requests waiting forever and could break the 3-request cap - queued and in-flight calls are now cancelled cleanly
