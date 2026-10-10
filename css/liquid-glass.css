@@ -390,3 +390,47 @@ html[data-surface="glass"] .olx-leg, html[data-surface="glass"] .ov-bar-track { 
 
 /* toast text must stay readable on every theme / glass surface */
 .toast, .toast * { color: var(--lg-toast-ink, #e7ede7) !important; text-shadow: none; }
+
+/* ==========================================================================
+   10 · iOS 26 refinement  (still opt-in: html[data-surface="glass"])
+   - Light comes from the top-left: bright specular rim on the lit edges, a faint one
+     on the far edges, soft inner glow  => glass reads as a thick lens, not a flat tint.
+   - Backdrop: stronger saturation + a touch of brightness (what iOS does to refracted content).
+   - Concentric radii: cards 22, sheets/modals 28, menus 18, toasts 18, fields 14, controls = capsule.
+   - Press feedback (scale .97) and 44px touch targets on touch screens.
+   Tokens only + a few shape rules, so Settings toggle, light/dark and fallbacks keep working.
+   ========================================================================== */
+html[data-surface="glass"]:not([data-theme="light"]) {
+  --lg-blur:        blur(var(--glass-blur, 22px)) saturate(var(--glass-sat, 170%)) brightness(1.04);
+  --lg-blur-strong: blur(calc(var(--glass-blur, 22px) * 1.5)) saturate(185%) brightness(1.06);
+  --lg-radius: 22px;
+  --lg-edge: rgba(255, 255, 255, .12);
+  --lg-edge-strong: rgba(255, 255, 255, .22);
+  --lg-rim: inset 1px 1px 0 rgba(255,255,255,.22), inset -1px -1px 0 rgba(255,255,255,.05), inset 0 0 22px rgba(255,255,255,.035);
+  --lg-sheen: radial-gradient(120% 90% at 0% 0%, rgba(255,255,255,.11) 0%, rgba(255,255,255,.03) 38%, rgba(255,255,255,0) 62%), linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0) 55%);
+  --lg-e1: 0 1px 2px rgba(1,5,3,.30), 0 12px 32px -14px rgba(1,5,3,.55);
+  --lg-e2: 0 4px 10px -4px rgba(1,5,3,.40), 0 30px 70px -20px rgba(1,5,3,.70);
+}
+html[data-surface="glass"][data-theme="light"] {
+  --lg-blur:        blur(var(--glass-blur, 22px)) saturate(180%) brightness(1.02);
+  --lg-blur-strong: blur(calc(var(--glass-blur, 22px) * 1.5)) saturate(190%) brightness(1.03);
+  --lg-radius: 22px;
+  --lg-rim: inset 1px 1px 0 rgba(255,255,255,.95), inset -1px -1px 0 rgba(20,24,19,.05), inset 0 0 22px rgba(255,255,255,.35);
+  --lg-sheen: radial-gradient(120% 90% at 0% 0%, rgba(255,255,255,.65) 0%, rgba(255,255,255,.12) 40%, rgba(255,255,255,0) 64%);
+  --lg-e1: 0 1px 2px rgba(20,24,19,.07), 0 14px 34px -16px rgba(20,24,19,.20);
+  --lg-e2: 0 4px 10px -4px rgba(20,24,19,.10), 0 30px 70px -24px rgba(20,24,19,.30);
+}
+html[data-surface="glass"] :is(.modal-card, .cmd-box) { border-radius: 28px; }
+html[data-surface="glass"] :is(.studio-dropdown, .col-menu-popover, .slicer-dropdown, .toast) { border-radius: 18px; }
+html[data-surface="glass"] :is(.dash-search, .data-search, .fields-rail-head input, .field input, .form-input) { border-radius: 14px; }
+html[data-surface="glass"] :is(.btn-outline, .btn-secondary, .slicer-btn, .role-preset-btn, .olx-chip, .xr-chip, .seg, .olx-lens, .board-tabs),
+html[data-surface="glass"] :is(.seg, .olx-lens, .board-tabs) > * { border-radius: 999px; }
+html[data-surface="glass"] :is(button, .btn, .btn-outline, .btn-secondary, .olx-chip, .xr-chip):active { transform: scale(.97); }
+@media (pointer: coarse) {
+  html[data-surface="glass"] :is(.btn-outline, .btn-secondary, .slicer-btn, .role-preset-btn, .olx-chip, .xr-chip) { min-height: 44px; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  html[data-surface="glass"]:not([data-theme="light"]), html[data-surface="glass"][data-theme="light"] {
+    --lg-blur: none; --lg-blur-strong: none; --lg-sheen: none;
+  }
+}

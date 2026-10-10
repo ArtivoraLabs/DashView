@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.15.3 - 2026-10-10
+- iOS 26 pass: refined Liquid Glass (specular rim, concentric radii, capsule controls, press feedback, 44px touch targets), tabular numerals and balanced text alignment, Software Update sheet/banner restyled as iOS glass (content and behaviour unchanged)
+
 ## 2.15.2 - 2026-10-10
 - AI chat: fixed cut-off input and page scroll on mobile (100vh -> 100dvh with fallback) and the iOS auto-zoom when tapping the chat box (16px field on phones), on both the AI page and the dashboard AI panel
 

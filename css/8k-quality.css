@@ -89,3 +89,32 @@ svg { shape-rendering: geometricPrecision; text-rendering: geometricPrecision; }
   --shadow-xl: 0 6px 14px -6px rgba(1,5,3,.44), 0 34px 80px -22px rgba(1,5,3,.74);
 }
 img[src*="dashboard-preview"], img[src*="og-image"] { filter: contrast(1.04) saturate(1.05); }
+
+/* ==========================================================================
+   ALIGNMENT  (all themes, safe global rules)
+   ========================================================================== */
+html { -webkit-tap-highlight-color: transparent; }
+h1, h2, h3, h4, .dv-title { text-wrap: balance; }
+p, li, figcaption { text-wrap: pretty; }
+[class*="kpi"], [class*="olx-"], table, th, td, .num, .dv-num { font-variant-numeric: tabular-nums lining-nums; }
+button svg, .btn svg, [class*="chip"] svg { flex: none; }
+
+/* ==========================================================================
+   SOFTWARE UPDATE  (look only. DOM, logic, notes, history, progress untouched.)
+   iOS-26 sheet: 28px radius, glass body, capsule buttons, grouped rows.
+   Selectors are doubled (.dvu .x) so they win over the sheet's runtime <style>.
+   ========================================================================== */
+.dvu .dvu-sheet { border-radius: 28px; background: color-mix(in srgb, var(--u-bg) 88%, transparent); -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(30px) saturate(180%); }
+.dvu .dvu-tile { border-radius: 16px; }
+.dvu .dvu-hd { padding: 28px 28px 18px; }
+.dvu .dvu-strip { margin: 0 28px 18px; }
+.dvu .dvu-bd { padding: 2px 28px 16px; }
+.dvu .dvu-ft { padding: 18px 28px 22px; }
+.dvu .dvu-prog, .dvu .dvu-more details, .dvu .dvu-err { border-radius: 18px; }
+.dvu .dvu-bar, .dvb .dvb-bar { height: 6px; }
+.dvu .dvu-act button, .dvb .dvb-btns button { border-radius: 999px; min-height: 44px; padding-inline: 20px; font-weight: 600; }
+.dvb .dvb-in { border-radius: 24px; background: color-mix(in srgb, var(--u-bg) 86%, transparent); -webkit-backdrop-filter: blur(28px) saturate(180%); backdrop-filter: blur(28px) saturate(180%); }
+@media (max-width: 480px) { .dvu .dvu-sheet { border-radius: 28px 28px 0 0; } }
+@media (prefers-reduced-transparency: reduce) {
+  .dvu .dvu-sheet, .dvb .dvb-in { background: var(--u-bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
