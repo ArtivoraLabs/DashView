@@ -48,6 +48,10 @@
   transform: translate3d(var(--dv-x, 0px), var(--dv-y, 0px), 0);
   transition: transform 0.5s var(--tb-ease), width 0.4s var(--tb-ease), height 0.4s var(--tb-ease), opacity 0.2s;
 }
+/* dashview-suite.css also uses the class .dv-pill for status chips (a dot + label). That leaked a 7px dot,
+   a border and padding into every sliding tab indicator (People, Data Studio, Settings tabs). Reset them here. */
+.dv-tabs > .dv-pill { display: block; padding: 0; border: 0; gap: 0; font-size: 0; color: transparent; }
+.dv-tabs > .dv-pill::before { content: none; display: none; }
 /* glossy top sheen */
 .dv-pill::after {
   content: ''; position: absolute; inset: 1px 6% auto 6%; height: 38%;

@@ -198,7 +198,8 @@
         ref: str(a.ref, 40), name: str(a.name, 160), details: str(a.details, 400),
         changes: (Array.isArray(a.changes) ? a.changes : []).slice(0, 12).map(function (c) {
           return { field: str(c && c.field, 40), from: str(c && c.from, 200), to: str(c && c.to, 200) };
-        })
+        }),
+        src: oneOf(a.src, ['user', 'sync'], 'user'), sess: str(a.sess, 16), dev: str(a.dev, 80), page: str(a.page, 40)
       });
     });
     return out;
@@ -233,11 +234,43 @@
     });
   }
 
+  /* -- audit context: who/where/how each event happened --------------------- */
+  var VIEW_NAMES = { overview: 'Overview', studio: 'Data Studio', ai: 'AI Assistant', widgets: 'Widget Builder', 'odoo-live': 'Odoo', 'task-assignments': 'Task assignments',
+    team: 'Team', reports: 'Reports', 'audit-log': 'Audit log', settings: 'Settings' };
+  var SESSION = (function () {
+    try {
+      var ss = global.sessionStorage, id = ss && ss.getItem('dv_sess');
+      if (ss && !id) { id = Math.random().toString(36).slice(2, 10); ss.setItem('dv_sess', id); }
+      if (id) return id;
+    } catch (e) {}
+    return Math.random().toString(36).slice(2, 10);
+  })();
+  var DEVICE = (function () {
+    try {
+      var ua = (global.navigator && global.navigator.userAgent) || '';
+      if (!ua) return '';
+      var browser = /Edg\//.test(ua) ? 'Edge' : /OPR\//.test(ua) ? 'Opera' : /Firefox\//.test(ua) ? 'Firefox' : /Chrome\//.test(ua) ? 'Chrome' : /Safari\//.test(ua) ? 'Safari' : 'Browser';
+      var os = /Windows/.test(ua) ? 'Windows' : /Android/.test(ua) ? 'Android' : /iPhone|iPad|iPod/.test(ua) ? 'iOS' : /Mac OS X/.test(ua) ? 'macOS' : /CrOS/.test(ua) ? 'ChromeOS' : /Linux/.test(ua) ? 'Linux' : 'Unknown OS';
+      var scr = global.screen && global.screen.width ? ' · ' + global.screen.width + '\u00d7' + global.screen.height : '';
+      return browser + ' · ' + os + scr;
+    } catch (e) { return ''; }
+  })();
+  function pageName() {
+    try {
+      var loc = global.location; if (!loc) return '';
+      var file = (loc.pathname || '').split('/').pop().replace(/\.html?$/, '');
+      if (file === 'people') return 'People';
+      var hash = String(loc.hash || '').replace('#', '');
+      return VIEW_NAMES[hash] || (file === 'dashboard' ? 'Overview' : file ? file.charAt(0).toUpperCase() + file.slice(1) : '');
+    } catch (e) { return ''; }
+  }
+
   /* -- audit --------------------------------------------------------------- */
   function log(action, entity, ref, name, details, changes, who) {
     state.audit.unshift({
       id: uid('a'), t: Date.now(), actor: who || actor(), action: action, entity: entity, ref: ref || '',
-      name: str(name, 160), details: str(details, 400), changes: changes || []
+      name: str(name, 160), details: str(details, 400), changes: changes || [],
+      src: who && /sync|system|auto/i.test(who) ? 'sync' : 'user', sess: SESSION, dev: DEVICE, page: pageName()
     });
     if (state.audit.length > MAX_AUDIT) state.audit.length = MAX_AUDIT;
   }
@@ -562,7 +595,9 @@
   }
   function csv(rows) { return rows.map(function (r) { return r.map(csvCell).join(','); }).join('\r\n'); }
   function download(filename, text, mime) {
-    var blob = new Blob(['\ufeff' + text], { type: (mime || 'text/csv') + ';charset=utf-8' });
+    /* The UTF-8 BOM makes Excel read accents correctly in CSV, but it makes JSON invalid for other tools. */
+    var type = mime || 'text/csv', bom = /csv/i.test(type) ? '\ufeff' : '';
+    var blob = new Blob([bom + text], { type: type + ';charset=utf-8' });
     var url = URL.createObjectURL(blob), a = document.createElement('a');
     a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
@@ -580,7 +615,7 @@
   }
 
   global.WS = {
-    KEY: KEY, MAX_AUDIT: MAX_AUDIT, L: L, PRIORITIES: PRIORITIES, STATUSES: STATUSES, PERSON_STATUSES: PERSON_STATUSES,
+    KEY: KEY, MAX_AUDIT: MAX_AUDIT, SESSION: SESSION, L: L, PRIORITIES: PRIORITIES, STATUSES: STATUSES, PERSON_STATUSES: PERSON_STATUSES,
     CONTRACTS: CONTRACTS, STAGES: STAGES,
     get: function () { return state; },
     people: function () { return state.people; }, tasks: function () { return state.tasks; },

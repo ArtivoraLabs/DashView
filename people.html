@@ -16,15 +16,34 @@
 <link rel="stylesheet" href="css/base.css"/>
 <link rel="stylesheet" href="css/components.css"/>
 <link rel="stylesheet" href="css/dashboard.css"/>
+<link rel="stylesheet" href="css/studio-dash.css"/>
 <link rel="stylesheet" href="css/merged.css"/>
+<link rel="stylesheet" href="css/dashboard-pro.css"/>
+<link rel="stylesheet" href="css/ai-embed.css"/>
+<link rel="stylesheet" href="css/dashview-suite.css"/>
+<link rel="stylesheet" href="css/odoo-live.css"/>
+<link rel="stylesheet" href="css/hr-live.css"/>
+<link rel="stylesheet" href="css/dashboard-hr-match.css"/>
+<link rel="stylesheet" href="css/pro-upgrade.css"/>
+<link rel="stylesheet" href="css/odoo-pro.css"/>
 <link rel="stylesheet" href="css/security.css"/>
+<link rel="stylesheet" href="css/studio-workspace.css"/>
+<link rel="stylesheet" href="css/settings-pro.css"/>
+<link rel="stylesheet" href="css/exec-retail.css"/>
+<link rel="stylesheet" href="css/exec-company.css"/>
+<link rel="stylesheet" href="css/exec-drill.css"/>
+<link rel="stylesheet" href="css/exec-errors.css"/>
 <link rel="stylesheet" href="css/tabbar.css"/>
 <link rel="stylesheet" href="css/visual-polish.css"/>
 <link rel="stylesheet" href="css/chart-polish.css"/>
+<link rel="stylesheet" href="css/overview-charts-pro.css"/>
+<link rel="stylesheet" href="css/exec-unify.css"/>
 <link rel="stylesheet" href="css/pro-detail.css"/>
 <link rel="stylesheet" href="css/ws.css"/>
-<link rel="stylesheet" href="css/hr-live.css"/>
+<link rel="stylesheet" href="css/audit-pro.css"/>
+<link rel="stylesheet" href="css/studio-pro.css"/>
 <link rel="stylesheet" href="css/theme-final.css"/>
+<link rel="stylesheet" href="css/cursor.css"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="DashView"/>
@@ -67,15 +86,15 @@
       </a>
       <a href="dashboard.html#studio" class="dash-nav-link">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
-        <span>Data Studio</span>
+        <span>Data Studio</span><span class="badge new">New</span>
       </a>
-      <a href="people.html" class="dash-nav-link active">
+      <a href="people.html" class="dash-nav-link active" aria-current="page">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M22 20v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/></svg>
-        <span>People</span>
+        <span>People</span><span class="badge new">New</span>
       </a>
       <a href="dashboard.html#task-assignments" class="dash-nav-link">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/></svg>
-        <span>Task assignments</span>
+        <span>Task assignments</span><span class="badge" id="navTaskBadge" hidden>0</span>
       </a>
       <a href="dashboard.html#team" class="dash-nav-link">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0-3-3.87"/></svg>
@@ -92,11 +111,11 @@
       </a>
       <a href="dashboard.html#widgets" class="dash-nav-link">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="8" height="5" rx="1"/><rect x="13" y="3" width="8" height="10" rx="1"/><rect x="3" y="10" width="8" height="11" rx="1"/><rect x="13" y="15" width="8" height="6" rx="1"/></svg>
-        <span>Widget Builder</span>
+        <span>Widget Builder</span><span class="badge new">New</span>
       </a>
       <a href="dashboard.html#odoo-live" class="dash-nav-link">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/><circle cx="19.5" cy="5" r="3" fill="#6fe3a5" stroke="none"/></svg>
-        <span>Odoo</span>
+        <span>Odoo</span><span class="badge new">Live</span>
       </a>
       <a href="dashboard.html#audit-log" class="dash-nav-link">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
@@ -121,11 +140,27 @@
       <button class="dash-icon-btn dash-sidebar-toggle" id="mobileSideToggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="sidebar">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
       </button>
-      <div class="dash-top-actions" style="margin-left:auto;">
-        <button class="dash-icon-btn theme-toggle-btn" id="themeToggleBtn" type="button" aria-label="Switch to dark theme" title="Switch theme">
+      <div class="dash-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" placeholder="Search orders, files, actions…" id="topSearchInput"/>
+        <kbd>⌘K</kbd>
+      </div>
+      <div class="dash-top-actions">
+        <button class="dash-icon-btn theme-toggle-btn" id="themeToggleBtn" type="button" aria-label="Switch to light theme" title="Switch theme">
           <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
           <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
         </button>
+        <button class="dash-icon-btn" id="notifBtn" type="button" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="dot" id="notifDot" hidden></span>
+        </button>
+        <button class="dash-icon-btn" id="lockBtn" hidden title="Lock workspace (Ctrl/⌘ + Shift + L)" aria-label="Lock workspace">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        </button>
+        <button class="dash-icon-btn" id="cmdBtn" title="Command palette (⌘K)" aria-label="Command palette">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
+        </button>
+        <div class="dash-side-user" id="dashTopUserAvatar" style="cursor:pointer;width:32px;height:32px;font-size:12px;" title="Account">AK</div>
       </div>
     </header>
 
@@ -171,6 +206,51 @@
     </div>
   </div>
 </div>
+
+<!-- ══════════════════════ NOTIFICATIONS · COMMAND PALETTE · TOASTS ══════════════════════ -->
+<div class="notif-panel" id="notifPanel">
+  <div class="notif-header">
+    <h4>Notifications</h4>
+    <button class="btn btn-ghost btn-sm">Mark all read</button>
+  </div>
+  <div class="notif-list" id="notifList"><div class="notif-empty" style="padding:22px 16px;color:var(--ink-50);font-size:13px;text-align:center;">You're all caught up.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════ COMMAND PALETTE ══════════════════════ -->
+<div class="cmd-overlay" id="cmdOverlay" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="cmd-box">
+    <div class="cmd-input-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
+      <input type="text" id="cmdInput" placeholder="Search pages, actions, charts…"/>
+    </div>
+    <div class="cmd-list">
+      <p class="cmd-group-label">Navigation</p>
+      <div class="cmd-item" data-action="home"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div><span class="cmd-item-label">Go to Home</span><span class="cmd-item-hint">index.html</span></div>
+      <div class="cmd-item" data-action="overview"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div><span class="cmd-item-label">Overview</span><span class="cmd-item-hint">Dashboard</span></div>
+      <div class="cmd-item" data-action="people"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/></svg></div><span class="cmd-item-label">People</span><span class="cmd-item-hint">This page</span></div>
+      <div class="cmd-item" data-action="studio"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg></div><span class="cmd-item-label">Data Studio</span><span class="cmd-item-hint">Import & build</span></div>
+      <div class="cmd-item" data-action="ai"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c-1.7 0-3 1.2-3 3v1H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2V5c0-1.8-1.3-3-3-3Z"/></svg></div><span class="cmd-item-label">AI Assistant</span></div>
+      <div class="cmd-item" data-action="widgets"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="5" rx="1"/><rect x="13" y="3" width="8" height="10" rx="1"/></svg></div><span class="cmd-item-label">Widget Builder</span></div>
+      <div class="cmd-item" data-action="task-assignments"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg></div><span class="cmd-item-label">Task assignments</span></div>
+      <div class="cmd-item" data-action="team"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg></div><span class="cmd-item-label">Team</span></div>
+      <div class="cmd-item" data-action="reports"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M12 20V4M20 20v-7"/></svg></div><span class="cmd-item-label">Reports</span></div>
+      <div class="cmd-item" data-action="audit-log"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div><span class="cmd-item-label">Audit log</span></div>
+      <div class="cmd-item" data-action="settings"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82"/></svg></div><span class="cmd-item-label">Settings</span></div>
+      <p class="cmd-group-label">Actions</p>
+      <div class="cmd-item" data-action="add-person"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div><span class="cmd-item-label">Add person</span></div>
+      <div class="cmd-item" data-action="export-people"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg></div><span class="cmd-item-label">Export people as CSV</span></div>
+      <div class="cmd-item" data-action="theme"><div class="cmd-item-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg></div><span class="cmd-item-label">Toggle light / dark theme</span></div>
+    </div>
+    <div class="cmd-footer">
+      <span><kbd class="cmd-key">↑↓</kbd> navigate</span>
+      <span><kbd class="cmd-key">↵</kbd> open</span>
+      <span><kbd class="cmd-key">Esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
 
 <!-- ══════════════════════ PERSON MODAL ══════════════════════ -->
 <div class="modal-overlay ws-modal" id="pplModal">
@@ -237,5 +317,6 @@
 <script src="js/people-live.js"></script>
 <script src="js/people.js"></script>
 <script src="js/tabbar.js"></script>
+<script defer src="js/cursor.js"></script>
 </body>
 </html>

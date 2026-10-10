@@ -42,7 +42,15 @@
   }
   function log(action, detail, status) {
     var l = load(LOG_KEY, []);
-    l.unshift({ t: Date.now(), u: actor(), a: action, d: detail || '', s: status || 'ok' });
+    var sess = '', dev = '';
+    try { sess = (window.WS && window.WS.SESSION) || sessionStorage.getItem('dv_sess') || ''; } catch (e) {}
+    try {
+      var ua = navigator.userAgent || '';
+      dev = (/Edg\//.test(ua) ? 'Edge' : /OPR\//.test(ua) ? 'Opera' : /Firefox\//.test(ua) ? 'Firefox' : /Chrome\//.test(ua) ? 'Chrome' : /Safari\//.test(ua) ? 'Safari' : 'Browser') + ' · ' +
+        (/Windows/.test(ua) ? 'Windows' : /Android/.test(ua) ? 'Android' : /iPhone|iPad|iPod/.test(ua) ? 'iOS' : /Mac OS X/.test(ua) ? 'macOS' : /Linux/.test(ua) ? 'Linux' : 'Unknown OS');
+    } catch (e) {}
+    var now = Date.now();
+    l.unshift({ id: 's_' + now.toString(36) + Math.random().toString(36).slice(2, 5), t: now, u: actor(), a: action, d: detail || '', s: status || 'ok', sess: sess, dev: dev });
     if (l.length > 300) l.length = 300;
     save(LOG_KEY, l);
   }

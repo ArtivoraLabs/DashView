@@ -122,6 +122,7 @@ function check(name, fn) {
   console.log('\n== Local CSV/TSV import (without SheetJS) ==');
   await importTextFile('offline-orders.csv', 'Region,Revenue,Note\r\nEast,120,"Chairs, oak"\r\nWest,240,"He said ""yes"""\r\n');
   check('CSV imports locally with SheetJS absent and preserves quoted values', () => {
+    document.getElementById('tab-data').click();
     assert.strictEqual(window.XLSX, undefined);
     assert.strictEqual(document.getElementById('dataCountTag').textContent, '2 of 2 rows');
     assert.ok(document.querySelector('#fieldsList').textContent.includes('Revenue'));
@@ -130,6 +131,7 @@ function check(name, fn) {
   });
   await importTextFile('offline-orders.tsv', 'Region\tRevenue\r\nNorth\t360\r\nSouth\t480\r\n');
   check('TSV imports locally with SheetJS absent', () => {
+    document.getElementById('tab-data').click();
     assert.strictEqual(window.XLSX, undefined);
     assert.strictEqual(document.getElementById('dataCountTag').textContent, '2 of 2 rows');
     assert.ok(document.querySelector('#dataGridBody').textContent.includes('North'));
@@ -160,6 +162,7 @@ function check(name, fn) {
   console.log('\n== Excel import ==');
   await importSpreadsheet('orders.xlsx', [0x50, 0x4b, 0x03, 0x04]);
   check('valid XLSX data is parsed into Studio fields and rows', () => {
+    document.getElementById('tab-data').click();
     const fields = Array.from(document.querySelectorAll('#fieldsList .field-row')).map((r) => r.dataset.field);
     assert.ok(fields.includes('Region') && fields.includes('Revenue'));
     assert.strictEqual(document.getElementById('studioMain').style.display, 'flex');

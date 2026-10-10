@@ -1,0 +1,118 @@
+/* ==========================================================================
+   DashView pointer v3  (css/cursor.css + js/cursor.js)
+   --------------------------------------------------------------------------
+   A calm, precise pointer for desktop mice:
+     · .dvc-dot    exact pointer position (never lags, so aiming stays accurate)
+     · .dvc-ring   spring-follows the dot and MORPHS onto the control under it
+                   (same size and corner radius), like a focus lens
+     · .dvc-label  small context chip, only where it adds meaning (Drill, Drag…)
+   It follows the active theme and accent (--signal), is hidden over text
+   fields (the native I-beam is kept), and is never enabled for touch, reduced
+   motion, forced-colors or when switched off in Settings → Cursor.
+   The native cursor is only hidden once the first mouse move has been seen
+   (html.dvc-on), so keyboard and touch users are never affected.
+   ========================================================================== */
+:root {
+  --dvc-accent: var(--signal, var(--amber, #e8a33d));
+  --dvc-accent-soft: rgba(232, 163, 61, 0.12);
+  --dvc-ink: #ffffff;
+  --dvc-edge: rgba(0, 0, 0, 0.55);
+  --dvc-ring: rgba(255, 255, 255, 0.5);
+  --dvc-label-bg: rgba(16, 18, 17, 0.84);
+  --dvc-label-fg: #f2f1ec;
+  --dvc-label-edge: rgba(255, 255, 255, 0.14);
+  --dvc-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+@supports (color: color-mix(in srgb, red, blue)) {
+  :root { --dvc-accent-soft: color-mix(in srgb, var(--dvc-accent) 13%, transparent); }
+}
+html[data-theme="light"] {
+  --dvc-ink: #16140f;
+  --dvc-edge: rgba(255, 255, 255, 0.9);
+  --dvc-ring: rgba(22, 20, 15, 0.42);
+  --dvc-label-bg: rgba(255, 255, 255, 0.9);
+  --dvc-label-fg: #1a1710;
+  --dvc-label-edge: rgba(22, 20, 15, 0.14);
+}
+
+/* Native cursor is hidden only while the custom pointer is live. Text fields keep their I-beam. */
+html.dvc-on,
+html.dvc-on *:not(input):not(textarea):not([contenteditable=""]):not([contenteditable="true"]) { cursor: none !important; }
+html.dvc-on input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]):not([type="color"]):not([type="image"]),
+html.dvc-on textarea,
+html.dvc-on [contenteditable=""],
+html.dvc-on [contenteditable="true"] { cursor: text !important; }
+
+.dvc-dot, .dvc-ring, .dvc-label, .dvc-ripple {
+  position: fixed; left: 0; top: 0; z-index: 2147483600;
+  pointer-events: none; opacity: 0; will-change: transform;
+}
+.dvc-dot {
+  width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%;
+  background: var(--dvc-ink); box-shadow: 0 0 0 1px var(--dvc-edge);
+  transition: opacity 0.18s, width 0.2s var(--dvc-ease), height 0.2s var(--dvc-ease), margin 0.2s var(--dvc-ease), background-color 0.2s;
+}
+.dvc-ring {
+  box-sizing: border-box; border: 1.5px solid var(--dvc-ring); border-radius: 50%;
+  background: transparent; contain: layout paint style;
+  transition: opacity 0.2s, border-color 0.2s, background-color 0.2s, box-shadow 0.25s;
+}
+.dvc-ring::after { /* busy spinner arc */
+  content: ""; position: absolute; inset: -1.5px; border-radius: inherit;
+  border: 1.5px solid transparent; border-top-color: var(--dvc-accent); opacity: 0;
+}
+.dvc-label {
+  padding: 4px 8px; border-radius: 999px; white-space: nowrap;
+  font: 600 10.5px/1 ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--dvc-label-fg); background: var(--dvc-label-bg); border: 1px solid var(--dvc-label-edge);
+  box-shadow: 0 6px 18px -6px rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(10px) saturate(1.4); backdrop-filter: blur(10px) saturate(1.4);
+  transition: opacity 0.16s;
+}
+
+html.dvc-on .dvc-dot, html.dvc-on .dvc-ring { opacity: 1; }
+html.dvc-on.dvc-label-on .dvc-label { opacity: 1; }
+
+/* Over a control: ring docks onto it, dot becomes an accent pin */
+html.dvc-link .dvc-ring { border-color: var(--dvc-accent); background-color: var(--dvc-accent-soft); }
+html.dvc-link .dvc-dot { width: 4px; height: 4px; margin: -2px 0 0 -2px; background: var(--dvc-accent); }
+html.dvc-link.dvc-docked .dvc-dot { opacity: 0; }
+html.dvc-area .dvc-ring { border-color: var(--dvc-accent); }
+html.dvc-link:not(.dvc-simple).dvc-docked .dvc-ring { box-shadow: 0 0 0 4px var(--dvc-accent-soft), 0 10px 26px -12px var(--dvc-accent); }
+
+/* Pressed */
+html.dvc-down .dvc-dot { width: 4px; height: 4px; margin: -2px 0 0 -2px; }
+html.dvc-down .dvc-ring { background-color: var(--dvc-accent-soft); }
+
+/* Text fields: native I-beam only */
+html.dvc-text .dvc-dot, html.dvc-text .dvc-ring, html.dvc-text .dvc-label { opacity: 0 !important; }
+
+/* Busy */
+html.dvc-busy .dvc-ring::after { opacity: 1; animation: dvcSpin 0.8s linear infinite; }
+@keyframes dvcSpin { to { transform: rotate(360deg); } }
+
+/* Disabled / unavailable */
+html.dvc-dis .dvc-ring { border-style: dashed; border-color: var(--dvc-ring); background-color: transparent; box-shadow: none; }
+html.dvc-dis .dvc-dot { background: var(--dvc-ring); }
+
+/* Dragging */
+html.dvc-drag .dvc-ring { border-color: var(--dvc-accent); }
+html.dvc-grab .dvc-ring { background-color: var(--dvc-accent-soft); }
+
+/* Click ripple (rich mode) */
+.dvc-ripple {
+  width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%;
+  border: 1.5px solid var(--dvc-accent); opacity: 0.9; z-index: 2147483500;
+  animation: dvcRipple 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+@keyframes dvcRipple { to { transform: translate3d(var(--dvc-rx, 0), var(--dvc-ry, 0), 0) scale(4.5); opacity: 0; border-width: 0.5px; } }
+
+html.dvc-simple .dvc-ring { backdrop-filter: none; }
+@media (pointer: coarse), (hover: none), (forced-colors: active), print {
+  .dvc-dot, .dvc-ring, .dvc-label, .dvc-ripple { display: none !important; }
+}
+html[data-reduce-motion] .dvc-dot, html[data-reduce-motion] .dvc-ring,
+html[data-reduce-motion] .dvc-label, html[data-reduce-motion] .dvc-ripple { display: none !important; }
+/* pointer left the window */
+html.dvc-away .dvc-dot, html.dvc-away .dvc-ring, html.dvc-away .dvc-label { opacity: 0 !important; }

@@ -378,14 +378,20 @@ var DVReportEngine = (function () {
     doc.line(PAGE.margin, afterTitleY + 28, PAGE.w - PAGE.margin, afterTitleY + 28);
 
     var metaY = afterTitleY + 54;
-    var rowCount = payload.filteredRows.toLocaleString() + (payload.totalRows !== payload.filteredRows ? ' of ' + payload.totalRows.toLocaleString() + ' total · filters applied' : '');
-    var meta = [
-      ['Company / workspace', payload.companyName],
-      ['Reporting period', payload.reportingPeriod],
-      ['Source file', payload.sourceFileName],
-      ['Generated', stamp(payload.generatedAt)],
-      ['Rows included', rowCount],
-    ];
+    /* Data Studio payloads carry company / period / file / row counts; AI dashboard payloads carry a source and
+       currency instead. Only print what the payload actually has, never the word "undefined". */
+    var hasRows = isFinite(Number(payload.filteredRows)) && payload.filteredRows !== null && payload.filteredRows !== undefined;
+    var meta = [];
+    if (payload.companyName) meta.push(['Company / workspace', payload.companyName]);
+    if (payload.reportingPeriod) meta.push(['Reporting period', payload.reportingPeriod]);
+    if (payload.sourceFileName) meta.push(['Source file', payload.sourceFileName]);
+    else if (payload.source) meta.push(['Source', payload.source]);
+    if (payload.currency) meta.push(['Currency', payload.currency]);
+    meta.push(['Generated', stamp(payload.generatedAt)]);
+    if (hasRows) {
+      var filteredN = Number(payload.filteredRows), totalN = isFinite(Number(payload.totalRows)) ? Number(payload.totalRows) : filteredN;
+      meta.push(['Rows included', filteredN.toLocaleString() + (totalN !== filteredN ? ' of ' + totalN.toLocaleString() + ' total · filters applied' : '')]);
+    }
     meta.forEach(function (m) {
       var valueLines = doc.splitTextToSize(String(m[1]), PAGE.w - PAGE.margin * 2 - 142);
       var valueHeight = Math.max(19, valueLines.length * 13 + 5);
@@ -397,7 +403,8 @@ var DVReportEngine = (function () {
       metaY += valueHeight;
     });
 
-    var filters = payload.filtersSummary.length ? payload.filtersSummary.join('  ·  ') : 'None';
+    var filtersList = Array.isArray(payload.filtersSummary) ? payload.filtersSummary : [];
+    var filters = filtersList.length ? filtersList.join('  ·  ') : (hasRows ? 'None' : '');
     var filterLines = doc.splitTextToSize(filters, PAGE.w - PAGE.margin * 2 - 142);
     var filterOffset = 0;
     while (filterOffset < filterLines.length) {

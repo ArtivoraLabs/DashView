@@ -175,6 +175,8 @@
     renderDrillBreadcrumb();
     updateSummaryStrip();
     updateDatasetTag();
+    updateDataCount();
+    renderCondChips();
     renderActiveTab();
   }
 
@@ -295,7 +297,7 @@
     } else {
       statsHtml = fpStat('Distinct', f.cardinality.toLocaleString()) + fpStat('Filled', f.nonBlank.toLocaleString()) + fpStat('Missing', f.nulls.toLocaleString()) + fpStat('Type', f.type);
     }
-    var actions = '';
+    var actions = '<button data-act="profile">Profile this column</button>';
     if (f.isMetric) actions += '<button data-act="kpi-sum">+ KPI: Total ' + esc(f.name) + '</button><button data-act="kpi-avg">+ KPI: Average ' + esc(f.name) + '</button>';
     else actions += '<button data-act="kpi-distinct">+ KPI: Distinct ' + esc(f.name) + '</button>';
     if (f.isCategorical || f.type === Studio.Types.DATE) actions += '<button data-act="add-filter">+ Use as filter</button>';
@@ -316,6 +318,7 @@
   function fpStat(label, value) { return '<div class="fp-stat"><span>' + esc(label) + '</span><strong>' + esc(value) + '</strong></div>'; }
 
   function handleFieldPopoverAction(act, f) {
+    if (act === 'profile') { openProfile(f.name); return; }
     if (act === 'kpi-sum' || act === 'kpi-avg') {
       var fn = act === 'kpi-sum' ? 'sum' : 'avg';
       addWidget({ kind: 'kpi', size: 's', spec: { kind: 'kpi', agg: { field: f.name, fn: fn }, title: (fn === 'sum' ? 'Total ' : 'Average ') + f.name, format: f.type } });
@@ -693,66 +696,252 @@
   /* ======================================================================
      DATA TAB
      ====================================================================== */
-  function renderDataTab() {
+  /* ======================================================================
+     DATA TAB — grid
+     Search · slicers · Filters (conditions) · multi-column sort · totals
+     footer · selection stats · density / freeze / resize · copy and export
+     the view · undo / redo · column profiler.
+     ====================================================================== */
+  var NUM_TYPES = { number: 1, currency: 1, percent: 1 };
+  function isNumType(f) { return !!f && !!NUM_TYPES[f.type]; }
+  var gridPrefs = (function () {
+    var p = { density: 'auto', freeze: false };
+    try { var raw = JSON.parse(localStorage.getItem('dv-studio-grid') || '{}'); if (raw.density) p.density = raw.density; p.freeze = !!raw.freeze; } catch (e) {}
+    return p;
+  })();
+  function saveGridPrefs() { try { localStorage.setItem('dv-studio-grid', JSON.stringify(gridPrefs)); } catch (e) {} }
+  function gridDensity() {
+    if (gridPrefs.density === 'compact' || gridPrefs.density === 'comfortable' || gridPrefs.density === 'spacious') return gridPrefs.density;
+    return document.documentElement.getAttribute('data-density') === 'compact' ? 'compact' : 'comfortable';
+  }
+  state.sortStack = []; state.conds = []; state.colWidths = {}; state.fixedLayout = false; state.footAgg = {}; state.activeCell = null;
+  /* a different dataset must never inherit the previous one's sort, conditions, widths or undo history */
+  function resetGridState() {
+    state.sortStack = []; state.conds = []; state.colWidths = {}; state.fixedLayout = false; state.footAgg = {}; state.activeCell = null;
+    undoStack = []; redoStack = [];
+    var pop = document.querySelector('.cond-popover'); if (pop) pop.remove();
+    var inp = byId('dataSearchInput'); if (inp) inp.value = '';
+  }
+
+  /* ---- conditions (the "Filters" builder) -------------------------------- */
+  var OPS = {
+    number: [['eq', '='], ['ne', '≠'], ['gt', '>'], ['gte', '≥'], ['lt', '<'], ['lte', '≤'], ['between', 'between'], ['outside', 'is outside'], ['blank', 'is blank'], ['notblank', 'is not blank']],
+    date: [['on', 'on'], ['before', 'before'], ['after', 'after'], ['between', 'between'], ['blank', 'is blank'], ['notblank', 'is not blank']],
+    boolean: [['istrue', 'is Yes'], ['isfalse', 'is No'], ['blank', 'is blank'], ['notblank', 'is not blank']],
+    text: [['contains', 'contains'], ['ncontains', 'does not contain'], ['eq', 'is'], ['ne', 'is not'], ['starts', 'starts with'], ['ends', 'ends with'], ['blank', 'is blank'], ['notblank', 'is not blank']]
+  };
+  function opKind(f) { return isNumType(f) ? 'number' : f && f.type === Studio.Types.DATE ? 'date' : f && f.type === Studio.Types.BOOLEAN ? 'boolean' : 'text'; }
+  function opLabel(f, op) { var l = OPS[opKind(f)].filter(function (o) { return o[0] === op; })[0]; return l ? l[1] : op; }
+  function opArity(op) { return (op === 'blank' || op === 'notblank' || op === 'istrue' || op === 'isfalse') ? 0 : (op === 'between' || op === 'outside') ? 2 : 1; }
+  function parseNum(v) { var n = parseFloat(String(v == null ? '' : v).replace(/[,\s$%]/g, '')); return isFinite(n) ? n : null; }
+  function parseDay(v) { if (!/^\d{4}-\d{2}-\d{2}$/.test(String(v || ''))) return null; var t = new Date(v + 'T00:00:00').getTime(); return isFinite(t) ? t : null; }
+  function condComplete(c) {
+    var f = fieldByName(c.field); if (!f) return false;
+    var n = opArity(c.op), kind = opKind(f);
+    if (n === 0) return true;
+    var parse = kind === 'number' ? parseNum : kind === 'date' ? parseDay : function (v) { return String(v == null ? '' : v) === '' ? null : v; };
+    if (parse(c.value) === null) return false;
+    return n === 1 || parse(c.value2) !== null;
+  }
+  function condPasses(c, row, f) {
+    var v = row[c.field], kind = opKind(f), blank = Studio.isBlank(v);
+    if (c.op === 'blank') return blank;
+    if (c.op === 'notblank') return !blank;
+    if (blank) return false;
+    if (kind === 'number') {
+      var a = parseNum(c.value), b = parseNum(c.value2);
+      switch (c.op) {
+        case 'eq': return v === a; case 'ne': return v !== a; case 'gt': return v > a; case 'gte': return v >= a;
+        case 'lt': return v < a; case 'lte': return v <= a;
+        case 'between': return v >= Math.min(a, b) && v <= Math.max(a, b);
+        case 'outside': return v < Math.min(a, b) || v > Math.max(a, b);
+      }
+      return true;
+    }
+    if (kind === 'date') {
+      var d1 = parseDay(c.value), d2 = parseDay(c.value2);
+      switch (c.op) {
+        case 'on': return v >= d1 && v < d1 + 864e5; case 'before': return v < d1; case 'after': return v >= d1 + 864e5;
+        case 'between': return v >= Math.min(d1, d2) && v < Math.max(d1, d2) + 864e5;
+      }
+      return true;
+    }
+    if (kind === 'boolean') return c.op === 'istrue' ? v === true : c.op === 'isfalse' ? v === false : true;
+    var sv = String(v).toLowerCase(), t = String(c.value).toLowerCase();
+    switch (c.op) {
+      case 'contains': return sv.indexOf(t) > -1; case 'ncontains': return sv.indexOf(t) === -1;
+      case 'eq': return sv === t; case 'ne': return sv !== t;
+      case 'starts': return sv.indexOf(t) === 0; case 'ends': return sv.length >= t.length && sv.slice(sv.length - t.length) === t;
+    }
+    return true;
+  }
+  function activeConds() { return state.conds.filter(condComplete); }
+  function condText(c) {
+    var f = fieldByName(c.field); if (!f) return c.field;
+    var fmt = function (v) { return opKind(f) === 'date' ? v : String(v); };
+    var n = opArity(c.op);
+    return c.field + ' ' + opLabel(f, c.op) + (n === 0 ? '' : ' ' + fmt(c.value) + (n === 2 ? ' – ' + fmt(c.value2) : ''));
+  }
+  function addCondition(c) {
+    state.conds.push({ id: Studio.uid('c'), field: c.field, op: c.op, value: c.value == null ? '' : c.value, value2: c.value2 == null ? '' : c.value2 });
+    state.dataPage = 1; renderDataTab(); renderCondChips();
+  }
+
+  /* ---- the view: slicers + search + conditions (+ sort) ------------------- */
+  function getSearchedIndexedRows() {
     var ds = state.dataset;
-    if (!ds) return;
-    byId('dataTabBadge').textContent = ds.rowCount;
+    if (!ds) return [];
     var indexed = getFilteredIndexedRows();
     if (state.dataSearch) {
       var q = state.dataSearch.toLowerCase();
       indexed = indexed.filter(function (x) { return ds.fields.some(function (f) { var v = x.row[f.name]; return v !== null && v !== undefined && String(v).toLowerCase().indexOf(q) !== -1; }); });
     }
-    if (state.dataSort.field) {
-      var sf = state.dataSort.field, dir = state.dataSort.dir === 'desc' ? -1 : 1;
-      indexed = indexed.slice().sort(function (a, b) {
-        var av = a.row[sf], bv = b.row[sf];
-        if (av === null || av === undefined) return 1; if (bv === null || bv === undefined) return -1;
-        if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * dir;
-        return String(av).localeCompare(String(bv)) * dir;
-      });
+    var conds = activeConds();
+    if (conds.length) {
+      var fields = conds.map(function (c) { return fieldByName(c.field); });
+      indexed = indexed.filter(function (x) { for (var i = 0; i < conds.length; i++) if (!condPasses(conds[i], x.row, fields[i])) return false; return true; });
     }
+    return indexed;
+  }
+  function getViewRows() {
+    var indexed = getSearchedIndexedRows();
+    var stack = state.sortStack.filter(function (s) { return fieldByName(s.field); });
+    if (!stack.length) return indexed;
+    return indexed.slice().sort(function (a, b) {
+      for (var i = 0; i < stack.length; i++) {
+        var f = stack[i].field, dir = stack[i].dir === 'desc' ? -1 : 1, av = a.row[f], bv = b.row[f];
+        var an = av === null || av === undefined, bn = bv === null || bv === undefined;
+        if (an && bn) continue; if (an) return 1; if (bn) return -1;
+        var c = (typeof av === 'number' && typeof bv === 'number') ? av - bv : String(av).localeCompare(String(bv), undefined, { numeric: true, sensitivity: 'base' });
+        if (c) return c * dir;
+      }
+      return 0;
+    });
+  }
+  function syncPrimarySort() { state.dataSort = state.sortStack.length ? { field: state.sortStack[0].field, dir: state.sortStack[0].dir } : { field: null, dir: 'asc' }; }
+  /* The row count and tab badge must be right on every tab, not only after the Data tab was opened. */
+  function updateDataCount() {
+    var ds = state.dataset;
+    if (!ds) return;
+    var badge = byId('dataTabBadge');
+    if (badge) badge.textContent = ds.rowCount;
+    var tag = byId('dataCountTag');
+    if (tag) tag.textContent = getSearchedIndexedRows().length.toLocaleString() + ' of ' + ds.rowCount.toLocaleString() + ' rows';
+  }
 
-    byId('dataCountTag').textContent = indexed.length.toLocaleString() + ' of ' + ds.rowCount.toLocaleString() + ' rows';
-    var totalPages = Math.max(1, Math.ceil(indexed.length / state.dataPageSize));
+  /* ---- totals footer ------------------------------------------------------ */
+  var FOOT_LABEL = { sum: 'Sum', avg: 'Average', min: 'Min', max: 'Max', median: 'Median', count: 'Count', distinct: 'Distinct', blank: 'Blank' };
+  function footFns(f) { return isNumType(f) ? ['sum', 'avg', 'min', 'max', 'median', 'count'] : f.type === Studio.Types.DATE ? ['min', 'max', 'distinct', 'count'] : ['distinct', 'count', 'blank']; }
+  function footAggOf(f) { var fn = state.footAgg[f.name]; return footFns(f).indexOf(fn) > -1 ? fn : footFns(f)[0]; }
+  function footValue(f, rows, fn) {
+    var vals = [], i, v, blanks = 0;
+    for (i = 0; i < rows.length; i++) { v = rows[i].row[f.name]; if (Studio.isBlank(v)) blanks++; else vals.push(v); }
+    if (fn === 'count') return vals.length; if (fn === 'blank') return blanks;
+    if (fn === 'distinct') return new Set(vals).size;
+    if (!vals.length) return null;
+    if (fn === 'sum' || fn === 'avg') { var t = 0; for (i = 0; i < vals.length; i++) t += vals[i]; return fn === 'sum' ? t : t / vals.length; }
+    if (fn === 'min' || fn === 'max') { var m = vals[0]; for (i = 1; i < vals.length; i++) if (fn === 'min' ? vals[i] < m : vals[i] > m) m = vals[i]; return m; }
+    if (fn === 'median') { var s = vals.slice().sort(function (x, y) { return x - y; }), h = (s.length - 1) / 2; return (s[Math.floor(h)] + s[Math.ceil(h)]) / 2; }
+    return null;
+  }
+  function selectedIdxSet() { var o = {}; Object.keys(state.selectedRows).forEach(function (k) { if (state.selectedRows[k]) o[k] = 1; }); return o; }
+  function renderFoot(view, visibleFields) {
+    var sel = selectedIdxSet(), selCount = Object.keys(sel).length;
+    var rows = selCount ? view.filter(function (x) { return sel[x.idx]; }) : view;
+    var html = '<tr><td class="row-check-cell foot-sigma" title="' + (selCount ? 'Totals for the ' + rows.length.toLocaleString() + ' selected rows' : 'Totals for all ' + rows.length.toLocaleString() + ' rows in this view') + '">Σ</td>';
+    visibleFields.forEach(function (f) {
+      var fn = footAggOf(f), val = footValue(f, rows, fn), txt;
+      if (val === null) txt = '—';
+      else if (fn === 'count' || fn === 'distinct' || fn === 'blank') txt = Number(val).toLocaleString();
+      else txt = Studio.formatByType(val, f.type, { compact: true });
+      html += '<td class="foot-cell' + (isNumType(f) ? ' num-cell' : '') + '"><button type="button" class="foot-btn" data-foot="' + esc(f.name) + '" title="' + esc(FOOT_LABEL[fn] + ' of ' + f.name + ' — click to change') + '"><span>' + FOOT_LABEL[fn] + '</span><b>' + esc(txt) + '</b></button></td>';
+    });
+    byId('dataGridFoot').innerHTML = html + '</tr>';
+  }
+  function updateSelStats() {
+    var box = byId('selStats'), ds = state.dataset;
+    if (!box || !ds) return;
+    var sel = selectedIdxSet(), idxs = Object.keys(sel);
+    if (!idxs.length) { box.hidden = true; box.innerHTML = ''; return; }
+    var nums = ds.fields.filter(function (f) { return isNumType(f) && !state.hiddenColumns[f.name]; }).slice(0, 3);
+    var parts = nums.map(function (f) {
+      var t = 0, n = 0; idxs.forEach(function (i) { var v = ds.typedRows[i] && ds.typedRows[i][f.name]; if (typeof v === 'number') { t += v; n++; } });
+      return '<span>' + esc(f.name) + ' <b>Σ ' + esc(Studio.formatByType(t, f.type, { compact: true })) + '</b>' + (n ? ' · avg ' + esc(Studio.formatByType(t / n, f.type, { compact: true })) : '') + '</span>';
+    });
+    box.innerHTML = '<b>' + idxs.length.toLocaleString() + ' row' + (idxs.length === 1 ? '' : 's') + ' selected</b>' + parts.join('') + '<button type="button" class="ws-link-btn" data-sel-clear>Clear selection</button>';
+    box.hidden = false;
+  }
+
+  /* ---- render ------------------------------------------------------------- */
+  function applyColWidths() {
+    var table = byId('dataGridTable'), cols = byId('dataGridCols');
+    if (!table || !cols) return;
+    if (!state.fixedLayout || !state.dataset) { cols.innerHTML = ''; table.classList.remove('is-fixed'); table.style.width = ''; return; }
+    var visible = state.dataset.fields.filter(function (f) { return !state.hiddenColumns[f.name]; }), total = 34, html = '<col style="width:34px">';
+    visible.forEach(function (f) { var w = state.colWidths[f.name] || 140; total += w; html += '<col style="width:' + w + 'px">'; });
+    cols.innerHTML = html; table.classList.add('is-fixed'); table.style.width = total + 'px';
+  }
+  function renderDataTab() {
+    var ds = state.dataset;
+    if (!ds) return;
+    var view = getViewRows();
+    updateDataCount();
+    var totalPages = Math.max(1, Math.ceil(view.length / state.dataPageSize));
     state.dataPage = Math.min(state.dataPage, totalPages);
     var start = (state.dataPage - 1) * state.dataPageSize;
-    var pageRows = indexed.slice(start, start + state.dataPageSize);
-
+    var pageRows = view.slice(start, start + state.dataPageSize);
     var visibleFields = ds.fields.filter(function (f) { return !state.hiddenColumns[f.name]; });
 
-    var theadHtml = '<tr><th class="row-check-th"><input type="checkbox" id="selectAllRowsBox" /></th>';
+    var table = byId('dataGridTable');
+    table.setAttribute('data-density', gridDensity());
+    table.classList.toggle('is-frozen', !!gridPrefs.freeze);
+    applyColWidths();
+
+    var theadHtml = '<tr><th class="row-check-th"><input type="checkbox" id="selectAllRowsBox" aria-label="Select all rows on this page" /></th>';
     visibleFields.forEach(function (f) {
-      var sorted = state.dataSort.field === f.name;
-      theadHtml += '<th class="' + (sorted ? 'sorted ' + state.dataSort.dir : '') + '"><div class="th-inner" data-sort-field="' + esc(f.name) + '">'
-        + esc(f.name) + (state.filters[f.name] ? '<span class="filter-dot" title="Filtered"></span>' : '') + ICON.sort + '</div></th>';
+      var rank = state.sortStack.findIndex(function (s) { return s.field === f.name; });
+      var primary = rank === 0, dir = rank > -1 ? state.sortStack[rank].dir : '';
+      var filledPct = ds.rowCount ? Math.round((1 - f.nulls / ds.rowCount) * 100) : 100;
+      theadHtml += '<th class="' + (rank > -1 ? (primary ? 'sorted ' : 'sorted-2 ') + dir : '') + '" data-th="' + esc(f.name) + '"><div class="th-inner" data-sort-field="' + esc(f.name) + '" title="Click to sort · Shift+click to add another sort level">'
+        + '<span class="th-name">' + esc(f.name) + '</span>' + (state.filters[f.name] ? '<span class="filter-dot" title="Filtered"></span>' : '')
+        + (state.sortStack.length > 1 && rank > -1 ? '<span class="sort-rank" title="Sort priority">' + (rank + 1) + '</span>' : '') + ICON.sort + '</div>'
+        + '<button type="button" class="th-profile" data-profile-field="' + esc(f.name) + '" aria-label="Profile column ' + esc(f.name) + '" title="Profile this column">i</button>'
+        + '<span class="th-fill" title="' + filledPct + '% filled"><i style="width:' + filledPct + '%"></i></span>'
+        + '<span class="col-resizer" data-resize="' + esc(f.name) + '" role="separator" aria-orientation="vertical" aria-label="Resize column ' + esc(f.name) + '" title="Drag to resize · double-click to fit"></span></th>';
     });
-    theadHtml += '</tr>';
-    byId('dataGridHead').innerHTML = theadHtml;
+    byId('dataGridHead').innerHTML = theadHtml + '</tr>';
 
     var bodyHtml = pageRows.map(function (x) {
       var row = x.row, idx = x.idx;
-      var tds = '<td class="row-check-cell"><input type="checkbox" class="row-check" data-row-idx="' + idx + '" ' + (state.selectedRows[idx] ? 'checked' : '') + ' /></td>';
+      var tds = '<td class="row-check-cell"><input type="checkbox" class="row-check" data-row-idx="' + idx + '" aria-label="Select row ' + (idx + 1) + '" ' + (state.selectedRows[idx] ? 'checked' : '') + ' /></td>';
       visibleFields.forEach(function (f) {
-        var v = row[f.name];
-        var isNum = f.type === Studio.Types.NUMBER || f.type === Studio.Types.CURRENCY || f.type === Studio.Types.PERCENT;
+        var v = row[f.name], blank = Studio.isBlank(v);
+        var isNum = isNumType(f);
         var display = esc(Studio.formatByType(v, f.type));
         var editable = !f.isCalculated && !f.isVirtual;
-        var cellCls = (isNum ? 'num-cell ' : '') + (f.isCalculated ? 'calc-cell ' : '');
+        var active = state.activeCell && state.activeCell.idx === idx && state.activeCell.field === f.name;
+        var cellCls = (isNum ? 'num-cell ' : '') + (f.isCalculated ? 'calc-cell ' : '') + (blank ? 'is-blank ' : '') + (active ? 'cell-active' : '');
         if (state.highlightNumbers && isNum && f.max !== null && f.max !== f.min && typeof v === 'number') {
           var pct = Math.max(2, Math.min(100, ((v - f.min) / (f.max - f.min)) * 100));
           display = '<span class="databar-track"><span class="databar-fill" style="width:' + pct + '%"></span><span>' + display + '</span></span>';
         }
         tds += '<td class="' + cellCls + '" data-row-idx="' + idx + '" data-field="' + esc(f.name) + '" data-editable="' + editable + '">' + display + '</td>';
       });
-      return '<tr>' + tds + '</tr>';
+      return '<tr' + (state.selectedRows[idx] ? ' class="is-selected"' : '') + '>' + tds + '</tr>';
     }).join('');
-    byId('dataGridBody').innerHTML = bodyHtml || '<tr><td colspan="' + (visibleFields.length + 1) + '" class="widget-empty">No rows match your search/filters.</td></tr>';
+    byId('dataGridBody').innerHTML = bodyHtml || '<tr><td colspan="' + (visibleFields.length + 1) + '" class="widget-empty">' + (activeConds().length || state.dataSearch ? 'No rows match your search and filters. <button type="button" class="ws-link-btn" data-cond-clear-all>Clear them</button>' : 'No rows match your filters.') + '</td></tr>';
+    renderFoot(view, visibleFields);
+    updateSelStats();
 
     byId('pagerInfo').textContent = 'Page ' + state.dataPage + ' of ' + totalPages;
     byId('pagerFirstBtn').disabled = byId('pagerPrevBtn').disabled = state.dataPage <= 1;
     byId('pagerLastBtn').disabled = byId('pagerNextBtn').disabled = state.dataPage >= totalPages;
     var anySelected = Object.keys(state.selectedRows).some(function (k) { return state.selectedRows[k]; });
     byId('deleteRowsBtn').style.display = anySelected ? '' : 'none';
+    byId('copyViewBtn').textContent = anySelected ? 'Copy selected' : 'Copy';
+    var sa = byId('selectAllRowsBox');
+    if (sa) sa.checked = pageRows.length > 0 && pageRows.every(function (x) { return state.selectedRows[x.idx]; });
+    updateUndoUi();
   }
 
   on(byId('dataSearchInput'), 'input', debounce(function (e) { state.dataSearch = e.target.value; state.dataPage = 1; renderDataTab(); }, 200));
@@ -762,14 +951,34 @@
   on(byId('pagerNextBtn'), 'click', function () { state.dataPage++; renderDataTab(); });
   on(byId('pagerLastBtn'), 'click', function () { state.dataPage = 999999; renderDataTab(); });
 
+  /* ---- sorting (Shift+click adds levels), totals, selection, profile ------- */
   document.addEventListener('click', function (e) {
     var th = e.target.closest('[data-sort-field]');
     if (th) {
-      var f = th.dataset.sortField;
-      if (state.dataSort.field !== f) state.dataSort = { field: f, dir: 'asc' };
-      else if (state.dataSort.dir === 'asc') state.dataSort.dir = 'desc';
-      else state.dataSort = { field: null, dir: 'asc' };
-      renderDataTab();
+      var f = th.dataset.sortField, i = state.sortStack.findIndex(function (s) { return s.field === f; });
+      if (e.shiftKey) {
+        if (i === -1) state.sortStack.push({ field: f, dir: 'asc' });
+        else if (state.sortStack[i].dir === 'asc') state.sortStack[i].dir = 'desc';
+        else state.sortStack.splice(i, 1);
+      } else if (i === 0 && state.sortStack.length === 1) {
+        if (state.sortStack[0].dir === 'asc') state.sortStack[0].dir = 'desc'; else state.sortStack = [];
+      } else state.sortStack = [{ field: f, dir: 'asc' }];
+      syncPrimarySort(); renderDataTab(); return;
+    }
+    var pf = e.target.closest('[data-profile-field]');
+    if (pf) { e.stopPropagation(); openProfile(pf.dataset.profileField); return; }
+    var foot = e.target.closest('[data-foot]');
+    if (foot) {
+      var ff = fieldByName(foot.dataset.foot), fns = footFns(ff), cur = fns.indexOf(footAggOf(ff));
+      state.footAgg[ff.name] = fns[(cur + 1) % fns.length]; renderDataTab(); return;
+    }
+    if (e.target.closest('[data-sel-clear]')) { state.selectedRows = {}; renderDataTab(); return; }
+    if (e.target.closest('[data-cond-clear-all]')) { state.conds = []; state.dataSearch = ''; var si = byId('dataSearchInput'); if (si) si.value = ''; renderCondChips(); renderDataTab(); return; }
+    var td = e.target.closest('#dataGridBody td[data-field]');
+    if (td && !td.classList.contains('editing')) {
+      state.activeCell = { idx: parseInt(td.dataset.rowIdx, 10), field: td.dataset.field };
+      var prev = document.querySelector('#dataGridBody td.cell-active'); if (prev) prev.classList.remove('cell-active');
+      td.classList.add('cell-active');
     }
   });
   document.addEventListener('change', function (e) {
@@ -779,7 +988,60 @@
       renderDataTab();
     } else if (e.target.classList.contains('row-check')) {
       state.selectedRows[e.target.dataset.rowIdx] = e.target.checked;
+      var tr = e.target.closest('tr'); if (tr) tr.classList.toggle('is-selected', e.target.checked);
       byId('deleteRowsBtn').style.display = Object.keys(state.selectedRows).some(function (k) { return state.selectedRows[k]; }) ? '' : 'none';
+      byId('copyViewBtn').textContent = Object.keys(state.selectedRows).some(function (k) { return state.selectedRows[k]; }) ? 'Copy selected' : 'Copy';
+      renderFoot(getViewRows(), state.dataset.fields.filter(function (f) { return !state.hiddenColumns[f.name]; }));
+      updateSelStats();
+    }
+  });
+
+  /* ---- editing + undo / redo --------------------------------------------- */
+  var undoStack = [], redoStack = [], UNDO_MAX = 25, UNDO_CELL_LIMIT = 800000;
+  function fieldSig() { return state.dataset ? state.dataset.fields.map(function (f) { return f.name; }).join('\u0001') : ''; }
+  function snapshotRows() { return state.dataset.typedRows.map(function (r) { return Object.assign({}, r); }); }
+  function undoAllowed() { var ds = state.dataset; return !!ds && ds.typedRows.length * Math.max(1, ds.fields.length) <= UNDO_CELL_LIMIT; }
+  function pushUndo(label) {
+    var ds = state.dataset; if (!ds) return;
+    if (!undoAllowed()) { undoStack = []; redoStack = []; updateUndoUi(); return; }
+    undoStack.push({ label: label, ds: ds, sig: fieldSig(), rows: snapshotRows() });
+    if (undoStack.length > UNDO_MAX) undoStack.shift();
+    redoStack = []; updateUndoUi();
+  }
+  function restoreEntry(entry, label) {
+    var ds = state.dataset;
+    ds.typedRows = entry.rows; ds.rowCount = ds.typedRows.length;
+    Studio.applyCalculatedFields(ds); Studio.recomputeAllStats(ds);
+    state.selectedRows = {}; markDirty(); renderAll();
+    showToast(label, 'success');
+  }
+  function stepHistory(from, to, isUndo) {
+    var entry = from.pop(); if (!entry) return;
+    if (entry.ds !== state.dataset || entry.sig !== fieldSig()) { undoStack = []; redoStack = []; updateUndoUi(); showToast('The columns or dataset changed since that step, so it can no longer be ' + (isUndo ? 'undone' : 'redone') + '.', 'error'); return; }
+    to.push({ label: entry.label, ds: entry.ds, sig: entry.sig, rows: snapshotRows() });
+    restoreEntry(entry, (isUndo ? 'Undid: ' : 'Redid: ') + entry.label + '.');
+  }
+  function undo() { stepHistory(undoStack, redoStack, true); }
+  function redo() { stepHistory(redoStack, undoStack, false); }
+  function updateUndoUi() {
+    var u = byId('undoBtn'), r = byId('redoBtn'); if (!u || !r) return;
+    if (undoStack.length && undoStack[undoStack.length - 1].ds !== state.dataset) { undoStack = []; redoStack = []; }
+    u.disabled = !undoStack.length; r.disabled = !redoStack.length;
+    u.title = undoStack.length ? 'Undo: ' + undoStack[undoStack.length - 1].label + ' (Ctrl+Z)' : 'Nothing to undo';
+    r.title = redoStack.length ? 'Redo: ' + redoStack[redoStack.length - 1].label + ' (Ctrl+Shift+Z)' : 'Nothing to redo';
+  }
+  on(byId('undoBtn'), 'click', undo);
+  on(byId('redoBtn'), 'click', redo);
+  document.addEventListener('keydown', function (e) {
+    if (state.activeTab !== 'data' || !(e.ctrlKey || e.metaKey) || e.altKey) return;
+    var t = e.target, typing = t && (/^(input|textarea|select)$/i.test(t.tagName) || t.isContentEditable);
+    var k = String(e.key).toLowerCase();
+    if (typing) return;
+    if (k === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
+    else if ((k === 'z' && e.shiftKey) || k === 'y') { e.preventDefault(); redo(); }
+    else if (k === 'c' && state.activeCell && String((window.getSelection && window.getSelection()) || '') === '') {
+      var ds = state.dataset, row = ds && ds.typedRows[state.activeCell.idx], f = fieldByName(state.activeCell.field);
+      if (row && f) { e.preventDefault(); copyText(cellText(row[f.name], f), 'Cell copied.'); }
     }
   });
 
@@ -791,25 +1053,29 @@
     var current = state.dataset.typedRows[idx][fieldName];
     var raw = f.type === Studio.Types.DATE && current !== null ? isoDate(current) : (current === null || current === undefined ? '' : current);
     td.classList.add('editing');
-    td.innerHTML = '<input type="' + (f.type === Studio.Types.DATE ? 'date' : 'text') + '" value="' + esc(raw) + '" />';
+    td.innerHTML = '<input type="' + (f.type === Studio.Types.DATE ? 'date' : 'text') + '" value="' + esc(raw) + '" aria-label="Edit ' + esc(fieldName) + '" />';
     var input = td.querySelector('input');
     input.focus(); input.select();
     function commit() {
       var newVal = parseEditValue(input.value, f.type);
-      state.dataset.typedRows[idx][fieldName] = newVal;
-      Studio.applyCalculatedFields(state.dataset);
-      Studio.recomputeAllStats(state.dataset);
-      markDirty();
+      if (newVal !== current) {
+        pushUndo('Edit ' + fieldName);
+        state.dataset.typedRows[idx][fieldName] = newVal;
+        Studio.applyCalculatedFields(state.dataset);
+        Studio.recomputeAllStats(state.dataset);
+        markDirty();
+      }
       renderDataTab(); renderFieldsList();
     }
     input.addEventListener('blur', commit);
-    input.addEventListener('keydown', function (ke) { if (ke.key === 'Enter') input.blur(); else if (ke.key === 'Escape') { td.classList.remove('editing'); renderDataTab(); } });
+    input.addEventListener('keydown', function (ke) { if (ke.key === 'Enter') input.blur(); else if (ke.key === 'Escape') { input.removeEventListener('blur', commit); td.classList.remove('editing'); renderDataTab(); } });
   });
 
   on(byId('addRowBtn'), 'click', function () {
     var ds = state.dataset;
     var blank = {};
     ds.fields.forEach(function (f) { blank[f.name] = f.type === Studio.Types.BOOLEAN ? false : (f.type === Studio.Types.TEXT ? '' : null); });
+    pushUndo('Add row');
     ds.typedRows.push(blank);
     ds.rowCount = ds.typedRows.length;
     Studio.applyCalculatedFields(ds);
@@ -823,15 +1089,16 @@
     var idxs = Object.keys(state.selectedRows).filter(function (k) { return state.selectedRows[k]; }).map(Number);
     if (!idxs.length) return;
     confirmAction({
-      title: 'Delete ' + idxs.length + ' row' + (idxs.length > 1 ? 's' : '') + '?', body: 'This can\'t be undone.', okLabel: 'Delete',
+      title: 'Delete ' + idxs.length + ' row' + (idxs.length > 1 ? 's' : '') + '?', body: undoAllowed() ? 'You can undo this with Ctrl+Z.' : 'This can\'t be undone.', okLabel: 'Delete',
       onConfirm: function () {
+        pushUndo('Delete ' + idxs.length + ' row' + (idxs.length > 1 ? 's' : ''));
         var idxSet = new Set(idxs);
         state.dataset.typedRows = state.dataset.typedRows.filter(function (_, i) { return !idxSet.has(i); });
         state.dataset.rowCount = state.dataset.typedRows.length;
         Studio.recomputeAllStats(state.dataset);
         state.selectedRows = {};
         markDirty(); renderAll();
-        showToast('Rows deleted.', 'success');
+        showToast('Rows deleted.' + (undoAllowed() ? ' Press Ctrl+Z to undo.' : ''), 'success');
       },
     });
   });
@@ -860,6 +1127,201 @@
   });
 
   on(byId('addCalcFieldBtn'), 'click', openCalcFieldModal);
+
+  /* ---- View menu: density, frozen column, reset layout --------------------- */
+  on(byId('viewMenuBtn'), 'click', function (e) {
+    e.stopPropagation();
+    var existing = document.querySelector('.view-menu-popover');
+    if (existing) { existing.remove(); e.currentTarget.setAttribute('aria-expanded', 'false'); return; }
+    closeAllPopovers();
+    var btn = e.currentTarget, rect = btn.getBoundingClientRect(), pop = document.createElement('div'), dens = gridDensity();
+    pop.className = 'view-menu-popover'; pop.setAttribute('role', 'menu');
+    pop.style.top = (rect.bottom + 6) + 'px'; pop.style.left = Math.max(8, rect.right - 230) + 'px';
+    function opt(group, value, label) { return '<button type="button" role="menuitemradio" aria-checked="' + (dens === value) + '" data-view-density="' + value + '" class="' + (dens === value ? 'on' : '') + '">' + label + '</button>'; }
+    pop.innerHTML = '<h6>Row density</h6>' + opt('d', 'compact', 'Compact') + opt('d', 'comfortable', 'Comfortable') + opt('d', 'spacious', 'Spacious') +
+      '<h6>Layout</h6><button type="button" role="menuitemcheckbox" aria-checked="' + !!gridPrefs.freeze + '" data-view-freeze class="' + (gridPrefs.freeze ? 'on' : '') + '">Freeze first column</button>' +
+      '<button type="button" role="menuitem" data-view-reset>Reset column widths &amp; sorting</button>';
+    document.body.appendChild(pop); btn.setAttribute('aria-expanded', 'true');
+    pop.addEventListener('click', function (ev) {
+      var d = ev.target.closest('[data-view-density]');
+      if (d) { gridPrefs.density = d.dataset.viewDensity; saveGridPrefs(); renderDataTab(); pop.remove(); btn.setAttribute('aria-expanded', 'false'); return; }
+      if (ev.target.closest('[data-view-freeze]')) { gridPrefs.freeze = !gridPrefs.freeze; saveGridPrefs(); renderDataTab(); pop.remove(); btn.setAttribute('aria-expanded', 'false'); return; }
+      if (ev.target.closest('[data-view-reset]')) { state.colWidths = {}; state.fixedLayout = false; state.sortStack = []; syncPrimarySort(); renderDataTab(); pop.remove(); btn.setAttribute('aria-expanded', 'false'); }
+    });
+  });
+  document.addEventListener('click', function (e) {
+    var pop = document.querySelector('.view-menu-popover');
+    if (pop && !e.target.closest('.view-menu-popover') && !e.target.closest('#viewMenuBtn')) { pop.remove(); var b = byId('viewMenuBtn'); if (b) b.setAttribute('aria-expanded', 'false'); }
+  });
+
+  /* ---- column resize ------------------------------------------------------ */
+  document.addEventListener('pointerdown', function (e) {
+    var h = e.target.closest('[data-resize]');
+    if (!h || e.button !== 0) return;
+    e.preventDefault(); e.stopPropagation();
+    var field = h.dataset.resize;
+    if (!state.fixedLayout) {
+      document.querySelectorAll('#dataGridHead th[data-th]').forEach(function (th) { state.colWidths[th.dataset.th] = Math.round(th.getBoundingClientRect().width); });
+      state.fixedLayout = true; applyColWidths();
+    }
+    var startX = e.clientX, startW = state.colWidths[field] || 140;
+    function move(ev) { state.colWidths[field] = Math.max(64, Math.min(640, Math.round(startW + ev.clientX - startX))); applyColWidths(); }
+    function up() { window.removeEventListener('pointermove', move); document.body.classList.remove('is-resizing'); }
+    document.body.classList.add('is-resizing');
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up, { once: true });
+  });
+  document.addEventListener('dblclick', function (e) {
+    var h = e.target.closest('[data-resize]'); if (!h) return;
+    e.stopPropagation();
+    var field = h.dataset.resize, w = 80;
+    var idx = Array.prototype.indexOf.call(document.querySelectorAll('#dataGridHead th[data-th]'), h.closest('th'));
+    document.querySelectorAll('#dataGridBody tr').forEach(function (tr) { var c = tr.children[idx + 1]; if (c && c.scrollWidth + 26 > w) w = c.scrollWidth + 26; });
+    var thName = h.closest('th').querySelector('.th-name'); if (thName) w = Math.max(w, thName.scrollWidth + 70);
+    if (!state.fixedLayout) { document.querySelectorAll('#dataGridHead th[data-th]').forEach(function (th) { state.colWidths[th.dataset.th] = Math.round(th.getBoundingClientRect().width); }); state.fixedLayout = true; }
+    state.colWidths[field] = Math.min(640, Math.round(w)); applyColWidths();
+  }, true);
+
+  /* ---- copy / export the view -------------------------------------------- */
+  function cellText(v, f) {
+    if (Studio.isBlank(v)) return '';
+    if (f.type === Studio.Types.DATE && typeof v === 'number') return isoDate(v);
+    if (f.type === Studio.Types.BOOLEAN) return v ? 'Yes' : 'No';
+    return String(v);
+  }
+  function copyText(text, message) {
+    var done = function () { showToast(message, 'success'); };
+    function fallback() {
+      try { var ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); }
+      catch (err) { showToast('Copy is not available in this browser.', 'error'); }
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+  }
+  function viewTable() {
+    var ds = state.dataset, fields = ds.fields.filter(function (f) { return !state.hiddenColumns[f.name]; });
+    var sel = selectedIdxSet(), hasSel = Object.keys(sel).length > 0;
+    var rows = getViewRows().filter(function (x) { return !hasSel || sel[x.idx]; });
+    return { fields: fields, rows: rows, selected: hasSel };
+  }
+  on(byId('copyViewBtn'), 'click', function () {
+    if (!state.dataset) return;
+    var t = viewTable(), LIMIT = 20000, rows = t.rows.slice(0, LIMIT);
+    var tsv = [t.fields.map(function (f) { return f.name; }).join('\t')].concat(rows.map(function (x) {
+      return t.fields.map(function (f) { return cellText(x.row[f.name], f).replace(/[\t\r\n]+/g, ' '); }).join('\t');
+    })).join('\n');
+    copyText(tsv, 'Copied ' + rows.length.toLocaleString() + ' row' + (rows.length === 1 ? '' : 's') + (t.selected ? ' (selected)' : '') + ' — paste into Excel or Sheets.' + (t.rows.length > LIMIT ? ' Limited to the first ' + LIMIT.toLocaleString() + '.' : ''));
+  });
+  on(byId('exportViewBtn'), 'click', function () {
+    if (!state.dataset) return;
+    var t = viewTable(), cols = t.fields.map(function (f) { return f.name; });
+    var rows = csvReadyRows(t.fields, t.rows.map(function (x) { return x.row; }));
+    downloadText(state.workbookName + ' - view.csv', Studio.csvFromTable(cols, rows));
+    showToast('Exported ' + t.rows.length.toLocaleString() + ' row' + (t.rows.length === 1 ? '' : 's') + ' × ' + cols.length + ' columns (current view).', 'success');
+  });
+
+  /* ---- Filters (conditions) popover + chips ------------------------------- */
+  function renderCondChips() {
+    var box = byId('condChips'), count = byId('condCount'), btn = byId('condBtn');
+    if (!box) return;
+    var n = state.conds.filter(condComplete).length;
+    if (count) { count.hidden = !n; count.textContent = n; }
+    if (btn) btn.classList.toggle('active', n > 0);
+    if (!n) { box.hidden = true; box.innerHTML = ''; return; }
+    box.hidden = false;
+    box.innerHTML = state.conds.filter(condComplete).map(function (c) {
+      return '<span class="cond-chip"><span>' + esc(condText(c)) + '</span><button type="button" data-cond-remove="' + esc(c.id) + '" aria-label="Remove filter ' + esc(condText(c)) + '">✕</button></span>';
+    }).join('') + '<button type="button" class="ws-link-btn" data-cond-clear-all>Clear all</button>';
+  }
+  function condRowHtml(c) {
+    var f = fieldByName(c.field) || state.dataset.fields[0], kind = opKind(f), n = opArity(c.op);
+    var fieldOpts = state.dataset.fields.map(function (x) { return '<option value="' + esc(x.name) + '"' + (x.name === c.field ? ' selected' : '') + '>' + esc(x.name) + '</option>'; }).join('');
+    var opOpts = OPS[kind].map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === c.op ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('');
+    var itype = kind === 'date' ? 'date' : 'text', mode = kind === 'number' ? ' inputmode="decimal"' : '';
+    var inp = function (key, val) { return '<input type="' + itype + '"' + mode + ' class="cond-val" data-cond-val="' + key + '" value="' + esc(val) + '" aria-label="Value" />'; };
+    return '<div class="cond-row" data-cond="' + esc(c.id) + '"><select data-cond-field aria-label="Column">' + fieldOpts + '</select><select data-cond-op aria-label="Condition">' + opOpts + '</select>' +
+      (n >= 1 ? inp('value', c.value) : '') + (n === 2 ? '<span class="cond-and">and</span>' + inp('value2', c.value2) : '') +
+      '<button type="button" class="cond-del" data-cond-del aria-label="Remove this condition">✕</button></div>';
+  }
+  function paintCondPanel(pop) {
+    pop.querySelector('.cond-rows').innerHTML = state.conds.length ? state.conds.map(condRowHtml).join('') : '<p class="cond-empty">No conditions yet. Add one to narrow the rows — for example <b>Revenue &gt; 500</b> or <b>Region contains East</b>.</p>';
+  }
+  function openCondPanel() {
+    var existing = document.querySelector('.cond-popover');
+    var btn = byId('condBtn');
+    if (existing) { existing.remove(); btn.setAttribute('aria-expanded', 'false'); return; }
+    closeAllPopovers();
+    var rect = btn.getBoundingClientRect(), pop = document.createElement('div');
+    pop.className = 'cond-popover'; pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', 'Filter rows by conditions');
+    pop.style.top = (rect.bottom + 8) + 'px'; pop.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - 560)) + 'px';
+    pop.innerHTML = '<div class="cond-head"><b>Filter rows</b><small>All conditions must match · applies to the grid, totals, copy and export</small></div><div class="cond-rows"></div>' +
+      '<div class="cond-foot"><button type="button" class="btn btn-outline btn-sm" data-cond-add>+ Add condition</button><button type="button" class="ws-link-btn" data-cond-clear-all>Clear all</button><button type="button" class="btn btn-primary btn-sm" data-cond-done>Done</button></div>';
+    document.body.appendChild(pop); btn.setAttribute('aria-expanded', 'true');
+    if (!state.conds.length) state.conds.push(newCond());
+    paintCondPanel(pop);
+    var first = pop.querySelector('select, input'); if (first) first.focus();
+    var apply = debounce(function () { state.dataPage = 1; renderCondChips(); renderDataTab(); }, 160);
+    pop.addEventListener('input', function (ev) {
+      var row = ev.target.closest('[data-cond]'), v = ev.target.closest('[data-cond-val]');
+      if (!row || !v) return;
+      var c = state.conds.filter(function (x) { return x.id === row.dataset.cond; })[0]; if (!c) return;
+      c[v.dataset.condVal] = v.value; apply();
+    });
+    pop.addEventListener('change', function (ev) {
+      var row = ev.target.closest('[data-cond]'); if (!row) return;
+      var c = state.conds.filter(function (x) { return x.id === row.dataset.cond; })[0]; if (!c) return;
+      if (ev.target.matches('[data-cond-field]')) {
+        c.field = ev.target.value; var kind = opKind(fieldByName(c.field)); c.op = OPS[kind][0][0]; c.value = c.value2 = ''; paintCondPanel(pop);
+      } else if (ev.target.matches('[data-cond-op]')) { c.op = ev.target.value; paintCondPanel(pop); }
+      else if (ev.target.matches('[data-cond-val]')) c[ev.target.dataset.condVal] = ev.target.value;
+      state.dataPage = 1; renderCondChips(); renderDataTab();
+    });
+    pop.addEventListener('click', function (ev) {
+      if (ev.target.closest('[data-cond-add]')) { state.conds.push(newCond()); paintCondPanel(pop); var inputs = pop.querySelectorAll('.cond-row:last-child select'); if (inputs[0]) inputs[0].focus(); return; }
+      var del = ev.target.closest('[data-cond-del]');
+      if (del) { var id = del.closest('[data-cond]').dataset.cond; state.conds = state.conds.filter(function (x) { return x.id !== id; }); paintCondPanel(pop); renderCondChips(); renderDataTab(); return; }
+      if (ev.target.closest('[data-cond-clear-all]')) { state.conds = []; paintCondPanel(pop); renderCondChips(); renderDataTab(); return; }
+      if (ev.target.closest('[data-cond-done]')) closeCondPanel();
+    });
+    pop.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') { ev.stopPropagation(); closeCondPanel(); btn.focus(); } });
+  }
+  function closeCondPanel() {
+    var pop = document.querySelector('.cond-popover'); if (!pop) return;
+    pop.remove(); var btn = byId('condBtn'); if (btn) btn.setAttribute('aria-expanded', 'false');
+    state.conds = state.conds.filter(condComplete); renderCondChips(); renderDataTab();
+  }
+  function newCond() {
+    var ds = state.dataset, f = ds.fields.filter(function (x) { return isNumType(x); })[0] || ds.fields[0];
+    return { id: Studio.uid('c'), field: f.name, op: OPS[opKind(f)][0][0], value: '', value2: '' };
+  }
+  on(byId('condBtn'), 'click', function (e) { e.stopPropagation(); if (state.dataset) openCondPanel(); });
+  document.addEventListener('click', function (e) {
+    var rm = e.target.closest('[data-cond-remove]');
+    if (rm) { state.conds = state.conds.filter(function (c) { return c.id !== rm.dataset.condRemove; }); renderCondChips(); renderDataTab(); return; }
+    var pop = document.querySelector('.cond-popover');
+    if (pop && !e.target.closest('.cond-popover') && !e.target.closest('#condBtn')) closeCondPanel();
+  });
+
+  /* ---- column profiler (js/studio-profile.js) ------------------------------ */
+  function openProfile(fieldName) {
+    var ds = state.dataset, f = fieldByName(fieldName);
+    if (!ds || !f || !window.StudioProfile) return;
+    var goData = function () { if (state.activeTab !== 'data') switchTab('data'); else renderDataTab(); };
+    window.StudioProfile.open({
+      field: f, fields: ds.fields, totalCount: ds.typedRows.length, filteredCount: getSearchedIndexedRows().length,
+      getRows: function (all) { return all ? ds.typedRows : getSearchedIndexedRows().map(function (x) { return x.row; }); },
+      format: function (field, v, o) { return Studio.formatByType(v, field.type, o); },
+      actions: {
+        sortAsc: function (fld) { state.sortStack = [{ field: fld.name, dir: 'asc' }]; syncPrimarySort(); goData(); },
+        sortDesc: function (fld) { state.sortStack = [{ field: fld.name, dir: 'desc' }]; syncPrimarySort(); goData(); },
+        slicer: function (fld) { addSlicerField(fld.name); renderSlicerBar(); showToast('Added ' + fld.name + ' as a slicer.', 'success'); },
+        blanks: function (fld) { addCondition({ field: fld.name, op: 'blank' }); goData(); },
+        outliers: function (fld, p) { var n = p.numeric; addCondition({ field: fld.name, op: 'outside', value: String(Math.round(n.lowFence * 100) / 100), value2: String(Math.round(n.highFence * 100) / 100) }); goData(); },
+        filterValue: function (fld, value) {
+          if (fld.isCategorical) { state.filters[fld.name] = { type: 'set', include: [value === '' ? '(Blank)' : value] }; addSlicerField(fld.name); onFiltersChanged(); }
+          else { addCondition({ field: fld.name, op: 'eq', value: value }); goData(); }
+        }
+      }
+    });
+  }
 
   /* ======================================================================
      PIVOT TAB
@@ -1462,9 +1924,11 @@
       Studio.emptyColumnNames(state.dataset).forEach(function (n) { Studio.removeField(state.dataset, n); });
       markDirty(); renderAll(); renderDataHealthModal(); showToast('Empty columns removed.', 'success');
     } else if (iss.type === 'duplicates') {
+      pushUndo('Remove duplicates');
       var removed = Studio.dedupeRows(state.dataset);
       markDirty(); renderAll(); renderDataHealthModal(); showToast(removed + ' duplicate row' + (removed > 1 ? 's' : '') + ' removed.', 'success');
     } else if (iss.type === 'untrimmed') {
+      pushUndo('Trim spaces');
       var changed = Studio.trimTextValues(state.dataset);
       markDirty(); renderAll(); renderDataHealthModal(); showToast('Trimmed whitespace in ' + changed + ' cell' + (changed > 1 ? 's' : '') + '.', 'success');
     } else if (iss.type === 'high-nulls' && iss.field) {
@@ -1475,6 +1939,7 @@
         else if (field.type === Studio.Types.BOOLEAN) fillValue = false;
         else fillValue = 0;
       }
+      pushUndo('Fill blanks in "' + iss.field + '"');
       var filled = Studio.fillBlanks(state.dataset, iss.field, fillValue);
       markDirty(); renderAll(); renderDataHealthModal(); showToast('Filled ' + filled + ' blank cell' + (filled > 1 ? 's' : '') + ' in "' + iss.field + '" with ' + JSON.stringify(fillValue) + '.', 'success');
     }
@@ -1647,7 +2112,7 @@
     state.sourceFileName = fileName || '';
     state.filters = {}; state.drillCrumbs = []; extraSlicerFields = [];
     state.widgets = []; state.pivot = { rows: [], columns: [], values: [] }; state.pivotExpanded = {};
-    state.dataSort = { field: null, dir: 'asc' }; state.dataSearch = ''; state.dataPage = 1;
+    state.dataSort = { field: null, dir: 'asc' }; state.dataSearch = ''; state.dataPage = 1; resetGridState();
     state.hiddenColumns = {}; state.selectedRows = {}; state.hierarchyExpanded = {};
     byId('workbookNameInput').value = state.workbookName;
 
@@ -1732,6 +2197,16 @@
   /* ======================================================================
      EXPORT
      ====================================================================== */
+  /* Dates are stored as epoch milliseconds; a spreadsheet needs a real date (yyyy-mm-dd), not 1736640000000. */
+  function csvReadyRows(fields, rows) {
+    var dateFields = fields.filter(function (f) { return f.type === Studio.Types.DATE; }).map(function (f) { return f.name; });
+    if (!dateFields.length) return rows;
+    return rows.map(function (r) {
+      var o = Object.assign({}, r);
+      dateFields.forEach(function (n) { if (typeof o[n] === 'number' && isFinite(o[n])) o[n] = isoDate(o[n]); });
+      return o;
+    });
+  }
   function downloadText(filename, text) {
     var blob = new Blob([text], { type: 'text/csv;charset=utf-8;' });
     var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
@@ -1740,7 +2215,7 @@
   on(byId('exportCsvBtn'), 'click', function () {
     if (!state.dataset) return;
     var cols = state.dataset.fields.map(function (f) { return f.name; });
-    downloadText(state.workbookName + '.csv', Studio.csvFromTable(cols, getFilteredRows()));
+    downloadText(state.workbookName + '.csv', Studio.csvFromTable(cols, csvReadyRows(state.dataset.fields, getFilteredRows())));
     closeAllDropdowns();
   });
   /* ---- Professional report export (Excel / PDF), via js/report-engine.js ---- */
@@ -1916,7 +2391,7 @@
     state.widgets = wb.widgets || []; state.pivot = wb.pivot || { rows: [], columns: [], values: [] };
     state.hierarchyConfig = wb.hierarchyConfig || { levels: [], metric: { field: null, fn: 'sum' } };
     state.filters = {}; state.drillCrumbs = []; extraSlicerFields = [];
-    state.dataSort = { field: null, dir: 'asc' }; state.dataSearch = ''; state.dataPage = 1;
+    state.dataSort = { field: null, dir: 'asc' }; state.dataSearch = ''; state.dataPage = 1; resetGridState();
     state.hiddenColumns = {}; state.selectedRows = {}; state.pivotExpanded = {}; state.hierarchyExpanded = {};
     byId('workbookNameInput').value = state.workbookName;
     pickAutoSlicerFields();

@@ -1086,7 +1086,12 @@ var Studio = (function () {
      12. CSV export helper
      ====================================================================== */
   function csvFromTable(columns, rows) {
-    function cell(v) { return '"' + String(v === null || v === undefined ? '' : v).replace(/"/g, '""') + '"'; }
+    /* Text that starts with = + - @ (or a tab / CR) is executed as a formula by Excel and Sheets.
+       Neutralise it with a leading apostrophe. Real numbers keep their sign. */
+    function cell(v) {
+      if (typeof v === 'string' && /^[=+\-@\t\r]/.test(v)) v = "'" + v;
+      return '"' + String(v === null || v === undefined ? '' : v).replace(/"/g, '""') + '"';
+    }
     var lines = [columns.map(cell).join(',')];
     rows.forEach(function (r) { lines.push(columns.map(function (c) { return cell(Array.isArray(r) ? r[columns.indexOf(c)] : r[c]); }).join(',')); });
     return lines.join('\n');

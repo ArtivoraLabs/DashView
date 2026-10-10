@@ -47,8 +47,11 @@
 <script defer src="js/updater.js"></script>
 <link rel="stylesheet" href="css/pro-detail.css"/>
 <link rel="stylesheet" href="css/ws.css"/>
+<link rel="stylesheet" href="css/audit-pro.css"/>
+<link rel="stylesheet" href="css/studio-pro.css"/>
 <link rel="stylesheet" href="css/theme-final.css"/>
-<script>try{if(localStorage.getItem("dashview_surface")==="glass"){document.documentElement.setAttribute("data-surface","glass");var l=document.createElement("link");l.id="lg-glass-link";l.rel="stylesheet";l.setAttribute("blocking","render");l.href="css/liquid-glass.css";document.head.appendChild(l);}}catch(e){}</script>
+<link rel="stylesheet" href="css/cursor.css"/>
+<!-- Liquid Glass / density / chart-label preferences are applied by js/config.js on every page -->
 </head>
 <body class="dash-body">
 
@@ -326,16 +329,26 @@
             <div class="studio-tab-panel" id="panel-data" role="tabpanel" aria-labelledby="tab-data" tabindex="0" style="display:none;">
               <div class="data-toolbar">
                 <div class="data-search grow">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
                   <input type="text" id="dataSearchInput" placeholder="Search all rows…" aria-label="Search all rows"/>
                 </div>
+                <button class="btn btn-outline btn-sm" id="condBtn" type="button" aria-haspopup="dialog" aria-expanded="false" title="Filter rows by conditions such as Revenue &gt; 500">Filters<span class="cond-count" id="condCount" hidden></span></button>
                 <button class="btn btn-outline btn-sm" id="columnsMenuBtn" type="button">Columns</button>
+                <button class="btn btn-outline btn-sm" id="viewMenuBtn" type="button" aria-haspopup="menu" aria-expanded="false">View</button>
                 <button class="btn btn-outline btn-sm" id="highlightToggleBtn" type="button">Highlight numbers</button>
+                <span class="tb-group" role="group" aria-label="History">
+                  <button class="btn btn-outline btn-sm" id="undoBtn" type="button" disabled aria-label="Undo" title="Undo (Ctrl+Z)">↶</button>
+                  <button class="btn btn-outline btn-sm" id="redoBtn" type="button" disabled aria-label="Redo" title="Redo (Ctrl+Shift+Z)">↷</button>
+                </span>
                 <button class="btn btn-outline btn-sm" id="addRowBtn" type="button">+ Add row</button>
                 <button class="btn btn-ghost btn-sm" id="deleteRowsBtn" type="button" style="display:none;color:var(--danger);">Delete selected</button>
+                <button class="btn btn-outline btn-sm" id="copyViewBtn" type="button" data-require-perm="importExport" title="Copy the selected rows, or the whole view, to paste into Excel">Copy</button>
+                <button class="btn btn-outline btn-sm" id="exportViewBtn" type="button" data-require-perm="importExport" title="Download exactly what the grid shows (filters, sort, visible columns)">Export view</button>
                 <span class="data-count-tag" id="dataCountTag"></span>
               </div>
-              <div class="grid-scroll"><table class="data-grid" id="dataGridTable" aria-label="Imported dataset rows"><thead id="dataGridHead"></thead><tbody id="dataGridBody"></tbody></table></div>
+              <div class="cond-chips" id="condChips" hidden></div>
+              <div class="sel-stats" id="selStats" hidden aria-live="polite"></div>
+              <div class="grid-scroll"><table class="data-grid" id="dataGridTable" aria-label="Imported dataset rows"><colgroup id="dataGridCols"></colgroup><thead id="dataGridHead"></thead><tbody id="dataGridBody"></tbody><tfoot id="dataGridFoot"></tfoot></table></div>
               <div class="data-pagination">
                 <select id="pageSizeSelect">
                   <option value="25">25 rows / page</option>
@@ -672,43 +685,98 @@
         <div class="ws-head">
           <div>
             <h1>Audit log</h1>
-            <p id="auditSub">Every change to people, tasks and hiring — who did what, and when.</p>
+            <p id="auditSub">Every change to people, tasks and hiring — who did what, when, where and what exactly changed.</p>
           </div>
           <div class="ws-actions">
             <button class="btn btn-outline btn-sm" id="exportAuditBtn" type="button">Export CSV</button>
+            <button class="btn btn-outline btn-sm" id="exportAuditJsonBtn" type="button">Export JSON</button>
             <button class="btn btn-outline btn-sm ws-danger" id="auditClear" type="button">Clear log</button>
           </div>
         </div>
         <div class="ws-stats" id="auditStats" aria-live="polite"></div>
+
+        <div class="aud-insights">
+          <section class="aud-card aud-chart" aria-labelledby="auditChartTitle">
+            <header><b id="auditChartTitle">Activity · last 14 days</b><small id="auditChartNote"></small></header>
+            <div class="aud-bars" id="auditChart"></div>
+          </section>
+          <section class="aud-card aud-mix" aria-labelledby="auditMixTitle">
+            <header><b id="auditMixTitle">Breakdown</b><small>Click to filter</small></header>
+            <div id="auditMix"></div>
+          </section>
+        </div>
+
+        <div class="aud-chips" id="auditPresets" role="group" aria-label="Quick filters">
+          <button type="button" class="aud-chip" data-preset="all">All events</button>
+          <button type="button" class="aud-chip" data-preset="today">Today</button>
+          <button type="button" class="aud-chip" data-preset="attention">Needs attention</button>
+          <button type="button" class="aud-chip" data-preset="deletions" data-only="activity">Deletions</button>
+          <button type="button" class="aud-chip" data-preset="exports">Exports</button>
+          <button type="button" class="aud-chip" data-preset="mine">My activity</button>
+        </div>
+
         <div class="ws-filters">
           <div class="seg" id="auditTabs" role="group" aria-label="Log source">
             <button type="button" class="active" data-src="activity" aria-pressed="true">Activity</button>
             <button type="button" data-src="security" aria-pressed="false">Security</button>
           </div>
-          <div class="ws-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input type="search" id="auditSearch" maxlength="120" placeholder="Search who, what or details…" aria-label="Search the audit log"/></div>
+          <div class="ws-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input type="search" id="auditSearch" maxlength="120" placeholder="Search who, what, field or value…" aria-label="Search the audit log"/></div>
           <select class="ws-input" id="auditEntity" aria-label="Filter by item type">
             <option value="">All items</option><option value="person">People</option><option value="task">Tasks</option><option value="hire">Candidates</option><option value="system">Workspace</option>
           </select>
           <select class="ws-input" id="auditAction" aria-label="Filter by action">
             <option value="">All actions</option><option value="created">Created</option><option value="updated">Updated</option><option value="moved">Moved</option><option value="assigned">Assigned</option><option value="deleted">Deleted</option><option value="exported">Exported</option><option value="imported">Imported</option><option value="loaded">Loaded</option><option value="reset">Reset</option>
           </select>
-          <select class="ws-input" id="auditPeriod" aria-label="Filter by date range">
-            <option value="1">Last 24 hours</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="0" selected>All time</option>
+          <select class="ws-input" id="auditSeverity" aria-label="Filter by severity">
+            <option value="">Any severity</option><option value="notice">Notice and above</option><option value="warning">Warning and above</option><option value="critical">Critical only</option>
           </select>
+          <select class="ws-input" id="auditActor" aria-label="Filter by person"><option value="">Everyone</option></select>
+          <select class="ws-input" id="auditPeriod" aria-label="Filter by date range">
+            <option value="1">Last 24 hours</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="0" selected>All time</option><option value="custom">Custom range…</option>
+          </select>
+          <span class="aud-range" id="auditRange" hidden>
+            <input type="date" class="ws-input" id="auditFrom" aria-label="From date"/><span aria-hidden="true">→</span><input type="date" class="ws-input" id="auditTo" aria-label="To date"/>
+          </span>
           <button class="ws-link-btn" id="auditReset" type="button" hidden>Clear filters</button>
         </div>
-        <p class="ws-muted" id="auditNote" style="font-size:12px;margin:0 0 10px;"></p>
+        <div class="aud-toolbar">
+          <p class="ws-muted" id="auditNote" style="font-size:12px;margin:0;"></p>
+          <div class="aud-view">
+            <label class="aud-check"><input type="checkbox" id="auditGroup" checked/> Group by day</label>
+            <select class="ws-input" id="auditSort" aria-label="Sort order"><option value="desc">Newest first</option><option value="asc">Oldest first</option></select>
+          </div>
+        </div>
         <div class="ws-table-wrap" tabindex="0" aria-label="Audit events">
-          <table class="ws-table">
-            <caption class="ws-sr">Audit events matching the current filters, newest first</caption>
-            <thead><tr><th scope="col">When</th><th scope="col">Who</th><th scope="col">Action</th><th scope="col">Item</th><th scope="col">Details</th></tr></thead>
+          <table class="ws-table aud-table">
+            <caption class="ws-sr">Audit events matching the current filters. Select a row to see its full detail.</caption>
+            <thead><tr><th scope="col">When</th><th scope="col">Who</th><th scope="col">Action</th><th scope="col">Item</th><th scope="col">Details</th><th scope="col" class="aud-open-th"><span class="ws-sr">Open</span></th></tr></thead>
             <tbody id="auditBody" aria-live="polite"></tbody>
           </table>
         </div>
         <div class="ws-pager">
           <span id="auditPageInfo" aria-live="polite">–</span>
-          <div><button class="btn btn-outline btn-sm" id="auditPrev" type="button" disabled>← Newer</button> <button class="btn btn-outline btn-sm" id="auditNext" type="button" disabled>Older →</button></div>
+          <div class="aud-pager-ctl">
+            <label class="aud-check">Rows <select class="ws-input" id="auditSize" aria-label="Rows per page"><option>25</option><option>50</option><option>100</option></select></label>
+            <button class="btn btn-outline btn-sm" id="auditPrev" type="button" disabled>← Newer</button> <button class="btn btn-outline btn-sm" id="auditNext" type="button" disabled>Older →</button>
+          </div>
         </div>
+
+        <div class="aud-scrim" id="auditScrim" hidden></div>
+        <aside class="aud-drawer" id="auditDrawer" role="dialog" aria-modal="true" aria-labelledby="auditDrawerTitle" hidden>
+          <header class="aud-drawer-head">
+            <div class="aud-drawer-nav">
+              <button type="button" class="aud-icon-btn" id="auditDrawerNewer" aria-label="Previous event in the list" title="Previous event (K)">↑</button>
+              <button type="button" class="aud-icon-btn" id="auditDrawerOlder" aria-label="Next event in the list" title="Next event (J)">↓</button>
+              <span class="ws-muted" id="auditDrawerPos"></span>
+            </div>
+            <button type="button" class="aud-icon-btn" id="auditDrawerClose" aria-label="Close detail" title="Close (Esc)">✕</button>
+          </header>
+          <div class="aud-drawer-body" id="auditDrawerBody"></div>
+          <footer class="aud-drawer-foot">
+            <button type="button" class="btn btn-outline btn-sm" id="auditCopyJson">Copy event JSON</button>
+            <button type="button" class="btn btn-outline btn-sm" id="auditCopyId">Copy event ID</button>
+          </footer>
+        </aside>
       </section>
 
       <!-- ══════════════════════ SETTINGS ══════════════════════ -->
@@ -1827,6 +1895,7 @@
 <script src="js/odoo-hr.js"></script>
 <script src="js/app.js"></script>
 <script src="js/studio-core.js"></script>
+<script src="js/studio-profile.js"></script>
 <script src="js/studio-ui.js"></script>
 <script src="js/report-engine.js"></script>
 <script src="js/ai-api-config.js"></script>
@@ -1858,5 +1927,6 @@
 <script src="js/ai-files.js"></script>
 <script src="js/ai-embed.js"></script>
 <script src="js/tabbar.js"></script>
+<script defer src="js/cursor.js"></script>
 </body>
 </html>

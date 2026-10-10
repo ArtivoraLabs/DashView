@@ -363,27 +363,7 @@ html[data-theme="light"] .ig-pop-back { background: rgba(40, 50, 36, .28); }
 }
 
 
-/* ── custom cursor v2 ───────────────────────────────────────────────────── */
-html.dv-cur, html.dv-cur a, html.dv-cur button, html.dv-cur summary, html.dv-cur [data-pop], html.dv-cur [role="tab"], html.dv-cur label, html.dv-cur .ig-float { cursor: none !important; }
-.dv-cg, .dv-cd, .dv-cr { position: fixed; left: 0; top: 0; z-index: 2147483600; pointer-events: none; opacity: 0; will-change: transform; }
-.dv-cg { width: 360px; height: 360px; margin: -180px 0 0 -180px; border-radius: 50%; z-index: 2147483000; background: radial-gradient(circle, rgba(232, 163, 61, .16), rgba(232, 163, 61, .05) 45%, transparent 70%); mix-blend-mode: screen; transition: opacity .4s; }
-html[data-theme="light"] .dv-cg { mix-blend-mode: multiply; background: radial-gradient(circle, rgba(217, 143, 39, .16), rgba(217, 143, 39, .05) 45%, transparent 70%); }
-.dv-cd { width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 3px rgba(232, 163, 61, .22), 0 0 18px 4px rgba(232, 163, 61, .75); transition: opacity .2s, width .2s, height .2s, margin .2s, background .2s; }
-.dv-cr { width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; display: grid; place-items: center; border: 1.5px solid rgba(240, 192, 106, .8);
-  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, .1), transparent 60%); backdrop-filter: blur(1.5px);
-  transition: opacity .2s, width .28s var(--g-ease), height .28s var(--g-ease), margin .28s var(--g-ease), background .2s, border-color .2s, border-radius .2s; }
-.dv-cr span { font: 700 .66rem var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: #1a1206; opacity: 0; transition: opacity .15s; white-space: nowrap; }
-html.dv-cur-on .dv-cg, html.dv-cur-on .dv-cd, html.dv-cur-on .dv-cr { opacity: 1; }
-html.dv-cur-link .dv-cr { width: 64px; height: 64px; margin: -32px 0 0 -32px; background: linear-gradient(135deg, var(--amber2), var(--amber)); border-color: transparent; box-shadow: 0 8px 28px -6px rgba(232, 163, 61, .75); }
-html.dv-cur-link .dv-cr span { opacity: 1; } html.dv-cur-link .dv-cd { opacity: 0; }
-html.dv-cur-down .dv-cr { width: 30px; height: 30px; margin: -15px 0 0 -15px; }
-html.dv-cur-down.dv-cur-link .dv-cr { width: 52px; height: 52px; margin: -26px 0 0 -26px; }
-html.dv-cur-text .dv-cd, html.dv-cur-text .dv-cr { opacity: 0; }
-html.dv-cur-simple .dv-cg { display: none; } html.dv-cur-simple .dv-cd { box-shadow: none; }
-.dv-cx { position: fixed; z-index: 2147483500; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; pointer-events: none; border: 2px solid var(--amber); animation: dvRip .65s cubic-bezier(.2, .7, .2, 1) forwards; }
-@keyframes dvRip { to { transform: scale(7); opacity: 0; border-width: .5px; } }
-html[data-theme="light"] .dv-cd { background: #b8650f; box-shadow: 0 0 0 3px rgba(184, 101, 15, .2), 0 0 16px 3px rgba(184, 101, 15, .45); }
-html[data-theme="light"] .dv-cr { border-color: rgba(168, 106, 18, .85); }
+/* custom cursor: see css/cursor.css (pointer v3) */
 
 /* ── hero tooltip ───────────────────────────────────────────────────────── */
 .ig-tip { position: fixed; z-index: 700; width: 232px; padding: 12px 14px; border-radius: 16px; pointer-events: none; opacity: 0; transform: translateY(6px) scale(.97); transition: opacity .15s, transform .18s var(--g-ease);
@@ -415,6 +395,5 @@ html[data-theme="light"] .dv-cr { border-color: rgba(168, 106, 18, .85); }
 .ig-chip { padding: 6px 12px; border-radius: 99px; border: 1px solid var(--g-edge); background: var(--g-surface); color: var(--text2); font: 600 .74rem var(--f-body); transition: all .15s; } .ig-chip:hover { border-color: var(--amber); color: var(--text); } .ig-chip.on { background: var(--amber); border-color: var(--amber); color: #1a1206; }
 .ig-g .sh { font: 600 .68rem var(--f-mono); color: var(--text3); margin-left: 6px; }
 .ig-g:focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; }
-@media (pointer: coarse), (prefers-reduced-motion: reduce) { .dv-cd, .dv-cr { display: none; } }
 
 html.dv-noquery .ig-src { display: none; }

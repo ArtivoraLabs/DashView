@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.15.0 - 2026-10-09
+- New: People now uses the same workspace shell as the dashboard - search, notifications, the ⌘K command palette, accent colour, Liquid Glass, density and chart-label preferences all apply there, and the theme toggle goes through the same store as Settings (so 'System' and OS changes are followed)
+- New: Audit log detail - severity on every event, 14-day activity chart, breakdown by action / person, quick filters, person / severity / custom date-range filters, day grouping, and an event drawer with exact time, UTC, session, device, page, source and a before → after table (J / K to step, Esc to close). Export CSV and JSON of exactly what the filters show
+- New: Every audit event now records its session, device, page and source; security events get ids, session and device too
+- New: Data Studio - column profiler (completeness, quartiles, outliers, histogram, top values, quality checks), Filters builder (Revenue > 500, Region contains East ...), multi-column sort (Shift+click), totals footer with selectable aggregates, selection statistics, undo / redo, freeze first column, row density, resizable columns, Copy and Export view
+- New: Pointer v3 - a precise dot with a spring ring that docks onto the control under it, context labels (Drill, Drag, Copy, Open), busy / disabled / text states; follows theme and accent, available on every page, and respects Settings, reduced motion and touch
+- Fixed: the Data tab badge and row count stayed empty until the Data tab was opened
+- Fixed: pressing Escape while editing a Data Studio cell saved the edit anyway
+- Fixed: Data Studio CSV export wrote dates as epoch milliseconds and did not neutralise spreadsheet formulas
+- Fixed: JSON exports (workspace backup, audit log) started with a byte-order mark that other tools reject
+- Fixed: exporting an AI dashboard to PDF crashed on the cover page
+- Fixed: a stray dot appeared inside every sliding tab pill (People, Data Studio, Settings)
+- Fixed: js/cursor.js was missing from the offline cache, so the offline update check failed
+- Fixed: on phones the top bar squashed the menu button to 14px and the search box to 78px (now a proper tap target, search uses the free space)
+
 ## 2.14.0 - 2026-10-07
 - New: Overview drill-in - every KPI card, trend month, bar, donut slice and legend row, top customer and product, pipeline stage, invoice status, shop / warehouse and recent order opens the Drill Explorer (break down by customer, product, month and more, then the Odoo records with Open in Odoo links). Period figures follow the 30D / 90D / 1Y switch; pipeline, receivables and customers are snapshots
 - New: Revenue trend summary chips (total, peak month, latest month vs previous, average per month) that open their records; top customers show each share of revenue

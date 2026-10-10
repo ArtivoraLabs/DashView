@@ -58,3 +58,14 @@ canvas,svg{max-width:100%}
 /* Small screens: comfortable tap targets and side padding */
 @media (max-width:760px){td,th{padding:.6rem .7rem}button,.btn{min-height:40px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+/* Phones: the top bar used to squash the menu button to 14px and the search box to 78px.
+   Keep a real tap target for the menu, let the search take the free space, and drop the keyboard hints. */
+@media (max-width:640px){
+  .dash-topbar{padding-left:12px;padding-right:12px;gap:8px}
+  .dash-topbar .dash-sidebar-toggle{flex:none;width:42px;min-width:42px;padding:0}
+  .dash-topbar .dash-search{flex:1 1 0;min-width:0;width:auto;padding:9px 12px}
+  .dash-topbar .dash-search kbd,.dash-topbar #cmdBtn{display:none}
+  .dash-topbar .dash-top-actions{flex:none;gap:6px}
+  .dash-topbar .dash-top-actions .dash-icon-btn{width:40px;height:40px}
+}

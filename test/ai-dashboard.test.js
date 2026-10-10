@@ -59,7 +59,7 @@ async function main() {
     head: { appendChild(script) { script.onload(); } }
   };
   await report.generateAIDashboardPdf(payload);
-  assert.strictEqual(savedFile, 'Sales by customer - DashView.pdf', 'PDF export composes and saves a named dashboard report');
+  assert.strictEqual(savedFile, 'Sales by customer - 2026-09-26.pdf', 'PDF export composes and saves a named dashboard report');
   delete global.window;
   delete global.document;
   console.log('AI dashboard artifact PDF tests passed');

@@ -88,6 +88,7 @@ button.danger:hover{background:rgba(229,72,77,.1);border-color:#e5484d}
 @media (max-width:760px){.wrap{padding-top:16px}.bar{padding:14px 16px}.row{padding:16px}}
 </style>
 <link rel="stylesheet" href="css/pro-detail.css"/>
+<link rel="stylesheet" href="css/cursor.css"/>
 <style>
 .bar{backdrop-filter:blur(14px) saturate(160%);background:color-mix(in srgb,var(--bg) 80%,transparent)}
 .wrap{max-width:1040px;grid-template-columns:220px 1fr;gap:48px}
@@ -257,8 +258,8 @@ document.addEventListener('DOMContentLoaded',function(){
 </div></section>
 
 <section id="cursorfx"><h2>Cursor and effects</h2><p class="section-intro">The website cursor and visual effects. Turning these off never changes your data.</p><div class="card">
- <div class="row"><div class="txt"><b>Custom cursor</b><span>Glowing dot with a label that tells you what a click will do.</span></div><div class="ctl"><div class="seg" data-pref="cursor"><label><input type="radio" name="p_cursor" value="on" checked><span>On</span></label><label><input type="radio" name="p_cursor" value="off"><span>Off</span></label></div></div></div>
- <div class="row"><div class="txt"><b>Cursor effects</b><span>Rich adds the glow, magnetic buttons and click ripples. Simple keeps just the dot and ring.</span></div><div class="ctl"><div class="seg" data-pref="cursorFx"><label><input type="radio" name="p_cursorFx" value="rich" checked><span>Rich</span></label><label><input type="radio" name="p_cursorFx" value="simple"><span>Simple</span></label></div></div></div>
+ <div class="row"><div class="txt"><b>Custom cursor</b><span>A precise dot and a ring that snaps onto whatever you can click, with a small label where it helps (Drill, Drag, Copy).</span></div><div class="ctl"><div class="seg" data-pref="cursor"><label><input type="radio" name="p_cursor" value="on" checked><span>On</span></label><label><input type="radio" name="p_cursor" value="off"><span>Off</span></label></div></div></div>
+ <div class="row"><div class="txt"><b>Cursor effects</b><span>Rich adds context labels, a gentle magnetic lean and click ripples. Simple keeps just the dot and the ring.</span></div><div class="ctl"><div class="seg" data-pref="cursorFx"><label><input type="radio" name="p_cursorFx" value="rich" checked><span>Rich</span></label><label><input type="radio" name="p_cursorFx" value="simple"><span>Simple</span></label></div></div></div>
  <div class="row"><div class="txt"><b>Blur and transparency</b><span>Turn off on slower devices.</span></div><div class="ctl"><div class="seg" data-pref="glass"><label><input type="radio" name="p_glass" value="on" checked><span>Full</span></label><label><input type="radio" name="p_glass" value="lite"><span>Reduced</span></label></div></div></div>
 </div></section>
 
@@ -284,6 +285,12 @@ document.addEventListener('DOMContentLoaded',function(){
  <div class="row"><div class="txt"><b>Search settings</b></div><div class="ctl"><kbd>/</kbd></div></div>
  <div class="row"><div class="txt"><b>Lock workspace</b></div><div class="ctl"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>L</kbd></div></div>
  <div class="row"><div class="txt"><b>Clear drill-in filter</b></div><div class="ctl"><kbd>Esc</kbd></div></div>
+ <div class="row"><div class="txt"><b>Command palette</b><span>Jump to any page or action, on every page including People.</span></div><div class="ctl"><kbd>Ctrl</kbd> + <kbd>K</kbd></div></div>
+ <div class="row"><div class="txt"><b>Data Studio: undo / redo</b><span>Cell edits, added or deleted rows, and data-health fixes.</span></div><div class="ctl"><kbd>Ctrl</kbd> + <kbd>Z</kbd> &nbsp;/&nbsp; <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd></div></div>
+ <div class="row"><div class="txt"><b>Data Studio: sort by several columns</b><span>Click a header to sort, then add more levels.</span></div><div class="ctl"><kbd>Shift</kbd> + click</div></div>
+ <div class="row"><div class="txt"><b>Data Studio: copy a cell</b><span>Click a cell first.</span></div><div class="ctl"><kbd>Ctrl</kbd> + <kbd>C</kbd></div></div>
+ <div class="row"><div class="txt"><b>Audit log: next / previous event</b><span>While an event is open.</span></div><div class="ctl"><kbd>J</kbd> &nbsp;/&nbsp; <kbd>K</kbd></div></div>
+ <div class="row"><div class="txt"><b>Close a detail panel</b><span>Audit event or column profile.</span></div><div class="ctl"><kbd>Esc</kbd></div></div>
 </div></section>
 
 <section id="app"><h2>App and offline</h2><div class="card">
@@ -411,5 +418,6 @@ addEventListener('load',function(){setTimeout(showVer,900);setTimeout(showVer,25
   if(window.DV&&DV.on)DV.on(paint);setTimeout(paint,1200)});
 })();
 </script>
+<script defer src="js/cursor.js"></script>
 </body>
 </html>

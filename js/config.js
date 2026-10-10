@@ -67,6 +67,43 @@
   window.addEventListener('storage', function (e) { if (e.key === GLASS_KEY) glassApply(); });
   glassApply();
 
+  /* Appearance preferences that every page must honour, not only the dashboard:
+       dashview_surface   'flat' | 'glass'   -> css/liquid-glass.css + data-surface
+       dv-pref-density    'comfortable' | 'compact'  -> data-density
+       dv-pref-labels     'on' | 'off'       -> data-chart-labels
+     Applied here, in <head>, so People, Settings and any future page paint with the same look as the
+     dashboard before first render. settings-pro.js / settings.html still own the controls. */
+  var GLASS_HREF = 'css/liquid-glass.css';
+  function lsGet(k, f) { try { var v = localStorage.getItem(k); return v === null || v === '' ? f : v; } catch (e) { return f; } }
+  function glassLink() {
+    return document.getElementById('lg-glass-link') || document.getElementById('settings-glass-link') ||
+      document.querySelector('link[href$="liquid-glass.css"]');
+  }
+  function applySurface(mode) {
+    mode = mode === 'glass' ? 'glass' : 'flat';
+    var link = glassLink();
+    if (mode === 'glass' && !link && document.head) {
+      link = document.createElement('link');
+      link.id = 'lg-glass-link'; link.rel = 'stylesheet'; link.href = GLASS_HREF;
+      link.setAttribute('blocking', 'render'); /* no flat-to-glass flash */
+      document.head.appendChild(link);
+    } else if (mode === 'flat' && link && link.parentNode) {
+      link.parentNode.removeChild(link);
+    }
+    root.setAttribute('data-surface', mode);
+    return mode;
+  }
+  function applyAppearance() {
+    applySurface(lsGet('dashview_surface', 'flat'));
+    var density = lsGet('dv-pref-density', 'comfortable');
+    root.setAttribute('data-density', density === 'compact' ? 'compact' : 'comfortable');
+    root.setAttribute('data-chart-labels', lsGet('dv-pref-labels', 'on') === 'off' ? 'off' : 'on');
+  }
+  window.addEventListener('storage', function (e) {
+    if (e.key === 'dashview_surface' || e.key === 'dv-pref-density' || e.key === 'dv-pref-labels' || e.key === null) applyAppearance();
+  });
+  applyAppearance();
+
   function emit(c) { subs.forEach(function (f) { try { f(c); } catch (e) {} }); }
   function refresh() { var c = get(); apply(c); emit(c); return c; }
 
@@ -164,6 +201,7 @@
     get: get, set: set, reset: reset, exportJSON: exportJSON, importJSON: importJSON, accents: ACCENTS,
     on: function (f) { subs.push(f); }, install: install, status: status,
     checkUpdate: checkUpdate, applyUpdate: applyUpdate, usage: usage, clearCache: clearCache,
-    glass: { get: glassGet, set: glassSet, reset: glassReset, defaults: GLASS_DEFAULT, ranges: GLASS_RANGE }
+    glass: { get: glassGet, set: glassSet, reset: glassReset, defaults: GLASS_DEFAULT, ranges: GLASS_RANGE },
+    appearance: { apply: applyAppearance, surface: applySurface }
   };
 })();
