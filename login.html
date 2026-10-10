@@ -52,6 +52,12 @@
       <p class="dvl-eyebrow">Live Odoo analytics</p>
       <h1>Every Odoo number, in <em>one calm view.</em></h1>
       <p>Sales, stock, people and finance, read live from Odoo and ready for your next meeting. Sign in to open your workspace.</p>
+      <ul class="dvl-mods" aria-hidden="true">
+        <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/></svg>Sales</li>
+        <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/></svg>Stock</li>
+        <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.4-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.8c1.9.7 3.2 2.4 3.5 5.2"/></svg>People</li>
+        <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M7 15h3"/></svg>Finance</li>
+      </ul>
 
       <div class="dvl-stage" aria-hidden="true">
         <div class="dvl-float f1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span>Sales trending up<small>Compared with last period</small></span></div>
@@ -109,10 +115,12 @@
 
     <main class="dvl-center" id="main" aria-label="Sign in">
       <div class="dvl-panel">
+        <span class="dvl-bar" aria-hidden="true"></span>
 
         <!-- Sign-in / first-time setup form -->
         <div id="dvFormView" hidden>
           <span class="dvl-badge" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7.5a4 4 0 0 1 8 0V11"/><circle cx="12" cy="16" r="1.2" fill="currentColor"/></svg></span>
+          <p class="dvl-greet" id="dvGreet"></p>
           <h1 class="dvl-title" id="dvTitle">Welcome back</h1>
           <p class="dvl-intro" id="dvIntro">Sign in to open your DashView workspace.</p>
 
@@ -123,13 +131,13 @@
 
           <div class="dvl-alert" id="dvError" role="alert" hidden>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/></svg>
-            <span id="dvErrorText"></span>
+            <div><span id="dvErrorText"></span><span class="dvl-tries" id="dvTries" aria-hidden="true"></span></div>
           </div>
 
           <form id="dvForm" novalidate>
             <div class="dvl-field" id="fApi" hidden><label for="dvApi">Account API URL</label><div class="dvl-wrap"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><input id="dvApi" class="has-ic" type="url" autocomplete="url" placeholder="https://api.example.com/api"/></div></div>
             <div class="dvl-field" id="fName" hidden><label for="dvName">Full name</label><div class="dvl-wrap"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></svg><input id="dvName" class="has-ic" type="text" maxlength="100" autocomplete="name" placeholder="Your name"/></div></div>
-            <div class="dvl-field"><label for="dvEmail">Email</label><div class="dvl-wrap"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 8 8 5.5L20 8"/></svg><input id="dvEmail" class="has-ic" type="email" maxlength="320" autocomplete="username" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="you@company.com" required/></div></div>
+            <div class="dvl-field"><label for="dvEmail">Email</label><div class="dvl-wrap"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 8 8 5.5L20 8"/></svg><input id="dvEmail" class="has-ic has-ok" type="email" maxlength="320" autocomplete="username" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="you@company.com" required/><svg class="ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12.4 2.7 2.7L16 9.6"/></svg></div></div>
             <div class="dvl-field">
               <label for="dvPass">Password</label>
               <div class="dvl-wrap">
@@ -144,7 +152,7 @@
               <p class="dvl-meter-label" id="dvMeterLabel" hidden aria-live="polite"></p>
               <p class="dvl-hint" id="dvHint" hidden>At least 12 characters. Mix letters with numbers or symbols.</p>
             </div>
-            <div class="dvl-field" id="fConfirm" hidden><label for="dvConfirm">Confirm password</label><div class="dvl-wrap"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M16 7l3 3"/></svg><input id="dvConfirm" class="has-ic" type="password" maxlength="256" autocomplete="new-password" placeholder="Repeat the password"/></div></div>
+            <div class="dvl-field" id="fConfirm" hidden><label for="dvConfirm">Confirm password</label><div class="dvl-wrap"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M16 7l3 3"/></svg><input id="dvConfirm" class="has-ic has-ok" type="password" maxlength="256" autocomplete="new-password" placeholder="Repeat the password"/><svg class="ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12.4 2.7 2.7L16 9.6"/></svg></div><p class="dvl-match" id="dvMatch" hidden aria-live="polite"></p></div>
             <button type="submit" class="dvl-submit" id="dvSubmit"><span id="dvSubmitText">Sign in</span><svg class="arr" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
           </form>
           <p class="dvl-switch" id="dvLockNote"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.4 8 8 9 4.6-1 8-4 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg><span>Five wrong attempts in a row lock sign-in for a short time.</span></p>
@@ -165,7 +173,7 @@
         <noscript><p class="dvl-info">Sign-in needs JavaScript. Please enable it and reload.</p></noscript>
       </div>
     </main>
-    <p class="dvl-foot">&copy; DashView &middot; Secure workspace access</p>
+    <p class="dvl-foot">&copy; DashView <b id="dvVer"></b>&middot; Secure workspace access</p>
   </div>
 </div>
 
@@ -212,6 +220,8 @@
       raf = requestAnimationFrame(function () {
         raf = 0; var r = card.getBoundingClientRect();
         card.style.setProperty('--mx', (px - r.left) + 'px'); card.style.setProperty('--my', (py - r.top) + 'px');
+        var sc = document.querySelector('.dvl-scene');
+        if (sc) { sc.style.setProperty('--px', (px / window.innerWidth * 2 - 1).toFixed(3)); sc.style.setProperty('--py', (py / window.innerHeight * 2 - 1).toFixed(3)); }
       });
     }, { passive: true });
   })();
@@ -219,11 +229,14 @@
   /* messages */
   function showError(msg) {
     $('dvErrorText').textContent = msg; $('dvError').hidden = false;
+    var t = $('dvTries'), m = /(\d+)\s+tries?\s+left/i.exec(msg || ''); t.innerHTML = '';
+    if (m) { var used = 5 - Math.max(0, Math.min(5, +m[1])); for (var i = 0; i < 5; i++) { var d = document.createElement('i'); if (i < used) d.className = 'used'; t.appendChild(d); } }
     var c = document.querySelector('.dvl-panel'); if (c) { c.classList.remove('dvl-shake'); void c.offsetWidth; c.classList.add('dvl-shake'); }
   }
-  function clearError() { $('dvError').hidden = true; ['dvEmail', 'dvPass', 'dvConfirm', 'dvName'].forEach(function (id) { $(id).removeAttribute('aria-invalid'); }); }
+  function clearError() { $('dvError').hidden = true; $('dvTries').innerHTML = ''; ['dvEmail', 'dvPass', 'dvConfirm', 'dvName'].forEach(function (id) { $(id).removeAttribute('aria-invalid'); }); }
   function setBusy(on) {
     busy = on; var b = $('dvSubmit'); b.disabled = on;
+    var pn = document.querySelector('.dvl-panel'); if (pn) pn.classList.toggle('is-busy', on);
     b.innerHTML = on ? '<span class="dvl-spin" aria-hidden="true"></span><span>' + (mode === 'setup' ? 'Creating account…' : 'Signing in…') + '</span>' : '<span id="dvSubmitText">' + (mode === 'setup' ? 'Create admin account' : 'Sign in') + '</span>' + ARROW;
   }
 
@@ -234,6 +247,32 @@
     var s = (p.length >= 12 ? 1 : 0) + (p.length >= 16 ? 1 : 0) + (c >= 3 ? 1 : 0) + (c >= 4 || p.length >= 20 ? 1 : 0);
     return p.length < 12 ? Math.min(s, 1) : Math.max(s, 1);
   }
+
+  function greeting() {
+    var h = new Date().getHours();
+    return h < 5 ? 'Working late' : h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : h < 22 ? 'Good evening' : 'Working late';
+  }
+
+  /* inline validation ticks (email format, passwords match) */
+  var MAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  function tick(id, ok) { var w = $(id).parentNode; if (w) w.classList.toggle('is-valid', !!ok); }
+  function checkMatch() {
+    var c = $('dvConfirm').value, m = $('dvMatch');
+    if (!c) { m.hidden = true; tick('dvConfirm', false); return; }
+    var same = c === $('dvPass').value;
+    m.hidden = false; m.className = 'dvl-match ' + (same ? 'good' : 'bad'); m.textContent = same ? 'Passwords match' : 'Passwords do not match yet';
+    tick('dvConfirm', same);
+  }
+  $('dvEmail').addEventListener('input', function () { tick('dvEmail', MAIL.test(this.value.trim())); });
+  $('dvConfirm').addEventListener('input', checkMatch);
+  $('dvPass').addEventListener('input', function () { if ($('dvConfirm').value) checkMatch(); });
+
+  /* version in the footer (best effort) */
+  try {
+    fetch('version.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (v) {
+      if (v && /^\d+\.\d+\.\d+$/.test(String(v.version))) $('dvVer').textContent = 'v' + v.version + ' ';
+    }).catch(function () {});
+  } catch (e) {}
 
   /* decide which view to show */
   function sync() {
@@ -249,6 +288,8 @@
     var backend = DVAuth.isBackend();
     mode = !backend && !DVAuth.hasLocalAccount() ? 'setup' : 'login';
     var setup = mode === 'setup';
+    document.body.setAttribute('data-mode', mode);
+    $('dvGreet').textContent = setup ? 'First-time setup' : greeting();
     $('fApi').hidden = !backend; $('fName').hidden = !setup; $('fConfirm').hidden = !setup;
     $('dvMeter').hidden = !setup; $('dvMeterLabel').hidden = !setup; $('dvHint').hidden = !setup; $('dvSetupNote').hidden = !setup; $('dvLockNote').hidden = setup || backend;
     $('dvTitle').textContent = setup ? 'Set up your admin account' : 'Welcome back';
@@ -285,11 +326,12 @@
       job = mode === 'setup' ? DVAuth.setupLocalAccount($('dvName').value, email, pass, $('dvConfirm').value).then(function () { return true; }) : DVAuth.login(email, pass);
     } catch (err) { job = Promise.reject(err); }
     Promise.resolve(job).then(function () {
+      var pn = document.querySelector('.dvl-panel'); if (pn) pn.classList.add('is-busy');
       var b = $('dvSubmit'); b.disabled = true; b.innerHTML = '<span class="dvl-spin" aria-hidden="true"></span><span>Opening your workspace…</span>';
       go();
     }, function (err) {
       showError((err && err.message) || 'Could not sign in. Check your details and try again.');
-      $('dvPass').value = ''; $('dvConfirm').value = ''; $('dvMeter').setAttribute('data-n', '0'); $('dvMeterLabel').textContent = '';
+      $('dvPass').value = ''; $('dvConfirm').value = ''; $('dvMatch').hidden = true; tick('dvConfirm', false); $('dvMeter').setAttribute('data-n', '0'); $('dvMeterLabel').textContent = '';
       $('dvPass').setAttribute('aria-invalid', 'true'); setBusy(false); $('dvPass').focus();
     });
   });

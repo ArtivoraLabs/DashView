@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.16.1 - 2026-10-10
+- Fixed: sign-in page layout - content is now a centred composition (no more stretching to the screen edges on wide monitors) and fits laptop heights without scrolling or a cut-off preview; first-run setup form is compacted too
+- Improved: sign-in detailing - time-of-day greeting, module chips (Sales, Stock, People, Finance), live email-format and password-match ticks, attempts-left indicator on wrong password, progress line while signing in, parallax scene light, app version in the footer
+
 ## 2.16.0 - 2026-10-10
 - Redesigned: sign-in page in Liquid Glass - graded amber / copper / teal scene, frosted glass card with pointer-following specular light, glass brand panel with animated revenue preview
 - Improved: sign-in detailing - field icons, on-theme autofill, password strength label, caps-lock chip, error shake, glossy Sign in button, sun / moon theme toggle that also updates the browser theme colour, reduced-motion / reduced-transparency / forced-colors fallbacks
