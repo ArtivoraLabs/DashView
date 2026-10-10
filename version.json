@@ -1,11 +1,31 @@
 {
-  "version": "2.15.4",
+  "version": "2.15.5",
   "build": "2026.10.10",
   "released": "2026-10-10",
   "notes": [
-    "Software Update redesigned as an iOS-style sheet (app icon + status badge, grouped Version/Size/Released rows, grouped release notes, full-width capsule action, glass notice); new Liquid Glass app icon set (favicon, touch, PWA, maskable, 1024) and og-image; glass logo marks in the app"
+    "Fixed: a slow or hung Odoo/Worker request could freeze Overview, People, Team and Task targets forever - every Odoo call now has a 45 s timeout and releases its slot",
+    "Fixed: resetting the Odoo connection left queued requests waiting forever and could break the 3-request cap - queued and in-flight calls are now cancelled cleanly",
+    "Fixed: task targets stopped auto-completing after one stuck check (a watchdog now recovers it); one failing task no longer stops the others, and a reset can no longer write stale results",
+    "Fixed: People data could be fetched twice after a reset (race on the loading slot); data now also refreshes the moment you return to the tab",
+    "Improved: Odoo reads retry automatically on rate limits (429), gateway errors and network drops with backoff and Retry-After; application errors are never retried",
+    "Improved: clear, typed errors (timeout, network, bad Worker URL, cancelled) and a diagnostics counter for support; read cache is size-capped",
+    "Added: transport test suite (timeout, retry, reset, concurrency cap, bad URL)"
   ],
   "history": [
+    {
+      "version": "2.15.5",
+      "date": "2026-10-10",
+      "notes": [
+        "Fixed: a slow or hung Odoo/Worker request could freeze Overview, People, Team and Task targets forever - every Odoo call now has a 45 s timeout and releases its slot",
+        "Fixed: resetting the Odoo connection left queued requests waiting forever and could break the 3-request cap - queued and in-flight calls are now cancelled cleanly",
+        "Fixed: task targets stopped auto-completing after one stuck check (a watchdog now recovers it); one failing task no longer stops the others, and a reset can no longer write stale results",
+        "Fixed: People data could be fetched twice after a reset (race on the loading slot); data now also refreshes the moment you return to the tab",
+        "Improved: Odoo reads retry automatically on rate limits (429), gateway errors and network drops with backoff and Retry-After; application errors are never retried",
+        "Improved: clear, typed errors (timeout, network, bad Worker URL, cancelled) and a diagnostics counter for support; read cache is size-capped",
+        "Added: transport test suite (timeout, retry, reset, concurrency cap, bad URL)"
+      ],
+      "critical": false
+    },
     {
       "version": "2.15.4",
       "date": "2026-10-10",
@@ -285,5 +305,5 @@
     }
   ],
   "critical": false,
-  "size": 4220536
+  "size": 4231725
 }

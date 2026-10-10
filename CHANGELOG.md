@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.15.5 - 2026-10-10
+- Fixed: a slow or hung Odoo/Worker request could freeze Overview, People, Team and Task targets forever - every Odoo call now has a 45 s timeout and releases its slot
+- Fixed: resetting the Odoo connection left queued requests waiting forever and could break the 3-request cap - queued and in-flight calls are now cancelled cleanly
+- Fixed: task targets stopped auto-completing after one stuck check (a watchdog now recovers it); one failing task no longer stops the others, and a reset can no longer write stale results
+- Fixed: People data could be fetched twice after a reset (race on the loading slot); data now also refreshes the moment you return to the tab
+- Improved: Odoo reads retry automatically on rate limits (429), gateway errors and network drops with backoff and Retry-After; application errors are never retried
+- Improved: clear, typed errors (timeout, network, bad Worker URL, cancelled) and a diagnostics counter for support; read cache is size-capped
+- Added: transport test suite (timeout, retry, reset, concurrency cap, bad URL)
+
 ## 2.15.4 - 2026-10-10
 - Software Update redesigned as an iOS-style sheet (app icon + status badge, grouped Version/Size/Released rows, grouped release notes, full-width capsule action, glass notice); new Liquid Glass app icon set (favicon, touch, PWA, maskable, 1024) and og-image; glass logo marks in the app
 

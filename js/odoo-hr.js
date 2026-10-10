@@ -29,7 +29,7 @@
     people: SURFACES
   };
 
-  var data = blank(), gen = 0, listeners = [], pollTimer = null, notifyTimer = 0, version = 0, memo = {};
+  var data = blank(), gen = 0, listeners = [], pollTimer = null, visWired = false, notifyTimer = 0, version = 0, memo = {};
   var inflight = {};
 
   function blank() {
@@ -276,13 +276,19 @@
     if (!force && data.loaded[name] && Date.now() - data.loaded[name] < TTL) return Promise.resolve();
     if (inflight[name]) return inflight[name];
     var my = gen;
-    var job = LOAD[name]().then(function () {
+    var job, run;
+    try { run = Promise.resolve(LOAD[name]()); } catch (e) { run = Promise.reject(e); }
+    job = run.then(function () {
       if (my !== gen) return;
       data.loaded[name] = Date.now(); delete data.errors[name];
     }, function (e) {
-      if (my !== gen) return;
+      if (my !== gen || (e && e.code === 'cancelled')) return;
       data.errors[name] = friendly(e);
-    }).then(function () { delete inflight[name]; if (my === gen) emit(); });
+    }).then(function () {
+      /* only clear our own slot: after reset() a newer load may already own it */
+      if (inflight[name] === job) delete inflight[name];
+      if (my === gen) emit();
+    });
     inflight[name] = job;
     return job;
   }
@@ -313,8 +319,13 @@
     if (group) wanted = group;
     if (pollTimer) clearInterval(pollTimer);
     pollTimer = setInterval(function () { if (!document.hidden && modeNow() === 'live') ensure(wanted, false); }, TTL);
+    if (!visWired && typeof document !== 'undefined') {            /* refresh stale data the moment the tab comes back */
+      visWired = true;
+      document.addEventListener('visibilitychange', function () { if (!document.hidden && pollTimer && modeNow() === 'live') ensure(wanted, false); });
+    }
     return ensure(wanted, false);
   }
+  function stop() { if (pollTimer) { clearInterval(pollTimer); pollTimer = 0; } }
 
   /* -- derived numbers ------------------------------------------------------- */
   function cached(key, fn) { if (!(key in memo)) memo[key] = fn(); return memo[key]; }
@@ -481,7 +492,7 @@
 
   var api = {
     mode: modeNow, live: function () { return modeNow() === 'live'; }, status: status, subscribe: subscribe,
-    want: function (group) { if (group) wanted = group; }, ensure: ensure, start: start, refresh: function (group) { return ensure(group || wanted, true); }, reset: reset,
+    want: function (group) { if (group) wanted = group; }, ensure: ensure, start: start, stop: stop, refresh: function (group) { return ensure(group || wanted, true); }, reset: reset,
     data: function () { return data; }, version: function () { return version; },
     employees: function () { return data.employees; }, departments: function () { return data.departments; },
     jobs: function () { return data.jobs; }, stages: function () { return data.stages; },

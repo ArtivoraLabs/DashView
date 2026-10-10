@@ -14,11 +14,11 @@
   'use strict';
 
   var C = global.DVOdooClient, WS = global.WS;
-  var RUN_GAP = 20 * 1000, POLL = 90 * 1000, MAX_TASKS = 60;
+  var RUN_GAP = 20 * 1000, POLL = 90 * 1000, MAX_TASKS = 60, RUN_WATCHDOG = 3 * 60 * 1000;
   var DAY = 864e5;
   var chosen = {};           /* metric id → index of the variant that worked on this Odoo */
   var last = { at: 0, checked: 0, completed: 0, errors: 0, running: false };
-  var timer = 0, listeners = [];
+  var timer = 0, listeners = [], runId = 0, runStartedAt = 0, wired = false;
 
   function pad(n) { return String(n).padStart(2, '0'); }
   function utc(ms) { var d = new Date(ms); return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate()) + ' ' + pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()) + ':' + pad(d.getUTCSeconds()); }
@@ -159,9 +159,11 @@
   }
 
   function evaluateOdooTask(track) {
+    var taskId = Number(track && track.taskId);
+    if (!Number.isInteger(taskId) || taskId < 1) return Promise.reject(new Error('This target is not linked to an Odoo task. Pick one from the list.'));
     return C.fields('project.task').then(function (meta) {
       var wanted = ['name', 'state', 'is_closed', 'stage_id', 'active'].filter(function (f) { return meta && meta[f]; });
-      return C.records('project.task', { domain: [['id', '=', track.taskId], ['active', 'in', [true, false]]], fields: wanted.length ? wanted : ['name'], limit: 1 }).then(function (r) {
+      return C.records('project.task', { domain: [['id', '=', taskId], ['active', 'in', [true, false]]], fields: wanted.length ? wanted : ['name'], limit: 1 }).then(function (r) {
         var t = (r.rows || [])[0];
         if (!t) throw new Error('That Odoo task no longer exists or this user cannot see it.');
         if (t.state === '1_done') return 1;
@@ -182,6 +184,7 @@
       : track.kind === 'custom' ? evaluateCustom(track, assignee || {})
         : evaluateMetric(track, assignee || {});
     return p.then(function (value) { return { value: value }; }, function (e) {
+      if (e && e.code === 'cancelled') return { cancelled: true, error: '' };
       return { error: (global.DVHR ? global.DVHR.util.friendly(e) : (e && e.message)) || 'Odoo could not check this target.' };
     });
   }
@@ -190,37 +193,55 @@
   function emit() { listeners.slice().forEach(function (fn) { try { fn(last); } catch (e) { /* ignore */ } }); }
   function reconcile(force) {
     if (!WS || !live()) return Promise.resolve(last);
+    /* A run whose Odoo call never came back must not block auto-complete forever. */
+    if (last.running && Date.now() - runStartedAt > RUN_WATCHDOG) { last.running = false; }
     if (last.running) return Promise.resolve(last);
     if (!force && Date.now() - last.at < RUN_GAP) return Promise.resolve(last);
-    var tasks = WS.tasks().filter(function (t) { return t.track && t.status !== 'done'; }).slice(0, MAX_TASKS);
-    if (!tasks.length) { last.at = Date.now(); last.checked = 0; last.completed = 0; last.errors = 0; emit(); return Promise.resolve(last); }
-    last.running = true; emit();
+    var tasks;
+    try { tasks = WS.tasks().filter(function (t) { return t && t.track && t.status !== 'done'; }).slice(0, MAX_TASKS); }
+    catch (e) { return Promise.resolve(last); }
+    if (!tasks.length) { last = { at: Date.now(), checked: 0, completed: 0, errors: 0, running: false }; emit(); return Promise.resolve(last); }
+    var myRun = ++runId;
+    runStartedAt = Date.now(); last.running = true; emit();
     var memo = {}, completed = 0, errors = 0, i = 0;
     function key(t) { return JSON.stringify([t.track.kind, t.track.metric, t.track.taskId, t.track.model, t.track.userField, t.track.agg, t.track.sumField, t.track.dateField, t.track.domain, t.track.from, t.track.to, t.assigneeOdoo && t.assigneeOdoo.id, t.assigneeOdoo && t.assigneeOdoo.userId]); }
     function next() {
-      if (i >= tasks.length) return Promise.resolve();
+      if (i >= tasks.length || myRun !== runId) return Promise.resolve();
       var t = tasks[i++], k = key(t);
       var p = memo[k] || (memo[k] = evaluate(t.track, t.assigneeOdoo));
       return p.then(function (res) {
-        var out = WS.applyTracking(t.id, res);
-        if (out === 'done') completed++;
+        if (res.cancelled || myRun !== runId) return;               /* connection was reset: say nothing */
+        try {
+          var out = WS.applyTracking(t.id, res);
+          if (out === 'done') completed++;
+        } catch (e) { if (global.console) console.error('DVTargets: could not update task', t.id, e); errors++; return; }
         if (res.error) errors++;
-      }).then(next);
+      });                                                           /* one task failing never stops the rest */
     }
+    function worker() { return next().then(function () { return (i < tasks.length && myRun === runId) ? worker() : null; }); }
     /* two workers — the Odoo client itself caps in-flight requests */
-    return Promise.all([next(), next()]).then(function () {
+    return Promise.all([worker(), worker()]).then(function () {
+      if (myRun !== runId) return last;
       last = { at: Date.now(), checked: tasks.length, completed: completed, errors: errors, running: false };
       emit(); return last;
-    }, function () { last.running = false; last.at = Date.now(); emit(); return last; });
+    }, function (e) {
+      if (global.console) console.error('DVTargets: reconcile failed', e);
+      if (myRun === runId) { last = { at: Date.now(), checked: tasks.length, completed: completed, errors: errors + 1, running: false }; emit(); }
+      return last;
+    });
   }
 
   function start() {
-    if (timer) return;
-    timer = setInterval(function () { if (!document.hidden) reconcile(false); }, POLL);
-    document.addEventListener('visibilitychange', function () { if (!document.hidden) reconcile(false); });
-    ['dv:odoo-config-saved', 'dv:unlocked'].forEach(function (n) { document.addEventListener(n, function () { reconcile(true); }); });
-    reconcile(true);
+    var first = !timer;
+    if (!timer) timer = setInterval(function () { if (!document.hidden) reconcile(false); }, POLL);
+    if (!wired) {                                                   /* wire page listeners once, however often start() is called */
+      wired = true;
+      document.addEventListener('visibilitychange', function () { if (!document.hidden) reconcile(false); });
+      ['dv:odoo-config-saved', 'dv:unlocked'].forEach(function (n) { document.addEventListener(n, function () { runId++; last.running = false; reconcile(true); }); });
+    }
+    return reconcile(first);
   }
+  function stop() { if (timer) { clearInterval(timer); timer = 0; } runId++; last.running = false; }
 
   /* open Odoo tasks a person could be linked to */
   function listOdooTasks(assignee) {
@@ -242,7 +263,7 @@
     catalog: function () { return CATALOG.slice(); }, metric: metric, evaluate: evaluate, reconcile: reconcile, start: start,
     listOdooTasks: listOdooTasks, parseDomainText: parseDomainText, cleanDomain: cleanDomain, describe: describe, unitFor: unitFor,
     status: function () { return last; }, subscribe: function (fn) { listeners.push(fn); return function () { listeners = listeners.filter(function (x) { return x !== fn; }); }; },
-    canTrack: function (assignee) { return !!(assignee && assignee.id); }, live: live,
+    stop: stop, canTrack: function (assignee) { return !!(assignee && assignee.id); }, live: live,
     _resetVariants: function () { chosen = {}; }
   };
 })(window);

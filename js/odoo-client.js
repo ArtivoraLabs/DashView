@@ -37,40 +37,125 @@
     } catch (e) {}
   }
 
-  /* ── Concurrency throttle ────────────────────────────────────────────────────
-     Overview + Odoo Live fire many parallel requests.  Odoo returns HTTP 429
-     ("Rate limit exceeded") when too many arrive at once.  We cap in-flight
-     Worker calls at MAX_CONCURRENT so Odoo never sees a burst. */
-  var MAX_CONCURRENT = 3, _inFlight = 0, _queue = [];
+  /* ── Transport ──────────────────────────────────────────────────────────────
+     Every Odoo read goes through here, so it is built to degrade gracefully:
+       • concurrency cap   – at most MAX_CONCURRENT Worker calls in flight (Odoo answers 429 on bursts)
+       • timeout           – a hung Worker/Odoo can never block the queue or freeze a screen
+       • retry + backoff   – read-only calls retry on 429 / 502 / 503 / 504 / network drops, with jitter
+                             and the server's Retry-After honoured; application errors are never retried
+       • generation guard  – reset() cancels queued + in-flight calls cleanly (rejected with code
+                             'cancelled'), and late answers from an old connection can no longer corrupt
+                             the in-flight counter
+       • typed errors      – err.code is one of: none | noproxy | locked | badproxy | network | timeout |
+                             http | badresponse | odoo | cancelled   (err.status / err.retryable when known)
+       • diagnostics       – api.stats() exposes counters for Settings / support                      */
+  var MAX_CONCURRENT = 3, REQUEST_TIMEOUT = 45000, MAX_RETRIES = 2, RETRY_BASE = 600, RETRY_CAP = 6000;
+  var _inFlight = 0, _queue = [], _gen = 0, _aborters = [];
+  var stats = { sent: 0, ok: 0, failed: 0, retried: 0, timeouts: 0, cancelled: 0, lastError: null, lastErrorAt: 0, lastOkAt: 0 };
+  /* Read-only endpoints: safe to repeat. Anything else is sent exactly once. */
+  var SAFE_RETRY = { records: 1, 'read-group': 1, fields: 1, companies: 1, modules: 1, test: 1 };
+
+  function mkErr(message, code, extra) { var e = new Error(message); e.code = code; if (extra) Object.keys(extra).forEach(function (k) { e[k] = extra[k]; }); return e; }
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
   function _flush() {
     while (_inFlight < MAX_CONCURRENT && _queue.length) {
       var job = _queue.shift();
-      _inFlight++;
-      job.run().then(function (r) { _inFlight--; _flush(); job.resolve(r); },
-                     function (e) { _inFlight--; _flush(); job.reject(e); });
+      if (job.gen !== _gen) { stats.cancelled++; job.reject(mkErr('Request cancelled: the Odoo connection was reset.', 'cancelled')); continue; }
+      _start(job);
     }
   }
+  function _start(job) {
+    var gen = job.gen, p;
+    _inFlight++;
+    try { p = Promise.resolve(job.run(gen)); } catch (e) { p = Promise.reject(e); }
+    function release() { if (gen === _gen) _inFlight = Math.max(0, _inFlight - 1); _flush(); }
+    p.then(function (r) { release(); job.resolve(r); }, function (e) { release(); job.reject(e); });
+  }
 
-  function _rawFetch(proxyUrl, body, t0) {
-    return fetch(String(proxyUrl).replace(/\/+$/, ''), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-      .then(function (r) {
-        noteCors(r);
-        return r.text().then(function (t) {
-          var d = null; try { d = JSON.parse(t); } catch (e) {}
-          if (!d) throw new Error('Worker returned HTTP ' + r.status + ' (not JSON). Check the Worker URL in Settings.');
-          if (!d.ok) throw new Error(d.error || 'Odoo request failed');
-          api.lastLatency = Date.now() - t0;
-          return d;
-        });
-      }, function () { throw new Error('Cannot reach the Worker. Check the Worker URL, your connection and ALLOWED_ORIGINS.'); });
+  function _parse(r, started) {
+    noteCors(r);
+    return r.text().then(function (t) {
+      var d = null; try { d = JSON.parse(t); } catch (e) {}
+      var transient = r.status === 429 || r.status === 502 || r.status === 503 || r.status === 504;
+      if (!d || typeof d !== 'object') {
+        throw mkErr('Worker returned HTTP ' + r.status + ' (not JSON). Check the Worker URL in Settings.', 'badresponse', { status: r.status, retryable: transient });
+      }
+      if (!d.ok) {
+        var msg = d.error || 'Odoo request failed';
+        var limited = transient || /rate.?limit|too many requests/i.test(String(msg));
+        throw mkErr(msg, limited ? 'http' : 'odoo', { status: r.status, retryable: limited });
+      }
+      api.lastLatency = Date.now() - started;
+      return d;
+    });
+  }
+  function _retryAfter(r) { try { var v = Number(r.headers.get('retry-after')); return v > 0 ? Math.min(v * 1000, RETRY_CAP) : 0; } catch (e) { return 0; } }
+
+  /* One HTTP attempt with a hard timeout. */
+  function _once(url, body, gen) {
+    var ctl = typeof AbortController === 'function' ? new AbortController() : null, timer, started = Date.now(), timedOut = false, cancel;
+    /* `handle.abort` is what reset() calls: it aborts the fetch AND rejects this attempt, even if fetch ignores the signal. */
+    var killed = new Promise(function (_, reject) { cancel = function () { reject(mkErr('Request cancelled: the Odoo connection was reset.', 'cancelled')); }; });
+    var handle = { abort: function () { if (ctl) { try { ctl.abort(); } catch (e) {} } cancel(); } };
+    _aborters.push(handle);
+    function detach() { clearTimeout(timer); var i = _aborters.indexOf(handle); if (i > -1) _aborters.splice(i, 1); }
+    var opts = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) };
+    if (ctl) opts.signal = ctl.signal;
+    var guard = new Promise(function (_, reject) {
+      timer = setTimeout(function () {
+        timedOut = true; stats.timeouts++;
+        if (ctl) { try { ctl.abort(); } catch (e) {} }
+        reject(mkErr('Odoo took too long to answer (over ' + Math.round(REQUEST_TIMEOUT / 1000) + 's). Try again, or narrow the date range / filter.', 'timeout', { retryable: true }));
+      }, REQUEST_TIMEOUT);
+    });
+    var req;
+    try { req = fetch(url, opts); } catch (e) { req = Promise.reject(e); }
+    var work = req.then(function (r) {
+      return _parse(r, started).catch(function (e) { if (e && e.retryable && !e.retryAfter) e.retryAfter = _retryAfter(r); throw e; });
+    }, function () {
+      if (gen !== _gen) throw mkErr('Request cancelled: the Odoo connection was reset.', 'cancelled');
+      if (timedOut) throw mkErr('Odoo took too long to answer.', 'timeout', { retryable: true });
+      throw mkErr('Cannot reach the Worker. Check the Worker URL, your connection and ALLOWED_ORIGINS.', 'network', { retryable: true });
+    });
+    return Promise.race([work, guard, killed]).then(function (v) { detach(); return v; }, function (e) { detach(); throw e; });
+  }
+
+  function _rawFetch(proxyUrl, body, gen) {
+    var url = String(proxyUrl || '').trim().replace(/\/+$/, '');
+    if (!/^https?:\/\/[^\s/]+/i.test(url)) {
+      return Promise.reject(mkErr('The Worker URL must start with https:// (for example https://dashview.yourname.workers.dev). Fix it in Settings → Odoo → Proxy URL.', 'badproxy'));
+    }
+    var retries = SAFE_RETRY[body.endpoint] ? MAX_RETRIES : 0;
+    stats.sent++;
+    function attempt(n) {
+      return _once(url, body, gen).then(function (d) { stats.ok++; stats.lastOkAt = Date.now(); return d; }, function (e) {
+        if (e && e.retryable && n < retries && gen === _gen) {
+          stats.retried++;
+          var wait = Math.max(e.retryAfter || 0, Math.min(RETRY_CAP, RETRY_BASE * Math.pow(2, n)) * (0.75 + Math.random() * 0.5));
+          return sleep(wait).then(function () { if (gen !== _gen) throw mkErr('Request cancelled: the Odoo connection was reset.', 'cancelled'); return attempt(n + 1); });
+        }
+        if (e && e.code === 'cancelled') stats.cancelled++;
+        else { stats.failed++; stats.lastError = e && e.message; stats.lastErrorAt = Date.now(); }
+        throw e;
+      });
+    }
+    return attempt(0);
   }
 
   /* -- Fast repeat reads ------------------------------------------------------
      Identical read-only requests that are already on the way share one answer, and a finished answer is reused for
      READ_TTL ms. Re-opening a drill, switching tabs back and forth, or several widgets asking the same thing now
      cost nothing. Any Refresh control (or api.reset / api.invalidate) clears it, so a manual refresh is always fresh. */
-  var READ_TTL = 20000, READ_OPS = { records: 1, 'read-group': 1, fields: 1, companies: 1, modules: 1 }, _reads = {};
+  var READ_TTL = 20000, READ_MAX = 300, READ_OPS = { records: 1, 'read-group': 1, fields: 1, companies: 1, modules: 1 }, _reads = {};
   function _clearReads() { _reads = {}; }
+  function _pruneReads() {
+    var keys = Object.keys(_reads); if (keys.length <= READ_MAX) return;
+    var now = Date.now();
+    keys.forEach(function (k) { if (now - _reads[k].at >= READ_TTL) delete _reads[k]; });
+    keys = Object.keys(_reads);                                   /* still too many: drop the oldest */
+    if (keys.length > READ_MAX) keys.sort(function (x, y) { return _reads[x].at - _reads[y].at; }).slice(0, keys.length - READ_MAX).forEach(function (k) { delete _reads[k]; });
+  }
   document.addEventListener('click', function (e) {
     var t = e.target && e.target.closest && e.target.closest('[id*="efresh"],[class*="efresh"],[data-refresh],[aria-label*="efresh"]');
     if (t) _clearReads();
@@ -82,6 +167,7 @@
       if (hit && Date.now() - hit.at < READ_TTL) return hit.p;
       var p = _call(endpoint, extra);
       _reads[key] = { at: Date.now(), p: p };
+      _pruneReads();
       p.catch(function () { if (_reads[key] && _reads[key].p === p) delete _reads[key]; });
       return p;
     }
@@ -92,14 +178,23 @@
   function _call(endpoint, extra) {
     var s = state();
     if (s !== 'ok') { var err = new Error(MSG[s]); err.code = s; return Promise.reject(err); }
-    var c = cfg(), t0 = Date.now();
+    var c = cfg();
     var body = Object.assign({}, extra || {}, { url: c.url, db: c.db, username: c.username, apiKey: c.apiKey, endpoint: endpoint });
     /* Multi-company: data calls carry the selected companies (explicit extra.companyIds wins, e.g. per-company comparison). */
     if (SCOPED[endpoint]) { var cids = (extra && extra.companyIds) || activeIds(); if (cids.length) body.companyIds = cids; else delete body.companyIds; }
     return new Promise(function (resolve, reject) {
-      _queue.push({ resolve: resolve, reject: reject, run: function () { return _rawFetch(c.proxyUrl, body, t0); } });
+      _queue.push({ gen: _gen, resolve: resolve, reject: reject, run: function (gen) { return _rawFetch(c.proxyUrl, body, gen); } });
       _flush();
     });
+  }
+
+  /* Cancel everything queued or in flight (used on reset / disconnect). */
+  function _cancelAll() {
+    _gen++;
+    var q = _queue; _queue = []; _inFlight = 0;
+    var ab = _aborters; _aborters = [];
+    ab.forEach(function (c) { try { c.abort(); } catch (e) {} });
+    q.forEach(function (j) { stats.cancelled++; j.reject(mkErr('Request cancelled: the Odoo connection was reset.', 'cancelled')); });
   }
 
   /* -- Company scope -------------------------------------------------------
@@ -120,8 +215,11 @@
   var api = {
     state: state, cfg: cfg, call: call, lastLatency: null,
     message: function (s) { return MSG[s || state()] || ''; },
-    reset: function () { memo = {}; companyList = null; _queue = []; _inFlight = 0; _reads = {}; },
+    reset: function () { _cancelAll(); memo = {}; companyList = null; _reads = {}; },
+    stats: function () { return Object.assign({}, stats, { inFlight: _inFlight, queued: _queue.length, cached: Object.keys(_reads).length, maxConcurrent: MAX_CONCURRENT, timeoutMs: REQUEST_TIMEOUT }); },
     invalidate: function () { _reads = {}; },
+    /* test / support hook: tune transport limits (timeout ms, retry base ms, concurrency) */
+    _tune: function (o) { o = o || {}; if (o.timeout > 0) REQUEST_TIMEOUT = o.timeout; if (o.retryBase >= 0) RETRY_BASE = o.retryBase; if (o.maxConcurrent > 0) MAX_CONCURRENT = o.maxConcurrent; },
     test: function () { return call('test'); },
     modules: function () { return cached('modules', function () { return call('modules').then(function (d) { return d.modules || []; }); }); },
     fields: function (model) { return cached('f:' + model, function () { return call('fields', { model: model }).then(function (d) { return d.fields || {}; }); }); },
