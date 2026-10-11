@@ -23,7 +23,13 @@
     "ALLOWED_ORIGINS": "https://artivoralabs.github.io",
 
     // Odoo hostnames this Worker is allowed to call, comma-separated.
+    // REQUIRED: with no value the Odoo relay refuses every request (it needs no login, so this list is its only guard).
+    // Use plain hostnames; add "host:port" only if your Odoo really listens on a non-443 port.
     "ALLOWED_ODOO_HOSTS": "edu-artisanauracreations.odoo.com"
+
+    // Once your owner account exists, close public sign-up:
+    //   "ALLOW_REGISTRATION": "false"
+    // JWT_SECRET (secret, NOT a var) must be 32+ random characters:  openssl rand -base64 48
   },
 
   // ---------------------------------------------------------------------

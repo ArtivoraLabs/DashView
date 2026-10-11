@@ -5,7 +5,25 @@
   'use strict';
   var KEY = 'dashview-config', THEME_KEY = 'dashview-theme', root = document.documentElement;
   var mm = function (q) { return window.matchMedia ? window.matchMedia(q) : { matches: false, addEventListener: function () {} }; };
-  var ACCENTS = { amber: null, teal: ['#2fbf9f', '#0e7c66'], blue: ['#6aa5ff', '#2563eb'], violet: ['#b197fc', '#7c3aed'], rose: ['#fb7a92', '#d61f4c'] };
+  /* Accent colours. Amber is DashView's own brand (defined in CSS, so null here). The rest are Apple's iOS system
+     colours: [dark-theme value, light-theme value]. The dark value is the iOS dark system colour; the light value is the
+     iOS light colour darkened just enough to keep text and links at >= 4.5 : 1 on the light surfaces (WCAG AA).
+     Old saved keys (teal, blue, violet, rose) still work - violet is now iOS Purple and rose is iOS Pink. */
+  var ACCENTS = {
+    amber: null,
+    blue:     ['#0a84ff', '#0069db'],
+    indigo:   ['#7d7aff', '#5856d6'],
+    violet:   ['#bf5af2', '#9a48c3'],
+    rose:     ['#ff375f', '#d12546'],
+    red:      ['#ff453a', '#cc2f26'],
+    orange:   ['#ff9f0a', '#b05000'],
+    yellow:   ['#ffd60a', '#856a00'],
+    green:    ['#30d158', '#217d38'],
+    mint:     ['#63e6e2', '#007b76'],
+    teal:     ['#40c8e0', '#207685'],
+    cyan:     ['#64d2ff', '#22749a'],
+    graphite: ['#98989d', '#6d6d71']
+  };
   var CHOICES = { theme: ['system', 'light', 'dark'], accent: Object.keys(ACCENTS), motion: ['system', 'reduce', 'full'] };
   var DEFAULTS = { theme: 'system', accent: 'amber', motion: 'system' };
   var subs = [], deferred = null, swReg = null, reloaded = false, installRequested = false, appInstalled = false, swError = false;

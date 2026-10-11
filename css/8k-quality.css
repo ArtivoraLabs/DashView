@@ -26,11 +26,11 @@
       --dv-c8: oklch(68.0% 0.180 277);
       --dv-c9: oklch(83.7% 0.149 114);
       --dv-c10: oklch(71.1% 0.040 257);
-      --st-good: oklch(71.9% 0.167 157);
-      --st-bad: oklch(69.6% 0.183 30);
-      --st-warn: oklch(80.1% 0.158 75);
-      --st-info: oklch(69.0% 0.169 257);
-      --st-flat: oklch(71.1% 0.040 257);
+      --st-good: oklch(75.6% 0.235 147);
+      --st-bad: oklch(66.3% 0.253 28);
+      --st-warn: oklch(78.2% 0.193 67);
+      --st-info: oklch(62.4% 0.232 255);
+      --st-flat: oklch(68.1% 0.008 286);
       --signal: oklch(76.5% 0.159 73);
       --dv-pos: var(--st-good); --dv-neg: var(--st-bad); --dv-warn: var(--st-warn);
       --cp-c1: var(--dv-c1); --cp-c2: var(--dv-c2); --cp-c3: var(--dv-c3);

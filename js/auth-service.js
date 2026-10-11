@@ -149,17 +149,24 @@
     });
   }
 
+  var verifying = false;
   function verifySimple(email, password) {
     var cred = loadCred();
     if (!cred) return Promise.reject(new Error('No admin account exists yet. Set one up first.'));
     var wait = lockWait();
     if (wait) return Promise.reject(new Error('Too many attempts. Try again in ' + waitText(wait) + '.'));
     if (!cryptoReady()) return Promise.reject(new Error('This browser cannot check passwords here. Open DashView over HTTPS (or localhost).'));
-    var parts = cred.hash.split('$'), iter = parseInt(parts[1], 10), salt = fromB64(parts[2]), expected = fromB64(parts[3]);
-    return derive(password, salt, iter).then(function (got) {
-      var emailOk = String(email || '').trim().toLowerCase() === cred.email;
-      return sameBytes(got, expected) && emailOk;   /* the hash is always computed, so timing does not reveal which part was wrong */
-    });
+    if (verifying) return Promise.reject(new Error('Checking the previous attempt — wait a moment.'));   /* parallel guesses must not all pass the lock check before a failure is counted */
+    verifying = true;
+    var work;
+    try {
+      var parts = cred.hash.split('$'), iter = parseInt(parts[1], 10), salt = fromB64(parts[2]), expected = fromB64(parts[3]);
+      work = derive(password, salt, iter).then(function (got) {
+        var emailOk = String(email || '').trim().toLowerCase() === cred.email;
+        return sameBytes(got, expected) && emailOk;   /* the hash is always computed, so timing does not reveal which part was wrong */
+      });
+    } catch (e) { verifying = false; return Promise.reject(new Error('The saved admin account data is damaged. Reset it from Settings.')); }
+    return work.then(function (v) { verifying = false; return v; }, function (e) { verifying = false; throw e; });
   }
   function simpleLogin(email, password) {
     return verifySimple(email, password).then(function (ok) {
@@ -389,7 +396,7 @@
     var backend = isBackendMode();
     menu.innerHTML =
       '<div class="dv-account-menu-head">' +
-      '  <div class="dash-side-user" style="background:' + ROLE_COLOR[user.role] + '22;color:' + ROLE_COLOR[user.role] + ';">' + user.initials + '</div>' +
+      '  <div class="dash-side-user" style="background:' + ROLE_COLOR[user.role] + '22;color:' + ROLE_COLOR[user.role] + ';">' + escapeHtml(user.initials) + '</div>' +
       '  <div><p>' + escapeHtml(user.name) + '</p><span>' + escapeHtml(user.email) + '</span></div>' +
       '</div>' +
       '<div class="dv-account-menu-role"><span class="dv-role-dot" style="background:' + ROLE_COLOR[user.role] + '"></span>' + ROLE_LABEL[user.role] + (user.guest ? ' · Guest session' : (backend ? '' : ' · Built-in admin')) + '</div>' +

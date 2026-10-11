@@ -16,7 +16,7 @@ body.studio-body { background: var(--paper-alt); min-height: 100vh; }
 html[data-theme="dark"] {
   --ink: #e7ede7; --ink-70: rgba(231,237,231,0.84); --ink-50: rgba(231,237,231,0.72); --ink-30: rgba(231,237,231,0.60);
   --paper: #0a0c0b; --paper-soft: #141815; --paper-alt: #07090a; --line: rgba(232,163,61,0.13); --line-strong: rgba(232,163,61,0.28);
-  --signal-10: rgba(232,163,61,0.14); --signal-20: rgba(232,163,61,0.24); --beacon-10: rgba(217,143,39,0.14); --danger-10: rgba(229,101,79,0.14);
+  --signal-10: rgba(232,163,61,0.14); --signal-20: rgba(232,163,61,0.24); --beacon-10: rgba(217,143,39,0.14); --danger-10: color-mix(in srgb,var(--ios-red,#ff453a) 14%,transparent);
 }
 html[data-theme="dark"] .studio-topbar { background: #07090a; }
 html[data-theme="dark"] .studio-dropzone { background: var(--paper); }

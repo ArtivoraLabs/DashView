@@ -45,7 +45,7 @@ textarea.ws-input { resize: vertical; min-height: 72px; line-height: 1.45; }
 .ws-form-err { min-height: 18px; margin: 0 0 8px; font-size: 13px; color: var(--danger); }
 .ws-link-btn { background: none; border: 0; padding: 0; font: inherit; font-size: 13px; color: var(--signal); cursor: pointer; text-decoration: underline; }
 .ws-link-btn:hover { color: var(--signal-bright); }
-.btn.ws-danger { color: var(--danger); border-color: rgba(229,101,79,.45); }
+.btn.ws-danger { color: var(--danger); border-color: color-mix(in srgb,var(--ios-red,#ff453a) 45%,transparent); }
 .btn.ws-danger:hover { background: var(--danger-10); }
 .btn.ws-danger.armed { background: var(--danger); color: #fff; border-color: var(--danger); }
 
@@ -65,7 +65,7 @@ textarea.ws-input { resize: vertical; min-height: 72px; line-height: 1.45; }
 .ws-pill.deleted, .ws-pill.rejected, .ws-pill.reset, .ws-pill.late { background: var(--danger-10); color: var(--danger); }
 .ws-pri { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--ink-70); white-space: nowrap; }
 .ws-pri i { width: 8px; height: 8px; border-radius: 50%; background: #6b9bbd; }
-.ws-pri.medium i { background: #e8a33d; } .ws-pri.high i { background: #e0782f; } .ws-pri.urgent i { background: #e5654f; box-shadow: 0 0 0 3px rgba(229,101,79,.2); }
+.ws-pri.medium i { background: #e8a33d; } .ws-pri.high i { background: #e0782f; } .ws-pri.urgent i { background: var(--ios-red,#ff453a); box-shadow: 0 0 0 3px color-mix(in srgb,var(--ios-red,#ff453a) 20%,transparent); }
 .ws-due { font-size: 12px; color: var(--ink-50); white-space: nowrap; }
 .ws-due.late { color: var(--danger); font-weight: 600; }
 .ws-due.soon { color: var(--signal); font-weight: 600; }
@@ -76,7 +76,7 @@ textarea.ws-input { resize: vertical; min-height: 72px; line-height: 1.45; }
 .ws-empty p { margin: 0 auto 14px; max-width: 460px; color: var(--ink-50); font-size: 14px; }
 .ws-empty .ws-actions { justify-content: center; }
 .ws-notice { margin: 0 0 14px; padding: 10px 14px; border-radius: var(--r-sm); font-size: 13px; background: var(--signal-10); border: 1px solid var(--line-strong); color: var(--ink-70); }
-.ws-notice.err { background: var(--danger-10); border-color: rgba(229,101,79,.4); }
+.ws-notice.err { background: var(--danger-10); border-color: color-mix(in srgb,var(--ios-red,#ff453a) 40%,transparent); }
 
 /* -- board ----------------------------------------------------------------- */
 .ws-board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(250px, 1fr); gap: 12px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x proximity; }

@@ -94,14 +94,14 @@
 }
 /* Live Odoo badge */
 .dash-nav-link .badge.live {
-  background: rgba(79,180,119,0.15);
-  border-color: rgba(79,180,119,0.3);
+  background: color-mix(in srgb,var(--ios-green,#30d158) 15%,transparent);
+  border-color: color-mix(in srgb,var(--ios-green,#30d158) 30%,transparent);
   color: #6fe3a5;
   animation: live-pulse 2s ease-in-out infinite;
 }
 @keyframes live-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(79,180,119,0); }
-  50%       { box-shadow: 0 0 0 3px rgba(79,180,119,0.12); }
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb,var(--ios-green,#30d158) 0%,transparent); }
+  50%       { box-shadow: 0 0 0 3px color-mix(in srgb,var(--ios-green,#30d158) 12%,transparent); }
 }
 
 /* User block at the bottom ── polished with role badge */
@@ -212,7 +212,7 @@
   background: var(--ink-30);
   flex-shrink: 0;
 }
-.stg-tab-status.live { background: #4fb477; box-shadow: 0 0 0 3px rgba(79,180,119,0.2); }
+.stg-tab-status.live { background: var(--ios-green,#30d158); box-shadow: 0 0 0 3px color-mix(in srgb,var(--ios-green,#30d158) 20%,transparent); }
 .stg-tab-status.configured { background: var(--signal); }
 .stg-tab-status.error { background: var(--danger); }
 
@@ -321,9 +321,9 @@
 .stg-badge-free {
   display: inline-flex; align-items: center; gap: 4px;
   font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em;
-  background: rgba(79,180,119,0.13);
-  color: #4fb477;
-  border: 1px solid rgba(79,180,119,0.28);
+  background: color-mix(in srgb,var(--ios-green,#30d158) 13%,transparent);
+  color: var(--ios-green,#30d158);
+  border: 1px solid color-mix(in srgb,var(--ios-green,#30d158) 28%,transparent);
   border-radius: var(--r-full);
   padding: 1px 8px;
   vertical-align: middle;
@@ -356,8 +356,8 @@
   background: var(--paper-soft);
 }
 .stg-status-pill::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--ink-30); flex-shrink: 0; transition: background var(--t-fast); }
-.stg-status-pill.live { color: #4fb477; border-color: rgba(79,180,119,0.35); background: rgba(79,180,119,0.07); }
-.stg-status-pill.live::before { background: #4fb477; box-shadow: 0 0 0 3px rgba(79,180,119,0.2); animation: live-pulse 2s ease-in-out infinite; }
+.stg-status-pill.live { color: var(--ios-green,#30d158); border-color: color-mix(in srgb,var(--ios-green,#30d158) 35%,transparent); background: color-mix(in srgb,var(--ios-green,#30d158) 7%,transparent); }
+.stg-status-pill.live::before { background: var(--ios-green,#30d158); box-shadow: 0 0 0 3px color-mix(in srgb,var(--ios-green,#30d158) 20%,transparent); animation: live-pulse 2s ease-in-out infinite; }
 .stg-status-pill.configured { color: var(--signal-bright); border-color: var(--line-strong); }
 .stg-status-pill.configured::before { background: var(--signal); }
 

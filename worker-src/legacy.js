@@ -20,6 +20,22 @@
    write paths that satisfy that requirement).
    ========================================================================== */
 
+/* Self-contained on purpose (no imports): this file is also copied and loaded on its own by the test harness.
+   The two helpers below mirror isSafeField / isForbiddenHost in lib/util.js. */
+const SAFE_FIELD = /^[a-z][a-z0-9_]{0,127}$/;
+const SENSITIVE_FIELD = /(?:password|passwd|secret|token|api[_]?key|credential|private|authorization|signature|access[_]?token|refresh[_]?token)/i;
+function isSafeField(field) {
+  return typeof field === 'string' && field.split('.').every((part) => SAFE_FIELD.test(part) && !SENSITIVE_FIELD.test(part));
+}
+function isIPAddress(host) {
+  return /^\d{1,3}(\.\d{1,3}){3}$/.test(host) || (host.includes(':') && /^[0-9a-f:]+$/i.test(host));
+}
+function isForbiddenHost(hostname) {
+  const h = String(hostname || '').toLowerCase().replace(/\.$/, '');
+  return !h || isIPAddress(h) || h.includes(':') || h.startsWith('[') || h === 'localhost' || !h.includes('.') ||
+    /\.(localhost|local|internal|intranet|lan|home|corp|test|invalid|example)$/.test(h);
+}
+
 const AI_MAX_REPLY_TOKENS = 4096;
 
 export async function handleLegacy(request, env, reply) {
@@ -27,11 +43,11 @@ export async function handleLegacy(request, env, reply) {
   let body;
   try { body = await request.json(); }
   catch { return reply({ ok: false, error: 'Invalid JSON body' }, 400); }
-  if (!body || typeof body !== 'object') return reply({ ok: false, error: 'Invalid JSON body' }, 400);
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return reply({ ok: false, error: 'Invalid JSON body' }, 400);
 
   const list = (v) => String(v || '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
   const hosts = list(env.ALLOWED_ODOO_HOSTS);
-  const action = (body.endpoint || 'test').replace(/^\/+/, '');
+  const action = (typeof body.endpoint === 'string' ? body.endpoint : 'test').replace(/^\/+/, '');
 
   if (action === 'ai-chat') {
     const bad = checkAiArgs(body);
@@ -40,17 +56,21 @@ export async function handleLegacy(request, env, reply) {
     catch (err) { return reply({ ok: false, error: err.message || 'AI request failed' }, 502); }
   }
 
-  const { url, db, username, apiKey } = body;
+  /* This endpoint needs no DashView login, so the host allow-list is the ONLY thing that stops it being
+     used as an open relay to any server on the internet. No allow-list configured = no relaying. */
+  if (!hosts.length) {
+    return reply({ ok: false, error: 'Odoo browsing is switched off: this Worker has no ALLOWED_ODOO_HOSTS configured. Set it to your Odoo hostname (for example mycompany.odoo.com) and redeploy.' }, 503);
+  }
+
+  const { db, username, apiKey } = body;
   const missing = ['url', 'db', 'username', 'apiKey'].filter((k) => !body[k]);
   if (missing.length) return reply({ ok: false, error: 'Missing required field(s): ' + missing.join(', ') }, 400);
+  const credBad = checkCredentials(db, username, apiKey);
+  if (credBad) return reply({ ok: false, error: credBad }, 400);
 
-  const odooBase = normalizeUrl(url);
-  let host;
-  try { host = new URL(odooBase).hostname.toLowerCase(); }
-  catch { return reply({ ok: false, error: 'Odoo URL is not valid' }, 400); }
-  if (hosts.length && !hosts.includes(host)) {
-    return reply({ ok: false, error: 'Odoo host not allowed by this Worker: ' + host }, 403);
-  }
+  let odooBase;
+  try { odooBase = resolveOdooBase(body.url, hosts); }
+  catch (err) { return reply({ ok: false, error: err.message || 'Odoo URL is not valid' }, err.status || 400); }
   const bad = checkArgs(body);
   if (bad) return reply({ ok: false, error: bad }, 400);
 
@@ -74,9 +94,14 @@ export async function handleLegacy(request, env, reply) {
 function checkAiArgs(b) {
   if (!['grok', 'anthropic', 'groq'].includes(b.provider)) return 'provider must be "grok", "anthropic" or "groq"';
   if (typeof b.apiKey !== 'string' || !b.apiKey) return 'apiKey is required';
+  if (b.apiKey.length > 512 || /[\u0000-\u001f\u007f\s]/.test(b.apiKey)) return 'apiKey is invalid';
   if (typeof b.model !== 'string' || !b.model) return 'model is required';
+  if (b.model.length > 120 || !/^[A-Za-z0-9._:\/-]+$/.test(b.model)) return 'model is invalid';
   if (!Array.isArray(b.messages) || !b.messages.length) return 'messages must be a non-empty array';
-  if (b.messages.some((m) => typeof m.content !== 'string')) return 'every message needs string content';
+  if (b.messages.length > 200) return 'too many messages';
+  if (b.messages.some((m) => !m || typeof m !== 'object' || typeof m.content !== 'string')) return 'every message needs string content';
+  if (b.messages.some((m) => !['user', 'assistant', 'ai', 'system'].includes(m.role))) return 'every message needs a valid role';
+  if (b.system !== undefined && b.system !== null && (typeof b.system !== 'string' || b.system.length > 60000)) return 'system must be a string of at most 60000 characters';
   return '';
 }
 
@@ -155,31 +180,89 @@ async function aiChatAnthropic(apiKey, model, system, messages) {
 /* --- Input validation (read-only proxy: only these shapes are ever forwarded) --- */
 const MODEL_RE = /^[a-z][a-z0-9_]*(\.[a-z0-9_]+)*$/;
 const ORDER_RE = /^[a-z0-9_.:]+( (asc|desc))?(, ?[a-z0-9_.:]+( (asc|desc))?)*$/i;
+/* Models that hold logins, secrets, mail or payment data are never readable through this relay — not even
+   when Odoo itself would allow it (the old code only enforced this inside "batch"). */
+const DENY_MODEL = /^(res\.users(\.|$)|ir\.(?!model$)|res\.config(\.|$)|base\.|base_|auth[._]|oauth|payment\.|mail\.|bus\.|sms\.|fetchmail|iap\.)/;
+const DOMAIN_OPS = new Set(['=', '!=', '>', '>=', '<', '<=', 'like', 'ilike', 'not like', 'not ilike', '=like', '=ilike', '=?',
+  'in', 'not in', 'child_of', 'parent_of', 'any', 'not any']);
+const HOST_RE = /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)*[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
+
+function fieldOk(f) { return typeof f === 'string' && f.length < 140 && isSafeField(f); }
+/* "amount_total:sum", "date_order:month", "__count" and the older "alias:sum(field)" form */
+function aggregateOk(spec) {
+  if (spec === '__count') return true;
+  const m = /^([a-z][a-z0-9_]{0,127})(?::([a-z_]+)(?:\(([a-z][a-z0-9_]{0,127})\))?)?$/.exec(typeof spec === 'string' ? spec : '');
+  return !!m && fieldOk(m[1]) && (!m[3] || fieldOk(m[3]));
+}
+function scalarOk(v) {
+  return v === null || typeof v === 'boolean' || (typeof v === 'number' && Number.isFinite(v)) || (typeof v === 'string' && v.length <= 500);
+}
+function domainValueOk(v) { return scalarOk(v) || (Array.isArray(v) && v.length <= 100 && v.every(scalarOk)); }
+/* Same operator list the dashboard's filter builder produces; field names must be plain (no passwords / tokens / keys),
+   which also stops "does this secret start with a%?" style probing through a search filter. */
+function domainOk(d, depth) {
+  if (!Array.isArray(d) || d.length > 100 || depth > 3) return false;
+  return d.every((item) => {
+    if (typeof item === 'string') return item === '&' || item === '|' || item === '!';
+    if (!Array.isArray(item) || item.length !== 3) return false;
+    const f = item[0], op = item[1], v = item[2];
+    if (!fieldOk(f) || typeof op !== 'string' || !DOMAIN_OPS.has(op.toLowerCase())) return false;
+    return /^(not )?any$/i.test(op) ? domainOk(v, depth + 1) : domainValueOk(v);
+  });
+}
+function orderOk(o) {
+  return typeof o === 'string' && o.length <= 200 && ORDER_RE.test(o) &&
+    o.split(',').every((part) => fieldOk(part.trim().split(/\s+/)[0].split(':')[0]));
+}
+
 function checkArgs(b) {
-  const names = (a, max) => Array.isArray(a) && a.length <= max && a.every((x) => typeof x === 'string' && x.length < 90);
+  const fieldNames = (a, max) => Array.isArray(a) && a.length <= max && a.every((x) => typeof x === 'string' && x.length < 90);
   if (b.model !== undefined && !(typeof b.model === 'string' && b.model.length <= 80 && MODEL_RE.test(b.model))) return 'Invalid model name';
+  if (typeof b.model === 'string' && DENY_MODEL.test(b.model)) return 'Model "' + b.model + '" is not available through this Worker';
   if (b.module !== undefined && !(typeof b.module === 'string' && /^[a-z0-9_]{1,80}$/.test(b.module))) return 'Invalid module name';
   if (b.domain !== undefined && !Array.isArray(b.domain)) return 'domain must be an array';
-  if (b.fields !== undefined && b.fields !== null && !names(b.fields, 80)) return 'fields must be a list of field names';
-  if (b.groupby !== undefined && !names(b.groupby, 3)) return 'groupby must be a list of up to 3 field names';
-  for (const k of ['order', 'orderby']) if (b[k] !== undefined && b[k] !== '' && !(typeof b[k] === 'string' && ORDER_RE.test(b[k]))) return 'Invalid ' + k;
+  if (b.domain !== undefined && !domainOk(b.domain, 0)) return 'domain contains an operator or field that is not allowed';
+  if (b.fields !== undefined && b.fields !== null && !fieldNames(b.fields, 80)) return 'fields must be a list of field names';
+  if (Array.isArray(b.fields) && !b.fields.every(aggregateOk)) return 'fields contains a name that is not allowed';
+  if (b.groupby !== undefined && !fieldNames(b.groupby, 3)) return 'groupby must be a list of up to 3 field names';
+  if (Array.isArray(b.groupby) && !b.groupby.every((g) => /^[a-z][a-z0-9_]{0,127}(:(day|week|month|quarter|year))?$/.test(g) && fieldOk(g.split(':')[0]))) return 'groupby contains a name that is not allowed';
+  for (const k of ['order', 'orderby']) if (b[k] !== undefined && b[k] !== '' && !orderOk(b[k])) return 'Invalid ' + k;
   if (b.limit !== undefined && !(Number.isInteger(b.limit) && b.limit >= 1 && b.limit <= 500)) return 'limit must be between 1 and 500';
   if (b.offset !== undefined && !(Number.isInteger(b.offset) && b.offset >= 0 && b.offset <= 1000000)) return 'Invalid offset';
   if (b.companyIds !== undefined && !(Array.isArray(b.companyIds) && b.companyIds.length <= 50 && b.companyIds.every((x) => Number.isInteger(x) && x > 0))) return 'companyIds must be a list of company ids';
   return '';
 }
 
-function normalizeUrl(u) {
-  u = String(u).trim().replace(/\/+$/, '');
-  if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
-  try {
-    /* Pasted browser URLs (…/odoo/action-1, …/web#id=5) → site root; JSON-RPC lives at /jsonrpc */
-    const p = new URL(u);
-    /* Odoo Online / Odoo.sh are https-only; a plain http:// URL just bounces (and a bounced POST becomes a GET → HTTP 400) */
-    if (p.protocol === 'http:' && /\.(odoo\.com|odoo\.sh)$/i.test(p.hostname)) p.protocol = 'https:';
-    const path = /^\/(web|odoo|jsonrpc)(\/|$)/i.test(p.pathname) ? '' : p.pathname.replace(/\/+$/, '');
-    return p.origin + path;
-  } catch { return u; }
+function checkCredentials(db, username, apiKey) {
+  const ok = (v, max) => typeof v === 'string' && v.length > 0 && v.length <= max && !/[\u0000-\u001f\u007f]/.test(v);
+  return ok(db, 256) && ok(username, 256) && ok(apiKey, 1024) ? '' : 'Odoo credentials are invalid.';
+}
+
+class HttpError extends Error { constructor(message, status) { super(message); this.status = status; } }
+
+/* Turns whatever the user pasted into a safe Odoo origin, or throws. Pasted browser URLs (…/odoo/action-1,
+   …/web#id=5) become the site root, JSON-RPC lives at /jsonrpc.
+   Only public HTTPS hostnames in ALLOWED_ODOO_HOSTS pass: no http, no credentials in the URL, no IP addresses,
+   no localhost / *.internal / *.local, and no ports other than 443 unless the allow-list names "host:port". */
+function resolveOdooBase(raw, hosts) {
+  if (typeof raw !== 'string' || !raw.trim() || raw.length > 2048) throw new HttpError('Odoo URL is not valid', 400);
+  let u = raw.trim();
+  if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(u)) u = 'https://' + u;
+  let p;
+  try { p = new URL(u); } catch { throw new HttpError('Odoo URL is not valid', 400); }
+  /* Odoo Online / Odoo.sh are https-only; a plain http:// URL just bounces (and a bounced POST becomes a GET → HTTP 400) */
+  if (p.protocol === 'http:' && /\.(odoo\.com|odoo\.sh)$/i.test(p.hostname)) p.protocol = 'https:';
+  if (p.protocol !== 'https:') throw new HttpError('Odoo URL must use HTTPS — the API key is never sent over plain HTTP.', 400);
+  if (p.username || p.password) throw new HttpError('Odoo URL must not contain a username or password.', 400);
+  const host = p.hostname.toLowerCase();
+  if (isForbiddenHost(host) || !HOST_RE.test(host)) throw new HttpError('Odoo URL must be a public HTTPS hostname.', 400);
+  const key = p.port && p.port !== '443' ? host + ':' + p.port : host;
+  if (!hosts.includes(key) && !(key === host && hosts.includes(host + ':443'))) {
+    throw new HttpError('Odoo host not allowed by this Worker: ' + key, 403);
+  }
+  const path = /^\/(web|odoo|jsonrpc)(\/|$)/i.test(p.pathname) ? '' : p.pathname.replace(/\/+$/, '');
+  if (path && !/^(\/[A-Za-z0-9._~-]+)+$/.test(path)) throw new HttpError('Odoo URL path is not valid', 400);
+  return 'https://' + key + path;
 }
 
 const UA = 'Mozilla/5.0 (compatible; DashView-Proxy/1.0)';
@@ -202,8 +285,11 @@ async function rpc(baseUrl, service, method, args, hop = 0) {
   if (res.status >= 300 && res.status < 400) {
     const loc = res.headers.get('Location');
     if (!loc || hop >= 3) throw new Error('Odoo redirected the request (HTTP ' + res.status + ') and it could not be followed — check the Odoo URL.');
-    const next = new URL(loc, target);
-    if (next.hostname.toLowerCase() !== new URL(target).hostname.toLowerCase()) {
+    let next;
+    try { next = new URL(loc, target); } catch { throw new Error('Odoo redirected the request to an invalid address — check the Odoo URL.'); }
+    /* Same host AND port AND https only: never follow a redirect to another server or down to plain http
+       (that would leak the API key and is a classic SSRF pivot). */
+    if (next.protocol !== 'https:' || next.host.toLowerCase() !== new URL(target).host.toLowerCase()) {
       throw new Error('Odoo redirected to ' + next.origin + ' — use that address as the Odoo URL.');
     }
     return rpc(next.origin, service, method, args, hop + 1);
@@ -366,7 +452,6 @@ const AREAS = [
   ['Contacts', 'res.partner'], ['Products', 'product.template'], ['HR', 'hr.employee'],
   ['Projects / Tasks', 'project.task'], ['Expenses', 'hr.expense'],
 ];
-const DENY_MODEL = /^(res\.users(\.|$)|ir\.(?!model$)|auth_|payment\.|mail\.|bus\.|sms\.|fetchmail)/;
 
 async function pool(items, n, fn) {
   let i = 0;

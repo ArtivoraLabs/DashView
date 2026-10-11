@@ -155,6 +155,15 @@
       .catch(function () { return false; });
   }
 
+  /* Compares two base64 strings without bailing out at the first difference. */
+  function sameString(a, b) {
+    a = String(a); b = String(b);
+    var diff = a.length ^ b.length;
+    for (var i = 0; i < Math.max(a.length, b.length); i++) diff |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
+    return diff === 0;
+  }
+  var unlocking = false;   /* one passcode check at a time: parallel guesses must not all pass the attempt counter before it is bumped */
+
   /* -- Lock screen --------------------------------------------------------- */
   function $(id) { return document.getElementById(id); }
   function ensureOverlay() {
@@ -197,9 +206,15 @@
   function unlock(pass) {
     var c = conf(), a = c.attempts || { n: 0, until: 0 }, now = Date.now();
     if (!subtle) return Promise.reject(new Error('Secure storage needs HTTPS (or localhost).'));
+    if (!c.pin) return Promise.reject(new Error('No passcode is set.'));
     if (a.until > now) return Promise.reject(new Error('Too many attempts. Try again in ' + Math.ceil((a.until - now) / 1000) + 's.'));
-    return derive(String(pass || ''), unb64(c.pin.salt), c.pin.iter).then(function (d) {
-      if (d.verifier !== c.pin.v) {
+    if (unlocking) return Promise.reject(new Error('Checking the previous attempt — wait a moment.'));
+    unlocking = true;
+    var work;
+    try { work = derive(String(pass || ''), unb64(c.pin.salt), c.pin.iter); }
+    catch (e) { unlocking = false; return Promise.reject(new Error('The saved passcode data is damaged.')); }
+    return work.then(function (d) {
+      if (!sameString(d.verifier, c.pin.v)) {
         a.n = (a.n || 0) + 1;
         if (a.n >= 5) a.until = now + Math.min(15 * 60000, 30000 * Math.pow(2, a.n - 5));
         setConf({ attempts: a });
@@ -209,7 +224,7 @@
       setConf({ attempts: { n: 0, until: 0 } });
       mem.key = d.key;
       return openKey().then(persistSession).then(function () { setLocked(false); log('Workspace unlocked'); fire('dv:unlocked'); });
-    });
+    }).then(function (v) { unlocking = false; return v; }, function (e) { unlocking = false; throw e; });
   }
   function setPasscode(pass) {
     if (!subtle) return Promise.reject(new Error('Secure storage needs HTTPS (or localhost).'));
@@ -320,6 +335,12 @@
     window.addEventListener(ev, function () { var n = Date.now(); if (n - last > 5000) { last = n; if (!locked) touch(); } }, { passive: true });
   });
   setInterval(function () { if (hasPin() && !locked && idleExceeded()) lock('Auto-locked after inactivity'); }, 10000);
+  /* Background tabs throttle timers, so a laptop opened after lunch could show the workspace for up to 10 s.
+     Check the idle clock the instant the page is shown again (tab switch, phone unlock, back/forward cache). */
+  function recheckIdle() { if (hasPin() && !locked && idleExceeded()) lock('Auto-locked after inactivity'); }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) recheckIdle(); });
+  window.addEventListener('pageshow', recheckIdle);
+  window.addEventListener('focus', recheckIdle);
   document.addEventListener('keydown', function (e) {
     if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'L' || e.key === 'l')) { e.preventDefault(); lock('Keyboard shortcut'); }
   });

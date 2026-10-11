@@ -1,10 +1,11 @@
-import { b64urlEncode, b64urlDecode, enc, dec } from './util.js';
+import { b64urlEncode, b64urlDecode, enc, dec, assertStrongSecret } from './util.js';
 
 const ISS = 'dashview-api';
 const AUD = 'dashview-web';
 const TTL_SECONDS = 12 * 60 * 60; // 12h, same as the old Express server
 
 async function hmacKey(secret) {
+  assertStrongSecret(secret);              // a short / missing secret must fail closed, never sign or verify
   return crypto.subtle.importKey(
     'raw', enc.encode(secret),
     { name: 'HMAC', hash: 'SHA-256' },
@@ -36,7 +37,7 @@ export async function verifyJwt(token, secret) {
     header = JSON.parse(dec.decode(b64urlDecode(headerB64)));
     payload = JSON.parse(dec.decode(b64urlDecode(payloadB64)));
   } catch { return null; }
-  if (!header || header.alg !== 'HS256') return null;
+  if (!header || header.alg !== 'HS256' || (header.typ !== undefined && header.typ !== 'JWT')) return null;
 
   const key = await hmacKey(secret);
   const signingInput = `${headerB64}.${payloadB64}`;
@@ -44,7 +45,10 @@ export async function verifyJwt(token, secret) {
   if (!valid) return null;
 
   const now = Math.floor(Date.now() / 1000);
+  if (!payload || typeof payload !== 'object') return null;
   if (payload.iss !== ISS || payload.aud !== AUD) return null;
   if (typeof payload.exp !== 'number' || payload.exp < now) return null;
+  if (typeof payload.iat !== 'number' || payload.iat > now + 60) return null;   // issued in the future (clock skew > 60 s)
+  if (payload.exp - payload.iat > TTL_SECONDS + 60) return null;                // lifetime longer than this server ever issues
   return payload;
 }

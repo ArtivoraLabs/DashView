@@ -104,7 +104,7 @@ html[data-theme="dark"] .glass-preview-float{background:rgba(255,255,255,.12);bo
 .chk-badge{font-size:10px;padding:2px 7px;border-radius:10px;flex-shrink:0;margin-top:1px;font-weight:600;letter-spacing:.02em;white-space:nowrap;}
 .chk-badge.req{background:var(--danger-10);color:var(--danger);}
 .chk-badge.rec{background:var(--signal-10);color:var(--signal);}
-.chk-badge.ok{background:rgba(79,180,119,.14);color:#4fb477;}
+.chk-badge.ok{background:color-mix(in srgb,var(--ios-green,#30d158) 14%,transparent);color:var(--ios-green,#30d158);}
 .chk-row .chk-txt b{display:block;font-size:13px;color:var(--ink);font-weight:500;}
 .chk-row .chk-txt span{display:block;font-size:11.5px;color:var(--ink-50);margin-top:1px;}
 
@@ -172,13 +172,13 @@ html[data-theme="dark"] .glass-preview-float{background:rgba(255,255,255,.12);bo
 
 
 /* ── Software update card (matches the update popup) ─────────────────────── */
-.stg-conn-meta-item span.upd-pill { display: inline-flex; align-items: center; gap: 7px; width: fit-content; max-width: 100%; padding: 3px 10px 3px 9px; border-radius: 14px; font-size: 12px; font-weight: 600; line-height: 1.4; background: rgba(79,180,119,.12); color: #4fb477; }
+.stg-conn-meta-item span.upd-pill { display: inline-flex; align-items: center; gap: 7px; width: fit-content; max-width: 100%; padding: 3px 10px 3px 9px; border-radius: 14px; font-size: 12px; font-weight: 600; line-height: 1.4; background: color-mix(in srgb,var(--ios-green,#30d158) 12%,transparent); color: var(--ios-green,#30d158); }
 .stg-conn-meta-item span.upd-pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 .stg-conn-meta-item span.upd-pill.is-warn { background: rgba(232,163,61,.14); color: #e8a33d; }
 .stg-conn-meta-item span.upd-pill.is-info { background: rgba(91,143,174,.16); color: #6fb0dd; }
 .stg-conn-meta-item span.upd-pill.is-info::before { animation: upd-blink 1.1s ease-in-out infinite; }
-.stg-conn-meta-item span.upd-pill.is-bad  { background: rgba(229,101,79,.14); color: #e5654f; }
-.stg-conn-meta-item span.upd-pill.is-ok   { background: rgba(79,180,119,.12); color: #4fb477; }
+.stg-conn-meta-item span.upd-pill.is-bad  { background: color-mix(in srgb,var(--ios-red,#ff453a) 14%,transparent); color: var(--ios-red,#ff453a); }
+.stg-conn-meta-item span.upd-pill.is-ok   { background: color-mix(in srgb,var(--ios-green,#30d158) 12%,transparent); color: var(--ios-green,#30d158); }
 html[data-theme="light"] .stg-conn-meta-item span.upd-pill.is-warn { color: #a85d08; }
 html[data-theme="light"] .stg-conn-meta-item span.upd-pill.is-info { color: #2563a8; }
 html[data-theme="light"] .stg-conn-meta-item span.upd-pill.is-ok, html[data-theme="light"] .stg-conn-meta-item span.upd-pill { color: #17814a; }
@@ -195,8 +195,8 @@ html[data-theme="light"] .stg-conn-meta-item span.upd-pill.is-bad { color: #c236
 .upd-notes li:last-child { border: 0; }
 .upd-tag { font-style: normal; display: inline-block; margin-right: 8px; padding: 1px 7px; border-radius: 999px; font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; vertical-align: 1px; background: rgba(111,176,221,.16); color: #6fb0dd; }
 .upd-tag.is-improved { background: rgba(232,163,61,.16); color: #e8a33d; }
-.upd-tag.is-fixed { background: rgba(79,180,119,.16); color: #4fb477; }
-.upd-tag.is-security { background: rgba(229,101,79,.16); color: #e5654f; }
+.upd-tag.is-fixed { background: color-mix(in srgb,var(--ios-green,#30d158) 16%,transparent); color: var(--ios-green,#30d158); }
+.upd-tag.is-security { background: color-mix(in srgb,var(--ios-red,#ff453a) 16%,transparent); color: var(--ios-red,#ff453a); }
 html[data-theme="light"] .upd-tag { color: #2563a8; }
 html[data-theme="light"] .upd-tag.is-improved { color: #a85d08; }
 html[data-theme="light"] .upd-tag.is-fixed { color: #17814a; }

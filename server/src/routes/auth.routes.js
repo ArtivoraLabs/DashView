@@ -6,6 +6,9 @@ const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 const attempts = new Map();
+// A hash nobody's password matches, so a login for an unknown email costs as much time as a real one
+// (otherwise the response time reveals which emails are registered).
+const DUMMY_HASH = bcrypt.hashSync('dashview-no-such-account', 12);
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function limitAuthAttempts(req, res, next) {
@@ -82,7 +85,8 @@ router.post('/login', limitAuthAttempts, async (req, res, next) => {
 
   try {
     const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email.trim().toLowerCase());
-    if (!user || !(await bcrypt.compare(password, user.password_hash))) {
+    const passwordOk = await bcrypt.compare(password, user ? user.password_hash : DUMMY_HASH);
+    if (!user || !passwordOk) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
     res.json({ token: sign(user), user: { id: user.id, name: user.name, email: user.email, role: user.role, orgId: user.org_id } });

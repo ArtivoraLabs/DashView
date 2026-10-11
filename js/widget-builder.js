@@ -35,6 +35,12 @@
     return message;
   }
   function uid() { return 'w_' + Math.random().toString(36).slice(2, 9); }
+  /* A widget id ends up inside HTML id="" attributes and CSS selectors. Ids DashView creates are w_xxxxxxx, but ids
+     also arrive from shared links (share.html#d=...) and imported layout files, which anyone can craft - so only
+     letters, digits, "_" and "-" ever reach the DOM. */
+  function safeId(id) { return String(id == null ? '' : id).replace(/[^A-Za-z0-9_-]/g, '').slice(0, 64) || 'w_x'; }
+  var SIZES = { sm: 1, md: 1, lg: 1, xl: 1, full: 1, wide: 1, tall: 1 };
+  function safeSize(size) { return SIZES[size] ? size : 'md'; }
 
   var DEMO_METRICS = {
     revenue_total: { label: 'Revenue (last 12 months)', type: 'kpi' },
@@ -241,9 +247,9 @@
       var data = computeDemo(src.metric);
       if (!data) { container.innerHTML = '<p class="dv-widget-empty">Live Odoo data isn\'t loaded yet \u2014 connect Odoo in Settings.</p>'; return; }
       if (widget.type === 'progress') { renderProgressBody(container, data.raw != null ? data.raw : null, data.value || '', data.sub, widget.target); return; }
-      if (widget.type === 'chart' && data.labels) { renderChartBody(container, { chartType: widget.chartType || data.chartType, labels: data.labels, values: data.values }, canvasIdPrefix + '_' + widget.id); return; }
+      if (widget.type === 'chart' && data.labels) { renderChartBody(container, { chartType: widget.chartType || data.chartType, labels: data.labels, values: data.values }, canvasIdPrefix + '_' + safeId(widget.id)); return; }
       if (data.kind === 'kpi') renderKpiBody(container, data);
-      else if (data.kind === 'chart') renderChartBody(container, { chartType: widget.chartType || data.chartType, labels: data.labels, values: data.values }, canvasIdPrefix + '_' + widget.id);
+      else if (data.kind === 'chart') renderChartBody(container, { chartType: widget.chartType || data.chartType, labels: data.labels, values: data.values }, canvasIdPrefix + '_' + safeId(widget.id));
       else renderTableBody(container, data);
       return;
     }
@@ -266,7 +272,7 @@
       var cached = src.data;
       if (!cached || !cached.rows.length) { container.innerHTML = '<p class="dv-widget-empty">No file imported into this widget yet — edit it to add one.</p>'; return; }
       if (widget.type === 'chart') {
-        renderChartBody(container, computeTableChart(cached.fields, cached.rows, src.catField, src.valField, widget.chartType), canvasIdPrefix + '_' + widget.id);
+        renderChartBody(container, computeTableChart(cached.fields, cached.rows, src.catField, src.valField, widget.chartType), canvasIdPrefix + '_' + safeId(widget.id));
         return;
       }
       if (widget.type === 'kpi' || widget.type === 'progress') {
@@ -304,7 +310,7 @@
     var tv = !!opts.tv;
     var readOnly = !!opts.readOnly;
     var card = document.createElement('article');
-    card.className = tv ? 'dv-tv-widget' : 'dv-widget-card dv-widget-card--' + (widget.size || 'md');
+    card.className = tv ? 'dv-tv-widget' : 'dv-widget-card dv-widget-card--' + safeSize(widget.size);
     if (!tv) { card.setAttribute('aria-label', 'Widget: ' + widget.title); }
     if (!tv) { card.draggable = !readOnly && can('editWidgets'); card.dataset.id = widget.id; }
     var canEdit = !readOnly && can('editWidgets');
@@ -328,7 +334,7 @@
         '    <button type="button" class="dv-widget-icon-btn danger" data-action="delete" aria-label="Delete ' + esc(widget.title) + '" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>' +
         '  </div>') +
       '</div>' +
-      '<div class="dv-widget-body" id="' + (tv ? 'tvBody' : 'body_' + widget.id) + '"></div>';
+      '<div class="dv-widget-body" id="' + (tv ? 'tvBody' : 'body_' + safeId(widget.id)) + '"></div>';
 
     if (!tv) {
       var editBtn = card.querySelector('[data-action="edit"]');
@@ -674,6 +680,38 @@
     updateModalRows();
   }
 
+  /* One strict validator for everything that arrives from outside (imported layout files AND shared links).
+     It returns a clean COPY with only the fields DashView uses, so unknown / hostile properties never get stored
+     or rendered; it throws when the widget cannot be trusted. */
+  function validateWidget(w, i) {
+    if (!w || typeof w !== 'object' || typeof w.title !== 'string' || !w.title.trim() || w.title.length > 120 ||
+        ['kpi', 'progress', 'chart', 'table'].indexOf(w.type) < 0 || !w.source || typeof w.source !== 'object')
+      throw new Error('invalid widget');
+    var source = w.source;
+    if (['demo', 'odoo', 'csv'].indexOf(source.kind) < 0) throw new Error('invalid source');
+    if (source.kind === 'demo' && !DEMO_METRICS[source.metric]) throw new Error('invalid metric');
+    if (source.kind === 'odoo' && (!window.DVOdoo || !window.DVOdoo.MODELS[source.model])) throw new Error('invalid model');
+    if (source.kind === 'csv' && (!source.data || !Array.isArray(source.data.fields) || !Array.isArray(source.data.rows) ||
+        source.data.rows.length > 1000 || !source.data.fields.length || source.data.fields.length > 50 ||
+        !source.data.fields.every(function (field) { return typeof field === 'string' && field.length <= 200; }) ||
+        !source.data.rows.every(function (row) { return Array.isArray(row) && row.length <= 50; }))) throw new Error('invalid file data');
+    var target = Number(w.target);
+    var clean = Object.assign({}, w, {
+      id: typeof w.id === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(w.id) ? w.id : uid(),
+      order: i,
+      size: safeSize(w.size)
+    });
+    if (w.target !== undefined) clean.target = isFinite(target) ? target : 0;
+    return clean;
+  }
+  /* Shared links are untrusted input: keep the widgets that validate, drop the rest (never render raw payload). */
+  function cleanShared(list) {
+    if (!Array.isArray(list)) return [];
+    var out = [];
+    list.slice(0, 100).forEach(function (w) { try { out.push(validateWidget(w, out.length)); } catch (e) { /* skip */ } });
+    return out;
+  }
+
   /* ── Export / import layout ─────────────────────────────────────────── */
   function exportLayout() {
     var widgets = loadWidgets();
@@ -693,20 +731,7 @@
         var widgets = (parsed && parsed.widgets) || parsed;
         if (!Array.isArray(widgets)) throw new Error('bad shape');
         if (widgets.length > 100) throw new Error('too many widgets');
-        widgets = widgets.map(function (w, i) {
-          if (!w || typeof w !== 'object' || typeof w.title !== 'string' || !w.title.trim() || w.title.length > 120 ||
-              ['kpi', 'progress', 'chart', 'table'].indexOf(w.type) < 0 || !w.source || typeof w.source !== 'object')
-            throw new Error('invalid widget');
-          var source = w.source;
-          if (source.kind === 'demo' && !DEMO_METRICS[source.metric]) throw new Error('invalid metric');
-          if (source.kind === 'odoo' && (!window.DVOdoo || !window.DVOdoo.MODELS[source.model])) throw new Error('invalid model');
-          if (source.kind === 'csv' && (!source.data || !Array.isArray(source.data.fields) || !Array.isArray(source.data.rows) ||
-              source.data.rows.length > 1000 || !source.data.fields.length || source.data.fields.length > 50 ||
-              !source.data.fields.every(function (field) { return typeof field === 'string'; }) ||
-              !source.data.rows.every(function (row) { return Array.isArray(row) && row.length <= 50; }))) throw new Error('invalid file data');
-          if (['demo', 'odoo', 'csv'].indexOf(source.kind) < 0) throw new Error('invalid source');
-          return Object.assign({}, w, { id: w.id || uid(), order: i });
-        });
+        widgets = widgets.map(function (w, i) { return validateWidget(w, i); });
         if (!saveWidgets(widgets)) return;
         renderGrid();
         toast('Layout imported (' + widgets.length + ' widgets).');
@@ -840,5 +865,5 @@
     document.addEventListener('dv:session-changed', renderGrid);
   });
 
-  window.DVWidgets = { openBuilderWithSource: openBuilderWithSource, renderGrid: renderGrid, buildCard: buildCard, loadWidgets: loadWidgets };
+  window.DVWidgets = { openBuilderWithSource: openBuilderWithSource, renderGrid: renderGrid, buildCard: buildCard, loadWidgets: loadWidgets, cleanShared: cleanShared };
 })();

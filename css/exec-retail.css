@@ -42,15 +42,15 @@
 /* Result badges & status pills */
 .xr-badge, .xr-pill, .xr-dir { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 99px; line-height: 1.3; }
 .xr-b-top  { background: var(--signal-20); color: var(--signal-bright); }
-.xr-b-up   { background: rgba(79, 180, 119, .16); color: #4fb477; }
-.xr-b-down { background: rgba(229, 101, 79, .16); color: #e5654f; }
+.xr-b-up   { background: color-mix(in srgb,var(--ios-green,#30d158) 16%,transparent); color: var(--ios-green,#30d158); }
+.xr-b-down { background: color-mix(in srgb,var(--ios-red,#ff453a) 16%,transparent); color: var(--ios-red,#ff453a); }
 .xr-b-flat, .xr-b-new { background: var(--paper-soft); color: var(--ink-70); border: 1px solid var(--line); }
 .xr-dir { background: var(--paper-soft); color: var(--ink-70); border: 1px solid var(--line); font-weight: 500; }
 .xr-p-draft  { background: rgba(140, 140, 140, .18); color: var(--ink-70); }
 .xr-p-wait   { background: rgba(232, 163, 61, .18);  color: #d98f27; }
 .xr-p-ready  { background: rgba(91, 143, 174, .20);  color: #5b8fae; }
-.xr-p-done   { background: rgba(79, 180, 119, .18);  color: #4fb477; }
-.xr-p-cancel { background: rgba(229, 101, 79, .16);  color: #e5654f; }
+.xr-p-done   { background: color-mix(in srgb,var(--ios-green,#30d158) 18%,transparent);  color: var(--ios-green,#30d158); }
+.xr-p-cancel { background: color-mix(in srgb,var(--ios-red,#ff453a) 16%,transparent);  color: var(--ios-red,#ff453a); }
 
 /* Transfer matrix (grid rows keep every column perfectly aligned) */
 .xr-tr { min-width: 760px; }
@@ -68,7 +68,7 @@
 .xr-stack { display: flex; height: 10px; border-radius: 99px; overflow: hidden; background: var(--paper-soft); border: 1px solid var(--line); gap: 1px; }
 .xr-stack i { display: block; min-width: 3px; }
 .xr-s-draft  { background: #8c8c8c; } .xr-s-wait { background: #e8a33d; } .xr-s-ready { background: #5b8fae; }
-.xr-s-done   { background: #4fb477; } .xr-s-cancel { background: #e5654f; }
+.xr-s-done   { background: var(--ios-green,#30d158); } .xr-s-cancel { background: var(--ios-red,#ff453a); }
 
 /* Site setup */
 .xr-setup { margin-top: 12px; padding: 10px 14px; border: 1px dashed var(--line-strong); border-radius: var(--r-md); }

@@ -30,7 +30,7 @@
    ALLOWED_ORIGINS var (comma-separated). Odoo host allowlisting is
    controlled by ALLOWED_ODOO_HOSTS (comma-separated), same as before.
    ========================================================================== */
-import { ApiError } from './lib/util.js';
+import { ApiError, withBodyLimit } from './lib/util.js';
 import { corsHeaders } from './lib/mw.js';
 import { handleLegacy } from './legacy.js';
 import * as auth from './routes/auth.js';
@@ -74,7 +74,10 @@ function matchRoute(method, pathname) {
     const params = {};
     let ok = true;
     for (let i = 0; i < patternParts.length; i++) {
-      if (patternParts[i].startsWith(':')) params[patternParts[i].slice(1)] = decodeURIComponent(pathParts[i]);
+      if (patternParts[i].startsWith(':')) {
+        try { params[patternParts[i].slice(1)] = decodeURIComponent(pathParts[i]); }
+        catch { throw new ApiError('Malformed URL.', 400); }   // %E0%A4%A → URIError would otherwise surface as an unhandled 500
+      }
       else if (patternParts[i] !== pathParts[i]) { ok = false; break; }
     }
     if (ok) return { handler, params };
@@ -82,30 +85,45 @@ function matchRoute(method, pathname) {
   return null;
 }
 
+/* Sent on EVERY response (this Worker only ever returns JSON, so nothing may be framed,
+   sniffed, cached or executed). */
+const SECURITY_HEADERS = {
+  'Content-Type': 'application/json',
+  'Cache-Control': 'no-store',
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'no-referrer',
+  'Content-Security-Policy': "default-src 'none'; frame-ancestors 'none'",
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+  'Cross-Origin-Opener-Policy': 'same-origin',
+};
+
 export default {
   async fetch(request, env) {
     const { headers: cors, blocked } = corsHeaders(request, env);
     const reply = (data, status = 200) => new Response(JSON.stringify(data), {
       status,
-      headers: Object.assign({ 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' }, cors),
+      headers: Object.assign({}, SECURITY_HEADERS, cors),
     });
 
-    if (request.method === 'OPTIONS') return new Response(null, { status: blocked ? 403 : 204, headers: cors });
+    if (request.method === 'OPTIONS') return new Response(null, { status: blocked ? 403 : 204, headers: Object.assign({ 'X-Content-Type-Options': 'nosniff' }, cors) });
     if (blocked) return reply({ ok: false, error: 'Origin not allowed by this Worker' }, 403);
 
-    const url = new URL(request.url);
-    const match = matchRoute(request.method, url.pathname);
-
-    if (!match) {
-      // Not one of the new REST routes — fall through to the legacy
-      // body.endpoint dispatch (AI chat relay + read-only Odoo browse),
-      // but only for POST (that dispatch has never supported other verbs).
-      if (request.method === 'POST') return handleLegacy(request, env, reply);
-      return reply({ ok: false, error: `Not found: ${url.pathname}` }, 404);
-    }
-
     try {
-      const result = await match.handler(request, env, match.params);
+      const url = new URL(request.url);
+      const match = matchRoute(request.method, url.pathname);
+
+      if (!match) {
+        // Not one of the new REST routes — fall through to the legacy
+        // body.endpoint dispatch (AI chat relay + read-only Odoo browse),
+        // but only for POST (that dispatch has never supported other verbs).
+        if (request.method === 'POST') return handleLegacy(await withBodyLimit(request, 200000), env, reply);
+        return reply({ ok: false, error: `Not found: ${url.pathname}` }, 404);
+      }
+
+      const limited = await withBodyLimit(request);   // real byte count, also for chunked uploads with no Content-Length
+      const result = await match.handler(limited, env, match.params);
       return reply(result.body, result.status || 200);
     } catch (err) {
       if (err instanceof ApiError) return reply({ ok: false, error: err.message }, err.status || 400);

@@ -170,3 +170,47 @@ export function validateTaskId(value) {
   const id = Number(value);
   return isPositiveId(id) ? id : null;
 }
+
+
+/* ── Request body cap ────────────────────────────────────────────────────────
+   Content-Length can be missing (chunked uploads) or lie, so the real bytes are
+   counted while reading. Returns a fresh Request carrying the already-read body,
+   so every downstream `request.json()` keeps working unchanged. */
+export const MAX_BODY_BYTES = 256 * 1024;
+export async function withBodyLimit(request, maxBytes = MAX_BODY_BYTES) {
+  if (request.method === 'GET' || request.method === 'HEAD' || request.method === 'OPTIONS' || !request.body) return request;
+  const declared = Number(request.headers.get('content-length'));
+  if (Number.isFinite(declared) && declared > maxBytes) throw new ApiError('Request body is too large.', 413);
+  const reader = request.body.getReader();
+  const chunks = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > maxBytes) {
+      try { await reader.cancel(); } catch { /* already closed */ }
+      throw new ApiError('Request body is too large.', 413);
+    }
+    chunks.push(value);
+  }
+  const body = new Uint8Array(total);
+  let off = 0;
+  for (const c of chunks) { body.set(c, off); off += c.byteLength; }
+  return new Request(request.url, { method: request.method, headers: request.headers, body });
+}
+
+/* A signing secret must be long enough to resist offline guessing. */
+export function assertStrongSecret(secret, name = 'JWT_SECRET') {
+  if (typeof secret !== 'string' || secret.length < 32) {
+    throw new ApiError(`Server is misconfigured: ${name} must be at least 32 characters.`, 500);
+  }
+}
+
+/* Hostnames that must never be reached through the legacy relay, even if somebody
+   puts them in ALLOWED_ODOO_HOSTS by mistake (defence in depth against SSRF). */
+export function isForbiddenHost(hostname) {
+  const h = String(hostname || '').toLowerCase().replace(/\.$/, '');
+  return !h || isIPAddress(h) || h.includes(':') || h.startsWith('[') || h === 'localhost' || !h.includes('.') ||
+    /\.(localhost|local|internal|intranet|lan|home|corp|test|invalid|example)$/.test(h);
+}

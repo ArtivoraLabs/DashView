@@ -30,7 +30,7 @@ const ok = (n, c) => { if (c) { pass++; console.log(' ok  ', n); } else { fail++
     return res([]);
   };
   const call = async (b) => {
-    const r = await worker.fetch(new Request('https://w.dev', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: 'https://x.odoo.com', db: 'x', username: 'u', apiKey: 'good', ...b }) }), {});
+    const r = await worker.fetch(new Request('https://w.dev', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: 'https://x.odoo.com', db: 'x', username: 'u', apiKey: 'good', ...b }) }), { ALLOWED_ODOO_HOSTS: 'x.odoo.com' });
     return { status: r.status, j: await r.json() };
   };
 
@@ -93,7 +93,7 @@ const ok = (n, c) => { if (c) { pass++; console.log(' ok  ', n); } else { fail++
   fs.copyFileSync(path.join(__dirname, '..', 'worker-src', 'legacy.js'), tmp2);
   const legacy = await import('file://' + tmp2);
   const lreply = (data, status = 200) => new Response(JSON.stringify(data), { status });
-  const lcall = async (b) => { const resp = await legacy.handleLegacy(new Request('https://w.dev', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ url: 'https://x.odoo.com', db: 'x', username: 'u', apiKey: 'good' }, b)) }), { ALLOWED_ODOO_HOSTS: '' }, lreply); return { status: resp.status, j: await resp.json() }; };
+  const lcall = async (b) => { const resp = await legacy.handleLegacy(new Request('https://w.dev', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ url: 'https://x.odoo.com', db: 'x', username: 'u', apiKey: 'good' }, b)) }), { ALLOWED_ODOO_HOSTS: 'x.odoo.com' }, lreply); return { status: resp.status, j: await resp.json() }; };
   if (typeof legacy.handleLegacy === 'function') {
     seen.length = 0;
     r = await lcall({ endpoint: 'read-group', model: 'sale.order', fields: ['amount_total:sum'], groupby: ['company_id'], companyIds: [1, 2] });
@@ -102,6 +102,40 @@ const ok = (n, c) => { if (c) { pass++; console.log(' ok  ', n); } else { fail++
     ok('worker-src legacy: companies endpoint', r.j.ok && r.j.companies.length === 1);
     r = await lcall({ endpoint: 'records', model: 'sale.order', companyIds: [0] });
     ok('worker-src legacy: invalid companyIds rejected', r.status === 400);
+  }
+
+  /* ── Relay hardening (both copies): it needs no login, so the allow-list and validators are the whole defence ── */
+  const post = (w, body, env) => w(new Request('https://w.dev', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }), env);
+  const rootPost = async (body, env) => { const x = await post((q, e) => worker.fetch(q, e), body, env); return { status: x.status, j: await x.json() }; };
+  const depPost = async (body, env) => { const x = await post((q, e) => legacy.handleLegacy(q, e, lreply), body, env); return { status: x.status, j: await x.json() }; };
+  const good = { endpoint: 'records', model: 'sale.order', db: 'x', username: 'u', apiKey: 'good', url: 'https://x.odoo.com' };
+  for (const [label, run] of [['root', rootPost], ['worker-src', depPost]]) {
+    if (label === 'worker-src' && !fs.existsSync(tmp2)) continue;
+    const E = { ALLOWED_ODOO_HOSTS: 'x.odoo.com' };
+    r = await run(good, {});
+    ok(label + ': no ALLOWED_ODOO_HOSTS → refused (503), never an open relay', r.status === 503 && /ALLOWED_ODOO_HOSTS/.test(r.j.error));
+    r = await run({ ...good, url: 'https://169.254.169.254' }, { ALLOWED_ODOO_HOSTS: '169.254.169.254' });
+    ok(label + ': IP-address / metadata hosts are refused even if allow-listed', r.status === 400);
+    r = await run({ ...good, url: 'http://evil.example.com' }, { ALLOWED_ODOO_HOSTS: 'evil.example.com' });
+    ok(label + ': plain http is refused (the API key never travels unencrypted)', r.status === 400 && /HTTPS/.test(r.j.error));
+    r = await run({ ...good, url: 'https://other.odoo.com' }, E);
+    ok(label + ': a host that is not allow-listed gets 403', r.status === 403);
+    r = await run({ ...good, url: 'https://x.odoo.com:8443' }, E);
+    ok(label + ': a non-443 port needs its own allow-list entry', r.status === 403);
+    r = await run({ ...good, model: 'res.users' }, E);
+    ok(label + ': res.users cannot be read through records', r.status === 400 && /not available/.test(r.j.error));
+    r = await run({ ...good, model: 'ir.config_parameter' }, E);
+    ok(label + ': ir.* settings models are blocked', r.status === 400);
+    r = await run({ ...good, fields: ['name', 'password'] }, E);
+    ok(label + ': secret-looking fields are refused', r.status === 400);
+    r = await run({ ...good, domain: [['partner_id.user_ids.password', '=like', 'a%']] }, E);
+    ok(label + ': a filter cannot probe a secret field', r.status === 400);
+    r = await run({ ...good, domain: [['state', 'in', ['sale', 'done']], '|', ['name', '=ilike', 'so%'], ['partner_id.name', 'ilike', 'a']] }, E);
+    ok(label + ': normal filters (in, =ilike, dotted paths, OR) still work', r.j.ok === true);
+    r = await run({ ...good, endpoint: 123 }, E);
+    ok(label + ': a non-string endpoint no longer crashes the Worker', r.status !== 500);
+    r = await run({ endpoint: 'ai-chat', provider: 'anthropic', apiKey: 'k', model: 'm', messages: [null] }, E);
+    ok(label + ': ai-chat rejects malformed messages (400, not a crash)', r.status === 400);
   }
   fs.unlinkSync(tmp2);
   global.fetch = prevFetch;

@@ -12,7 +12,8 @@
      5. Native controls (scrollbars, date pickers, checkboxes) ignored the theme.
 
    Rules kept:  categories = --dv-c1..10 (amber first, no red/green)
-                verdicts   = --st-*      (green good, red bad, amber warn, blue info, grey flat)
+                verdicts   = --st-*      (green good, red bad, orange warn, blue info, grey flat)
+   v2.17:       verdict / danger / success colours are the iOS system colours (--ios-*), see section 2.
    Every pair below is >= 4.5 : 1 for text and >= 3 : 1 for graphics.
    ========================================================================== */
 
@@ -25,7 +26,15 @@ html[data-theme="light"] { color-scheme: light; }
 :root {
   --dv-c1: #f2b04a; --dv-c2: #5b9cf5; --dv-c3: #a78bfa; --dv-c4: #2dd4bf; --dv-c5: #f472b6;
   --dv-c6: #38bdf8; --dv-c7: #fb923c; --dv-c8: #818cf8; --dv-c9: #c8d36a; --dv-c10: #94a3b8;
-  --st-good: #3fbf7f; --st-bad: #f0715e; --st-warn: #f2b04a; --st-info: #5b9cf5; --st-flat: #94a3b8;
+  /* iOS system colours (dark values). Verdicts, danger and success now use them, so a green/red/orange/blue chip
+     looks the same here as in iOS. >= 4.9 : 1 on the dark surfaces. */
+  --ios-blue: #0a84ff; --ios-indigo: #7d7aff; --ios-purple: #bf5af2; --ios-pink: #ff375f; --ios-red: #ff453a;
+  --ios-orange: #ff9f0a; --ios-yellow: #ffd60a; --ios-green: #30d158; --ios-mint: #63e6e2; --ios-teal: #40c8e0;
+  --ios-cyan: #64d2ff; --ios-brown: #ac8e68; --ios-gray: #98989d;
+  --st-good: var(--ios-green); --st-bad: var(--ios-red); --st-warn: var(--ios-orange); --st-info: var(--ios-blue); --st-flat: var(--ios-gray);
+  --danger: var(--ios-red); --danger-10: rgba(255, 69, 58, .12);
+  --emerald: var(--ios-green); --emerald-10: rgba(48, 209, 88, .12);
+  --accent2: var(--ios-blue); --accent2-10: rgba(10, 132, 255, .14);
   --dv-pos: var(--st-good); --dv-neg: var(--st-bad); --dv-warn: var(--st-warn);
   --cp-c1: var(--dv-c1); --cp-c2: var(--dv-c2); --cp-c3: var(--dv-c3); --cp-c4: var(--dv-c4); --cp-c5: var(--dv-c5); --cp-c6: var(--dv-c6);
 }
@@ -39,13 +48,20 @@ html[data-theme="light"] {
   --line: rgba(154, 91, 10, .14);
   --line-strong: rgba(154, 91, 10, .28);
   --beacon: #8f5509;
-  --emerald: #1f6f3d;                      /* was #2f8f55 : 4.05 → 5.5 : 1 */
-  --danger: #b3341b;
-  --accent2: #346a87;
+  /* iOS system colours, light theme: Apple's light values darkened just enough for text (>= 4.6 : 1 on the soft surface) */
+  --ios-blue: #0069db; --ios-indigo: #5856d6; --ios-purple: #9a48c3; --ios-pink: #d12546; --ios-red: #cc2f26;
+  --ios-orange: #b05000; --ios-yellow: #856a00; --ios-green: #217d38; --ios-mint: #007b76; --ios-teal: #207685;
+  --ios-cyan: #22749a; --ios-brown: #7f6545; --ios-gray: #6d6d71;
+  --emerald: #18702e;                      /* iOS green, AA on white, soft and on its own 12% tint */
+  --emerald-10: rgba(24, 112, 46, .10);
+  --danger: #b8241a;
+  --danger-10: rgba(184, 36, 26, .09);
+  --accent2: #005ec4;
+  --accent2-10: rgba(0, 94, 196, .10);
 
   --dv-c1: #9a5b0a; --dv-c2: #2563eb; --dv-c3: #7c3aed; --dv-c4: #0d9488; --dv-c5: #db2777;
   --dv-c6: #0284c7; --dv-c7: #c2410c; --dv-c8: #4f46e5; --dv-c9: #4d7c0f; --dv-c10: #475569;
-  --st-good: #166534; --st-bad: #b91c1c; --st-warn: #92400e; --st-info: #1d4ed8; --st-flat: #475569;
+  --st-good: #18702e; --st-bad: #b8241a; --st-warn: #964800; --st-info: #005ec4; --st-flat: #5e5e63;   /* iOS green / red / orange / blue / gray, each >= 4.5 : 1 on white, soft and its own chip tint */
 }
 
 /* Chips: tint stays light, text gets the darker verdict colour (>= 4.7 : 1 on white and on soft) */

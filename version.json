@@ -1,12 +1,33 @@
 {
-  "version": "2.16.1",
-  "build": "2026.10.10",
-  "released": "2026-10-10",
+  "version": "2.17.0",
+  "build": "2026.10.11",
+  "released": "2026-10-11",
   "notes": [
-    "Fixed: sign-in page layout - content is now a centred composition (no more stretching to the screen edges on wide monitors) and fits laptop heights without scrolling or a cut-off preview; first-run setup form is compacted too",
-    "Improved: sign-in detailing - time-of-day greeting, module chips (Sales, Stock, People, Finance), live email-format and password-match ticks, attempts-left indicator on wrong password, progress line while signing in, parallax scene light, app version in the footer"
+    "Security: shared-dashboard links could run script through a crafted widget id (share.html#d=...) - every shared or imported widget is now validated and rebuilt before it is drawn, and ids/sizes can never reach the page as markup",
+    "Security: the Cloudflare Worker Odoo relay (worker-src and cloudflare-worker.js) is no longer an open relay - ALLOWED_ODOO_HOSTS is now required, only public HTTPS hostnames are accepted (no IPs, localhost, http or credentials in the URL) and redirects cannot leave the host",
+    "Security: the relay now blocks sensitive models (res.users, ir.*, mail.*, payment.*), secret-looking fields and filter probing on every endpoint, counts real request bytes, validates AI chat input and sends strict security headers",
+    "Security: Worker sign-in tokens need a 32+ character JWT_SECRET and valid iat/exp; malformed URLs no longer crash the Worker; new optional ALLOW_REGISTRATION=false closes public sign-up",
+    "Security: passcode and admin sign-in check one guess at a time (parallel guesses no longer beat the attempt counter), compare in constant time, and the workspace re-locks the moment you return to a stale tab",
+    "Security: clickjacking guard on every page (plus a _headers file for Cloudflare Pages/Netlify); AI service requires token expiry, stops logging part of the service key and sends security headers",
+    "Security: server dependencies patched (proxy-addr, qs, body-parser, express) - npm audit now reports 0 vulnerabilities",
+    "Added: 12 iOS system accent colours (Blue, Indigo, Purple, Pink, Red, Orange, Yellow, Green, Mint, Teal, Cyan, Graphite) with AA-safe light-theme variants, an iOS System chart palette, and iOS green/red/orange/blue for good/bad/warning/info"
   ],
   "history": [
+    {
+      "version": "2.17.0",
+      "date": "2026-10-11",
+      "notes": [
+        "Security: shared-dashboard links could run script through a crafted widget id (share.html#d=...) - every shared or imported widget is now validated and rebuilt before it is drawn, and ids/sizes can never reach the page as markup",
+        "Security: the Cloudflare Worker Odoo relay (worker-src and cloudflare-worker.js) is no longer an open relay - ALLOWED_ODOO_HOSTS is now required, only public HTTPS hostnames are accepted (no IPs, localhost, http or credentials in the URL) and redirects cannot leave the host",
+        "Security: the relay now blocks sensitive models (res.users, ir.*, mail.*, payment.*), secret-looking fields and filter probing on every endpoint, counts real request bytes, validates AI chat input and sends strict security headers",
+        "Security: Worker sign-in tokens need a 32+ character JWT_SECRET and valid iat/exp; malformed URLs no longer crash the Worker; new optional ALLOW_REGISTRATION=false closes public sign-up",
+        "Security: passcode and admin sign-in check one guess at a time (parallel guesses no longer beat the attempt counter), compare in constant time, and the workspace re-locks the moment you return to a stale tab",
+        "Security: clickjacking guard on every page (plus a _headers file for Cloudflare Pages/Netlify); AI service requires token expiry, stops logging part of the service key and sends security headers",
+        "Security: server dependencies patched (proxy-addr, qs, body-parser, express) - npm audit now reports 0 vulnerabilities",
+        "Added: 12 iOS system accent colours (Blue, Indigo, Purple, Pink, Red, Orange, Yellow, Green, Mint, Teal, Cyan, Graphite) with AA-safe light-theme variants, an iOS System chart palette, and iOS green/red/orange/blue for good/bad/warning/info"
+      ],
+      "critical": false
+    },
     {
       "version": "2.16.1",
       "date": "2026-10-10",
@@ -308,15 +329,8 @@
         "Visual polish and detailing layer",
         "Software Update flow with version history"
       ]
-    },
-    {
-      "version": "2.0.0",
-      "date": "2026-09-24",
-      "notes": [
-        "Live Odoo everywhere, Executive suite, AI agent, Cloudflare Worker"
-      ]
     }
   ],
   "critical": false,
-  "size": 4265674
+  "size": 4387542
 }

@@ -136,3 +136,20 @@ def test_audit_and_feedback(make_app, tmp_path):
     recs = [json.loads(l) for l in log.read_text().splitlines()]
     assert recs[0]["kind"] == "chat" and recs[0]["tools"][0]["args"]["metric"] == "sales_total"
     assert recs[1]["kind"] == "feedback" and recs[1]["request_id"] == j["request_id"]
+
+
+def test_token_without_expiry_is_rejected(make_app):
+    import jwt
+    from tests.conftest import SECRET
+    forever = jwt.encode({"id": 1, "email": "a@b.c", "role": "admin"}, SECRET, algorithm="HS256")
+    with TestClient(make_app({"anthropic": ScriptedProvider("anthropic", [])})) as c:
+        r = c.post("/v1/chat", json=ASK, headers={"Authorization": f"Bearer {forever}"})
+    assert r.status_code == 401
+
+
+def test_api_responses_carry_security_headers(make_app):
+    with TestClient(make_app({"anthropic": ScriptedProvider("anthropic", [])})) as c:
+        r = c.get("/health")
+    assert r.headers["X-Content-Type-Options"] == "nosniff"
+    assert r.headers["X-Frame-Options"] == "DENY"
+    assert "frame-ancestors 'none'" in r.headers["Content-Security-Policy"]

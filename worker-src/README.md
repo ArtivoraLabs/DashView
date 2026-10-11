@@ -16,7 +16,9 @@ npx wrangler deploy
 ```
 Then edit `wrangler.jsonc` vars before going live:
 - `ALLOWED_ORIGINS` = your DashView origin(s), e.g. `https://you.github.io` (empty = any origin).
-- `ALLOWED_ODOO_HOSTS` = e.g. `yourcompany.odoo.com` (empty = any public HTTPS host).
+- `ALLOWED_ODOO_HOSTS` = e.g. `yourcompany.odoo.com` (**required** - the login-free Odoo relay refuses every request while it is empty; plain hostnames only, add `host:port` for a non-443 port).
+- `ALLOW_REGISTRATION` = `false` once your owner account exists, to close public sign-up (default: open).
+- `JWT_SECRET` must be 32+ characters; the Worker refuses to sign or verify tokens with a shorter one.
 
 Verify: `curl https://dashview-api.<your-subdomain>.workers.dev/api/health` → `{"ok":true}`.
 

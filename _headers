@@ -1,0 +1,15 @@
+# Real HTTP security headers for hosts that read a "_headers" file (Cloudflare Pages, Netlify).
+# GitHub Pages ignores this file - there, js/frame-guard.js and the <meta> CSP in every page are the defence.
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Content-Security-Policy: frame-ancestors 'self'
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+# The service worker and the version manifest must never be served stale, or updates stop arriving.
+/sw.js
+  Cache-Control: no-cache
+/version.json
+  Cache-Control: no-cache

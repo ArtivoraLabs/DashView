@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import hmac
 
 import jwt
@@ -19,12 +20,14 @@ def authenticate(request: Request) -> Principal:
 
     key = request.headers.get("x-api-key")
     if key and s.api_keys and any(hmac.compare_digest(key, k) for k in s.api_keys):
-        return Principal(id="service:" + key[:4], role="owner")
+        # never put any part of the key itself into logs / audit files / rate-limit keys
+        return Principal(id="service:" + hashlib.sha256(key.encode()).hexdigest()[:10], role="owner")
 
     header = request.headers.get("authorization", "")
     if header.lower().startswith("bearer ") and s.jwt_secret:
         try:
-            payload = jwt.decode(header[7:], s.jwt_secret, algorithms=["HS256"])
+            # a token without an expiry would be valid forever, so "exp" is mandatory
+            payload = jwt.decode(header[7:], s.jwt_secret, algorithms=["HS256"], options={"require": ["exp"]})
         except jwt.PyJWTError:
             raise HTTPException(401, "Invalid or expired session.")
         p = Principal(payload)

@@ -530,7 +530,8 @@
      existing handler, the keyboard shortcuts and cross-tab sync keep working.
   --------------------------------------------------------------------- */
   var LOOKS_KEY = 'dashview_looks', SCHED_KEY = 'dashview_theme_schedule';
-  var ACCENT_LIST = [['amber', 'Amber', '#e0962a'], ['teal', 'Teal', '#1aa98a'], ['blue', 'Blue', '#3b82f6'], ['violet', 'Violet', '#8b5cf6'], ['rose', 'Rose', '#e8375f']];
+  /* swatch = the iOS system colour as Apple ships it (what you see); the colour the app actually applies is in config.js */
+  var ACCENT_LIST = [['amber', 'Amber', '#e0962a'], ['blue', 'Blue', '#007aff'], ['indigo', 'Indigo', '#5856d6'], ['violet', 'Purple', '#af52de'], ['rose', 'Pink', '#ff2d55'], ['red', 'Red', '#ff3b30'], ['orange', 'Orange', '#ff9500'], ['yellow', 'Yellow', '#ffcc00'], ['green', 'Green', '#34c759'], ['mint', 'Mint', '#00c7be'], ['teal', 'Teal', '#30b0c7'], ['cyan', 'Cyan', '#32ade6'], ['graphite', 'Graphite', '#8e8e93']];
   var GLASS_PRESETS = [
     ['frosted', 'Frosted', 'Balanced default', { blur: 20, opacity: 0, sat: 155, glow: 14 }],
     ['crystal', 'Crystal', 'Clear, brilliant', { blur: 30, opacity: -14, sat: 190, glow: 24 }],

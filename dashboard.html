@@ -5,6 +5,7 @@
 <script>(function(){try{var t=localStorage.getItem('dashview-theme');if(t!=='light'&&t!=='dark'){t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';}document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <script>try{var __s=JSON.parse(localStorage.getItem('dv_sec')||'{}');if(__s.pin&&!sessionStorage.getItem('dv_sk'))document.documentElement.classList.add('dv-locked')}catch(e){}</script>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; frame-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<script src="js/frame-guard.js"></script>
 <meta name="referrer" content="no-referrer"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Workspace — DashView</title>
@@ -923,10 +924,18 @@
                       <label for="setAccentSelect">Accent colour</label>
                       <select class="stg-input" id="setAccentSelect">
                         <option value="amber">Amber</option>
-                        <option value="teal">Teal</option>
                         <option value="blue">Blue</option>
-                        <option value="violet">Violet</option>
-                        <option value="rose">Rose</option>
+                        <option value="indigo">Indigo</option>
+                        <option value="violet">Purple</option>
+                        <option value="rose">Pink</option>
+                        <option value="red">Red</option>
+                        <option value="orange">Orange</option>
+                        <option value="yellow">Yellow</option>
+                        <option value="green">Green</option>
+                        <option value="mint">Mint</option>
+                        <option value="teal">Teal</option>
+                        <option value="cyan">Cyan</option>
+                        <option value="graphite">Graphite</option>
                       </select>
                       <span class="stg-field-help">Used for highlights and chart accents.</span>
                     </div>
@@ -1263,11 +1272,11 @@
 
               <div class="stg-card">
                 <div class="stg-card-head">
-                  <div class="stg-card-icon" style="background:rgba(79,180,119,0.12);color:#4fb477;">
+                  <div class="stg-card-icon" style="background:color-mix(in srgb,var(--ios-green,#30d158) 12%,transparent);color:var(--ios-green,#30d158);">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z"/><path d="m9 12 2 2 4-4"/></svg>
                   </div>
                   <div class="stg-card-head-text"><h3>Security &amp; version updates</h3><p>What's running, and whether backups are safe to restore</p></div>
-                  <div class="stg-card-head-right"><span class="stg-status-pill" style="background:rgba(79,180,119,.14);color:#4fb477;">Up to date</span></div>
+                  <div class="stg-card-head-right"><span class="stg-status-pill" style="background:color-mix(in srgb,var(--ios-green,#30d158) 14%,transparent);color:var(--ios-green,#30d158);">Up to date</span></div>
                 </div>
                 <div class="stg-card-body">
                   <div class="stg-conn-meta">
@@ -1275,7 +1284,7 @@
                     <div class="stg-conn-meta-item"><span>Update status</span><span id="verStatus" class="upd-pill">—</span></div>
                     <div class="stg-conn-meta-item"><span>Last update check</span><span id="verLastCheck">—</span></div>
                     <div class="stg-conn-meta-item"><span>Last backup</span><span id="verLastBackup">No backup yet</span></div>
-                    <div class="stg-conn-meta-item"><span>Backup integrity</span><span id="verBackupIntegrity" style="color:#4fb477;">Verified on export</span></div>
+                    <div class="stg-conn-meta-item"><span>Backup integrity</span><span id="verBackupIntegrity" style="color:var(--ios-green,#30d158);">Verified on export</span></div>
                   </div>
                   <ul class="stg-info-list">
                     <li><span><b>Backup verification</b> — each export is checksummed so a corrupted file is caught before import, not after.</span></li>
@@ -1330,7 +1339,7 @@
             <div class="stg-panel" id="stg-security">
               <div class="stg-card">
                 <div class="stg-card-head">
-                  <div class="stg-card-icon" style="background:rgba(79,180,119,0.12);color:#4fb477;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z"/><path d="m9 12 2 2 4-4"/></svg></div>
+                  <div class="stg-card-icon" style="background:color-mix(in srgb,var(--ios-green,#30d158) 12%,transparent);color:var(--ios-green,#30d158);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z"/><path d="m9 12 2 2 4-4"/></svg></div>
                   <div class="stg-card-head-text"><h3>Security checkup</h3><p>Live assessment of how well this workspace is protected</p></div>
                 </div>
                 <div class="stg-card-body">
@@ -1409,7 +1418,7 @@
 
               <div class="stg-card">
                 <div class="stg-card-head">
-                  <div class="stg-card-icon" style="background:rgba(229,101,79,0.12);color:var(--danger);">
+                  <div class="stg-card-icon" style="background:color-mix(in srgb,var(--ios-red,#ff453a) 12%,transparent);color:var(--danger);">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
                   </div>
                   <div class="stg-card-head-text"><h3>Mandatory security checklist</h3><p>What the score above is actually built from — required items are weighted highest</p></div>

@@ -1,6 +1,8 @@
 import json
 
 import httpx
+import time
+
 import jwt
 import pytest
 
@@ -75,7 +77,7 @@ def settings(**over) -> Settings:
 
 
 def token(role="admin"):
-    return jwt.encode({"id": 1, "email": "a@b.c", "role": role}, SECRET, algorithm="HS256")
+    return jwt.encode({"id": 1, "email": "a@b.c", "role": role, "exp": int(time.time()) + 3600}, SECRET, algorithm="HS256")
 
 
 @pytest.fixture

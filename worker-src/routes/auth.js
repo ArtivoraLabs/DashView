@@ -57,6 +57,11 @@ async function sign(user, env) {
 }
 
 export async function register(request, env) {
+  /* After your own owner account exists, set ALLOW_REGISTRATION="false" (Worker → Settings → Variables).
+     Otherwise anyone who finds the Worker URL can create their own organisation on your D1 database. */
+  if (String(env.ALLOW_REGISTRATION || '').trim().toLowerCase() === 'false') {
+    throw new ApiError('Self-registration is turned off on this server.', 403);
+  }
   limitAttempts('register:' + (request.headers.get('CF-Connecting-IP') || ''));
   const body = await request.json().catch(() => ({}));
   const { orgName, name, email, password } = body || {};

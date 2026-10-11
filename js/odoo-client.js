@@ -335,11 +335,21 @@
     access: { label: 'Colour-blind safe', note: 'Okabe-Ito set, distinguishable for most colour-vision types',
               dark:  ['#e69f00', '#56b4e9', '#009e73', '#f0e442', '#4c8fe0', '#e8743b', '#cc79a7', '#b8b8b8', '#7fd1c1', '#94a3b8'],
               light: ['#b87800', '#0072b2', '#007a5a', '#9a8a00', '#2a5db0', '#d55e00', '#a8467f', '#6b6b6b', '#00806b', '#64748b'] },
+    ios:    { label: 'iOS System', note: 'Apple system colours: blue, orange, green, purple, pink',
+              dark:  ['#0a84ff', '#ff9f0a', '#30d158', '#bf5af2', '#ff375f', '#40c8e0', '#ffd60a', '#7d7aff', '#ac8e68', '#98989d'],
+              light: ['#0069db', '#b05000', '#217d38', '#9a48c3', '#d12546', '#207685', '#856a00', '#5856d6', '#7f6545', '#6d6d71'] },
     mono:   { label: 'Monochrome', note: 'Shades of your accent colour', mono: true }
   };
   var SCHEME_KEY = 'dashview_chart_scheme';
-  var ACC_HEX = { amber: ['#f2b04a', '#c2710c'], teal: ['#2fbf9f', '#0e7c66'], blue: ['#6aa5ff', '#2563eb'], violet: ['#b197fc', '#7c3aed'], rose: ['#fb7a92', '#d61f4c'] };
-  var ACC_SLOT = { amber: 0, blue: 1, violet: 2, teal: 3, rose: 4 };
+  var ACC_HEX = { amber: ['#f2b04a', '#c2710c'],
+    blue: ['#0a84ff', '#0069db'], indigo: ['#7d7aff', '#5856d6'], violet: ['#bf5af2', '#9a48c3'], rose: ['#ff375f', '#d12546'],
+    red: ['#ff453a', '#cc2f26'], orange: ['#ff9f0a', '#b05000'], yellow: ['#ffd60a', '#856a00'], green: ['#30d158', '#217d38'],
+    mint: ['#63e6e2', '#007b76'], teal: ['#40c8e0', '#207685'], cyan: ['#64d2ff', '#22749a'], graphite: ['#98989d', '#6d6d71'] };
+  /* where the displaced first colour of the 'auto' palette goes when an accent takes slot 0 */
+  var ACC_SLOT = { amber: 0, blue: 1, violet: 2, teal: 3, mint: 3, rose: 4, cyan: 5, red: 6, orange: 6, indigo: 7, green: 8, yellow: 8, graphite: 9 };
+  /* which of the Overview's named tones an accent replaces */
+  var ACC_TONE = { blue: 'blue', indigo: 'blue', violet: 'violet', rose: 'pink', red: 'coral', orange: 'amber', yellow: 'amber',
+    green: 'teal', mint: 'teal', teal: 'teal', cyan: 'cyan', graphite: 'slate' };
   function hexMix(a, b, t) {
     var x = parseInt(a.slice(1), 16), y = parseInt(b.slice(1), 16), o = 0;
     [16, 8, 0].forEach(function (sh) { var c = Math.round(((x >> sh) & 255) * (1 - t) + ((y >> sh) & 255) * t); o = (o << 8) | c; });
@@ -360,12 +370,12 @@
     return pal;
   }
   /* 8 named tones used by the Overview (revenue / orders / pipeline / ...), derived from the same scheme */
-  var SEM_DARK  = { blue: '#5AA2FF', teal: '#2FD1A5', amber: '#FFB547', coral: '#FF6F61', violet: '#A78BFA', cyan: '#3CCBE6', pink: '#F58AC4', slate: '#94A3B8' };
-  var SEM_LIGHT = { blue: '#1D5FD1', teal: '#0A8F6B', amber: '#B86E00', coral: '#D1342A', violet: '#6A3FD6', cyan: '#0A7FA0', pink: '#BE2F7E', slate: '#566277' };
+  var SEM_DARK  = { blue: '#0A84FF', teal: '#2FD1A5', amber: '#FFB547', coral: '#FF6F61', violet: '#BF5AF2', cyan: '#64D2FF', pink: '#F58AC4', slate: '#98989D' };
+  var SEM_LIGHT = { blue: '#0069DB', teal: '#0A8F6B', amber: '#B86E00', coral: '#D1342A', violet: '#9A48C3', cyan: '#22749A', pink: '#BE2F7E', slate: '#6D6D71' };
   function semantic(light) {
     var id = schemeId(), acc = accentKey(), base = Object.assign({}, light ? SEM_LIGHT : SEM_DARK);
     if (id === 'auto') {
-      if (acc !== 'amber') { var key = { blue: 'blue', teal: 'teal', violet: 'violet', rose: 'pink' }[acc], a = ACC_HEX[acc][light ? 1 : 0], old = base.blue; if (key !== 'blue') base[key] = old; base.blue = a; }
+      if (acc !== 'amber') { var key = ACC_TONE[acc] || 'blue', a = ACC_HEX[acc][light ? 1 : 0], old = base.blue; if (key !== 'blue') base[key] = old; base.blue = a; }
       return base;
     }
     var p = paletteFor(id, light, acc), idx = { blue: 0, amber: 1, violet: 2, teal: 3, pink: 4, cyan: 5, coral: 6, slate: 9 };

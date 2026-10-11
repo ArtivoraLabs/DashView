@@ -2,6 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; frame-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<script src="js/frame-guard.js"></script>
 <meta name="referrer" content="strict-origin-when-cross-origin"/>
 
 <meta charset="utf-8"/>
@@ -146,8 +147,8 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 <style>
-.upd-hero{display:flex;align-items:center;gap:16px;padding:18px 20px;border-bottom:1px solid var(--line);--t:#4fb477}
-.upd-hero[data-tone=warn]{--t:var(--signal)}.upd-hero[data-tone=info]{--t:#5b9fd0}.upd-hero[data-tone=bad]{--t:#e5654f}
+.upd-hero{display:flex;align-items:center;gap:16px;padding:18px 20px;border-bottom:1px solid var(--line);--t:var(--ios-green,#30d158)}
+.upd-hero[data-tone=warn]{--t:var(--signal)}.upd-hero[data-tone=info]{--t:#5b9fd0}.upd-hero[data-tone=bad]{--t:var(--ios-red,#ff453a)}
 .upd-ico{flex:none;width:44px;height:44px;border-radius:13px;display:grid;place-items:center;color:var(--t);background:color-mix(in srgb,var(--t) 15%,transparent)}
 .upd-ico svg{width:22px;height:22px}
 .upd-hero[data-tone=info] .upd-ico svg{animation:updspin 2.4s linear infinite}
@@ -203,10 +204,18 @@ document.addEventListener('DOMContentLoaded',function(){
  <div class="row"><div class="txt"><b>Accent color</b><span>Used for buttons, highlights and charts across every page.</span></div>
   <div class="ctl" role="radiogroup" aria-label="Accent color">
    <label class="sw"><input type="radio" name="accent" value="amber"><span style="--c:#e0962a"></span><i class="vh">Amber</i></label>
-   <label class="sw"><input type="radio" name="accent" value="teal"><span style="--c:#1aa98a"></span><i class="vh">Teal</i></label>
-   <label class="sw"><input type="radio" name="accent" value="blue"><span style="--c:#3b82f6"></span><i class="vh">Blue</i></label>
-   <label class="sw"><input type="radio" name="accent" value="violet"><span style="--c:#8b5cf6"></span><i class="vh">Violet</i></label>
-   <label class="sw"><input type="radio" name="accent" value="rose"><span style="--c:#e8375f"></span><i class="vh">Rose</i></label></div></div>
+   <label class="sw"><input type="radio" name="accent" value="blue"><span style="--c:#007aff"></span><i class="vh">Blue</i></label>
+   <label class="sw"><input type="radio" name="accent" value="indigo"><span style="--c:#5856d6"></span><i class="vh">Indigo</i></label>
+   <label class="sw"><input type="radio" name="accent" value="violet"><span style="--c:#af52de"></span><i class="vh">Purple</i></label>
+   <label class="sw"><input type="radio" name="accent" value="rose"><span style="--c:#ff2d55"></span><i class="vh">Pink</i></label>
+   <label class="sw"><input type="radio" name="accent" value="red"><span style="--c:#ff3b30"></span><i class="vh">Red</i></label>
+   <label class="sw"><input type="radio" name="accent" value="orange"><span style="--c:#ff9500"></span><i class="vh">Orange</i></label>
+   <label class="sw"><input type="radio" name="accent" value="yellow"><span style="--c:#ffcc00"></span><i class="vh">Yellow</i></label>
+   <label class="sw"><input type="radio" name="accent" value="green"><span style="--c:#34c759"></span><i class="vh">Green</i></label>
+   <label class="sw"><input type="radio" name="accent" value="mint"><span style="--c:#00c7be"></span><i class="vh">Mint</i></label>
+   <label class="sw"><input type="radio" name="accent" value="teal"><span style="--c:#30b0c7"></span><i class="vh">Teal</i></label>
+   <label class="sw"><input type="radio" name="accent" value="cyan"><span style="--c:#32ade6"></span><i class="vh">Cyan</i></label>
+   <label class="sw"><input type="radio" name="accent" value="graphite"><span style="--c:#8e8e93"></span><i class="vh">Graphite</i></label></div></div>
  <div class="row"><div class="txt"><b>Surface material</b><span>Choose solid surfaces or a subtle frosted-glass effect. This never changes your light or dark theme.</span></div>
   <div class="ctl"><div class="surface-picker" role="radiogroup" aria-label="Surface material">
    <label class="surface-choice"><input type="radio" name="surface" value="flat"><span class="surface-icon" aria-hidden="true"></span><b>Standard</b><small>Clear, solid surfaces</small></label>
@@ -395,7 +404,7 @@ addEventListener('load',function(){setTimeout(showVer,900);setTimeout(showVer,25
 <script>
 (function(){
  var $=function(i){return document.getElementById(i)};
- var ACC={amber:'#e0962a',teal:'#1aa98a',blue:'#3b82f6',violet:'#8b5cf6',rose:'#e8375f'};
+ var ACC={amber:'#e0962a',blue:'#007aff',indigo:'#5856d6',violet:'#af52de',rose:'#ff2d55',red:'#ff3b30',orange:'#ff9500',yellow:'#ffcc00',green:'#34c759',mint:'#00c7be',teal:'#30b0c7',cyan:'#32ade6',graphite:'#8e8e93'};
  var LAND={overview:'Overview',studio:'Data Studio',ai:'AI assistant'};
  function ls(k){try{return localStorage.getItem(k)}catch(e){return null}}
  function who(){

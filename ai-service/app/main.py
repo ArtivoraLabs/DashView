@@ -66,6 +66,20 @@ def create_app(settings: Settings | None = None, *, providers: dict | None = Non
                        expose_headers=["X-Request-ID"])
 
     @app.middleware("http")
+    async def security_headers(request: Request, call_next):
+        response = await call_next(request)
+        # JSON API: nothing here may be framed, sniffed, cached or run as a page.
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("X-Frame-Options", "DENY")
+        response.headers.setdefault("Referrer-Policy", "no-referrer")
+        response.headers.setdefault("Cache-Control", "no-store")
+        if not request.url.path.startswith(("/docs", "/redoc", "/openapi")):   # dev-only Swagger UI needs to load its own assets
+            response.headers.setdefault("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'")
+        if settings.env == "prod":
+            response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+        return response
+
+    @app.middleware("http")
     async def request_observability(request: Request, call_next):
         incoming_id = request.headers.get("x-request-id", "")
         rid = incoming_id if re.fullmatch(r"[A-Za-z0-9._-]{1,64}", incoming_id) else uuid.uuid4().hex

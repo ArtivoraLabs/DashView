@@ -2,6 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; frame-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"/>
+<script src="js/frame-guard.js"></script>
 <meta name="referrer" content="strict-origin-when-cross-origin"/>
 
 <meta charset="UTF-8"/>
@@ -111,10 +112,16 @@
       meta.parentElement.innerHTML = '<div class="dv-share-empty"><h3 style="color:var(--ink);margin-bottom:8px;">This share link looks corrupted</h3><p>Ask for a fresh link, or <a href="dashboard.html">open your own DashView</a>.</p></div>';
       return;
     }
-    meta.textContent = (payload.widgets || []).length + ' widgets · shared ' + new Date(payload.sharedAt).toLocaleString();
-    var widgets = (payload.widgets || []).slice().sort(function (a, b) { return a.order - b.order; });
+    /* The link's contents are untrusted (anyone can craft one): validate every widget and rebuild a clean copy
+       before anything is rendered. Invalid widgets are skipped, never drawn. */
+    if (!payload || typeof payload !== 'object') payload = {};
+    var widgets = window.DVWidgets.cleanShared(payload.widgets);
+    var sharedAt = new Date(payload.sharedAt);
+    meta.textContent = widgets.length + ' widgets · shared ' + (isNaN(sharedAt.getTime()) ? 'at an unknown time' : sharedAt.toLocaleString());
     if (!widgets.length) { grid.innerHTML = '<p class="dv-widget-empty">Nothing was included in this share.</p>'; return; }
-    widgets.forEach(function (w) { grid.appendChild(window.DVWidgets.buildCard(w, { readOnly: true })); });
+    widgets.forEach(function (w) {
+      try { grid.appendChild(window.DVWidgets.buildCard(w, { readOnly: true })); } catch (e) { /* one broken widget must not blank the page */ }
+    });
   })();
 </script>
 </body>
