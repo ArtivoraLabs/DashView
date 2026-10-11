@@ -393,7 +393,7 @@
   }
   function exportCsv(filename) {
     var list = filtered().slice().sort(byBoardOrder);
-    if (!list.length) { WS.toast('There are no tasks to export.'); return; }
+    if (!list.length) { WS.toast('There are no tasks to export.'); return false; }
     var rows = [['Task', 'Assigned to', 'Priority', 'Status', 'Due', 'Overdue', 'Odoo target', 'Target progress', 'Notes', 'Created', 'Updated']].concat(list.map(function (t) {
       var p = assignee(t);
       return [t.title, p ? p.name : 'Unassigned', L.priority[t.priority], L.status[t.status], t.due, WS.isOverdue(t) ? 'Yes' : 'No',
@@ -403,6 +403,7 @@
     WS.download(typeof filename === 'string' ? filename : 'task-assignments-' + WS.today() + '.csv', WS.csv(rows));
     WS.log('exported', 'Task list', list.length + ' task' + (list.length === 1 ? '' : 's') + ' exported to CSV' + (filtersActive() ? ' (filtered)' : ''));
     WS.toast('Exported ' + list.length + ' task' + (list.length === 1 ? '' : 's') + '.');
+    return true;
   }
   function clearFilters() {
     S.q = S.emp = S.priority = S.due = ''; $('tkSearch').value = ''; $('tkPriority').value = ''; $('tkDue').value = ''; render();
@@ -491,7 +492,7 @@
     }
     WS.subscribe(function () { render(); renderSync(); });
     document.addEventListener('dv:theme', function () { /* board uses theme tokens only */ });
-    window.__tasksExportCSV = function (filename) { exportCsv(filename); };
+    window.__tasksExportCSV = function (filename) { return exportCsv(filename); };
     render();
   }
   if (document.readyState !== 'loading') init(); else document.addEventListener('DOMContentLoaded', init);

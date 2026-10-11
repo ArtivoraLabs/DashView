@@ -614,7 +614,7 @@
     });
   }
   function exportCsv() {
-    if (!S.sum) { if (window.showToast) window.showToast('Connect Odoo first \u2014 nothing to export yet.'); return; }
+    if (!S.sum) { if (window.showToast) window.showToast('Connect Odoo first \u2014 nothing to export yet.'); return false; }
     var rows = [['Metric', 'Value'], ['Company', S.companyId == null ? 'All companies' : (S.companies.filter(function (c) { return c.id === S.companyId; })[0] || {}).name], ['Currency', S.currency || 'Mixed currencies — financial totals omitted'], ['Period (days)', S.sum.days], ['Revenue', S.sum.revenue == null ? 'Mixed currencies' : S.sum.revenue], ['Orders', S.sum.orders], ['Average order value', S.sum.aov == null ? 'Mixed currencies' : S.sum.aov.toFixed(2)], [], ['Month', 'Revenue', 'Orders']];
     if (S.trend) S.trend.labels.forEach(function (l, i) { rows.push([l, S.currency ? S.trend.rev[i] : 'Mixed currencies', S.trend.cnt[i]]); });
     rows.push([], ['Order', 'Customer', 'Total', 'Status']);
@@ -624,6 +624,7 @@
     });
     F.download('odoo-overview-' + new Date().toISOString().slice(0, 10) + '.csv', F.csv(rows));
     if (window.DVSec) window.DVSec.log('Exported overview', 'CSV summary');
+    return true;
   }
 
   /* -- Full report export (PDF: KPIs + charts + AI insights + dashboard snapshot) - */
@@ -697,13 +698,14 @@
       .catch(function () { return null; });
   }
   function exportReport() {
-    if (!S.sum) { if (window.showToast) window.showToast('Connect Odoo first \u2014 nothing to export yet.'); return; }
+    if (!S.sum) { if (window.showToast) window.showToast('Connect Odoo first \u2014 nothing to export yet.'); return false; }
     var btn = $('ovExportReportBtn'); var restore = btn ? btn.textContent : null;
     if (btn) { btn.disabled = true; btn.textContent = 'Generating\u2026'; }
     var aiPromise = (window.DVAIConfig && window.DVAIConfig.isConfigured())
       ? window.DVAIConfig.callAI([{ role: 'user', content: insightsPrompt() }]).catch(function () { return fallbackInsights(); })
       : Promise.resolve(fallbackInsights());
-    Promise.all([loadHtml2Canvas().catch(function () { return null; }), aiPromise]).then(function (r) {
+    var exported = false;
+    return Promise.all([loadHtml2Canvas().catch(function () { return null; }), aiPromise]).then(function (r) {
       return buildSnapshot().then(function (snap) { return [r[1], snap]; });
     }).then(function (r) {
       var insightsText = r[0], snapshot = r[1];
@@ -725,11 +727,12 @@
       };
       return window.DVReportEngine.generatePdfReport(payload);
     }).then(function () {
+      exported = true;
       if (window.showToast) window.showToast('Report downloaded.');
       if (window.DVSec) window.DVSec.log('Exported overview', 'Full PDF report');
     }).catch(function (err) {
       if (window.showToast) window.showToast((err && err.message) || 'Could not generate the report.');
-    }).then(function () { if (btn) { btn.disabled = false; btn.textContent = restore; } });
+    }).then(function () { if (btn) { btn.disabled = false; btn.textContent = restore; } return exported; });
   }
 
   function init() {

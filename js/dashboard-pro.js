@@ -267,7 +267,7 @@
     }
     function exportPeopleCSV(filename) {
       var WS = window.WS;
-      if (!WS || !WS.people().length) { toast('No one in the People directory yet — add people first.'); return; }
+      if (!WS || !WS.people().length) { toast('No one in the People directory yet — add people first.'); return false; }
       var rows = [['Name', 'Email', 'Phone', 'Role', 'Department', 'Status', 'Contract', 'Start date', 'Open tasks']]
         .concat(WS.people().map(function (e) {
           return [e.name, e.email, e.phone, e.role, e.dept, WS.L.personStatus[e.status], e.type, e.start, WS.openTasksFor(e.id).length];
@@ -277,11 +277,12 @@
       WS.download(filename, WS.csv(rows));
       WS.log('exported', 'People report', WS.people().length + ' people and ' + WS.hires().length + ' candidates exported to CSV');
       toast('People directory report exported.');
+      return true;
     }
     function exportXLSX(filename, sheetName) {
-      if (!window.XLSX) { toast('Excel export library did not load.'); return; }
+      if (!window.XLSX) { toast('Excel export library did not load.'); return false; }
       var orders = (window.DASHVIEW_OV && window.DASHVIEW_OV.ORDERS) || [];
-      if (!orders.length) { toast('Connect Odoo first — nothing to export yet.'); return; }
+      if (!orders.length) { toast('Connect Odoo first — nothing to export yet.'); return false; }
       var safe = window.DVFmt && window.DVFmt.safeSpreadsheetValue || function (v) {
         if (typeof v === 'number') return v;
         var text = String(v == null ? '' : v);
@@ -294,6 +295,7 @@
       var wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, (sheetName || 'Orders').slice(0, 31));
       XLSX.writeFile(wb, filename || 'dashview-orders.xlsx');
+      return true;
     }
     function exportTeamXLSX() {
       if (!window.XLSX) { toast('Excel export library did not load.'); return; }
@@ -356,58 +358,38 @@
       });
     }
 
-    /* ── Reports ──────────────────────────────────────────────────────────── */
-    var REPORTS = [
-      { title: 'Sales Overview Report', desc: 'Revenue, orders and recent activity from your connected Odoo.', fmt: 'CSV', generated: 'Live', action: 'csv', src: 'overview' },
-      { title: 'People Directory Report', desc: 'Headcount, department, contract type and hiring pipeline — live from Odoo once People is connected.', fmt: 'CSV', generated: 'Live', action: 'csv', src: 'people' },
-      { title: 'Task Completion Report', desc: 'Every assigned task, its owner, status and due date.', fmt: 'CSV', generated: 'Live', action: 'csv', src: 'tasks' },
-      { title: 'Recent Orders Workbook', desc: 'The latest confirmed sales orders as an Excel file.', fmt: 'XLSX', generated: 'Live', action: 'xlsx' },
-      { title: 'Monthly Sales Summary', desc: 'Full PDF — KPIs, charts and an AI-written narrative, built from live Odoo data.', fmt: 'PDF', generated: 'Live', action: 'pdf-overview' },
-      { title: 'Finance P&L Statement', desc: 'Print or save the current tab as a PDF.', fmt: 'PDF', generated: 'On demand', action: 'pdf' },
-      { title: 'Marketing Campaign ROI', desc: 'Print or save the current tab as a PDF.', fmt: 'PDF', generated: 'On demand', action: 'pdf' }
-    ];
-    var FMT_COLOR = { PDF: '#e5654f', XLSX: '#4fb477', CSV: '#5b8fae' };
-    byId('reportsGrid').innerHTML = REPORTS.map(function (r) {
-      return '<div class="report-card">'
-        + '<div class="report-card-icon" style="background:' + FMT_COLOR[r.fmt] + '22;color:' + FMT_COLOR[r.fmt] + '">' + r.fmt + '</div>'
-        + '<p class="report-card-title">' + r.title + '</p><p class="report-card-desc">' + r.desc + '</p>'
-        + '<p class="report-card-meta">' + r.generated + '</p>'
-        + '<div class="report-card-actions"><button class="btn btn-outline btn-sm" data-run="' + r.action + '" data-title="' + r.title + '" data-src="' + (r.src || '') + '">Generate now</button></div>'
-        + '</div>';
-    }).join('');
-    function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''); }
-    byId('reportsGrid').addEventListener('click', function (e) {
-      var btn = e.target.closest('button[data-run]'); if (!btn) return;
-      var type = btn.dataset.run;
-      var title = btn.dataset.title || 'Report';
-      var src = btn.dataset.src;
-      // Item #3: Excel export is Admin/Manager-only, same restriction as the export menu.
-      if (type === 'xlsx' && state.role === 'rep') { toast('Excel export is restricted for the Sales Rep view.'); return; }
-      // Each report card names the report it's actually producing — both in the
-      // toast and in the downloaded file. CSV/XLSX cards read live data (the Odoo
-      // overview snapshot or the Task assignments store); PDF cards open the
-      // browser print dialog so the person can print or "Save as PDF" the tab.
-      var slug = 'dashview-' + slugify(title) + '-' + new Date().toISOString().slice(0, 10);
-      if (type === 'csv') {
-        toast('Preparing "' + title + '"…');
-        setTimeout(function () {
-          if (src === 'tasks' && window.__tasksExportCSV) window.__tasksExportCSV(slug + '.csv');
-          else if (src === 'people') exportPeopleCSV(slug + '.csv');
-          else if (window.__overviewExportCSV) window.__overviewExportCSV(slug + '.csv');
-          else toast('This report needs Odoo connected — open Settings to connect it.');
-        }, 300);
-      } else if (type === 'xlsx') {
-        toast('Preparing "' + title + '"…');
-        setTimeout(function () { exportXLSX(slug + '.xlsx', title); }, 300);
-      } else if (type === 'pdf-overview') {
-        if (window.__overviewExportPDF) { window.__overviewExportPDF(); }
-        else toast('Open the Overview tab once first, then generate this report.');
-      } else if (type === 'pdf') {
-        toast('Opening the print dialog for "' + title + '"…');
-        setTimeout(function () { window.print(); }, 300);
-      }
-    });
-    if (byId('newReportBtn')) byId('newReportBtn').addEventListener('click', function () { toast('Custom report builder is a demo action — use Data Studio to build one from scratch.'); });
+    /* ── Reports ──────────────────────────────────────────────────────────────
+       The Reports screen itself (cards, export tray, import, history, builder)
+       lives in js/reports-hub.js. This file only exposes the report runners:
+       each one performs a real export and returns true when a file was
+       produced, false when it could not (nothing to export, not connected),
+       or a Promise of the same. The hub animates around that real outcome. */
+    window.DVReportRunners = {
+      /* source readiness lets the hub tell people up front what a report needs */
+      ready: {
+        overview: function () { return !!(window.DVOdoo && window.DVOdoo.isConnected && window.DVOdoo.isConnected()); },
+        orders: function () { return ((window.DASHVIEW_OV && window.DASHVIEW_OV.ORDERS) || []).length > 0; },
+        people: function () { return !!(window.WS && window.WS.people().length); },
+        tasks: function () { return !!(window.WS && window.WS.tasks().length); }
+      },
+      csv: function (src, slug) {
+        if (src === 'tasks' && window.__tasksExportCSV) return window.__tasksExportCSV(slug + '.csv');
+        if (src === 'people') return exportPeopleCSV(slug + '.csv');
+        if (window.__overviewExportCSV) return window.__overviewExportCSV(slug + '.csv');
+        toast('This report needs Odoo connected — open Settings to connect it.');
+        return false;
+      },
+      xlsx: function (src, slug, title) {
+        if (state.role === 'rep') { toast('Excel export is restricted for the Sales Rep view.'); return false; }
+        return exportXLSX(slug + '.xlsx', title);
+      },
+      'pdf-overview': function () {
+        if (window.__overviewExportPDF) return window.__overviewExportPDF();
+        toast('Open the Overview tab once first, then generate this report.');
+        return false;
+      },
+      pdf: function () { window.print(); return true; }
+    };
 
     /* ══════════════════════ Settings ══════════════════════ */
     var PROFILE_KEY = 'dashview_profile';

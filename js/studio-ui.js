@@ -40,7 +40,7 @@
   };
 
   /* Read-only window for the Reconcile tab (js/studio-reconcile-ui.js): it needs the open dataset and file name, nothing else. */
-  window.DVStudioBridge = { dataset: function () { return state.dataset; }, fileName: function () { return state.sourceFileName || state.workbookName || ''; } };
+  window.DVStudioBridge = { importFile: function (f) { handleFiles([f]); }, dataset: function () { return state.dataset; }, fileName: function () { return state.sourceFileName || state.workbookName || ''; } };
 
   var chartInstances = {};
   var autosaveTimer = null;

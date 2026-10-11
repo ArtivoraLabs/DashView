@@ -29,6 +29,7 @@ html = html.replace('<script src="js/app.js"></script>', () => inline('js/app.js
 html = html.replace('<script src="js/studio-core.js"></script>', () => inline('js/studio-core.js'));
 html = html.replace('<script src="js/studio-ui.js"></script>', () => inline('js/studio-ui.js'));
 html = html.replace('<script src="js/report-engine.js"></script>', () => inline('js/report-engine.js'));
+html = html.replace('<script src="js/reports-hub.js"></script>', () => inline('js/reports-hub.js'));
 
 let passed = 0, failed = 0;
 function check(name, fn) {
