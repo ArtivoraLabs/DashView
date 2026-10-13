@@ -12,6 +12,13 @@
 <title>DashView — Every number in Odoo, one click from its records</title>
 <meta name="description" content="DashView turns your Odoo into an executive dashboard and an AI analyst. Ask in plain words, drill from any KPI to the exact records, and reconcile files with live Odoo data — read-only, with every query shown."/>
 <meta name="theme-color" content="#0a0c0b"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="DashView"/>
+<meta property="og:title" content="DashView — Every number in Odoo, one click from its records"/>
+<meta property="og:description" content="An executive dashboard and AI analyst for Odoo. Ask in plain words, drill from any KPI to the exact records, reconcile files — read-only, with every query shown."/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="DashView — Every number in Odoo, one click from its records"/>
+<meta name="twitter:description" content="Ask in plain words, drill from any KPI to the exact records. Read-only, every query shown."/>
 <link rel="icon" href="favicon.ico" sizes="48x48"/>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" sizes="any"/>
 <link rel="icon" href="assets/favicon-32x32.png" sizes="32x32" type="image/png"/>
@@ -368,13 +375,17 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
 <link rel="stylesheet" href="css/index-pro.css"/>
 <link rel="stylesheet" href="css/pro-detail.css"/>
 <link rel="stylesheet" href="css/index-glass.css"/>
+<link rel="stylesheet" href="css/index-plus.css"/>
 <link rel="stylesheet" href="css/cursor.css"/>
 <script defer src="js/index-demo.js"></script>
+<script defer src="js/index-plus.js"></script>
 <script defer src="js/cursor.js"></script>
 <link rel="stylesheet" href="css/8k-quality.css"/>
 <script src="js/8k-quality.js" defer></script>
 </head>
 <body>
+<a class="ip-skip" href="#top">Skip to content</a>
+<div class="ip-progress" aria-hidden="true"><i></i></div>
 <!-- ══════════ NAV ══════════ -->
 <header class="nav" id="nav">
   <div class="nav-inner">
@@ -454,6 +465,45 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
   <div class="ig-wrap">
     <p>Works with what you already run</p>
     <div class="ig-marquee"><div class="ig-track" id="igTrack"></div></div>
+  </div>
+</section>
+
+<!-- ═══════ PROOF ═══════ -->
+<section class="ip-proof" aria-label="DashView at a glance">
+  <div class="ig-wrap">
+    <div class="ip-proof-grid rv">
+      <div class="ip-stat"><small>Drill depth</small><b><em data-count="3">3</em> clicks</b><span>From any KPI to the exact record behind it.</span></div>
+      <div class="ip-stat"><small>Writes to Odoo</small><b><em data-count="0">0</em></b><span>Read-only by design — nothing is ever written back.</span></div>
+      <div class="ip-stat"><small>Looks</small><b><em data-count="3">3</em> themes</b><span>Light, Dark and Liquid Glass, switchable any time.</span></div>
+      <div class="ip-stat"><small>Ask in</small><b><em data-count="2">2</em> languages</b><span>English and Roman Urdu, with every query shown.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ WHY ═══════ -->
+<section class="ig-sec ip-why" id="why">
+  <div class="ig-wrap">
+    <div class="ig-head center rv"><span class="ig-kicker">Why DashView</span><h2>Stop trusting numbers <span class="ig-grad">you can't trace.</span></h2><p>Exports and screenshots tell you what a figure is. DashView shows you where it came from.</p></div>
+    <div class="ip-cmp rv">
+      <div class="ip-cmp-col bad">
+        <h3><span class="ip-cmp-tag">Before</span>Exports &amp; screenshots</h3>
+        <ul>
+          <li><i aria-hidden="true">×</i>Export a report, paste it into a sheet, hope the filters were right.</li>
+          <li><i aria-hidden="true">×</i>The figure is out of date the moment the file is saved.</li>
+          <li><i aria-hidden="true">×</i>Nobody can see how a number was built.</li>
+          <li><i aria-hidden="true">×</i>Handing an AI tool the keys to your ERP feels risky.</li>
+        </ul>
+      </div>
+      <div class="ip-cmp-col good">
+        <h3><span class="ip-cmp-tag">With DashView</span>Live, traceable, read-only</h3>
+        <ul>
+          <li><i aria-hidden="true">✓</i>Every number opens the exact records behind it.</li>
+          <li><i aria-hidden="true">✓</i>Reads straight from your Odoo, so it is as current as Odoo.</li>
+          <li><i aria-hidden="true">✓</i>Every query and filter is shown in plain words.</li>
+          <li><i aria-hidden="true">✓</i>Read-only: there is no write path, by design.</li>
+        </ul>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -550,6 +600,7 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
         <input class="cta-input" type="email" placeholder="your@email.com" id="ctaEmail" aria-label="Work email"/>
         <button class="btn btn-primary" id="ctaSubmitBtn">Request access →</button>
       </div>
+      <span class="ip-hint" id="ctaHint" aria-live="polite"></span>
     </div>
   </div>
 </section>
@@ -599,11 +650,11 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
 
 
 <!-- ══════════ MODAL ══════════ -->
-<div class="modal-overlay" id="waitlistModal">
+<div class="modal-overlay" id="waitlistModal" role="dialog" aria-modal="true" aria-labelledby="wlTitle">
   <div class="modal-card">
     <button class="modal-close" id="modalCloseBtn" type="button" aria-label="Close waitlist dialog"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     <p class="kicker" style="margin-bottom:6px">early access</p>
-    <h3>Join the waitlist</h3>
+    <h3 id="wlTitle">Join the waitlist</h3>
     <p>Tell us where to reach you and we will get you set up.</p>
     <div id="waitlistFormWrap">
       <div class="field"><label for="wlName">Full name</label><input type="text" id="wlName" placeholder="Jane Smith" autocomplete="name"/></div>
@@ -618,6 +669,8 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
   </div>
 </div>
 
+<div class="ip-sticky" id="ipSticky" aria-hidden="true"><a class="btn btn-primary" href="dashboard.html" tabindex="-1">Open the dashboard</a><button type="button" class="btn btn-outline" id="stickyReqBtn" tabindex="-1">Request access</button></div>
+<button type="button" class="ip-top" id="ipTop" aria-label="Back to top"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 6-6 6 6"/></svg></button>
 <div class="toast-stack" id="toastStack"></div>
 <script>
 // ── Helpers ──
@@ -677,12 +730,19 @@ const io = new IntersectionObserver(entries => {
 document.querySelectorAll('[data-target]').forEach(el => io.observe(el));
 
 // ── Modal logic ──
+let lastFocus = null;
 function openModal() {
+  lastFocus = document.activeElement;
   qs('#waitlistModal').classList.add('open');
-  qs('#wlName')?.focus();
+  setTimeout(() => qs('#wlName')?.focus(), 30);
 }
-function closeModal() { qs('#waitlistModal').classList.remove('open'); }
-['loginBtn','waitlistBtn','heroWaitlistBtn','footerWaitlistBtn','priceTeamBtn'].forEach(id => {
+function closeModal() {
+  qs('#waitlistModal').classList.remove('open');
+  if (lastFocus && lastFocus.focus) { try { lastFocus.focus(); } catch (e) {} }
+}
+const okEmail = v => window.ipValidEmail ? window.ipValidEmail(v) : /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+const flag = (el, bad) => { if (el) el.setAttribute('aria-invalid', bad ? 'true' : 'false'); };
+['loginBtn','waitlistBtn','heroWaitlistBtn','footerWaitlistBtn','priceTeamBtn','stickyReqBtn'].forEach(id => {
   on(qs('#'+id), 'click', openModal);
 });
 on(qs('#modalCloseBtn'), 'click', closeModal);
@@ -690,17 +750,26 @@ on(qs('#waitlistModal'), 'click', e => { if(e.target===e.currentTarget) closeMod
 on(qs('#wlSubmitBtn'), 'click', () => {
   const name = qs('#wlName')?.value.trim();
   const email = qs('#wlEmail')?.value.trim();
+  flag(qs('#wlName'), !name); flag(qs('#wlEmail'), !email || !okEmail(email));
   if (!name || !email) { toast('Please fill in both fields.'); return; }
+  if (!okEmail(email)) { toast('Please enter a valid work email.'); qs('#wlEmail')?.focus(); return; }
   qs('#waitlistFormWrap').style.display = 'none';
   qs('#wlSuccess').style.display = 'block';
   setTimeout(closeModal, 3000);
 });
-on(qs('#ctaSubmitBtn'), 'click', () => {
-  const email = qs('#ctaEmail')?.value.trim();
-  if (!email) return;
+function submitCta() {
+  const inp = qs('#ctaEmail'), hint = qs('#ctaHint'), email = inp?.value.trim();
+  const bad = !email || !okEmail(email);
+  flag(inp, bad);
+  if (hint) { hint.textContent = bad ? 'Enter a valid work email, like jane@company.com.' : ''; hint.classList.toggle('err', bad); }
+  if (bad) { inp?.focus(); return; }
   toast('You\'re on the list! We\'ll be in touch.');
-  qs('#ctaEmail').value = '';
-});
+  inp.value = '';
+}
+on(qs('#ctaSubmitBtn'), 'click', submitCta);
+on(qs('#ctaEmail'), 'keydown', e => { if (e.key === 'Enter') { e.preventDefault(); submitCta(); } });
+on(qs('#ctaEmail'), 'input', () => { flag(qs('#ctaEmail'), false); const h = qs('#ctaHint'); if (h) { h.textContent = ''; h.classList.remove('err'); } });
+['#wlName', '#wlEmail'].forEach(id => on(qs(id), 'keydown', e => { if (e.key === 'Enter') { e.preventDefault(); qs('#wlSubmitBtn')?.click(); } }));
 
 // ── Toast ──
 function toast(msg, dur=3500) {
