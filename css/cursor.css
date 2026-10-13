@@ -14,7 +14,7 @@
    ========================================================================== */
 :root {
   --dvc-accent: var(--signal, var(--amber, #e8a33d));
-  --dvc-accent-soft: rgba(232, 163, 61, 0.12);
+  --dvc-accent-soft: rgba(var(--sg,232,163,61), 0.12);
   --dvc-ink: #ffffff;
   --dvc-edge: rgba(0, 0, 0, 0.55);
   --dvc-ring: rgba(255, 255, 255, 0.5);

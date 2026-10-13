@@ -1,0 +1,10 @@
+/* DashView - accent sync. Load AFTER theme-final.css. Paired with js/config.js (--on-signal, --sg, --beacon-h).
+   Text on an accent-coloured fill was hard-coded dark brown, unreadable on Blue / Indigo / Purple / Red accents.
+   --on-signal is white or dark ink, whichever contrasts better with the chosen accent; Amber keeps the original colours. */
+html .btn-signal, html .btn-signal:hover, html .btn-primary:hover,
+html .board-tab.active, html .pro-seg button.active, html .ap-tick { color: var(--on-signal, #191008); }
+html .aiw-btn.primary, html .ai-dashboard-table .ai-drill-btn:hover, html .ai-dashboard-bar-row .ai-drill-btn:hover { color: var(--on-signal, var(--paper)); }
+html .btn-signal:hover { background: var(--beacon-h, #d98f27); }
+html .pro-seg button.active, html .board-tab.active { background: var(--signal); }
+/* no half-way colours while the accent is being switched */
+html.dv-accent-fade *, html.dv-accent-fade *::before, html.dv-accent-fade *::after { transition: none !important; }

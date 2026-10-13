@@ -11,8 +11,8 @@
 .dash-side-brand {
   gap: 11px;
   padding: 0 var(--sp-5);
-  border-bottom: 1px solid rgba(232,163,61,0.14);
-  background: linear-gradient(180deg, rgba(232,163,61,0.05) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(var(--sg,232,163,61),0.14);
+  background: linear-gradient(180deg, rgba(var(--sg,232,163,61),0.05) 0%, transparent 100%);
   letter-spacing: -0.02em;
 }
 .dash-side-brand svg circle { stroke: var(--signal); }
@@ -34,7 +34,7 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: linear-gradient(to right, rgba(232,163,61,0.18), transparent);
+  background: linear-gradient(to right, rgba(var(--sg,232,163,61),0.18), transparent);
 }
 
 /* Nav link base ── roomier, smoother */
@@ -58,7 +58,7 @@
 
 /* Active state ── gradient fill + glowing amber left bar */
 .dash-nav-link.active {
-  background: linear-gradient(90deg, rgba(232,163,61,0.18) 0%, rgba(232,163,61,0.05) 60%, transparent 100%);
+  background: linear-gradient(90deg, rgba(var(--sg,232,163,61),0.18) 0%, rgba(var(--sg,232,163,61),0.05) 60%, transparent 100%);
   color: #f0c06a;
   font-weight: 600;
   box-shadow: none;
@@ -70,7 +70,7 @@
   width: 3px;
   border-radius: 0 3px 3px 0;
   background: var(--signal);
-  box-shadow: 0 0 10px rgba(232,163,61,0.7), 0 0 2px rgba(232,163,61,0.5);
+  box-shadow: 0 0 10px rgba(var(--sg,232,163,61),0.7), 0 0 2px rgba(var(--sg,232,163,61),0.5);
 }
 .dash-nav-link.active svg { opacity: 1; color: var(--signal-bright); }
 
@@ -88,8 +88,8 @@
   letter-spacing: 0.04em;
 }
 .dash-nav-link .badge.new {
-  background: rgba(232,163,61,0.14);
-  border-color: rgba(232,163,61,0.28);
+  background: rgba(var(--sg,232,163,61),0.14);
+  border-color: rgba(var(--sg,232,163,61),0.28);
   color: var(--signal-bright);
 }
 /* Live Odoo badge */
@@ -107,7 +107,7 @@
 /* User block at the bottom ── polished with role badge */
 .dash-side-foot {
   padding: var(--sp-3) var(--sp-4);
-  border-top: 1px solid rgba(232,163,61,0.12);
+  border-top: 1px solid rgba(var(--sg,232,163,61),0.12);
   background: rgba(0,0,0,0.15);
   gap: 10px;
   flex-wrap: nowrap;
@@ -118,7 +118,7 @@
   background: linear-gradient(135deg, var(--signal), var(--beacon));
   font-size: 12px; font-weight: 800;
   letter-spacing: -0.03em;
-  box-shadow: 0 0 0 2px rgba(232,163,61,0.25);
+  box-shadow: 0 0 0 2px rgba(var(--sg,232,163,61),0.25);
   flex-shrink: 0;
 }
 .dash-side-user-info { flex: 1; min-width: 0; }
@@ -127,8 +127,8 @@
 
 /* Topbar search ── subtle amber focus ring */
 .dash-search:focus-within {
-  border-color: rgba(232,163,61,0.5);
-  box-shadow: 0 0 0 3px rgba(232,163,61,0.10);
+  border-color: rgba(var(--sg,232,163,61),0.5);
+  box-shadow: 0 0 0 3px rgba(var(--sg,232,163,61),0.10);
 }
 
 
@@ -239,7 +239,7 @@
   gap: var(--sp-4);
   padding: var(--sp-5) var(--sp-6);
   border-bottom: 1px solid var(--line);
-  background: linear-gradient(135deg, rgba(232,163,61,0.04) 0%, transparent 60%);
+  background: linear-gradient(135deg, rgba(var(--sg,232,163,61),0.04) 0%, transparent 60%);
 }
 .stg-card-icon {
   width: 42px; height: 42px;
@@ -294,7 +294,7 @@
 .stg-input:focus {
   outline: none;
   border-color: var(--signal);
-  box-shadow: 0 0 0 3px rgba(232,163,61,0.14);
+  box-shadow: 0 0 0 3px rgba(var(--sg,232,163,61),0.14);
   background: var(--paper);
 }
 .stg-input::placeholder { color: var(--ink-30); }
@@ -365,8 +365,8 @@
 .stg-security-note {
   display: flex; align-items: flex-start; gap: 10px;
   padding: var(--sp-3) var(--sp-4);
-  background: rgba(232,163,61,0.06);
-  border: 1px solid rgba(232,163,61,0.18);
+  background: rgba(var(--sg,232,163,61),0.06);
+  border: 1px solid rgba(var(--sg,232,163,61),0.18);
   border-radius: var(--r-sm);
   font-size: var(--fs-xs); color: var(--ink-50); line-height: 1.55;
 }

@@ -273,7 +273,7 @@ body.dash-body {
 html[data-theme="light"] body.dash-body {
   background-color: #eceee9;
   background-image:
-    radial-gradient(900px 560px at 8% -6%,  rgba(232, 163, 61, 0.20), transparent 62%),
+    radial-gradient(900px 560px at 8% -6%,  rgba(var(--sg,232,163,61), 0.20), transparent 62%),
     radial-gradient(760px 520px at 100% 2%, rgba(91, 143, 174, 0.18), transparent 58%),
     radial-gradient(900px 640px at 40% 112%, rgba(45, 166, 178, 0.12), transparent 62%);
 }
@@ -300,7 +300,7 @@ html[data-theme="light"] .dash-side .dash-side-foot {
 }
 body:not(.dash-body):not(.ai-body) {
   background-image:
-    radial-gradient(900px 560px at 10% -8%, rgba(232, 163, 61, 0.13), transparent 60%),
+    radial-gradient(900px 560px at 10% -8%, rgba(var(--sg,232,163,61), 0.13), transparent 60%),
     radial-gradient(760px 520px at 100% 4%, rgba(91, 143, 174, 0.10), transparent 55%);
   background-attachment: fixed;
 }

@@ -38,7 +38,7 @@
 .surface-opt.active{border-color:var(--signal);background:var(--signal-10,rgba(232,163,61,.1));box-shadow:0 0 0 1px var(--signal-10,rgba(232,163,61,.1)),0 8px 20px -16px rgba(0,0,0,.65);}
 .surface-swatch{position:relative;height:52px;overflow:hidden;border-radius:9px;margin-bottom:10px;border:1px solid var(--line);}
 .surface-swatch.flat{background:var(--paper);}
-.surface-swatch.glass{isolation:isolate;background:radial-gradient(ellipse at 18% 0%,rgba(91,143,174,.42),transparent 48%),radial-gradient(ellipse at 90% 100%,rgba(232,163,61,.38),transparent 50%),var(--paper-alt);border-color:rgba(255,255,255,.22);}
+.surface-swatch.glass{isolation:isolate;background:radial-gradient(ellipse at 18% 0%,rgba(91,143,174,.42),transparent 48%),radial-gradient(ellipse at 90% 100%,rgba(var(--sg,232,163,61),.38),transparent 50%),var(--paper-alt);border-color:rgba(255,255,255,.22);}
 .surface-swatch.glass i{position:absolute;inset:8px 10px;border-radius:7px;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.23);box-shadow:inset 0 1px 0 rgba(255,255,255,.65),0 5px 12px rgba(0,0,0,.16);backdrop-filter:blur(8px) saturate(155%);-webkit-backdrop-filter:blur(8px) saturate(155%);}
 .surface-swatch.glass i:nth-child(2){inset:15px 34px 4px 25px;background:rgba(255,255,255,.12);}
 .surface-swatch.glass i:nth-child(3){inset:4px 7px 22px 58px;border-color:rgba(255,255,255,.58);background:rgba(255,255,255,.14);}
@@ -48,7 +48,7 @@
 .glass-demo{position:relative;isolation:isolate;overflow:hidden;background:var(--paper-soft);border:1px solid var(--line-strong);
   box-shadow:0 18px 44px -28px rgba(0,0,0,.5);}
 .glass-demo::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;
-  background:radial-gradient(ellipse at 8% 0%,rgba(91,143,174,.22),transparent 52%),radial-gradient(ellipse at 95% 100%,rgba(232,163,61,.2),transparent 55%);}
+  background:radial-gradient(ellipse at 8% 0%,rgba(91,143,174,.22),transparent 52%),radial-gradient(ellipse at 95% 100%,rgba(var(--sg,232,163,61),.2),transparent 55%);}
 .glass-demo .stg-card-head{background:rgba(255,255,255,.16);-webkit-backdrop-filter:blur(16px) saturate(165%);backdrop-filter:blur(16px) saturate(165%);}
 html[data-theme="light"] .glass-demo .stg-card-head{background:rgba(255,255,255,.68);}
 html[data-theme="dark"] .glass-demo .stg-card-head{background:rgba(10,12,11,.62);}

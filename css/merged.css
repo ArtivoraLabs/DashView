@@ -10,12 +10,12 @@
 /* ── Brand re-tint (DashView engineering-console: graphite + amber) ──── */
 :root{
   --signal:#e8a33d; --signal-bright:#f0c06a;
-  --signal-10:rgba(232,163,61,.10); --signal-20:rgba(232,163,61,.18);
+  --signal-10:rgba(var(--sg,232,163,61),.10); --signal-20:rgba(var(--sg,232,163,61),.18);
   --accent2:#5b8fae; --accent2-10:rgba(91,143,174,.12);
   --emerald:#4fb477; --emerald-10:rgba(79,180,119,.12);
 }
 .btn-signal{ background:var(--signal); color:#191008; }
-.btn-signal:hover{ background:#d98f27; box-shadow:0 12px 28px -10px rgba(232,163,61,.5); }
+.btn-signal:hover{ background:var(--beacon-h,#d98f27); box-shadow:0 12px 28px -10px rgba(var(--sg,232,163,61),.5); }
 .btn-primary:hover{ background:var(--signal); color:#191008; }
 .eyebrow, .eyebrow::before{ color:var(--signal); }
 .eyebrow::before{ background:var(--signal-bright); box-shadow:0 0 0 3px var(--signal-10); }

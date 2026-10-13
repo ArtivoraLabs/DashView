@@ -81,7 +81,7 @@ html[data-theme="light"] #view-overview .date-range button.active { color: #fff;
 :focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
 input:focus, select:focus, textarea:focus { outline: none; border-color: var(--signal); box-shadow: 0 0 0 3px var(--signal-20); }
 ::selection { background: var(--signal-20); color: inherit; }
-html[data-theme="dark"] ::selection, html:not([data-theme]) ::selection { background: rgba(232, 163, 61, .38); }
+html[data-theme="dark"] ::selection, html:not([data-theme]) ::selection { background: rgba(var(--sg,232,163,61), .38); }
 tbody tr:hover { background: var(--signal-10); }
 * { scrollbar-color: color-mix(in srgb, var(--signal) 45%, transparent) transparent; }
 ::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--signal) 40%, transparent); background-clip: content-box; }

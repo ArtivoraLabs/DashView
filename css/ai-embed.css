@@ -387,9 +387,9 @@ button.aiw-drow:hover .go { opacity: 1; }
 .ai-embed-content .ai-chart-bar-track { flex: 1; height: 12px; background: var(--signal-10); border-radius: var(--r-full); overflow: hidden; }
 .ai-embed-content .ai-chart-bar-fill { display: block; height: 100%; border-radius: var(--r-full); background: linear-gradient(120deg, var(--signal) 0%, var(--signal-bright) 100%); min-width: 4px; }
 .ai-embed-content .ai-chart-svg{width:100%;height:auto;display:block;overflow:visible}
-.ai-embed-content .ai-chart-line{fill:none;stroke:#e8a33d;stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
-.ai-embed-content .ai-chart-area{fill:rgba(232,163,61,.14);stroke:none}
-.ai-embed-content .ai-chart-svg circle{fill:#e8a33d}
+.ai-embed-content .ai-chart-line{fill:none;stroke:var(--signal,#e8a33d);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.ai-embed-content .ai-chart-area{fill:rgba(var(--sg,232,163,61),.14);stroke:none}
+.ai-embed-content .ai-chart-svg circle{fill:var(--signal,#e8a33d)}
 .ai-embed-content .ai-chart-axis{stroke:rgba(128,128,128,.35);stroke-width:1}
 .ai-embed-content .ai-chart-svg text{font-size:11px;fill:currentColor;opacity:.65;font-family:inherit}
 .ai-embed-content .ai-chart-svg text.ai-chart-pt{opacity:1;font-weight:700}

@@ -12,14 +12,14 @@
   --paper: #0a0c0b;
   --paper-soft: #141815;
   --paper-alt: #07090a;
-  --line: rgba(232,163,61,0.13);
-  --line-strong: rgba(232,163,61,0.28);
+  --line: rgba(var(--sg,232,163,61),0.13);
+  --line-strong: rgba(var(--sg,232,163,61),0.28);
 
   /* Signal (amber, brand) & Beacon (deeper amber, warnings) — vibrant on dark */
   --signal: #e8a33d;
   --signal-bright: #f0c06a;
-  --signal-10: rgba(232,163,61,0.10);
-  --signal-20: rgba(232,163,61,0.18);
+  --signal-10: rgba(var(--sg,232,163,61),0.10);
+  --signal-20: rgba(var(--sg,232,163,61),0.18);
   --beacon: #d98f27;
   --beacon-10: rgba(217,143,39,0.12);
   --danger: #e5654f;
@@ -29,8 +29,8 @@
   --navy-deep: #07090a;
   --navy: #0a0d0b;
   --navy-raised: #0f1310;
-  --navy-line: rgba(232,163,61,0.10);
-  --navy-line-bright: rgba(232,163,61,0.20);
+  --navy-line: rgba(var(--sg,232,163,61),0.10);
+  --navy-line-bright: rgba(var(--sg,232,163,61),0.20);
   --paper-on-navy: #e7ede7;
   --paper-on-navy-60: rgba(231,237,231,0.80);
   --paper-on-navy-40: rgba(231,237,231,0.65);
@@ -70,8 +70,8 @@
   --shadow-md: 0 8px 28px -8px rgba(0,0,0,0.45);
   --shadow-lg: 0 24px 60px -16px rgba(0,0,0,0.58);
   --shadow-xl: 0 32px 80px -20px rgba(0,0,0,0.68), 0 2px 8px rgba(0,0,0,0.30);
-  --shadow-signal: 0 24px 64px -16px rgba(232,163,61,0.32);
-  --shadow-card-hover: 0 20px 48px -16px rgba(232,163,61,0.24);
+  --shadow-signal: 0 24px 64px -16px rgba(var(--sg,232,163,61),0.32);
+  --shadow-card-hover: 0 20px 48px -16px rgba(var(--sg,232,163,61),0.24);
 
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --t-fast: 0.15s var(--ease);
@@ -141,7 +141,7 @@ h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 600; letter-spacing
 .btn-primary { background: var(--ink); color: var(--paper); }
 .btn-primary:hover { background: var(--signal); transform: translateY(-1px); box-shadow: var(--shadow-md); }
 .btn-signal { background: var(--signal); color: #191008; }
-.btn-signal:hover { background: var(--beacon); transform: translateY(-1px); box-shadow: 0 12px 28px -10px rgba(232,163,61,0.50); }
+.btn-signal:hover { background: var(--beacon); transform: translateY(-1px); box-shadow: 0 12px 28px -10px rgba(var(--sg,232,163,61),0.50); }
 .btn-outline { background: transparent; color: var(--ink); border-color: var(--line-strong); }
 .btn-outline:hover { border-color: var(--ink); background: var(--paper-soft); }
 .btn-ghost { background: transparent; color: var(--ink-70); }
