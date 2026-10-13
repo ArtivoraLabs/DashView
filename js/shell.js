@@ -134,30 +134,84 @@
   });
 
   /* ── Command palette ───────────────────────────────────────────────────── */
-  function openCmd(){ byId('cmdOverlay').classList.add('open'); byId('cmdInput').focus(); }
-  function closeCmd(){ byId('cmdOverlay').classList.remove('open'); }
+  // Friendly hints instead of raw file names; `kw` adds extra search words.
+  var CMD_META = {
+    home: ['Landing page', 'home start website'], overview: ['Executive KPIs', 'dashboard kpi'], studio: ['Import & build', 'data csv excel import'],
+    ai: ['Ask your Odoo', 'assistant chat question'], widgets: ['Custom charts', 'widget chart builder'], 'task-assignments': ['Who does what', 'tasks assign'],
+    team: ['People & time off', 'hr employees staff'], reports: ['PDF & Excel', 'report export print'], 'audit-log': ['Security trail', 'audit history log'],
+    settings: ['Connect Odoo', 'config setup api key'], export: ['Download .csv', 'download orders'], theme: ['Light · Dark', 'appearance mode']
+  };
+  var cmdOv = byId('cmdOverlay'), cmdIn = byId('cmdInput'), cmdLast = null;
+  function cmdItems() { return Array.prototype.slice.call(document.querySelectorAll('#cmdOverlay .cmd-item')); }
+  function cmdVisible() { return cmdItems().filter(function (i) { return i.style.display !== 'none'; }); }
+  cmdItems().forEach(function (item) {
+    var m = CMD_META[item.dataset.action]; if (!m) return;
+    var h = item.querySelector('.cmd-item-hint');
+    if (!h) { h = document.createElement('span'); h.className = 'cmd-item-hint'; item.appendChild(h); }
+    h.textContent = m[0]; item.dataset.kw = m[1];
+    item.setAttribute('role', 'option');
+  });
+  var cmdList = document.querySelector('#cmdOverlay .cmd-list');
+  if (cmdList) cmdList.setAttribute('role', 'listbox');
+  var cmdEmpty = document.createElement('p'); cmdEmpty.className = 'cmd-empty'; cmdEmpty.hidden = true;
+  if (cmdList) cmdList.appendChild(cmdEmpty);
+  function cmdFocus(i) {
+    var list = cmdVisible(); if (!list.length) return;
+    i = (i + list.length) % list.length;
+    cmdItems().forEach(function (x) { x.classList.remove('focused'); x.removeAttribute('aria-selected'); });
+    list[i].classList.add('focused'); list[i].setAttribute('aria-selected', 'true');
+    if (list[i].scrollIntoView) list[i].scrollIntoView({ block: 'nearest' });
+  }
+  function cmdFilter() {
+    var q = (cmdIn.value || '').toLowerCase().trim();
+    cmdItems().forEach(function (item) {
+      var hay = (item.querySelector('.cmd-item-label').textContent + ' ' + (item.dataset.kw || '') + ' ' + ((item.querySelector('.cmd-item-hint') || {}).textContent || '')).toLowerCase();
+      item.style.display = (!q || q.split(/\s+/).every(function (t) { return hay.indexOf(t) > -1; })) ? '' : 'none';
+    });
+    document.querySelectorAll('#cmdOverlay .cmd-group-label').forEach(function (g) {
+      var n = g.nextElementSibling, any = false;
+      while (n && !n.classList.contains('cmd-group-label')) { if (n.classList.contains('cmd-item') && n.style.display !== 'none') any = true; n = n.nextElementSibling; }
+      g.style.display = any ? '' : 'none';
+    });
+    var none = !cmdVisible().length;
+    cmdEmpty.hidden = !none; if (none) cmdEmpty.textContent = 'No match for \u201c' + cmdIn.value.trim() + '\u201d';
+    cmdFocus(0);
+  }
+  function openCmd() {
+    cmdLast = document.activeElement;
+    cmdOv.classList.add('open');
+    cmdIn.value = ''; cmdFilter();
+    setTimeout(function () { cmdIn.focus(); }, 10);
+  }
+  function closeCmd() {
+    if (!cmdOv.classList.contains('open')) return;
+    cmdOv.classList.remove('open');
+    var top = byId('topSearchInput'); if (top && document.activeElement === top) top.blur();
+    if (cmdLast && cmdLast.focus && cmdLast !== top) { try { cmdLast.focus(); } catch (e) {} }
+  }
+  function runCmd(a) {
+    if (a === 'home') window.location.href = 'index.html';
+    else if (a === 'export') { if (window.showToast) window.showToast('Exporting orders\u2026'); setTimeout(function(){ if (window.__overviewExportCSV) window.__overviewExportCSV(); }, 400); }
+    else if (a === 'theme') applyTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+    else if (views.indexOf(a) > -1) showView(a); // overview, studio, ai, widgets, odoo-live, task-assignments, team, reports, audit-log, settings
+    closeCmd();
+  }
   on(byId('cmdBtn'), 'click', openCmd);
   on(byId('topSearchInput'), 'focus', openCmd);
-  on(byId('cmdOverlay'), 'click', function (e) { if (e.target === e.currentTarget) closeCmd(); });
-  on(byId('cmdInput'), 'input', function (e) {
-    var q = e.target.value.toLowerCase();
-    document.querySelectorAll('.cmd-item').forEach(function (item) {
-      var label = item.querySelector('.cmd-item-label').textContent.toLowerCase();
-      item.style.display = (!q || label.indexOf(q) > -1) ? '' : 'none';
-    });
-  });
-  document.querySelectorAll('.cmd-item').forEach(function (item) {
-    on(item, 'click', function () {
-      var a = item.dataset.action;
-      if (a === 'home') window.location.href = 'index.html';
-      else if (a === 'export') { if (window.showToast) window.showToast('Exporting orders…'); setTimeout(function(){ if (window.__overviewExportCSV) window.__overviewExportCSV(); }, 400); }
-      else if (a === 'theme') applyTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
-      else if (views.indexOf(a) > -1) showView(a); // overview, studio, ai, widgets, odoo-live, task-assignments, team, reports, audit-log, settings
-      closeCmd();
-    });
+  on(cmdOv, 'click', function (e) { if (e.target === e.currentTarget) closeCmd(); });
+  on(cmdIn, 'input', cmdFilter);
+  cmdItems().forEach(function (item) {
+    on(item, 'click', function () { runCmd(item.dataset.action); });
+    on(item, 'mousemove', function () { if (!item.classList.contains('focused')) { cmdItems().forEach(function (x) { x.classList.remove('focused'); }); item.classList.add('focused'); } });
   });
   document.addEventListener('keydown', function (e) {
-    if ((e.metaKey||e.ctrlKey) && e.key==='k') { e.preventDefault(); openCmd(); }
-    if (e.key==='Escape') closeCmd();
+    var isOpen = cmdOv.classList.contains('open');
+    if ((e.metaKey || e.ctrlKey) && String(e.key).toLowerCase() === 'k') { e.preventDefault(); if (isOpen) closeCmd(); else openCmd(); return; }
+    if (!isOpen) return;
+    var list = cmdVisible(), cur = list.findIndex(function (x) { return x.classList.contains('focused'); });
+    if (e.key === 'Escape') { e.preventDefault(); closeCmd(); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); cmdFocus(cur + 1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); cmdFocus(cur - 1); }
+    else if (e.key === 'Enter' && list[cur]) { e.preventDefault(); runCmd(list[cur].dataset.action); }
   });
 })();

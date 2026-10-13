@@ -56,6 +56,57 @@
   } else stats.forEach(function (s) { s.textContent = s.getAttribute('data-count'); });
 
 
+
+  /* v2.21 motion: scroll parallax, hero pointer glow, card tilt, magnetic CTA (fine pointers, no reduced motion) */
+  if (!reduce) {
+    var sy = 0, syTick = false;
+    addEventListener('scroll', function () {
+      sy = window.pageYOffset || de.scrollTop;
+      if (!syTick) { syTick = true; requestAnimationFrame(function () { syTick = false; de.style.setProperty('--ipsy', sy); }); }
+    }, { passive: true });
+    // chips are not .rv themselves in some layouts; make sure their entrance still fires
+    var chipRow = d.querySelector('.ig-chips');
+    if (chipRow && 'IntersectionObserver' in window) new IntersectionObserver(function (en, o) { if (en[0].isIntersecting) { chipRow.classList.add('in'); o.disconnect(); } }, { threshold: .2 }).observe(chipRow);
+    // grids that stagger their children
+    ['.ip-proof-grid', '.ip-cmp'].forEach(function (sel) {
+      var el = d.querySelector(sel);
+      if (el && 'IntersectionObserver' in window) new IntersectionObserver(function (en, o) { if (en[0].isIntersecting) { el.classList.add('in'); o.disconnect(); } }, { threshold: .25 }).observe(el);
+    });
+    var band = d.querySelector('.ig-cta-band');
+    if (band && 'IntersectionObserver' in window) new IntersectionObserver(function (en, o) { if (en[0].isIntersecting) { band.classList.add('in'); o.disconnect(); } }, { threshold: .3 }).observe(band);
+
+    if (matchMedia('(pointer: fine)').matches) {
+      var heroEl = d.querySelector('.ig-hero');
+      if (heroEl) {
+        heroEl.addEventListener('pointermove', function (e) {
+          var r = heroEl.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+          heroEl.style.setProperty('--hx', (x * 100).toFixed(1) + '%'); heroEl.style.setProperty('--hy', (y * 100).toFixed(1) + '%'); heroEl.style.setProperty('--ho', 1);
+          heroEl.style.setProperty('--mx2', (x * 2 - 1).toFixed(3)); heroEl.style.setProperty('--my2', (y * 2 - 1).toFixed(3));
+        }, { passive: true });
+        heroEl.addEventListener('pointerleave', function () { heroEl.style.setProperty('--ho', 0); heroEl.style.setProperty('--mx2', 0); heroEl.style.setProperty('--my2', 0); });
+      }
+      // 3D tilt on feature / security / step cards
+      d.addEventListener('pointermove', function (e) {
+        var c = e.target.closest && e.target.closest('.ig-card, .ig-s'); if (!c) return;
+        var r = c.getBoundingClientRect();
+        c.style.setProperty('--ry', (((e.clientX - r.left) / r.width - .5) * 8).toFixed(2) + 'deg');
+        c.style.setProperty('--rx', ((.5 - (e.clientY - r.top) / r.height) * 6).toFixed(2) + 'deg');
+      }, { passive: true });
+      d.addEventListener('pointerout', function (e) {
+        var c = e.target.closest && e.target.closest('.ig-card, .ig-s');
+        if (c && !c.contains(e.relatedTarget)) { c.style.removeProperty('--rx'); c.style.removeProperty('--ry'); }
+      });
+      // magnetic hero buttons
+      [].forEach.call(d.querySelectorAll('.ig-cta .btn'), function (b) {
+        b.addEventListener('pointermove', function (e) {
+          var r = b.getBoundingClientRect();
+          b.style.translate = ((e.clientX - r.left - r.width / 2) * .18).toFixed(1) + 'px ' + ((e.clientY - r.top - r.height / 2) * .28).toFixed(1) + 'px';
+        });
+        b.addEventListener('pointerleave', function () { b.style.translate = ''; });
+      });
+    }
+  }
+
   /* mobile sticky CTA: shows after the hero, hides near the final CTA band, the open menu and the modal */
   var sticky = $('ipSticky');
   if (sticky) {

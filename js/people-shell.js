@@ -191,15 +191,30 @@
   on(input, 'input', function () {
     var q = input.value.toLowerCase().trim();
     document.querySelectorAll('#cmdOverlay .cmd-item').forEach(function (item) {
-      var label = item.querySelector('.cmd-item-label').textContent.toLowerCase();
-      item.style.display = (!q || label.indexOf(q) > -1) ? '' : 'none';
+      var hay = (item.querySelector('.cmd-item-label').textContent + ' ' + (item.dataset.kw || '') + ' ' + ((item.querySelector('.cmd-item-hint') || {}).textContent || '')).toLowerCase();
+      item.style.display = (!q || q.split(/\s+/).every(function (t) { return hay.indexOf(t) > -1; })) ? '' : 'none';
     });
     document.querySelectorAll('#cmdOverlay .cmd-group-label').forEach(function (g) {
       var n = g.nextElementSibling, any = false;
       while (n && !n.classList.contains('cmd-group-label')) { if (n.classList.contains('cmd-item') && n.style.display !== 'none') any = true; n = n.nextElementSibling; }
       g.style.display = any ? '' : 'none';
     });
+    var emp = document.querySelector('#cmdOverlay .cmd-empty');
+    if (!emp) { emp = document.createElement('p'); emp.className = 'cmd-empty'; var cl = document.querySelector('#cmdOverlay .cmd-list'); if (cl) cl.appendChild(emp); }
+    emp.hidden = items().length > 0; emp.textContent = 'No match for \u201c' + input.value.trim() + '\u201d';
     focusItem(0);
+  });
+  var PMETA = {
+    home: ['Landing page', 'home start website'], overview: ['Executive KPIs', 'dashboard kpi'], people: ['Directory & hiring', 'hr employees staff'], studio: ['Import & build', 'data csv excel import'],
+    ai: ['Ask your Odoo', 'assistant chat question'], widgets: ['Custom charts', 'widget chart builder'], 'task-assignments': ['Who does what', 'tasks assign'], team: ['People & time off', 'team time off'],
+    reports: ['PDF & Excel', 'report export print'], 'audit-log': ['Security trail', 'audit history log'], settings: ['Connect Odoo', 'config setup api key'],
+    'add-person': ['New record', 'new employee hire create'], 'export-people': ['Download .csv', 'download export'], theme: ['Light \u00b7 Dark', 'appearance mode']
+  };
+  document.querySelectorAll('#cmdOverlay .cmd-item').forEach(function (item) {
+    var m = PMETA[item.dataset.action]; if (!m) return;
+    var h = item.querySelector('.cmd-item-hint');
+    if (!h) { h = document.createElement('span'); h.className = 'cmd-item-hint'; item.appendChild(h); }
+    h.textContent = m[0]; item.dataset.kw = m[1];
   });
   document.querySelectorAll('#cmdOverlay .cmd-item').forEach(function (item) {
     item.setAttribute('role', 'option');
