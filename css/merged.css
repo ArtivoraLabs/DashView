@@ -274,3 +274,59 @@ html[data-theme="dark"] .cmd-item-icon{ background:rgba(255,255,255,.08); border
   .cmd-overlay{ -webkit-backdrop-filter:none; backdrop-filter:none; }
   html body .cmd-box{ background-color:var(--paper) !important; background-image:none !important; -webkit-backdrop-filter:none; backdrop-filter:none; }
 }
+
+/* ═══ v2.22 — command palette: final polish (same iOS glass, warm accent) ═══ */
+.cmd-overlay{ padding:min(14vh,120px) 16px 0; }
+.cmd-box{ max-width:600px; will-change:transform,opacity; }
+.cmd-input-wrap{ gap:10px; min-height:48px; }
+.cmd-input-wrap svg{ width:18px; height:18px; transition:color .2s, transform .35s cubic-bezier(.34,1.56,.64,1); }
+.cmd-input-wrap:focus-within svg{ transform:scale(1.08); }
+.cmd-input-wrap input{ font-size:1rem; font-weight:500; letter-spacing:-.005em; caret-color:var(--signal); }
+.cmd-input-wrap input::placeholder{ color:var(--ink-30); font-weight:400; }
+.cmd-esc{ flex:none; font-size:.66rem; letter-spacing:.06em; text-transform:uppercase; padding:3px 7px; opacity:.8; }
+
+/* list: no clipped half-row at the bottom — soft fade instead, thin warm scrollbar */
+.cmd-list{
+  max-height:min(420px,56vh); padding:6px 10px 16px; scroll-padding:36px 0 24px;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 8px,#000 calc(100% - 30px),transparent 100%);
+          mask-image:linear-gradient(180deg,transparent 0,#000 8px,#000 calc(100% - 30px),transparent 100%);
+  scrollbar-width:thin; scrollbar-color:rgba(150,140,130,.42) transparent;
+}
+.cmd-list::-webkit-scrollbar{ width:10px; }
+.cmd-list::-webkit-scrollbar-track{ background:transparent; margin:14px 0; }
+.cmd-list::-webkit-scrollbar-thumb{ background:rgba(150,140,130,.42); border-radius:10px; border:3px solid transparent; background-clip:padding-box; }
+.cmd-list::-webkit-scrollbar-thumb:hover{ background:rgba(232,140,40,.6); background-clip:padding-box; }
+
+.cmd-group-label{ font-size:.66rem; letter-spacing:.1em; padding:12px 12px 6px; }
+
+/* rows */
+.cmd-item{ min-height:46px; padding:7px 12px; gap:13px; transition:background-color .14s, transform .18s cubic-bezier(.16,1,.3,1); }
+.cmd-item:active{ transform:scale(.985); }
+.cmd-item-icon{ width:32px; height:32px; border-radius:10px; box-shadow:0 1px 2px rgba(0,0,0,.06); transition:color .15s, background-color .15s, border-color .15s, transform .25s cubic-bezier(.34,1.56,.64,1); }
+.cmd-item-icon svg{ width:15px; height:15px; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+.cmd-item.focused .cmd-item-icon{ transform:scale(1.06); background:linear-gradient(145deg,rgba(255,176,80,.30),rgba(232,120,30,.14)); box-shadow:0 4px 12px -4px rgba(232,120,30,.45); }
+.cmd-item.focused{ background:linear-gradient(90deg,rgba(232,140,40,.13),rgba(120,120,128,.12) 70%); }
+html[data-theme="dark"] .cmd-item.focused{ background:linear-gradient(90deg,rgba(232,140,40,.20),rgba(255,255,255,.08) 70%); }
+.cmd-item-label{ font-weight:550; letter-spacing:-.005em; }
+.cmd-item-hint{ font-size:.7rem; font-weight:500; color:var(--ink-50,var(--ink-30)); white-space:nowrap; }
+.cmd-item.focused::after{ right:14px; display:grid; place-items:center; width:22px; height:22px; border-radius:7px; background:rgba(232,120,30,.14); font-size:.8rem; }
+
+/* footer */
+.cmd-footer{ padding:10px 18px 12px; gap:16px; }
+.cmd-footer-brand{ margin-left:auto; opacity:.7; }
+.cmd-empty{ padding:36px 12px 30px; font-weight:500; }
+
+/* focus visibility for keyboard users */
+.cmd-item:focus-visible{ outline:2px solid var(--signal); outline-offset:-2px; }
+
+@media (max-width:640px){
+  .cmd-overlay{ padding-top:max(env(safe-area-inset-top),14px); }
+  .cmd-box{ border-radius:22px; }
+  .cmd-esc, .cmd-footer-brand{ display:none; }
+  .cmd-item-hint{ display:none; }
+  .cmd-list{ max-height:min(60vh,420px); }
+}
+@media (prefers-reduced-motion:reduce){
+  .cmd-item,.cmd-item-icon,.cmd-input-wrap svg{ transition:none; }
+  .cmd-item.focused .cmd-item-icon{ transform:none; }
+}

@@ -1,22 +1,61 @@
 /* index-plus.js — landing page enhancements (v2.19): scroll progress, active nav link,
-   animated proof counters, back-to-top, email validation. Purely additive; no network. */
+   animated proof counters, back-to-top, email validation. v2.22: eased anchor scroll, frame-throttled pointer effects, cached scroll metrics, offscreen pause, link prefetch. */
 (function () {
   'use strict';
   var d = document, de = d.documentElement;
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   function $(id) { return d.getElementById(id); }
 
-  /* scroll progress + back-to-top */
-  var bar = d.querySelector('.ip-progress i'), top = $('ipTop'), ticking = false;
+  /* scroll progress + back-to-top (page height is measured on resize / content change, never per scroll frame) */
+  var bar = d.querySelector('.ip-progress i'), top = $('ipTop'), ticking = false, maxY = 0;
+  function measure() { maxY = de.scrollHeight - innerHeight; }
   function onScroll() {
     ticking = false;
-    var h = de.scrollHeight - innerHeight, y = window.pageYOffset || de.scrollTop;
-    if (bar) bar.style.transform = 'scaleX(' + (h > 0 ? Math.min(y / h, 1) : 0) + ')';
+    var y = window.pageYOffset || de.scrollTop;
+    if (bar) bar.style.transform = 'scaleX(' + (maxY > 0 ? Math.min(y / maxY, 1) : 0) + ')';
     if (top) top.classList.toggle('show', y > 900);
   }
   addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
-  addEventListener('resize', onScroll); onScroll();
-  if (top) top.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); });
+  addEventListener('resize', function () { measure(); onScroll(); }, { passive: true });
+  addEventListener('load', function () { measure(); onScroll(); });
+  if ('ResizeObserver' in window) new ResizeObserver(function () { measure(); onScroll(); }).observe(d.body);
+  measure(); onScroll();
+  if (top) top.addEventListener('click', function () { smoothTo(0); });
+
+  /* eased anchor scrolling: one calm curve for every in-page link, offset for the sticky nav,
+     cancels the moment the visitor scrolls / touches / presses a key, keeps focus + URL hash correct */
+  var anim = 0;
+  function easeInOut(t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+  function stopAnim() { if (anim) { cancelAnimationFrame(anim); anim = 0; } }
+  function smoothTo(targetY, done) {
+    stopAnim();
+    var startY = window.pageYOffset || de.scrollTop;
+    targetY = Math.max(0, Math.min(targetY, de.scrollHeight - innerHeight));
+    var dist = targetY - startY;
+    if (reduce || Math.abs(dist) < 2) { window.scrollTo(0, targetY); if (done) done(); return; }
+    var dur = Math.min(1150, 420 + Math.abs(dist) * .35), t0 = null;
+    (function step(t) {
+      if (t0 === null) t0 = t;
+      var p = Math.min((t - t0) / dur, 1);
+      window.scrollTo(0, startY + dist * easeInOut(p));
+      if (p < 1) anim = requestAnimationFrame(step); else { anim = 0; if (done) done(); }
+    })(performance.now());
+  }
+  ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function (ev) { addEventListener(ev, stopAnim, { passive: true }); });
+  d.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var id = decodeURIComponent(a.getAttribute('href').slice(1)), el = id ? d.getElementById(id) : null;
+    if (!el && id) return;
+    if (!id) { e.preventDefault(); smoothTo(0); return; }
+    e.preventDefault();
+    var nav = $('nav'), off = (nav ? nav.offsetHeight : 64) + 16;
+    smoothTo(el.getBoundingClientRect().top + (window.pageYOffset || de.scrollTop) - off, function () {
+      try { history.pushState(null, '', '#' + id); } catch (x) {}
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
+      try { el.focus({ preventScroll: true }); } catch (x) {}
+    });
+  });
 
   /* active nav link (scrollspy) */
   var links = [].slice.call(d.querySelectorAll('.nav-links a[href^="#"]'));
@@ -78,19 +117,29 @@
     if (matchMedia('(pointer: fine)').matches) {
       var heroEl = d.querySelector('.ig-hero');
       if (heroEl) {
+        var hpE = null, hpTick = false;
         heroEl.addEventListener('pointermove', function (e) {
-          var r = heroEl.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
-          heroEl.style.setProperty('--hx', (x * 100).toFixed(1) + '%'); heroEl.style.setProperty('--hy', (y * 100).toFixed(1) + '%'); heroEl.style.setProperty('--ho', 1);
-          heroEl.style.setProperty('--mx2', (x * 2 - 1).toFixed(3)); heroEl.style.setProperty('--my2', (y * 2 - 1).toFixed(3));
+          hpE = e; if (hpTick) return; hpTick = true;
+          requestAnimationFrame(function () {
+            hpTick = false;
+            var r = heroEl.getBoundingClientRect(), x = (hpE.clientX - r.left) / r.width, y = (hpE.clientY - r.top) / r.height;
+            heroEl.style.setProperty('--hx', (x * 100).toFixed(1) + '%'); heroEl.style.setProperty('--hy', (y * 100).toFixed(1) + '%'); heroEl.style.setProperty('--ho', 1);
+            heroEl.style.setProperty('--mx2', (x * 2 - 1).toFixed(3)); heroEl.style.setProperty('--my2', (y * 2 - 1).toFixed(3));
+          });
         }, { passive: true });
         heroEl.addEventListener('pointerleave', function () { heroEl.style.setProperty('--ho', 0); heroEl.style.setProperty('--mx2', 0); heroEl.style.setProperty('--my2', 0); });
       }
-      // 3D tilt on feature / security / step cards
+      // 3D tilt + cursor spotlight on feature / security / step cards and proof stats (one write per frame)
+      var tc = null, te = null, tTick = false;
       d.addEventListener('pointermove', function (e) {
-        var c = e.target.closest && e.target.closest('.ig-card, .ig-s'); if (!c) return;
-        var r = c.getBoundingClientRect();
-        c.style.setProperty('--ry', (((e.clientX - r.left) / r.width - .5) * 8).toFixed(2) + 'deg');
-        c.style.setProperty('--rx', ((.5 - (e.clientY - r.top) / r.height) * 6).toFixed(2) + 'deg');
+        var c = e.target.closest && e.target.closest('.ig-card, .ig-s, .ip-stat'); if (!c) return;
+        tc = c; te = e; if (tTick) return; tTick = true;
+        requestAnimationFrame(function () {
+          tTick = false; if (!tc) return;
+          var r = tc.getBoundingClientRect(), px = (te.clientX - r.left) / r.width, py = (te.clientY - r.top) / r.height;
+          tc.style.setProperty('--sx', (px * 100).toFixed(1) + '%'); tc.style.setProperty('--sy', (py * 100).toFixed(1) + '%');
+          if (tc.matches('.ig-card, .ig-s')) { tc.style.setProperty('--ry', ((px - .5) * 8).toFixed(2) + 'deg'); tc.style.setProperty('--rx', ((.5 - py) * 6).toFixed(2) + 'deg'); }
+        });
       }, { passive: true });
       d.addEventListener('pointerout', function (e) {
         var c = e.target.closest && e.target.closest('.ig-card, .ig-s');
@@ -106,6 +155,33 @@
       });
     }
   }
+
+  /* pause the hero's endless animations while it is off-screen (saves GPU / battery, keeps scrolling at 60fps) */
+  (function () {
+    var hero = d.querySelector('.ig-hero');
+    if (!hero || !('IntersectionObserver' in window)) return;
+    new IntersectionObserver(function (en) { hero.classList.toggle('ip-off', !en[0].isIntersecting); }, { rootMargin: '120px 0px' }).observe(hero);
+  })();
+
+  /* release the compositor layer of a reveal once it has finished animating */
+  d.addEventListener('transitionend', function (e) {
+    var t = e.target; if (t.classList && t.classList.contains('rv') && t.classList.contains('in') && e.propertyName === 'opacity') t.classList.add('rv-done');
+  });
+
+  /* warm the next page on intent: hover / touch on an internal link prefetches it, so the click feels instant */
+  (function () {
+    var done = {}, conn = navigator.connection || {};
+    if (conn.saveData || /2g/.test(conn.effectiveType || '')) return;
+    function warm(e) {
+      var a = e.target.closest && e.target.closest('a[href]'); if (!a) return;
+      var u; try { u = new URL(a.getAttribute('href'), location.href); } catch (x) { return; }
+      if (u.origin !== location.origin || done[u.pathname] || u.pathname === location.pathname || !/\.html?$|\/$/.test(u.pathname)) return;
+      done[u.pathname] = 1;
+      var l = d.createElement('link'); l.rel = 'prefetch'; l.href = u.pathname; d.head.appendChild(l);
+    }
+    d.addEventListener('pointerover', warm, { passive: true });
+    d.addEventListener('touchstart', warm, { passive: true });
+  })();
 
   /* mobile sticky CTA: shows after the hero, hides near the final CTA band, the open menu and the modal */
   var sticky = $('ipSticky');

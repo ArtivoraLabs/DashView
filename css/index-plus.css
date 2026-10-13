@@ -166,3 +166,84 @@ html[data-theme="light"]{--ios-hair:rgba(255,255,255,.75);--ios-tint:rgba(255,25
   .nav.scrolled,.ig-glass,.ig-float,.modal-overlay,.modal-card,.toast,.ip-sticky,.ip-top{-webkit-backdrop-filter:none;backdrop-filter:none}
   .nav.scrolled,.ig-float,.modal-card,.toast,.ip-sticky,.ip-top{background:var(--bg)}
 }
+
+/* ═══════════ v2.22 — smoothness & detailing (landing page) ═══════════ */
+:root{--ease-out:cubic-bezier(.16,1,.3,1);--ease-spring:cubic-bezier(.34,1.56,.64,1)}
+html{-webkit-text-size-adjust:100%;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overscroll-behavior-y:none;scrollbar-gutter:stable}
+body{-webkit-tap-highlight-color:transparent}
+::selection{background:rgba(232,163,61,.34);color:inherit}
+img,svg{-webkit-user-drag:none}
+
+/* warm, slim scrollbar */
+html{scrollbar-width:thin;scrollbar-color:rgba(232,163,61,.55) transparent}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(160,150,140,.4);border-radius:11px;border:3px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:rgba(232,163,61,.7);background-clip:padding-box;border:3px solid transparent}
+
+/* keyboard focus: one consistent warm ring everywhere */
+a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:10px}
+[tabindex="-1"]:focus{outline:none}
+
+/* page-to-page: soft cross-fade where the browser supports view transitions */
+@view-transition{navigation:auto}
+@keyframes ipVtOut{to{opacity:0;transform:scale(.995)}}
+@keyframes ipVtIn{from{opacity:0;transform:scale(1.004)}}
+::view-transition-old(root){animation:.18s ease-in both ipVtOut}
+::view-transition-new(root){animation:.28s var(--ease-out) both ipVtIn}
+
+/* GPU: blobs are already radial-gradients that fade to transparent — the extra 80px blur on three
+   viewport-sized layers was the heaviest paint on the page. Same look, a fraction of the cost. */
+.ig-blob{filter:none;backface-visibility:hidden;transform:translateZ(0)}
+.ig-hero.ip-off .ig-blob,.ig-hero.ip-off .ig-float,.ig-hero.ip-off .ig-h1 .word.ig-grad{animation-play-state:paused}
+.ig-float,.ig-stage{backface-visibility:hidden}
+
+/* reveals: promote only while animating, release afterwards; gentler 3D entrance */
+.rv:not(.in){will-change:transform,opacity}
+.rv.in.rv-done{will-change:auto}
+@media (prefers-reduced-motion:no-preference){
+  .ig-stage.rv{transform:perspective(1400px) translate3d(0,56px,0) rotateX(10deg) scale(.94)}
+  .rv{transition-timing-function:var(--ease-out)}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}::view-transition-old(root),::view-transition-new(root){animation:none}}
+
+/* cursor spotlight on cards + proof stats (position fed by index-plus.js, one write per frame) */
+.ig-card,.ip-stat{position:relative}
+.ig-card::before,.ip-stat::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .35s ease;background:radial-gradient(340px circle at var(--sx,50%) var(--sy,50%),rgba(232,163,61,.16),transparent 62%)}
+.ig-card:hover::before,.ip-stat:hover::before{opacity:1}
+html[data-theme="light"] .ig-card::before,html[data-theme="light"] .ip-stat::before{background:radial-gradient(340px circle at var(--sx,50%) var(--sy,50%),rgba(194,110,20,.12),transparent 62%)}
+
+/* nav: underline that slides in, quieter hover */
+.nav-links a{transition:color .2s,background-color .25s var(--ease-out)}
+.nav-links a:not(.active):hover{color:var(--text);background:rgba(232,163,61,.08)}
+.nav-links a.active::after{transition:width .35s var(--ease-out),margin .35s var(--ease-out)}
+.nav-links a.active:hover::after{width:22px;margin-left:-11px}
+
+/* buttons: tactile press, calmer lift */
+.btn{transition:transform .22s var(--ease-out),box-shadow .25s,background-color .25s,border-color .25s,color .2s,translate .35s var(--ease-out)}
+.btn:active{transform:scale(.97);transition-duration:.08s}
+.btn-primary:hover{box-shadow:0 10px 28px -10px rgba(232,163,61,.65)}
+.btn-outline:hover{border-color:var(--amber)}
+
+/* FAQ: smooth open / close where the browser can animate <details> height */
+@supports (interpolate-size:allow-keywords){
+  .ig-faq details{interpolate-size:allow-keywords}
+  .ig-faq details::details-content{block-size:0;overflow:clip;transition:block-size .38s var(--ease-out),content-visibility .38s allow-discrete}
+  .ig-faq details[open]::details-content{block-size:auto}
+}
+.ig-faq details{transition:border-color .25s,background-color .25s,box-shadow .3s}
+.ig-faq details[open]{border-color:rgba(232,163,61,.4);box-shadow:0 14px 34px -22px rgba(232,163,61,.5)}
+.ig-faq summary{transition:color .2s}
+.ig-faq summary:hover{color:var(--amber)}
+.ig-faq summary::after{transition:transform .4s var(--ease-spring),background-color .2s,border-color .2s}
+.ig-faq details[open] summary::after{background:rgba(232,163,61,.16);border-color:var(--amber)}
+
+/* numbers never jitter while counting */
+.ip-stat b,[data-count]{font-variant-numeric:tabular-nums}
+
+/* scroll progress + back-to-top: silkier */
+.ip-progress i{transition:transform .12s linear}
+.ip-top{transition:opacity .3s,transform .4s var(--ease-spring),border-color .2s}
+
+/* touch devices: no sticky hover states, no tilt jitter */
+@media (hover:none){.ig-card::before,.ip-stat::before{display:none}.ig-card:hover{transform:none}}
