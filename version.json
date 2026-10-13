@@ -1,11 +1,23 @@
 {
-  "version": "2.18.2",
+  "version": "2.18.3",
   "build": "2026.10.13",
   "released": "2026-10-13",
   "notes": [
-    "Improved: loading / sync popup restyled as an iOS notification banner - frosted Liquid Glass material, app-icon logo, SF-style type, iOS activity indicator and spring motion (light / dark, reduced-motion and reduced-transparency aware)"
+    "Redesigned: workspace lock screen in a macOS-style layout with DashView colours - animated amber and green wave wallpaper, translucent date and clock, avatar with an Enter-to-unlock password field",
+    "Improved: lock screen shows who is locked, why it locked, online status and the Ctrl/Cmd + Shift + L shortcut; the clock keeps time while locked and the password field returns to the clock view after 45 s idle",
+    "Fixed: the sign-in page did not load the lock screen stylesheet, so a passcode lock there appeared unstyled"
   ],
   "history": [
+    {
+      "version": "2.18.3",
+      "date": "2026-10-13",
+      "notes": [
+        "Redesigned: workspace lock screen in a macOS-style layout with DashView colours - animated amber and green wave wallpaper, translucent date and clock, avatar with an Enter-to-unlock password field",
+        "Improved: lock screen shows who is locked, why it locked, online status and the Ctrl/Cmd + Shift + L shortcut; the clock keeps time while locked and the password field returns to the clock view after 45 s idle",
+        "Fixed: the sign-in page did not load the lock screen stylesheet, so a passcode lock there appeared unstyled"
+      ],
+      "critical": false
+    },
     {
       "version": "2.18.2",
       "date": "2026-10-13",
@@ -313,19 +325,8 @@
         "Executive: Refresh button, concentration-risk gauge with 40% / 60% thresholds"
       ],
       "critical": false
-    },
-    {
-      "version": "2.2.0",
-      "date": "2026-10-01",
-      "notes": [
-        "Software Update: top banner when an update is available, then Download and Install & Restart, like a phone",
-        "Settings: live update status, progress, what's new, auto-check and auto-download switches (the old button did not really check)",
-        "AI: business playbooks (aging, period comparison, concentration, pipeline, low stock, cash, stuck work), 7 more Odoo models, confidence line, clickable follow-up questions",
-        "Charts and KPI cards: new gradient/glow styling"
-      ],
-      "critical": false
     }
   ],
   "critical": false,
-  "size": 4302494
+  "size": 4354235
 }

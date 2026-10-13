@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.18.3 - 2026-10-13
+- Redesigned: workspace lock screen in a macOS-style layout with DashView colours - animated amber and green wave wallpaper, translucent date and clock, avatar with an Enter-to-unlock password field
+- Improved: lock screen shows who is locked, why it locked, online status and the Ctrl/Cmd + Shift + L shortcut; the clock keeps time while locked and the password field returns to the clock view after 45 s idle
+- Fixed: the sign-in page did not load the lock screen stylesheet, so a passcode lock there appeared unstyled
+
 ## 2.18.2 - 2026-10-13
 - Improved: loading / sync popup restyled as an iOS notification banner - frosted Liquid Glass material, app-icon logo, SF-style type, iOS activity indicator and spring motion (light / dark, reduced-motion and reduced-transparency aware)
 
