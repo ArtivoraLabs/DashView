@@ -166,24 +166,101 @@
 
   /* -- Lock screen --------------------------------------------------------- */
   function $(id) { return document.getElementById(id); }
+  var clockTimer = 0;
+  var lockMeta = { reason: '', at: 0 }, wakeTimer = 0;
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function who() {
+    var u = null; try { u = window.DVAuth && window.DVAuth.currentUser && window.DVAuth.currentUser(); } catch (e) {}
+    var name = (u && !u.guest && u.name) || 'DashView';
+    var ini = (u && !u.guest && u.initials) || String(name).trim().split(/\s+/).slice(0, 2).map(function (x) { return x[0]; }).join('').toUpperCase() || 'DV';
+    return { name: name, initials: ini, role: u && !u.guest ? (u.orgRole || '') : '' };
+  }
+  function tickClock() {
+    var d = new Date(), t = $('dvLockTime'), dt = $('dvLockDate'); if (!t) return;
+    var h = d.getHours(), h12 = false;
+    try { h12 = !!new Intl.DateTimeFormat(undefined, { hour: 'numeric' }).resolvedOptions().hour12; } catch (e) {}
+    var hh = h12 ? (h % 12 || 12) : pad2(h);
+    t.innerHTML = '<span>' + hh + '</span><i>:</i><span>' + pad2(d.getMinutes()) + '</span>' + (h12 ? '<em>' + (h < 12 ? 'AM' : 'PM') + '</em>' : '');
+    t.setAttribute('datetime', d.toISOString());
+    try { dt.textContent = d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }); } catch (e) { dt.textContent = d.toDateString(); }
+    var lk = $('dvLock'); if (lk) lk.setAttribute('data-tod', h < 5 ? 'night' : h < 8 ? 'dawn' : h < 17 ? 'day' : h < 20 ? 'dusk' : 'night');
+    var g = h < 5 ? 'Good night' : h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+    var gr = $('dvLockGreet'); if (gr) gr.textContent = g + ', ' + who().name.split(/\s+/)[0];
+    var since = $('dvLockSince');
+    if (since && lockMeta.at) {
+      var m = Math.floor((Date.now() - lockMeta.at) / 60000);
+      since.textContent = m < 1 ? 'Locked just now' : m < 60 ? 'Locked ' + m + ' min ago' : 'Locked at ' + new Date(lockMeta.at).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+    }
+    var net = $('dvLockNet'); if (net) { var on = navigator.onLine !== false; net.textContent = on ? 'Online' : 'Offline'; net.className = on ? 'ok' : 'bad'; }
+  }
+  /* "sleep" = clock only (like iOS); "wake" = passcode card. Pressing a key / click / tap wakes; 45 s idle on the lock screen sleeps again. */
+  function setView(wake) {
+    var o = $('dvLock'); if (!o) return;
+    o.classList.toggle('is-wake', !!wake); o.classList.toggle('is-sleep', !wake);
+    clearTimeout(wakeTimer);
+    if (wake) {
+      wakeTimer = setTimeout(function () { var i = $('dvLockInput'); if (i && i.value) return setView(true); setView(false); }, 45000);
+      setTimeout(function () { var i = $('dvLockInput'); if (i) i.focus(); }, 60);
+    } else { var i = $('dvLockInput'); if (i) { i.value = ''; i.blur(); } var er = $('dvLockErr'); if (er) er.textContent = ''; }
+  }
   function ensureOverlay() {
     if ($('dvLock') || !document.body) return;
+    var u = who();
     var d = document.createElement('div');
-    d.id = 'dvLock'; d.hidden = true; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-label', 'Workspace locked');
+    d.id = 'dvLock'; d.hidden = true; d.className = 'is-sleep'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-label', 'Workspace locked');
     d.innerHTML =
-      '<form class="dv-lock-card" autocomplete="off">' +
-      '<div class="dv-lock-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>' +
-      '<h2>Workspace locked</h2><p>Enter your passcode to continue.</p>' +
-      '<input type="password" id="dvLockInput" placeholder="Passcode" autocomplete="current-password" aria-label="Passcode"/>' +
-      '<p class="dv-lock-err" id="dvLockErr" role="alert"></p>' +
-      '<button type="submit" class="btn btn-signal" id="dvLockBtn">Unlock</button></form>';
+      '<svg class="dv-lock-wall" style="overflow:visible" viewBox="0 0 1280 836" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' +
+        '<defs><linearGradient id="dvwBase" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a2110"/><stop offset=".3" stop-color="#17140d"/><stop offset=".5" stop-color="#0b0f0d"/><stop offset=".62" stop-color="#0d3b2b"/><stop offset="1" stop-color="#14664a"/></linearGradient>' +
+        '<linearGradient id="dvwPink" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a5a1c"/><stop offset=".55" stop-color="#e8a33d"/><stop offset="1" stop-color="#b5701f"/></linearGradient>' +
+        '<linearGradient id="dvwSky" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e8a33d" stop-opacity="0"/><stop offset=".5" stop-color="#c98a2e"/><stop offset="1" stop-color="#f0b455"/></linearGradient>' +
+        '<linearGradient id="dvwGrn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14684a"/><stop offset="1" stop-color="#1f9d6a"/></linearGradient>' +
+        '<filter id="dvwBlur" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="9"/></filter></defs>' +
+        '<rect x="-300" y="-300" width="1900" height="1440" fill="url(#dvwBase)"/>' +
+        '<g class="w1" filter="url(#dvwBlur)"><path d="M-60 60 C260 20 620 60 900 150 S1260 120 1360 40 L1360 -60 L-60 -60Z" fill="url(#dvwSky)" opacity=".9"/><path d="M-60 140 C260 190 560 300 840 430 S1180 520 1360 470 L1360 700 L-60 700Z" fill="#0a0d0b" opacity=".6"/></g>' +
+        '<g class="w2" filter="url(#dvwBlur)"><path d="M-60 140 C220 200 520 270 800 400 S1140 520 1360 400 L1360 520 C1120 600 900 540 660 430 S200 300 -60 260Z" fill="url(#dvwPink)" opacity=".92"/></g>' +
+        '<g class="w3" filter="url(#dvwBlur)"><path d="M-60 330 C200 400 420 470 700 560 S1100 640 1360 560 L1360 900 L-60 900Z" fill="#0c2f25" opacity=".6"/><path d="M-60 440 C240 470 520 560 800 620 S1160 640 1360 590 L1360 900 L-60 900Z" fill="url(#dvwGrn)" opacity=".95"/></g>' +
+        '<g class="w4" filter="url(#dvwBlur)"><path d="M-60 560 C200 520 480 560 720 610 S1120 700 1360 650 L1360 900 L-60 900Z" fill="#1a8a5c" opacity=".85"/><path d="M-60 690 C240 640 520 690 800 730 S1150 780 1360 740 L1360 900 L-60 900Z" fill="#117250" opacity=".7"/><path d="M-60 780 C300 740 640 770 920 800 S1200 830 1360 810 L1360 900 L-60 900Z" fill="#0b5a3f" opacity=".65"/></g></svg>' +
+      '<div class="dv-lock-shade" aria-hidden="true"></div>' +
+      '<div class="dv-lock-clock"><p class="dv-lock-date" id="dvLockDate"></p><time class="dv-lock-time" id="dvLockTime"></time><p class="dv-lock-greet" id="dvLockGreet"></p></div>' +
+      '<div class="dv-lock-status"><span id="dvLockWhy"></span><span id="dvLockNet">Online</span></div>' +
+      '<main class="dv-lock-user">' +
+        '<div class="dv-lock-avatar" aria-hidden="true">' + esc(u.initials) + '</div>' +
+        '<h2 class="dv-lock-name">' + esc(u.name) + '</h2>' +
+        '<p class="dv-lock-hint" id="dvLockHint">Press Enter or click to unlock</p>' +
+        '<form class="dv-lock-card" autocomplete="off">' +
+          '<div class="dv-lock-field"><input type="password" id="dvLockInput" placeholder="Enter Password" autocomplete="current-password" aria-label="Password"/>' +
+          '<button type="submit" class="dv-lock-go" id="dvLockBtn" aria-label="Unlock"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>' +
+          '<p class="dv-lock-err" id="dvLockErr" role="alert"></p>' +
+        '</form>' +
+      '</main>' +
+      '<footer class="dv-lock-foot"><span>Workspace locked</span><span class="hide-sm">Live data cleared from memory</span><span class="hide-sm"><kbd>Ctrl</kbd>/<kbd>\u2318</kbd> + <kbd>Shift</kbd> + <kbd>L</kbd> locks instantly</span></footer>' +
+      '<span id="dvLockSince" hidden></span>';
     document.body.appendChild(d);
+    var raf = 0;
+    d.addEventListener('pointermove', function (e) {
+      if (raf) return;
+      raf = requestAnimationFrame(function () { raf = 0; d.style.setProperty('--mx', (e.clientX / innerWidth).toFixed(3)); d.style.setProperty('--my', (e.clientY / innerHeight).toFixed(3)); });
+    }, { passive: true });
+    var wake = function (e) {
+      if (!locked || d.classList.contains('is-wake')) return;
+      if (e && e.type === 'keydown' && (e.key === 'Shift' || e.key === 'Control' || e.key === 'Meta' || e.key === 'Alt')) return;
+      setView(true);
+      if (e && e.type === 'keydown' && e.key && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); var i = $('dvLockInput'); if (i) i.value = e.key; }
+    };
+    d.addEventListener('click', function (e) { if (!d.classList.contains('is-wake')) wake(e); else if (!e.target.closest('.dv-lock-card')) { var i = $('dvLockInput'); if (i && !i.value) setView(false); } });
+    d.addEventListener('touchstart', wake, { passive: true });
+    document.addEventListener('keydown', function (e) { if (!d.hidden) { wake(e); if (e.key === 'Escape') { var i = $('dvLockInput'); if (i && !i.value) setView(false); } } });
+    d.querySelector('form').addEventListener('input', function () { setView(true); });
     d.querySelector('form').addEventListener('submit', function (e) {
       e.preventDefault();
-      var inp = $('dvLockInput'), err = $('dvLockErr'), btn = $('dvLockBtn');
+      var inp = $('dvLockInput'), err = $('dvLockErr'), btn = $('dvLockBtn'), card = d.querySelector('.dv-lock-card');
       btn.disabled = true; err.textContent = '';
       unlock(inp.value).then(function () { inp.value = ''; })
-        .catch(function (x) { err.textContent = x.message || 'Could not unlock.'; inp.select(); })
+        .catch(function (x) {
+          err.textContent = x.message || 'Could not unlock.'; inp.select();
+          card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+        })
         .then(function () { btn.disabled = false; });
     });
   }
@@ -193,7 +270,14 @@
     ensureOverlay();
     var o = $('dvLock'); if (!o) return;
     o.hidden = !on;
-    if (on) setTimeout(function () { var i = $('dvLockInput'); if (i) i.focus(); }, 30);
+    clearInterval(clockTimer); clearTimeout(wakeTimer);
+    if (on) {
+      if (!lockMeta.at) lockMeta.at = +(function () { try { return sessionStorage.getItem('dv_last'); } catch (e) { return 0; } })() || Date.now();
+      var why = $('dvLockWhy'); if (why) why.textContent = lockMeta.reason || '';
+      var sn = $('dvLockSince'); if (sn) sn.hidden = true;
+      tickClock(); clockTimer = setInterval(tickClock, 1000);
+      setView(false);
+    } else { lockMeta = { reason: '', at: 0 }; var i = $('dvLockInput'); if (i) i.value = ''; }
   }
 
   /* -- Public actions ------------------------------------------------------ */
@@ -201,6 +285,7 @@
     if (!hasPin()) return;
     mem.key = null; mem.apiKey = null;
     try { sessionStorage.removeItem('dv_sk'); } catch (e) {}
+    lockMeta = { reason: reason ? String(reason).replace(/^Auto-locked/, 'Locked') : 'Locked manually', at: Date.now() };
     setLocked(true); log('Workspace locked', reason || 'Manual lock'); fire('dv:locked');
   }
   function unlock(pass) {
