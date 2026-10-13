@@ -239,3 +239,38 @@ html[data-theme="light"] .theme-toggle-btn .icon-moon{ opacity:0; transform:tran
 .cmd-footer{ justify-content:flex-start; }
 .cmd-footer span{ display:inline-flex; align-items:center; gap:6px; }
 @media (prefers-reduced-motion:reduce){ .cmd-box,.cmd-overlay,.cmd-input-wrap::after{ transition:none; } .cmd-overlay.open .cmd-item{ animation:none; } }
+
+/* ═══ iOS-style frosted glass for the command palette ═══ */
+.cmd-overlay{ background:rgba(0,0,0,.22); -webkit-backdrop-filter:blur(10px) saturate(120%); backdrop-filter:blur(10px) saturate(120%); }
+html[data-theme="dark"] .cmd-overlay{ background:rgba(0,0,0,.38); }
+html body .cmd-box{
+  background-color:rgba(255,255,255,.62) !important; background-image:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,0) 40%) !important;
+  -webkit-backdrop-filter:blur(40px) saturate(190%); backdrop-filter:blur(40px) saturate(190%);
+  border:.5px solid rgba(255,255,255,.7); border-radius:26px;
+  box-shadow:0 0 0 .5px rgba(0,0,0,.08), 0 1px 0 rgba(255,255,255,.8) inset, 0 30px 80px -20px rgba(0,0,0,.35), 0 8px 24px -8px rgba(0,0,0,.18);
+}
+html[data-theme="dark"] body .cmd-box{
+  background-color:rgba(36,36,40,.58) !important; background-image:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,0) 38%) !important;
+  border:.5px solid rgba(255,255,255,.16);
+  box-shadow:0 0 0 .5px rgba(0,0,0,.5), 0 1px 0 rgba(255,255,255,.14) inset, 0 30px 80px -20px rgba(0,0,0,.7);
+}
+.cmd-input-wrap{ margin:10px 12px 0; padding:11px 14px; border:none; border-radius:12px; background:rgba(120,120,128,.14); }
+html[data-theme="dark"] .cmd-input-wrap{ background:rgba(118,118,128,.24); }
+.cmd-input-wrap::after{ left:14px; right:14px; bottom:0; }
+.cmd-list{ padding:8px 10px 10px; }
+.cmd-group-label{ background:transparent; -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px); }
+.cmd-item{ border-radius:12px; }
+.cmd-item.focused{ background:rgba(120,120,128,.16); }
+html[data-theme="dark"] .cmd-item.focused{ background:rgba(255,255,255,.12); }
+.cmd-item-icon{ background:rgba(255,255,255,.55); border:.5px solid rgba(0,0,0,.08); border-radius:9px; }
+html[data-theme="dark"] .cmd-item-icon{ background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.12); }
+.cmd-item-hint{ background:rgba(120,120,128,.14); border:none; }
+.cmd-footer{ border-top:.5px solid rgba(120,120,128,.28); background:transparent; }
+.cmd-key{ background:rgba(120,120,128,.16); border:none; }
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  html body .cmd-box{ background-color:var(--paper) !important; }
+}
+@media (prefers-reduced-transparency:reduce){
+  .cmd-overlay{ -webkit-backdrop-filter:none; backdrop-filter:none; }
+  html body .cmd-box{ background-color:var(--paper) !important; background-image:none !important; -webkit-backdrop-filter:none; backdrop-filter:none; }
+}

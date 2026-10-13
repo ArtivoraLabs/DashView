@@ -149,3 +149,20 @@ html[data-theme="light"] .ig-grad{background:linear-gradient(110deg,#a9640f,#b87
   @keyframes ipBreathe{0%,100%{box-shadow:0 0 0 0 rgba(232,163,61,0)}50%{box-shadow:0 0 70px -10px rgba(232,163,61,.28)}}
   .ig-cta-band.in{animation:ipBreathe 5s ease-in-out 1s infinite}
 }
+
+/* ═══ iOS-style frosted glass: nav, glass cards, modal, toast, mobile bar ═══ */
+:root{--ios-blur:blur(28px) saturate(180%);--ios-hair:rgba(255,255,255,.14);--ios-tint:rgba(30,30,34,.55)}
+html[data-theme="light"]{--ios-hair:rgba(255,255,255,.75);--ios-tint:rgba(255,255,255,.62)}
+.nav.scrolled,.nav.menu-open .nav-inner{background:var(--ios-tint);-webkit-backdrop-filter:var(--ios-blur);backdrop-filter:var(--ios-blur);border-bottom:.5px solid rgba(120,120,128,.32)}
+.ig-glass{-webkit-backdrop-filter:var(--ios-blur);backdrop-filter:var(--ios-blur)}
+.ig-win,.ig-ai,.ig-rec,.ig-cta-band{box-shadow:0 1px 0 var(--ios-hair) inset,0 24px 60px -24px rgba(0,0,0,.45)}
+.ig-float{background:var(--ios-tint);-webkit-backdrop-filter:var(--ios-blur);backdrop-filter:var(--ios-blur);border:.5px solid var(--ios-hair)}
+.modal-overlay{background:rgba(0,0,0,.28);-webkit-backdrop-filter:blur(12px) saturate(120%);backdrop-filter:blur(12px) saturate(120%)}
+.modal-card,.toast{background:var(--ios-tint);-webkit-backdrop-filter:blur(40px) saturate(190%);backdrop-filter:blur(40px) saturate(190%);border:.5px solid var(--ios-hair);border-radius:26px}
+.toast{border-radius:18px}
+.ip-sticky,.ip-top{background:var(--ios-tint);-webkit-backdrop-filter:var(--ios-blur);backdrop-filter:var(--ios-blur);border-color:rgba(120,120,128,.32)}
+@media(max-width:720px){.nav.menu-open{background:var(--ios-tint);-webkit-backdrop-filter:var(--ios-blur);backdrop-filter:var(--ios-blur)}.nav.menu-open .nav-links{background:transparent}}
+@media (prefers-reduced-transparency:reduce){
+  .nav.scrolled,.ig-glass,.ig-float,.modal-overlay,.modal-card,.toast,.ip-sticky,.ip-top{-webkit-backdrop-filter:none;backdrop-filter:none}
+  .nav.scrolled,.ig-float,.modal-card,.toast,.ip-sticky,.ip-top{background:var(--bg)}
+}
