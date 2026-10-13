@@ -105,7 +105,7 @@
     function renderChartBlock(raw) {
       var lines = raw.split(/\r?\n/).map(function (l) { return l.trim(); }).filter(Boolean);
       var rowRe = /^(.+?)\s*[:|]\s*[$€£₹]?\s*([+-]?[\d,]*\.?\d+)\s*%?$/;
-      var PALETTE = ['#e8a33d', '#5b8fae', '#c76b3c', '#7aa874', '#a78bc4', '#d4b95e', '#5fb3b3', '#b0798a'];
+      var PALETTE = (typeof window !== 'undefined' && window.DVFmt && window.DVFmt.PALETTE && window.DVFmt.PALETTE.length >= 8) ? window.DVFmt.PALETTE : ['#ff9f0a', '#0a84ff', '#bf5af2', '#63e6e2', '#ffd60a', '#7d7aff', '#40c8e0', '#ac8e68', '#64d2ff', '#98989d'];
     
       // Optional first line "type: bar | line | donut" (default bar).
       var kind = 'bar';

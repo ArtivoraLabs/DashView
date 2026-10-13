@@ -743,7 +743,7 @@
 
     /* ---- sync: reflect real state everywhere ---- */
     function pal() {
-      if (!F || !F.paletteFor) return ['#e8a33d', '#5b9cf5', '#a78bfa', '#2dd4bf', '#f472b6', '#38bdf8', '#fb923c', '#818cf8'];
+      if (!F || !F.paletteFor) return ['#ff9f0a', '#0a84ff', '#bf5af2', '#63e6e2', '#ffd60a', '#7d7aff', '#40c8e0', '#ac8e68'];
       return F.paletteFor(F.scheme(), isLight(), DV.get().accent);
     }
     function sync() {

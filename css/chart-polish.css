@@ -160,8 +160,8 @@ canvas{outline:none}canvas:focus-visible{outline:2px solid var(--signal,#8b5cf6)
 @media (prefers-reduced-motion:reduce){.ov-bar-track i,.dv-skel:after{animation:none}}
 
 /* v2.4.1 contrast: legends, labels and captions readable on white and black (WCAG AA) */
-html[data-theme=light]{--chart-ink:#161a24;--chart-sub:#4a5064;--chart-track:rgba(20,24,40,.10)}
-html:not([data-theme=light]){--chart-ink:#f1f3fb;--chart-sub:#b9c0d8;--chart-track:rgba(255,255,255,.14)}
+html[data-theme=light]{--chart-ink:#1d1d1f;--chart-sub:#6e6e73;--chart-track:rgba(60,60,67,.12)}
+html:not([data-theme=light]){--chart-ink:#f5f5f7;--chart-sub:#a1a1a6;--chart-track:rgba(235,235,245,.14)}
 .olx-leg span,.ai-donut-item,.ov-bar-label,.odoo-live-card h3,.ov-card h3{color:var(--chart-ink)}
 .olx-leg em,.olx-leg b+em,.ov-bar-sub,.ov-card .sub,.odoo-live-card .sub,.olx-sub{color:var(--chart-sub);opacity:1}
 .olx-leg b{color:var(--chart-ink)}

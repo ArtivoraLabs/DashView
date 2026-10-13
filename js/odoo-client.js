@@ -310,10 +310,13 @@
     var a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function () { URL.revokeObjectURL(url); }, 800);
   }
-  /* Categorical palette: brand amber first, then well-separated hues. Red and green are deliberately
-     absent: they are reserved for bad/good so a category colour can never read as a verdict. */
-  var PAL_DARK = ['#f2b04a', '#5b9cf5', '#a78bfa', '#2dd4bf', '#f472b6', '#38bdf8', '#fb923c', '#818cf8', '#c8d36a', '#94a3b8'];
-  var PAL_LIGHT = ['#c2710c', '#2563eb', '#7c3aed', '#0d9488', '#db2777', '#0284c7', '#ea580c', '#4f46e5', '#65a30d', '#64748b'];
+  /* Categorical palette = Apple system colours, ordered so neighbouring slots are always far apart in hue:
+     orange (brand) > blue > purple > mint > yellow > indigo > teal > brown > cyan > gray.
+     Dark values are Apple's dark-mode system colours. Light values are Apple's light-mode colours, darkened only as far as
+     needed to reach 3 : 1 against the white and soft surfaces (WCAG graphics contrast).
+     Red and green are deliberately absent: they are reserved for bad/good so a category colour can never read as a verdict. */
+  var PAL_DARK = ['#ff9f0a', '#0a84ff', '#bf5af2', '#63e6e2', '#ffd60a', '#7d7aff', '#40c8e0', '#ac8e68', '#64d2ff', '#98989d'];
+  var PAL_LIGHT = ['#cc7700', '#007aff', '#af52de', '#009d96', '#a88700', '#5856d6', '#2a99ad', '#a2845e', '#2b95c6', '#8b8b90'];
 
   /* ---- Chart colour schemes: scheme x theme (light/dark) x accent -------------------------------
      Settings > Appearance > Chart colours picks the scheme. 'auto' is the original palette, led by the
@@ -341,12 +344,12 @@
     mono:   { label: 'Monochrome', note: 'Shades of your accent colour', mono: true }
   };
   var SCHEME_KEY = 'dashview_chart_scheme';
-  var ACC_HEX = { amber: ['#f2b04a', '#c2710c'],
+  var ACC_HEX = { amber: ['#ff9f0a', '#cc7700'],
     blue: ['#0a84ff', '#0069db'], indigo: ['#7d7aff', '#5856d6'], violet: ['#bf5af2', '#9a48c3'], rose: ['#ff375f', '#d12546'],
     red: ['#ff453a', '#cc2f26'], orange: ['#ff9f0a', '#b05000'], yellow: ['#ffd60a', '#856a00'], green: ['#30d158', '#217d38'],
     mint: ['#63e6e2', '#007b76'], teal: ['#40c8e0', '#207685'], cyan: ['#64d2ff', '#22749a'], graphite: ['#98989d', '#6d6d71'] };
   /* where the displaced first colour of the 'auto' palette goes when an accent takes slot 0 */
-  var ACC_SLOT = { amber: 0, blue: 1, violet: 2, teal: 3, mint: 3, rose: 4, cyan: 5, red: 6, orange: 6, indigo: 7, green: 8, yellow: 8, graphite: 9 };
+  var ACC_SLOT = { amber: 0, orange: 0, blue: 1, violet: 2, mint: 3, yellow: 4, indigo: 5, teal: 6, rose: 7, red: 7, green: 7, cyan: 8, graphite: 9 };
   /* which of the Overview's named tones an accent replaces */
   var ACC_TONE = { blue: 'blue', indigo: 'blue', violet: 'violet', rose: 'pink', red: 'coral', orange: 'amber', yellow: 'amber',
     green: 'teal', mint: 'teal', teal: 'teal', cyan: 'cyan', graphite: 'slate' };
@@ -370,8 +373,8 @@
     return pal;
   }
   /* 8 named tones used by the Overview (revenue / orders / pipeline / ...), derived from the same scheme */
-  var SEM_DARK  = { blue: '#0A84FF', teal: '#2FD1A5', amber: '#FFB547', coral: '#FF6F61', violet: '#BF5AF2', cyan: '#64D2FF', pink: '#F58AC4', slate: '#98989D' };
-  var SEM_LIGHT = { blue: '#0069DB', teal: '#0A8F6B', amber: '#B86E00', coral: '#D1342A', violet: '#9A48C3', cyan: '#22749A', pink: '#BE2F7E', slate: '#6D6D71' };
+  var SEM_DARK  = { blue: '#0A84FF', teal: '#63E6E2', amber: '#FF9F0A', coral: '#FF6961', violet: '#BF5AF2', cyan: '#64D2FF', pink: '#FF6482', slate: '#98989D' };
+  var SEM_LIGHT = { blue: '#0069DB', teal: '#007B76', amber: '#B86E00', coral: '#D1342A', violet: '#9A48C3', cyan: '#22749A', pink: '#BE2F7E', slate: '#6D6D71' };
   function semantic(light) {
     var id = schemeId(), acc = accentKey(), base = Object.assign({}, light ? SEM_LIGHT : SEM_DARK);
     if (id === 'auto') {
@@ -387,8 +390,9 @@
   function theme() {
     var light = document.documentElement.getAttribute('data-theme') === 'light';
     return {
-      text: light ? '#4a5064' : '#b9c0d8', strong: light ? '#161a24' : '#f1f3fb', grid: light ? 'rgba(20,24,40,.12)' : 'rgba(255,255,255,.12)',
-      tipBg: light ? 'rgba(255,255,255,.98)' : 'rgba(43,53,80,.97)', tipText: light ? '#1a1625' : '#f1f4fb', light: light
+      /* iOS label colours: secondary label for axes / legends, primary label for values, hairline separators, material tooltips */
+      text: light ? '#6e6e73' : '#a1a1a6', strong: light ? '#1d1d1f' : '#f5f5f7', grid: light ? 'rgba(60,60,67,.14)' : 'rgba(235,235,245,.12)',
+      tipBg: light ? 'rgba(255,255,255,.96)' : 'rgba(44,44,46,.95)', tipText: light ? '#1d1d1f' : '#f5f5f7', light: light
     };
   }
   /* Create/replace a Chart.js chart on a canvas (keeps a registry so re-renders never leak). */
@@ -587,9 +591,9 @@
     var horiz = opt.indexAxis === 'y', tiny = !!(opt.scales && opt.scales.x && opt.scales.x.display === false && opt.scales.y && opt.scales.y.display === false);
     var tip = opt.plugins.tooltip;
     if (tip && tip.enabled !== false) {
-      tip.cornerRadius = tip.cornerRadius || 10; tip.padding = tip.padding || 12; tip.boxPadding = 5; tip.usePointStyle = true;
-      tip.titleFont = tip.titleFont || { weight: '700', size: 12.5 }; tip.bodyFont = tip.bodyFont || { size: 12.5 };
-      tip.caretSize = 6; tip.titleMarginBottom = 6;
+      tip.cornerRadius = tip.cornerRadius || 12; tip.padding = tip.padding || 12; tip.boxPadding = 5; tip.usePointStyle = true; tip.pointStyle = tip.pointStyle || 'circle'; tip.borderWidth = tip.borderWidth == null ? 0.5 : tip.borderWidth; tip.borderColor = t.light ? 'rgba(60,60,67,.2)' : 'rgba(255,255,255,.16)'; tip.boxWidth = 8; tip.boxHeight = 8;
+      tip.titleFont = tip.titleFont || { weight: '600', size: 12.5 }; tip.bodyFont = tip.bodyFont || { size: 12.5 };
+      tip.caretSize = 5; tip.titleMarginBottom = 6;
       /* Line charts: show the change against the previous point (no extra work for callers). */
       if (type === 'line' && ds.length === 1) {
         tip.callbacks = tip.callbacks || {};

@@ -46,7 +46,9 @@
   var autosaveTimer = null;
   var openFieldName = null; // field whose popover is open
   var xlsxLoading = null;
-  var PALETTE = ['#e8a33d', '#5b8fae', '#4fb477', '#c76b3c', '#f0c06a', '#e5654f', '#d98f27', '#4a8c86', '#9a9552', '#a9640f'];
+  /* Same live palette as every Overview chart (iOS system colours; follows theme, accent and chart scheme). */
+  var PALETTE_FALLBACK = ['#ff9f0a', '#0a84ff', '#bf5af2', '#63e6e2', '#ffd60a', '#7d7aff', '#40c8e0', '#ac8e68', '#64d2ff', '#98989d'];
+  var PALETTE = (typeof window !== 'undefined' && window.DVFmt && window.DVFmt.PALETTE && window.DVFmt.PALETTE.length >= 8) ? window.DVFmt.PALETTE : PALETTE_FALLBACK;
   var WORKBOOKS_KEY = 'al_studio_workbooks_v1';
 
   /* ======================================================================

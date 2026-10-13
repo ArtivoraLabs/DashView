@@ -12,20 +12,20 @@
                           on large gradients.
    ========================================================================== */
 
-/* ── 1. Wide-gamut palette (dark theme, same tokens as theme-final.css) ──── */
+/* ── 1. Wide-gamut palette (dark theme, same iOS system tokens as theme-final.css) ──── */
 @media (color-gamut: p3) {
   @supports (color: oklch(50% 0.1 200)) {
     :root:not([data-theme="light"]) {
-      --dv-c1: oklch(80.1% 0.158 75);
-      --dv-c2: oklch(69.0% 0.169 257);
-      --dv-c3: oklch(70.9% 0.181 294);
-      --dv-c4: oklch(78.5% 0.151 182);
-      --dv-c5: oklch(72.5% 0.200 350);
-      --dv-c6: oklch(75.4% 0.158 233);
-      --dv-c7: oklch(75.8% 0.181 56);
-      --dv-c8: oklch(68.0% 0.180 277);
-      --dv-c9: oklch(83.7% 0.149 114);
-      --dv-c10: oklch(71.1% 0.040 257);
+      --dv-c1: oklch(78.2% 0.171 67);
+      --dv-c2: oklch(62.4% 0.206 255);
+      --dv-c3: oklch(65.6% 0.227 312);
+      --dv-c4: oklch(85.1% 0.115 192);
+      --dv-c5: oklch(88.5% 0.181 95);
+      --dv-c6: oklch(64.8% 0.192 281);
+      --dv-c7: oklch(77.1% 0.118 212);
+      --dv-c8: oklch(66.5% 0.064 73);
+      --dv-c9: oklch(81.7% 0.119 228);
+      --dv-c10: oklch(68.1% 0.007 286);
       --st-good: oklch(75.6% 0.235 147);
       --st-bad: oklch(66.3% 0.253 28);
       --st-warn: oklch(78.2% 0.193 67);

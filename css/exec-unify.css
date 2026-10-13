@@ -13,13 +13,12 @@
    Both follow the dark / light theme.
    ========================================================================== */
 :root {
-  --dv-c1: #f2b04a; --dv-c2: #5b9cf5; --dv-c3: #a78bfa; --dv-c4: #2dd4bf; --dv-c5: #f472b6;
-  --dv-c6: #38bdf8; --dv-c7: #fb923c; --dv-c8: #818cf8; --dv-c9: #c8d36a; --dv-c10: #94a3b8;
+  --dv-c1: #ff9f0a; --dv-c2: #0a84ff; --dv-c3: #bf5af2; --dv-c4: #63e6e2; --dv-c5: #ffd60a;
+  --dv-c6: #7d7aff; --dv-c7: #40c8e0; --dv-c8: #ac8e68; --dv-c9: #64d2ff; --dv-c10: #98989d;
   --st-good: #30d158; --st-bad: #ff453a; --st-warn: #ff9f0a; --st-info: #0a84ff; --st-flat: #98989d;
 }
 html[data-theme=light] {
-  --dv-c1: #c2710c; --dv-c2: #2563eb; --dv-c3: #7c3aed; --dv-c4: #0d9488; --dv-c5: #db2777;
-  --dv-c6: #0284c7; --dv-c7: #ea580c; --dv-c8: #4f46e5; --dv-c9: #65a30d; --dv-c10: #64748b;
+  --dv-c1: #cc7700; --dv-c2: #007aff; --dv-c3: #af52de; --dv-c4: #009d96; --dv-c5: #a88700; --dv-c6: #5856d6; --dv-c7: #2a99ad; --dv-c8: #a2845e; --dv-c9: #2b95c6; --dv-c10: #8b8b90;
   --st-good: #15803d; --st-bad: #c62828; --st-warn: #b45309; --st-info: #2563eb; --st-flat: #64748b;
 }
 /* KPI card accents follow the chart palette (they used a separate violet/cyan/green/rose set) */

@@ -11,7 +11,7 @@
         scrollbars in the old violet inside the amber theme.
      5. Native controls (scrollbars, date pickers, checkboxes) ignored the theme.
 
-   Rules kept:  categories = --dv-c1..10 (amber first, no red/green)
+   Rules kept:  categories = --dv-c1..10 (iOS system colours, orange first, no red/green)
                 verdicts   = --st-*      (green good, red bad, orange warn, blue info, grey flat)
    v2.17:       verdict / danger / success colours are the iOS system colours (--ios-*), see section 2.
    Every pair below is >= 4.5 : 1 for text and >= 3 : 1 for graphics.
@@ -22,10 +22,10 @@ html { color-scheme: dark; }
 html[data-theme="light"] { color-scheme: light; }
 :root { accent-color: var(--signal); }
 
-/* ── 2. One category palette, restored (same values as DVFmt.PALETTE) ─────── */
+/* ── 2. One category palette: Apple system colours (same values as DVFmt.PALETTE in odoo-client.js) ─ */
 :root {
-  --dv-c1: #f2b04a; --dv-c2: #5b9cf5; --dv-c3: #a78bfa; --dv-c4: #2dd4bf; --dv-c5: #f472b6;
-  --dv-c6: #38bdf8; --dv-c7: #fb923c; --dv-c8: #818cf8; --dv-c9: #c8d36a; --dv-c10: #94a3b8;
+  --dv-c1: #ff9f0a; --dv-c2: #0a84ff; --dv-c3: #bf5af2; --dv-c4: #63e6e2; --dv-c5: #ffd60a;
+  --dv-c6: #7d7aff; --dv-c7: #40c8e0; --dv-c8: #ac8e68; --dv-c9: #64d2ff; --dv-c10: #98989d;
   /* iOS system colours (dark values). Verdicts, danger and success now use them, so a green/red/orange/blue chip
      looks the same here as in iOS. >= 4.9 : 1 on the dark surfaces. */
   --ios-blue: #0a84ff; --ios-indigo: #7d7aff; --ios-purple: #bf5af2; --ios-pink: #ff375f; --ios-red: #ff453a;
@@ -59,8 +59,8 @@ html[data-theme="light"] {
   --accent2: #005ec4;
   --accent2-10: rgba(0, 94, 196, .10);
 
-  --dv-c1: #9a5b0a; --dv-c2: #2563eb; --dv-c3: #7c3aed; --dv-c4: #0d9488; --dv-c5: #db2777;
-  --dv-c6: #0284c7; --dv-c7: #c2410c; --dv-c8: #4f46e5; --dv-c9: #4d7c0f; --dv-c10: #475569;
+  --dv-c1: #cc7700; --dv-c2: #007aff; --dv-c3: #af52de; --dv-c4: #009d96; --dv-c5: #a88700;
+  --dv-c6: #5856d6; --dv-c7: #2a99ad; --dv-c8: #a2845e; --dv-c9: #2b95c6; --dv-c10: #8b8b90;
   --st-good: #18702e; --st-bad: #b8241a; --st-warn: #964800; --st-info: #005ec4; --st-flat: #5e5e63;   /* iOS green / red / orange / blue / gray, each >= 4.5 : 1 on white, soft and its own chip tint */
 }
 
