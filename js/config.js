@@ -39,15 +39,34 @@
   }
   function theme(c) { return c.theme === 'system' ? (mm('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : c.theme; }
 
+  /* Tokens that CSS defines in amber. They are replaced inline for every non-amber accent so borders, glows, hover
+     shades and the first chart colour follow the accent too (Amber removes them and the CSS defaults apply). */
+  var ACCENT_TOKENS = ['--signal', '--signal-bright', '--signal-10', '--signal-20', '--amber', '--accent', '--sg', '--on-signal',
+    '--line', '--line-strong', '--navy-line', '--navy-line-bright', '--shadow-signal', '--shadow-card-hover', '--beacon', '--beacon-h', '--beacon-10', '--dv-c1'];
+  function lum(r, g, b) {
+    return [r, g, b].reduce(function (sum, v, i) { v /= 255; return sum + (v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4)) * [.2126, .7152, .0722][i]; }, 0);
+  }
   function applyAccent(c) {
     var s = root.style, a = ACCENTS[c.accent];
-    ['--signal', '--signal-bright', '--signal-10', '--signal-20', '--amber', '--accent'].forEach(function (v) { s.removeProperty(v); });
+    ACCENT_TOKENS.forEach(function (v) { s.removeProperty(v); });
     if (!a) return;
-    var x = a[root.getAttribute('data-theme') === 'dark' ? 0 : 1];
+    var dk = root.getAttribute('data-theme') === 'dark', x = a[dk ? 0 : 1];
+    var rgb = [1, 3, 5].map(function (i) { return parseInt(x.substr(i, 2), 16); }), L = lum(rgb[0], rgb[1], rgb[2]);
+    var mix = function (p) { return 'color-mix(in srgb,' + x + ' ' + p + '%,transparent)'; };
+    var shade = 'color-mix(in srgb,' + x + ',#000 ' + (dk ? 12 : 10) + '%)';
     s.setProperty('--signal', x); s.setProperty('--amber', x); s.setProperty('--accent', x);
     s.setProperty('--signal-bright', 'color-mix(in srgb,' + x + ',#fff 28%)');
-    s.setProperty('--signal-10', 'color-mix(in srgb,' + x + ' 10%,transparent)');
-    s.setProperty('--signal-20', 'color-mix(in srgb,' + x + ' 18%,transparent)');
+    s.setProperty('--signal-10', mix(10));
+    s.setProperty('--signal-20', mix(18));
+    s.setProperty('--sg', rgb.join(','));
+    /* text on an accent fill: white or the dark brand ink, whichever reads better */
+    s.setProperty('--on-signal', 1.05 / (L + .05) >= (L + .05) / .056 ? '#ffffff' : '#191008');
+    s.setProperty('--line', mix(dk ? 13 : 12)); s.setProperty('--line-strong', mix(dk ? 28 : 24));
+    s.setProperty('--navy-line', mix(10)); s.setProperty('--navy-line-bright', mix(20));
+    s.setProperty('--shadow-signal', '0 24px 64px -16px ' + mix(32));
+    s.setProperty('--shadow-card-hover', '0 20px 48px -16px ' + mix(24));
+    s.setProperty('--beacon', shade); s.setProperty('--beacon-h', shade); s.setProperty('--beacon-10', mix(12));
+    s.setProperty('--dv-c1', x);
   }
   function apply(c) {
     root.setAttribute('data-theme', theme(c));
@@ -131,6 +150,7 @@
       if (k === 'theme') { if (v === 'system') localStorage.removeItem(THEME_KEY); else localStorage.setItem(THEME_KEY, v); }
       var c = stored(); c[k] = v; localStorage.setItem(KEY, JSON.stringify(c));
     } catch (e) {}
+    if (k === 'accent') { root.classList.add('dv-accent-fade'); setTimeout(function () { root.classList.remove('dv-accent-fade'); }, 180); }
     return refresh();
   }
   function reset() { try { localStorage.removeItem(KEY); localStorage.removeItem(THEME_KEY); } catch (e) {} return refresh(); }
