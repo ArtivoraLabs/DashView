@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.18.0 - 2026-10-13
+- Improved: every PDF and Excel report now carries computed key takeaways and a data profile (completeness, range, outliers); PDFs get a contents page with real page numbers, KPI tiles with status, change and notes, labelled charts with share-of-total, data-quality findings and recommended next steps
+- Added: AI file analysis now reads growth, momentum, seasonality, top movers and correlations, adds a clearly-labelled straight-line projection and concrete next steps; AI reports export to a structured Excel workbook (one typed sheet per chart, finding and table, with live share and change formulas)
+- Added: Odoo AI dashboards get an Export Excel workbook button; the AI service gains odoo_compare (like-for-like period-over-period) and odoo_trend (growth, momentum, projection) computed server-side, plus a stricter report structure with confidence and caveats
+- Added: the offline assistant analyses pasted numbers or tables (totals, median, spread, outliers, group shares, trend, projection and a draft summary sentence)
+
 ## 2.17.0 - 2026-10-11
 - Security: shared-dashboard links could run script through a crafted widget id (share.html#d=...) - every shared or imported widget is now validated and rebuilt before it is drawn, and ids/sizes can never reach the page as markup
 - Security: the Cloudflare Worker Odoo relay (worker-src and cloudflare-worker.js) is no longer an open relay - ALLOWED_ODOO_HOSTS is now required, only public HTTPS hostnames are accepted (no IPs, localhost, http or credentials in the URL) and redirects cannot leave the host

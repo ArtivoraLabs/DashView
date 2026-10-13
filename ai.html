@@ -344,7 +344,7 @@ textarea#chatInput::placeholder{color:var(--text3)}
  .ai-dashboard-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px}
  .ai-dashboard-head h2{font:700 1.25rem var(--f-display);margin:0 0 5px}
  .ai-dashboard-meta,.ai-dashboard-notes{font-size:.78rem;line-height:1.55;color:var(--text2);overflow-wrap:anywhere}
- .ai-dashboard-actions{display:flex;gap:8px;flex-shrink:0}
+ .ai-dashboard-actions{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
  .ai-dashboard-actions button{padding:8px 12px;border:1px solid var(--border-b);border-radius:var(--r-full);color:var(--text);font-size:.78rem}
  .ai-dashboard-actions button:hover{background:var(--grad-soft)}
  .ai-dashboard-metric{padding:14px 0;border-top:1px solid var(--border)}
@@ -1014,7 +1014,7 @@ function renderAIDashboard(payload, narrative) {
   const kpis = (payload.kpis || []).filter((k) => k && Number.isFinite(Number(k.value))).map((k) => `<div class="ai-kpi"><div class="ai-kpi-label">${esc(k.label || '')}</div><div class="ai-kpi-value">${esc(String(k.value))}</div><div class="ai-kpi-delta">${esc(k.queryId || 'Odoo result')}</div></div>`).join('');
   const methods = (payload.methods || []).map((x) => `<li>${esc(x)}</li>`).join('');
   const limits = (payload.limitations || []).map((x) => `<li>${esc(x)}</li>`).join('');
-  return `<section class="ai-dashboard-artifact" aria-label="Odoo data dashboard" data-ai-dashboard-id="${artifactId}"><header class="ai-dashboard-head"><div><h2>${esc(payload.title || 'Odoo dashboard')}</h2><div class="ai-dashboard-meta">Generated ${esc(date)} · ${esc(payload.source || 'Live Odoo query results')}${payload.currency ? ' · Currency: ' + esc(payload.currency) : ''}</div></div><div class="ai-dashboard-actions"><button type="button" data-ai-dashboard-export>Export board-ready PDF</button><button type="button" data-ai-dashboard-print>Print / Save as PDF</button></div></header>${kpis ? `<div class="ai-kpi-grid">${kpis}</div>` : ''}${charts}<div class="ai-dashboard-notes">${insightsText ? `<h3>Executive read-out</h3><div class="ai-dashboard-readout">${esc(insightsText)}</div>` : ''}<h3>Method and sources</h3><ul>${methods || '<li>Read-only Odoo query results</li>'}</ul><h3>Limitations</h3><ul>${limits || '<li>Only returned data is represented; no missing values are estimated.</li>'}</ul></div></section>`;
+  return `<section class="ai-dashboard-artifact" aria-label="Odoo data dashboard" data-ai-dashboard-id="${artifactId}"><header class="ai-dashboard-head"><div><h2>${esc(payload.title || 'Odoo dashboard')}</h2><div class="ai-dashboard-meta">Generated ${esc(date)} · ${esc(payload.source || 'Live Odoo query results')}${payload.currency ? ' · Currency: ' + esc(payload.currency) : ''}</div></div><div class="ai-dashboard-actions"><button type="button" data-ai-dashboard-export>Export board-ready PDF</button><button type="button" data-ai-dashboard-xlsx>Export Excel workbook</button><button type="button" data-ai-dashboard-print>Print / Save as PDF</button></div></header>${kpis ? `<div class="ai-kpi-grid">${kpis}</div>` : ''}${charts}<div class="ai-dashboard-notes">${insightsText ? `<h3>Executive read-out</h3><div class="ai-dashboard-readout">${esc(insightsText)}</div>` : ''}<h3>Method and sources</h3><ul>${methods || '<li>Read-only Odoo query results</li>'}</ul><h3>Limitations</h3><ul>${limits || '<li>Only returned data is represented; no missing values are estimated.</li>'}</ul></div></section>`;
 }
 
 function renderMarkdown(text, liveOdoo=false) {
@@ -1420,9 +1420,19 @@ function printAIDashboard(section) {
 document.addEventListener('click', event => {
   const exportBtn = event.target.closest('[data-ai-dashboard-export]');
   const printBtn = event.target.closest('[data-ai-dashboard-print]');
-  if (!exportBtn && !printBtn) return;
+  const xlsxBtn = event.target.closest('[data-ai-dashboard-xlsx]');
+  if (!exportBtn && !printBtn && !xlsxBtn) return;
   const section = event.target.closest('.ai-dashboard-artifact');
   if (!section) return;
+  if (xlsxBtn) {
+    const xp = aiDashboardPayloads[section.dataset.aiDashboardId];
+    if (xp && window.DVReportEngine && typeof window.DVReportEngine.generateAIReportExcel === 'function') {
+      window.DVReportEngine.generateAIReportExcel(xp).then(() => toast('Excel workbook exported.', 'success')).catch(() => toast('The Excel library could not be loaded (offline?). Try the PDF export instead.', 'info'));
+    } else {
+      toast('Excel export is unavailable on this page.', 'info');
+    }
+    return;
+  }
   if (printBtn) {
     toast('In the print dialog, choose “Save as PDF”. This browser fallback does not download a PDF automatically.', 'info');
     printAIDashboard(section);

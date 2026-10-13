@@ -251,7 +251,7 @@
       var limits = (payload.limitations || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('');
       return '<section class="ai-dashboard-artifact" aria-label="Odoo data dashboard" data-ai-dashboard-id="' + id + '">' +
         '<header class="ai-dashboard-head"><div><h2>' + esc(payload.title || 'Odoo dashboard') + '</h2><div class="ai-dashboard-meta">Generated ' + esc(generated) + ' · ' + esc(payload.source || 'Live Odoo query results') + (payload.currency ? ' · Currency: ' + esc(payload.currency) : '') + '</div></div>' +
-        '<div class="ai-dashboard-actions"><button type="button" data-ai-dashboard-export>Export board-ready PDF</button><button type="button" data-ai-dashboard-print>Print / Save as PDF</button></div></header>' +
+        '<div class="ai-dashboard-actions"><button type="button" data-ai-dashboard-export>Export board-ready PDF</button><button type="button" data-ai-dashboard-xlsx>Export Excel workbook</button><button type="button" data-ai-dashboard-print>Print / Save as PDF</button></div></header>' +
         (kpis ? '<div class="ai-kpi-grid">' + kpis + '</div>' : '') + metrics +
         '<div class="ai-dashboard-notes">' + (insightsText ? '<h3>Executive read-out</h3><div class="ai-dashboard-readout">' + esc(insightsText) + '</div>' : '') + '<h3>Method and sources</h3><ul>' + (methods || '<li>Read-only Odoo query results</li>') + '</ul><h3>Limitations</h3><ul>' + (limits || '<li>Only returned data is represented; no missing values are estimated.</li>') + '</ul></div></section>';
     }
@@ -1243,8 +1243,10 @@
         window.DVReportEngine.generateAIDashboardPdf(window.DVAIFiles.toPdfPayload(f.m.report)).then(function () { toast('Report PDF exported.'); }).catch(function () { toast('The PDF library could not load (offline?). Try Excel instead.'); });
       },
       'rxlsx': function (t) {
-        var f = findMsg(t.getAttribute('data-mid')); if (!f || !window.DVReportEngine || !window.DVReportEngine.generateExcelReport) return toast('Excel export is not available on this page.');
-        window.DVReportEngine.generateExcelReport(reportExcel(f.m.report)).then(function () { toast('Excel report exported.'); }).catch(function (e) { toast((e && e.message) || 'The Excel library could not load (offline?).'); });
+        var f = findMsg(t.getAttribute('data-mid')), E = window.DVReportEngine; if (!f || !E || (!E.generateAIReportExcel && !E.generateExcelReport)) return toast('Excel export is not available on this page.');
+        /* structured workbook (one typed sheet per chart / finding / table); the flat export remains as a fallback for older engines */
+        var run = E.generateAIReportExcel && window.DVAIFiles && window.DVAIFiles.toExcelPayload ? E.generateAIReportExcel(window.DVAIFiles.toExcelPayload(f.m.report)) : E.generateExcelReport(reportExcel(f.m.report));
+        run.then(function () { toast('Excel report exported.'); }).catch(function (e) { toast((e && e.message) || 'The Excel library could not load (offline?).'); });
       },
       'rerecon': function (t) { var f = findMsg(t.getAttribute('data-mid')); if (!f || !f.m.report.target || !S.files[f.m.report.fileId]) return toast('Attach the file again to re-run this reconciliation.'); var r = f.m.report; S.rf = { fileId: r.fileId, sheet: r.sheet || 0, column: r.target.column, targetId: window.DVAIFiles.TARGETS.filter(function (x) { return x.model === r.target.model; })[0].id, field: r.target.field, cmpCol: r.target.compareFileColumn, cmpField: r.target.compareField, busy: false, p: 0, open: true }; openInsp('files'); },
       'file-recon': function (t) { var id = t.getAttribute('data-id'); if (!S.files[id]) return toast('Attach the file again to reconcile it.'); S.rf = null; rfState(S.files[id]); S.rf.open = true; openInsp('files'); },
@@ -1317,9 +1319,16 @@
 
     /* PDF / print of the Odoo dashboard artifact (unchanged behaviour) */
     document.addEventListener('click', function (event) {
-      var exportBtn = event.target.closest && event.target.closest('[data-ai-dashboard-export]'), printBtn = event.target.closest && event.target.closest('[data-ai-dashboard-print]');
-      if (!exportBtn && !printBtn) return;
+      var exportBtn = event.target.closest && event.target.closest('[data-ai-dashboard-export]'), printBtn = event.target.closest && event.target.closest('[data-ai-dashboard-print]'), xlsxBtn = event.target.closest && event.target.closest('[data-ai-dashboard-xlsx]');
+      if (!exportBtn && !printBtn && !xlsxBtn) return;
       var section = event.target.closest('.ai-dashboard-artifact'); if (!section) return;
+      if (xlsxBtn) {
+        var xp = dashboardPayloads[section.getAttribute('data-ai-dashboard-id')];
+        if (xp && window.DVReportEngine && typeof window.DVReportEngine.generateAIReportExcel === 'function') {
+          window.DVReportEngine.generateAIReportExcel(xp).then(function () { toast('Excel workbook exported.'); }).catch(function () { toast('The Excel library could not load (offline?). Try the PDF export instead.'); });
+        } else { toast('Excel export is unavailable on this page.'); }
+        return;
+      }
       if (printBtn) { toast('In the print dialog, choose “Save as PDF”.'); printDashboard(); return; }
       var payload = dashboardPayloads[section.getAttribute('data-ai-dashboard-id')];
       if (payload && window.DVReportEngine && typeof window.DVReportEngine.generateAIDashboardPdf === 'function') {

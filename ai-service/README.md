@@ -19,7 +19,7 @@ Roman Urdu / Urdu / English questions are answered in the language they were ask
 | Area | Detail |
 |---|---|
 | Models | Anthropic (native) + one adapter for every OpenAI-compatible API (OpenAI, xAI Grok, Groq, Gemini). Tiers `fast` / `smart` / `deep`; `auto` picks by question complexity; automatic **fail-over** to the next configured model. Catalog is editable (`MODEL_CATALOG_FILE`). |
-| Odoo tools | `odoo_metric` (verified KPIs), `odoo_installed_apps`, `odoo_business_snapshot`, `odoo_list_models`, `odoo_get_fields`, `odoo_search_read`, `odoo_count`, `odoo_aggregate`, `odoo_get_record` |
+| Odoo tools | `odoo_metric` (verified KPIs), `odoo_compare` (like-for-like period-over-period change + biggest movers), `odoo_trend` (monthly history, growth, momentum, labelled projection; all computed server-side), `odoo_installed_apps`, `odoo_business_snapshot`, `odoo_list_models`, `odoo_get_fields`, `odoo_search_read`, `odoo_count`, `odoo_aggregate`, `odoo_get_record` |
 | Safety | Read-only by construction (only `search_read/search_count/read/read_group/fields_get/name_search` can be sent). Security/infra models (`res.users`, `ir.*`, payment, mail…) blocked; secret-looking fields hidden; domains/groupby/order strictly validated; row caps; prompt-injection rule in the system prompt. Optional hard allow-list `ODOO_ALLOWED_MODELS`. |
 | Scale | Async end-to-end, shared HTTP pool, bounded in-flight chats, per-host Odoo concurrency with bounded queue wait, result + schema + uid caching, optional Redis (shared across replicas), rate limit per user, stateless → add replicas freely. |
 | Auth | Accepts the same JWT the Node `server/` issues (`JWT_SECRET`, HS256; role must be in `ALLOWED_ROLES`) or `X-API-Key`. |

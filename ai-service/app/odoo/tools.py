@@ -11,7 +11,8 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Awaitable, Callable
 
 from .client import OdooClient, OdooError
-from .dates import PERIODS
+from .analytics import trend_summary
+from .dates import PERIODS, _add_months, comparison_periods, local_today
 from .guard import Guard, GuardError
 from .metrics import DEFAULT_METRICS, Metric, run_metric
 
@@ -340,6 +341,100 @@ async def h_in_progress(ctx: ToolContext, a: dict) -> dict:
                      "must be labelled as INFERRED from these numbers. Amounts are in each document's own currency.")}
 
 
+def _change(cur: float, prev: float) -> dict:
+    diff = round(cur - prev, 2)
+    pct = None if prev == 0 else round(diff / abs(prev) * 100, 2)
+    return {"absolute": diff, "percent": pct,
+            "direction": "flat" if diff == 0 else ("up" if diff > 0 else "down"),
+            **({"note": "previous period total was 0, so a percentage is undefined"} if prev == 0 and cur != 0 else {})}
+
+
+def _dated_metric(ctx: ToolContext, key: str | None):
+    m = ctx.metrics.get(key or "")
+    if not m:
+        raise GuardError(f"Unknown metric '{key}'. Available: {', '.join(ctx.metrics)}.")
+    if not m.date_field:
+        raise GuardError(f"'{key}' is a point-in-time metric (it has no date), so it can't be compared across periods or trended. "
+                         "Report its current value with odoo_metric and say that a history isn't stored.")
+    return m
+
+
+async def h_compare(ctx: ToolContext, a: dict) -> dict:
+    """Period-over-period comparison computed server-side: totals, absolute / % change and (optionally) the biggest movers."""
+    key = a.get("metric")
+    _dated_metric(ctx, key)
+    today = local_today(datetime.now(timezone.utc), ctx.tz)
+    try:
+        cur, prev, prev_full = comparison_periods(a.get("period"), a.get("start"), a.get("end"), today, a.get("like_for_like", True) is not False)
+    except ValueError as e:
+        raise GuardError(str(e))
+    gb = a.get("groupby")
+    limit = ctx.guard.check_limit(a.get("limit") or 10, default=10)
+    fetch = min(max(limit, 25), 100) if gb else limit
+
+    def run(p):
+        return run_metric(ctx, key, None, p.start.isoformat(), p.last_day.isoformat(), gb, fetch, 0)
+
+    jobs = [run(cur), run(prev)] + ([run(prev_full)] if prev_full else [])
+    res = await asyncio.gather(*jobs)
+    c, p = res[0], res[1]
+    out = {
+        "metric": key, "title": c["title"], "definition": c["definition"], "unit": c["unit"],
+        **({"currency": c["currency"]} if "currency" in c else {}),
+        "current": {"period": cur.describe(), "total": c["total"], "records": c["records"]},
+        "previous": {"period": prev.describe(), "total": p["total"], "records": p["records"],
+                     "basis": "like-for-like (same elapsed days)" if prev_full else "immediately preceding period of equal length"},
+        "change": _change(c["total"], p["total"]),
+    }
+    if prev_full:
+        f = res[2]
+        out["previous_full_period"] = {"period": prev_full.describe(), "total": f["total"], "records": f["records"]}
+        out["note"] = ("The current period is not finished, so it is compared with the same number of elapsed days of the previous one. "
+                       "The full previous period is given for context only.")
+    if gb:
+        cur_g = {g["group"]: g["value"] for g in c.get("groups", [])}
+        prev_g = {g["group"]: g["value"] for g in p.get("groups", [])}
+        rows = []
+        for name in dict.fromkeys(list(cur_g) + list(prev_g)):
+            cv, pv = cur_g.get(name, 0.0), prev_g.get(name, 0.0)
+            ch = _change(cv, pv)
+            rows.append({"group": name, "current": cv, "previous": pv, "change": ch["absolute"], "change_percent": ch["percent"]})
+        rows = [r for r in rows if r["change"] != 0]
+        rows.sort(key=lambda r: r["change"], reverse=True)
+        out["groupby"] = c.get("groupby")
+        out["movers"] = {"biggest_increases": [r for r in rows if r["change"] > 0][:5],
+                         "biggest_decreases": [r for r in reversed(rows) if r["change"] < 0][:5]}
+        if c.get("groups_has_more") or p.get("groups_has_more"):
+            out["movers"]["coverage"] = (f"Computed from the top {fetch} groups of each period only; groups ranked lower in both periods are not included. "
+                                         "The totals above cover every record.")
+    return out
+
+
+async def h_trend(ctx: ToolContext, a: dict) -> dict:
+    """Month-by-month series for a metric plus growth, momentum and a clearly-labelled projection, all computed server-side."""
+    key = a.get("metric")
+    m = _dated_metric(ctx, key)
+    months = max(3, min(int(a.get("months") or 12), 24))
+    today = local_today(datetime.now(timezone.utc), ctx.tz)
+    first_this = today.replace(day=1)
+    spans = []
+    for i in range(months - 1, -1, -1):
+        s = _add_months(first_this, -i)
+        e = _add_months(s, 1) - timedelta(days=1)
+        in_progress = e > today
+        spans.append((s, min(e, today), not in_progress))
+    series = []
+    for s, e, complete in spans:                     # sequential on purpose: keeps to the per-host Odoo concurrency cap
+        r = await run_metric(ctx, key, None, s.isoformat(), e.isoformat(), None, 1, 0)
+        series.append({"label": s.strftime("%Y-%m"), "value": r["total"], "records": r["records"], "complete": complete})
+    summary = trend_summary(series, horizon=max(1, min(int(a.get("horizon") or 3), 6)))
+    base = {"metric": key, "title": m.title, "definition": m.definition, "granularity": "month",
+            "from": spans[0][0].isoformat(), "to": spans[-1][1].isoformat(), "series": series, "summary": summary}
+    if m.currency == "company":
+        base["currency"] = "company currency"
+    return base
+
+
 # ── registry ─────────────────────────────────────────────────────────
 _DOMAIN_HELP = ("Odoo domain: list of [field, operator, value] terms, optionally with '&','|','!' prefix operators. "
                 "Example: [[\"state\",\"=\",\"sale\"],[\"date_order\",\">=\",\"2026-09-01\"]]. Dates are 'YYYY-MM-DD'.")
@@ -358,6 +453,29 @@ TOOLS: list[ToolSpec] = [
                  "groupby": {"type": "string", "description": "A groupable field of the metric (e.g. partner_id, product_id) or day|week|month|quarter|year for a trend."},
                  "limit": {"type": "integer", "default": 10}, "offset": {"type": "integer", "default": 0}},
               "required": ["metric"]}, h_metric),
+    ToolSpec("odoo_compare",
+             "Period-over-period comparison of a verified metric, computed server-side: current vs previous total, absolute and % change, "
+             "and (with groupby) the biggest movers. Use it for 'vs last month', 'growth', 'kitna barha/ghata', 'what changed'. To-date periods "
+             "(this_month etc.) are compared like-for-like with the same elapsed days of the previous period; never compare a partial period with "
+             "a full one yourself. Point-in-time metrics (receivables, stock, headcount) cannot be compared.",
+             {"type": "object", "properties": {
+                 "metric": {"type": "string", "enum": sorted(DEFAULT_METRICS)},
+                 "period": {"type": "string", "enum": [p for p in PERIODS if p != "all_time"], "description": "Default this_month."},
+                 "start": {"type": "string", "description": "Custom range start YYYY-MM-DD; use with end."},
+                 "end": {"type": "string", "description": "Custom range end YYYY-MM-DD (inclusive)."},
+                 "groupby": {"type": "string", "description": "Optional groupable field (e.g. partner_id, product_id) to find the biggest movers."},
+                 "limit": {"type": "integer", "default": 10},
+                 "like_for_like": {"type": "boolean", "default": True}},
+              "required": ["metric"]}, h_compare),
+    ToolSpec("odoo_trend",
+             "Month-by-month history of a verified metric (last 3-24 months, current month flagged as in progress) with server-computed average growth, "
+             "latest change, best/worst month, 3-vs-3-month momentum and, when the pattern is regular enough, a labelled straight-line projection with a "
+             "range. Use it for 'trend', 'forecast', 'kahan ja rahe hain', 'next month kitna'. The projection is an ESTIMATE: say so and quote its caveat.",
+             {"type": "object", "properties": {
+                 "metric": {"type": "string", "enum": sorted(DEFAULT_METRICS)},
+                 "months": {"type": "integer", "default": 12, "description": "3-24 calendar months ending with the current month."},
+                 "horizon": {"type": "integer", "default": 3, "description": "Periods to project (1-6)."}},
+              "required": ["metric"]}, h_trend),
     ToolSpec("odoo_installed_apps", "List the installed Odoo apps, so you know which modules exist before querying them.",
              {"type": "object", "properties": {}}, h_installed_apps),
     ToolSpec("odoo_business_snapshot",

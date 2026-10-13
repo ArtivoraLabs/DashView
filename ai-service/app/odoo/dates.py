@@ -91,3 +91,57 @@ def date_domain(field: str, kind: str, p: Period, tz: str) -> list:
         return datetime.combine(d, time.min, zone).astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
     return [[field, ">=", utc(p.start)], [field, "<", utc(p.end)]]
+
+
+def _prev_month_start(first: date, n: int = 1) -> date:
+    return _add_months(first, -n)
+
+
+def comparison_periods(name: str | None, start: str | None, end: str | None, today: date,
+                       like_for_like: bool = True) -> tuple[Period, Period, Period | None]:
+    """Resolve (current, previous, previous_full) for a period-over-period comparison.
+
+    Comparing "this month so far" with the whole of last month always makes growth look negative, so for to-date
+    periods (this_week / this_month / this_quarter / this_year) `previous` covers the SAME number of elapsed days of
+    the preceding period and `previous_full` is the complete preceding period (None when they are identical).
+    Whole past periods are compared with the period immediately before them; custom ranges and last_N_days with the
+    equally long range right before them. Never done by the model: it only receives the resolved ranges.
+    """
+    if start and end:
+        cur = custom_period(start, end)
+        span = cur.end - cur.start
+        prev = Period(f"{(cur.start - span).isoformat()} to {(cur.start - timedelta(days=1)).isoformat()}", cur.start - span, cur.start)
+        return cur, prev, None
+    name = name or "this_month"
+    if name == "all_time":
+        raise ValueError("all_time has no previous period to compare with; choose a bounded period.")
+    cur = resolve_period(name, today)
+
+    def whole(prev_start: date, prev_end: date, label: str) -> Period:
+        return Period(label, prev_start, prev_end)
+
+    if name in ("today", "yesterday"):
+        d = cur.start
+        return cur, whole(d - timedelta(days=1), d, "the day before"), None
+    if name.startswith("last_") and name.endswith("_days"):
+        n = int(name.split("_")[1])
+        return cur, whole(cur.start - timedelta(days=n), cur.start, f"the {n} days before"), None
+
+    if name in ("this_week", "last_week"):
+        full = whole(cur.start - timedelta(days=7), cur.start, "the previous week (Mon-Sun)")
+    elif name in ("this_month", "last_month"):
+        full = whole(_prev_month_start(cur.start), cur.start, "the previous month")
+    elif name in ("this_quarter", "last_quarter"):
+        full = whole(_prev_month_start(cur.start, 3), cur.start, "the previous quarter")
+    elif name in ("this_year", "last_year"):
+        full = whole(date(cur.start.year - 1, 1, 1), cur.start, "the previous year")
+    else:
+        raise ValueError(f"Cannot compare period '{name}'.")
+
+    if name.startswith("this_") and like_for_like:
+        elapsed = cur.end - cur.start
+        prev_end = min(full.start + elapsed, full.end)
+        if prev_end < full.end:
+            like = Period(f"{full.label}, same {elapsed.days} elapsed day(s)", full.start, prev_end)
+            return cur, like, full
+    return cur, full, None

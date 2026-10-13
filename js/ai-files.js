@@ -12,6 +12,7 @@
      reconcile(fileObj, opts)     → Promise<report>       (read-only Odoo lookups)
      rowsWhere(fileObj, drill)    → { columns, rows, total }
      toPdfPayload(report)         → payload for DVReportEngine.generateAIDashboardPdf
+     toExcelPayload(report)       → same payload for DVReportEngine.generateAIReportExcel
 
    Every number in a report is computed from the rows in the file (or returned
    by Odoo). Nothing is estimated, and findings state what they are based on.
@@ -309,6 +310,174 @@
     return days <= 62 ? 'day' : days > 365 * 4 ? 'year' : 'month';
   }
 
+  /* ── trend, seasonality, movers, correlation (all computed from the rows) ── */
+  var GRAN_UNIT = { day: 'day', month: 'month', year: 'year' };
+  var GRAN_WORD = { day: 'day-on-day', month: 'month-on-month', year: 'year-on-year' };
+  var GRAN_ADJ = { day: 'daily', month: 'monthly', year: 'yearly' };
+  var WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  var MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  function currentLabel(gran) {
+    var n = new Date();
+    return gran === 'year' ? String(n.getFullYear()) : gran === 'month' ? n.getFullYear() + '-' + pad(n.getMonth() + 1) : n.getFullYear() + '-' + pad(n.getMonth() + 1) + '-' + pad(n.getDate());
+  }
+  function nextLabel(label, gran) {
+    if (gran === 'year') return String(+label + 1);
+    if (gran === 'month') {
+      var m = /^(\d{4})-(\d{2})$/.exec(label), y = +m[1], mo = +m[2] + 1;
+      if (mo > 12) { mo = 1; y++; }
+      return y + '-' + pad(mo);
+    }
+    var d = new Date(label + 'T00:00:00Z');
+    d.setUTCDate(d.getUTCDate() + 1);
+    return d.toISOString().slice(0, 10);
+  }
+  function linearFit(ys) {
+    var n = ys.length;
+    if (n < 3) return null;
+    var sx = 0, sy = 0, sxx = 0, sxy = 0, i;
+    for (i = 0; i < n; i++) { sx += i; sy += ys[i]; sxx += i * i; sxy += i * ys[i]; }
+    var den = n * sxx - sx * sx;
+    if (!den) return null;
+    var slope = (n * sxy - sx * sy) / den, icpt = (sy - slope * sx) / n, mean = sy / n, ssTot = 0, ssRes = 0;
+    for (i = 0; i < n; i++) { var f = icpt + slope * i; ssRes += Math.pow(ys[i] - f, 2); ssTot += Math.pow(ys[i] - mean, 2); }
+    return { slope: slope, intercept: icpt, r2: ssTot ? 1 - ssRes / ssTot : 0, se: Math.sqrt(ssRes / (n - 2)), n: n };
+  }
+  function pearson(rows, ia, ib) {
+    var n = 0, sx = 0, sy = 0, sxx = 0, syy = 0, sxy = 0;
+    rows.forEach(function (r) {
+      var x = toNumber(r[ia]), y = toNumber(r[ib]);
+      if (isNaN(x) || isNaN(y)) return;
+      n++; sx += x; sy += y; sxx += x * x; syy += y * y; sxy += x * y;
+    });
+    if (n < 30) return null;
+    var den = Math.sqrt((n * sxx - sx * sx) * (n * syy - sy * sy));
+    return den ? { r: (n * sxy - sx * sy) / den, n: n } : null;
+  }
+
+  /** Growth, momentum and a straight-line projection. A period still in progress is left out so it never reads as a collapse. */
+  function analyzeTrend(series, gran, name) {
+    var out = { insights: [], forecast: null, complete: series.slice() };
+    if (series.length && series[series.length - 1].label === currentLabel(gran)) out.complete = series.slice(0, -1);
+    var complete = out.complete, unit = GRAN_UNIT[gran], i;
+    if (complete.length >= 3) {
+      var ch = [];
+      for (i = 1; i < complete.length; i++) if (complete[i - 1].value) ch.push((complete[i].value - complete[i - 1].value) / Math.abs(complete[i - 1].value) * 100);
+      if (ch.length >= 2) {
+        var avg = ch.reduce(function (a, x) { return a + x; }, 0) / ch.length;
+        out.insights.push('Average ' + GRAN_WORD[gran] + ' change in ' + name + ' is ' + (avg >= 0 ? '+' : '') + round(avg, 1) + '% across ' + complete.length + ' complete ' + unit + 's.');
+      }
+    }
+    if (complete.length >= 6) {
+      var sum = function (arr) { return arr.reduce(function (a, s) { return a + s.value; }, 0); };
+      var l3 = sum(complete.slice(-3)), p3 = sum(complete.slice(-6, -3));
+      if (p3) { var pc = (l3 - p3) / Math.abs(p3) * 100; out.insights.push('Momentum: the last 3 ' + unit + 's total ' + fmtNum(l3) + ' vs ' + fmtNum(p3) + ' in the 3 before (' + (pc >= 0 ? '+' : '') + round(pc, 1) + '%).'); }
+    }
+    var pts = complete.slice(-24);
+    if (pts.length >= 6) {
+      var fit = linearFit(pts.map(function (s) { return s.value; }));
+      if (fit && fit.r2 >= 0.3) {
+        var band = 1.28 * fit.se, lab = pts[pts.length - 1].label, points = [];
+        for (var k = 1; k <= 3; k++) {
+          lab = nextLabel(lab, gran);
+          var v = fit.intercept + fit.slope * (pts.length - 1 + k);
+          points.push({ label: lab, value: round(v, 2), low: round(v - band, 2), high: round(v + band, 2) });
+        }
+        out.forecast = {
+          metric: name + ' by ' + unit,
+          method: 'Straight-line trend through the last ' + pts.length + ' complete ' + unit + 's (R\u00b2 ' + round(fit.r2, 2) + '). The range is \u00b11.28 \u00d7 the typical error of the fit (roughly an 80% band if the scatter is normal).',
+          history: pts.slice(-12).map(function (s) { return { label: s.label, value: s.value }; }),
+          points: points, r2: round(fit.r2, 2), slope: round(fit.slope, 2)
+        };
+        out.insights.push('If the recent straight-line trend continues, ' + name + ' is about ' + fmtNum(points[0].value) + ' in ' + points[0].label + ' (typical range ' + fmtNum(points[0].low) + ' to ' + fmtNum(points[0].high) + '). Fit quality R\u00b2 ' + round(fit.r2, 2) + ': a direction, not a promise.');
+      } else if (fit) {
+        out.insights.push('The ' + GRAN_ADJ[gran] + ' pattern of ' + name + ' is too irregular for a straight-line projection (R\u00b2 ' + round(fit.r2, 2) + '), so none is shown.');
+      }
+    }
+    return out;
+  }
+
+  function seasonality(complete, gran, name) {
+    var out = [], i;
+    if (gran === 'day' && complete.length >= 28) {
+      var sums = [0, 0, 0, 0, 0, 0, 0], cnt = [0, 0, 0, 0, 0, 0, 0];
+      complete.forEach(function (s) { var wd = new Date(s.label + 'T00:00:00Z').getUTCDay(); sums[wd] += s.value; cnt[wd]++; });
+      var avgs = sums.map(function (s, ix) { return cnt[ix] >= 3 ? s / cnt[ix] : null; }), ok = [];
+      for (i = 0; i < 7; i++) if (avgs[i] !== null) ok.push(i);
+      if (ok.length >= 5) {
+        var hi = ok.reduce(function (a, ix) { return avgs[ix] > avgs[a] ? ix : a; }, ok[0]), lo = ok.reduce(function (a, ix) { return avgs[ix] < avgs[a] ? ix : a; }, ok[0]);
+        var overall = ok.reduce(function (a, ix) { return a + avgs[ix]; }, 0) / ok.length;
+        if (overall > 0 && (avgs[hi] - avgs[lo]) / overall >= 0.25) out.push(WEEKDAYS[hi] + 's are the strongest day for ' + name + ' (average ' + fmtNum(avgs[hi]) + ') and ' + WEEKDAYS[lo] + 's the weakest (' + fmtNum(avgs[lo]) + ').');
+      }
+    }
+    if (gran === 'month' && complete.length >= 14) {
+      var ms = [], mc = [];
+      for (i = 0; i < 12; i++) { ms.push(0); mc.push(0); }
+      complete.forEach(function (s) { var mm = +s.label.slice(5, 7) - 1; ms[mm] += s.value; mc[mm]++; });
+      var mavg = ms.map(function (s, ix) { return mc[ix] ? s / mc[ix] : null; }), seen = [];
+      for (i = 0; i < 12; i++) if (mavg[i] !== null) seen.push(i);
+      if (seen.length === 12) {
+        var mh = seen.reduce(function (a, ix) { return mavg[ix] > mavg[a] ? ix : a; }, 0), ml = seen.reduce(function (a, ix) { return mavg[ix] < mavg[a] ? ix : a; }, 0);
+        var mo = seen.reduce(function (a, ix) { return a + mavg[ix]; }, 0) / 12;
+        if (mo > 0 && (mavg[mh] - mavg[ml]) / mo >= 0.3) out.push(MONTH_NAMES[mh] + ' is the strongest calendar month for ' + name + ' on average (' + fmtNum(mavg[mh]) + ') and ' + MONTH_NAMES[ml] + ' the weakest (' + fmtNum(mavg[ml]) + '). With under two years of history this is indicative only.');
+      }
+    }
+    return out;
+  }
+
+  function topMovers(table, dateIdx, catIdx, mi, gran, complete) {
+    if (complete.length < 2) return null;
+    var lastK = complete[complete.length - 1].label, prevK = complete[complete.length - 2].label, a = Object.create(null), b = Object.create(null);
+    table.rows.forEach(function (r) {
+      var iso = isoDate(r[dateIdx]); if (!iso) return;
+      var k = monthKey(iso, gran); if (k !== lastK && k !== prevK) return;
+      var c = r[catIdx] === null ? '(blank)' : str(r[catIdx]), val = mi >= 0 ? toNumber(r[mi]) : 1;
+      if (isNaN(val)) return;
+      var bag = k === lastK ? a : b;
+      bag[c] = (bag[c] || 0) + val;
+    });
+    var keys = Object.keys(a).concat(Object.keys(b).filter(function (k) { return !(k in a); }));
+    var deltas = keys.map(function (k) { return { label: k, d: (a[k] || 0) - (b[k] || 0) }; }).filter(function (x) { return x.d !== 0; }).sort(function (x, y) { return y.d - x.d; });
+    if (deltas.length < 2) return null;
+    var rise = deltas[0].d > 0 ? deltas[0] : null, fall = deltas[deltas.length - 1].d < 0 ? deltas[deltas.length - 1] : null;
+    if (!rise && !fall) return null;
+    return 'Biggest movers, ' + lastK + ' vs ' + prevK + ': ' + (rise ? clip(rise.label, 30) + ' rose most (+' + fmtNum(rise.d) + ')' : '') + (rise && fall ? '; ' : '') + (fall ? clip(fall.label, 30) + ' fell most (-' + fmtNum(Math.abs(fall.d)) + ')' : '') + '.';
+  }
+
+  function correlations(table, P) {
+    var ms = P.measures.filter(function (c) { return c.numeric && c.numeric.count >= 30; }).slice(0, 4), found = [];
+    for (var i = 0; i < ms.length; i++) for (var j = i + 1; j < ms.length; j++) {
+      var p = pearson(table.rows, ms[i].index, ms[j].index);
+      if (p && Math.abs(p.r) >= 0.6) found.push({ a: ms[i].name, b: ms[j].name, r: p.r, n: p.n });
+    }
+    found.sort(function (x, y) { return Math.abs(y.r) - Math.abs(x.r); });
+    return found.slice(0, 2).map(function (f) {
+      return '"' + clip(f.a, 30) + '" and "' + clip(f.b, 30) + '" ' + (f.r > 0 ? 'move together' : 'move in opposite directions') + ' (correlation r = ' + round(f.r, 2) + ' over ' + f.n.toLocaleString() + ' rows). Check whether one is calculated from the other before reading meaning into it.';
+    });
+  }
+
+  /** Concrete fixes derived from the findings, errors first. */
+  var STEP_TEXT = [
+    ['dup_rows', 'Remove or confirm the duplicate rows', 'Each duplicate is counted twice in totals and group sizes.'],
+    ['key_', 'Make the identifier unique', 'Joins, look-ups and Odoo matching need a unique key.'],
+    ['mixed_', 'Clean the text entries in the numeric column', 'Column totals are unreliable until every entry is a number.'],
+    ['out_', 'Verify the extreme values', 'A single wrong entry can move totals and averages materially.'],
+    ['neg_', 'Review the negative amounts', 'Confirm they are credits or refunds, not sign errors.'],
+    ['var_', 'Standardise spelling and case', 'Groups and totals are split across the variants.'],
+    ['null_', 'Fill or drop the sparse column', 'Averages and totals on it ignore the empty rows.'],
+    ['date_', 'Check the date format', 'Implausible dates distort trends and period comparisons.'],
+    ['future_', 'Confirm the future-dated rows are intended', 'They fall outside any period that has closed.']
+  ];
+  function nextStepsFor(quality, extra) {
+    var rank = { error: 0, warn: 1, info: 2 }, steps = [];
+    quality.filter(function (q) { return q.level !== 'good' && q.id; }).sort(function (a, b) { return (rank[a.level] == null ? 3 : rank[a.level]) - (rank[b.level] == null ? 3 : rank[b.level]); }).forEach(function (q) {
+      var hit = STEP_TEXT.filter(function (s) { return q.id === s[0] || q.id.indexOf(s[0]) === 0; })[0];
+      if (hit && steps.length < 6) steps.push({ action: hit[1] + ' \u2014 ' + q.title, why: hit[2] });
+    });
+    (extra || []).forEach(function (s) { if (steps.length < 7) steps.push(s); });
+    return steps;
+  }
+
   function analyze(file, opts) {
     opts = opts || {};
     var sheet = Math.min(opts.sheet || 0, file.tables.length - 1);
@@ -324,7 +493,7 @@
       if (seenRow[k] != null) { dupCount++; if (dupRows.length < 200) dupRows.push(r); } else seenRow[k] = i;
     });
 
-    var tables = {}, quality = [], insights = [], kpis = [], metrics = [];
+    var tables = {}, quality = [], insights = [], kpis = [], metrics = [], forecast = null, trendGran = null, extraSteps = [];
 
     /* KPIs */
     kpis.push({ label: 'Records', value: total.toLocaleString(), hint: table.columns.length + ' columns' + (file.tables.length > 1 ? ' · sheet "' + table.name + '"' : '') });
@@ -367,6 +536,13 @@
         insights.push('Latest ' + gran + ' (' + last.label + ') is ' + (last.value >= prev.value ? 'up ' : 'down ') + (chg > 1000 ? 'more than 10x' : round(chg, 1) + '%') + ' vs ' + prev.label + ' (' + fmtNum(last.value) + ' vs ' + fmtNum(prev.value) + '). The latest period may be incomplete.');
         var best = series.slice().sort(function (a, b) { return b.value - a.value; })[0];
         insights.push('Strongest ' + gran + ': ' + best.label + ' (' + fmtNum(best.value) + ').');
+        trendGran = gran;
+        var measureName = primary ? primary.name : 'records', tr = analyzeTrend(series, gran, measureName);
+        tr.insights.forEach(function (x) { insights.push(x); });
+        forecast = tr.forecast;
+        seasonality(tr.complete, gran, measureName).forEach(function (x) { insights.push(x); });
+        if (cat) { var mv = topMovers(table, d.index, cat.index, mi, gran, tr.complete); if (mv) insights.push(mv); }
+        if (tr.complete.length < series.length) extraSteps.push({ action: 'Re-run this analysis once the current ' + gran + ' has closed', why: 'The ' + gran + ' still in progress is excluded from averages, momentum and the projection.' });
       }
     }
     if (P.categories[1]) {
@@ -377,10 +553,12 @@
       metrics.push({ title: 'Column totals', measure: 'sum', chartType: 'bar', model: 'file', rows: P.measures.slice(0, 8).map(function (c) { return { label: c.name, value: round(c.numeric.sum, 2), count: c.numeric.count }; }) });
     }
 
+    correlations(table, P).forEach(function (x) { insights.push(x); });
+
     /* data-quality findings */
     var errors = 0;
     function finding(level, id, title, detail, tableRows, cols) {
-      var f = { level: level, title: title, detail: detail };
+      var f = { id: id, level: level, title: title, detail: detail };
       if (tableRows && tableRows.length) { tables[id] = { title: title, columns: cols || table.columns, rows: tableRows.slice(0, 200) }; f.table = id; f.records = tableRows.length; }
       if (level === 'error') errors++;
       quality.push(f);
@@ -409,6 +587,11 @@
         if (variants.length) finding('warn', 'var_' + c.index, variants.length + ' spelling/case variant' + (variants.length === 1 ? '' : 's') + ' in "' + c.name + '"', 'Same value typed differently, e.g. ' + Object.keys(norm[variants[0]]).slice(0, 3).map(function (x) { return '"' + clip(x, 24) + '"'; }).join(' / ') + '. Groups and totals split across the variants.');
       }
       if (c.type === 'date' && c.dates && (c.dates.min < '1990-01-01' || c.dates.max > (new Date().getFullYear() + 2) + '-12-31')) finding('warn', 'date_' + c.index, '"' + c.name + '" has implausible dates', 'Range ' + c.dates.min + ' → ' + c.dates.max + ' — check the date format.');
+      var todayIso = new Date().toISOString().slice(0, 10);
+      if (c.type === 'date' && c.dates && c.dates.max > todayIso && c.dates.max <= (new Date().getFullYear() + 2) + '-12-31' && !/due|expir|deadline|delivery|valid|end|next|schedul|plan/i.test(c.name)) {
+        var future = table.rows.filter(function (r) { var iso = isoDate(r[c.index]); return iso && iso > todayIso; });
+        if (future.length) finding('info', 'future_' + c.index, future.length + ' future-dated row' + (future.length === 1 ? '' : 's') + ' in "' + c.name + '"', 'Dates run up to ' + c.dates.max + '. Fine for forecasts or scheduled work; otherwise check the date format.', future);
+      }
     });
     if (!quality.length) quality.push({ level: 'good', title: 'No structural problems found', detail: 'No duplicate rows, repeated identifiers, extreme values or mixed columns were detected.' });
 
@@ -419,10 +602,17 @@
     if (primary) insights.push('Average ' + primary.name + ' per record is ' + fmtNum(primary.numeric.avg) + ' (median ' + fmtNum(primary.numeric.median) + (primary.numeric.avg > primary.numeric.median * 1.5 && primary.numeric.median > 0 ? ' — a few large values pull the average up).' : ').'));
     if (table.truncated) insights.push('Only the first ' + MAX_ROWS.toLocaleString() + ' rows were analysed.');
 
+    var assumptions = [];
+    if (primary) assumptions.push('Totals use the "' + primary.name + '" column' + (P.measures.length > 1 ? ' (other numeric columns: ' + P.measures.slice(1, 4).map(function (c) { return c.name; }).join(', ') + ')' : '') + '.');
+    if (cat) assumptions.push('Groups use "' + cat.name + '"; the top 10 are shown and the rest are combined as Other.');
+    if (P.primaryDate && trendGran) assumptions.push('Trends use "' + P.primaryDate.name + '" by ' + trendGran + '; a period still in progress is excluded from averages, momentum and projections.');
+    assumptions.push('Extreme values are those beyond 3 x the interquartile range; nothing is estimated except the clearly labelled projection.');
+    var nextSteps = nextStepsFor(quality, extraSteps);
+
     return {
       kind: 'file', id: 'r_' + file.id, title: 'Report: ' + file.name, generatedAt: new Date().toISOString(), fileId: file.id, sheet: sheet,
       file: { name: file.name, sheet: table.name, rows: total, columns: table.columns.length, size: file.size, sheets: file.tables.map(function (t) { return t.name; }) },
-      kpis: kpis, metrics: metrics, quality: quality, insights: insights, tables: tables, health: health,
+      kpis: kpis, metrics: metrics, quality: quality, insights: insights, tables: tables, health: health, forecast: forecast, nextSteps: nextSteps, assumptions: assumptions,
       columns: P.cols.map(function (c) { return { name: c.name, type: c.type, role: c.role, nullPct: round(c.nullPct, 1), unique: c.unique, top: c.top.slice(0, 3), numeric: c.numeric ? { sum: round(c.numeric.sum, 2), avg: round(c.numeric.avg, 2), min: c.numeric.min, max: c.numeric.max } : null, dates: c.dates || null }; })
     };
   }
@@ -574,16 +764,29 @@
   }
 
   /* ── export helpers ───────────────────────────────────────────────────── */
+  var WARN_WORDS = /concentration risk|may be incomplete|pull the average|only the first|extreme|too irregular|fell most|is down|not found|differ/i;
+  /** One payload for both exports (PDF and structured Excel): everything the report engine can render, nothing it has to guess. */
   function toPdfPayload(report) {
-    var kp = report.kpis.map(function (k) { return { label: k.label, value: k.value }; });
+    var recon = report.kind === 'reconcile', f = report.file || {};
     return {
-      version: 1, title: report.title, generatedAt: report.generatedAt,
-      source: report.kind === 'reconcile' ? 'Uploaded file reconciled with live Odoo · ' + report.file.name : 'Uploaded file · ' + report.file.name + ' (analysed in the browser)',
-      methods: report.kind === 'reconcile' ? (report.method || []) : ['Deterministic profile of ' + report.file.rows.toLocaleString() + ' rows × ' + report.file.columns + ' columns; no values estimated'],
-      limitations: (report.quality || []).filter(function (q) { return q.level !== 'good'; }).map(function (q) { return q.title + ' — ' + q.detail; }).slice(0, 10),
-      kpis: kp,
-      insightsText: (report.insights || []).join('\n\n'),
-      metrics: (report.metrics || []).map(function (m) { return { title: m.title, model: m.model, measure: m.measure, chartType: m.chartType, rows: m.rows.map(function (r) { return { label: r.label, value: r.value, count: r.count }; }) }; })
+      version: 1, kind: 'ai-report', title: report.title, generatedAt: report.generatedAt,
+      source: recon ? 'Uploaded file reconciled with live Odoo \u00b7 ' + f.name : 'Uploaded file \u00b7 ' + f.name + ' (analysed in the browser)',
+      scope: f.rows != null ? Number(f.rows).toLocaleString() + ' rows \u00d7 ' + f.columns + ' columns' + (f.sheet ? ' \u00b7 sheet "' + f.sheet + '"' : '') : '',
+      health: report.health == null ? null : report.health,
+      file: { name: f.name, sheet: f.sheet, rows: f.rows, columns: f.columns },
+      methods: recon ? (report.method || []) : ['Deterministic profile of ' + Number(f.rows || 0).toLocaleString() + ' rows \u00d7 ' + f.columns + ' columns; no values estimated'],
+      assumptions: report.assumptions || [],
+      limitations: (report.quality || []).filter(function (q) { return q.level !== 'good'; }).map(function (q) { return q.title + ' \u2014 ' + q.detail; }).slice(0, 10),
+      kpis: (report.kpis || []).map(function (k) { return { label: k.label, value: k.value, hint: k.hint || '', tone: k.tone || '' }; }),
+      highlights: (report.insights || []).slice(0, 6).map(function (t) { return { tone: WARN_WORDS.test(t) ? 'warn' : 'info', text: t }; }),
+      autoHighlights: false,
+      insightsText: '',
+      metrics: (report.metrics || []).map(function (m) { return { title: m.title, model: m.model, measure: m.measure, chartType: m.chartType, rows: m.rows.map(function (r) { return { label: r.label, value: r.value, count: r.count }; }) }; }),
+      forecast: report.forecast || null,
+      quality: (report.quality || []).map(function (q) { return { level: q.level, title: q.title, detail: q.detail, records: q.records }; }),
+      columns: report.columns || null,
+      tables: report.tables || {},
+      nextSteps: report.nextSteps || []
     };
   }
 
@@ -605,8 +808,8 @@
   window.DVAIFiles = {
     ACCEPT: '.csv,.tsv,.txt,.json,.xlsx,.xls,.xlsm', MAX_BYTES: MAX_BYTES, TARGETS: TARGETS,
     parse: parse, analyze: analyze, profile: profile, contextFor: contextFor, rowsWhere: rowsWhere,
-    suggestReconcile: suggestReconcile, reconcile: reconcile, toPdfPayload: toPdfPayload,
+    suggestReconcile: suggestReconcile, reconcile: reconcile, toPdfPayload: toPdfPayload, toExcelPayload: toPdfPayload,
     tableToCsv: tableToCsv, download: download, fmtNum: fmtNum,
-    _t: { toNumber: toNumber, isoDate: isoDate, parseDelimited: parseDelimited, detectDelimiter: detectDelimiter, buildTable: buildTable }
+    _t: { linearFit: linearFit, nextLabel: nextLabel, analyzeTrend: analyzeTrend, pearson: pearson, toNumber: toNumber, isoDate: isoDate, parseDelimited: parseDelimited, detectDelimiter: detectDelimiter, buildTable: buildTable }
   };
 })();

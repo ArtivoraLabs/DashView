@@ -80,6 +80,8 @@ var DashViewAI = (function () {
     "",
     "**A steady ear** — tell me if you're stressed, stuck, burnt out, or just having a rough day. I'm not a therapist, but I won't brush past it either.",
     "",
+    "**Analyse your numbers** — paste a list (\"analyze: 120, 135, 128, 150, 162, 171\") or a small CSV / table and I'll compute totals, average, median, spread, outliers, group shares, the trend and a clearly-labelled straight-line projection, plus a draft summary sentence.",
+    "",
     "**Quick utilities** — arithmetic (\"what's 18% of 240\") and the current date/time.",
     "",
     "Just ask normally — no special syntax needed.",
@@ -444,6 +446,213 @@ var DashViewAI = (function () {
   }
 
   /* ========================================================================
+     5b. Data analysis — paste a list of numbers or a small table
+         Everything is computed in the browser from what was pasted. The
+         reply states what it assumed (e.g. "oldest first") and labels the
+         one estimate it can make, a straight-line projection, as an estimate.
+     ======================================================================== */
+  var ANALYZE_INTENT_RE = /\b(analy[sz]e|analysis|trend|forecast|projection|project|statistics|stats|summar(?:y|ise|ize)|insights?|average|mean|median|growth|outliers?|describe|breakdown|tajzia|andaza)\b/i;
+
+  function dFmt(n) {
+    if (n === null || n === undefined || !isFinite(n)) return '-';
+    var a = Math.abs(n);
+    if (a >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+    if (a >= 1e7) return (n / 1e6).toFixed(2) + 'M';
+    return Number(n.toFixed(2)).toLocaleString('en-US');
+  }
+  function dPct(n) { return (n >= 0 ? '+' : '') + (Math.round(n * 10) / 10) + '%'; }
+  function dQuantile(sorted, p) {
+    if (!sorted.length) return NaN;
+    var idx = (sorted.length - 1) * p, lo = Math.floor(idx), hi = Math.ceil(idx);
+    return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
+  }
+  function dFit(ys) {
+    var n = ys.length, sx = 0, sy = 0, sxx = 0, sxy = 0, i;
+    if (n < 3) return null;
+    for (i = 0; i < n; i++) { sx += i; sy += ys[i]; sxx += i * i; sxy += i * ys[i]; }
+    var den = n * sxx - sx * sx;
+    if (!den) return null;
+    var slope = (n * sxy - sx * sy) / den, icpt = (sy - slope * sx) / n, mean = sy / n, ssT = 0, ssR = 0;
+    for (i = 0; i < n; i++) { ssR += Math.pow(ys[i] - (icpt + slope * i), 2); ssT += Math.pow(ys[i] - mean, 2); }
+    return { slope: slope, intercept: icpt, r2: ssT ? 1 - ssR / ssT : 0, se: Math.sqrt(ssR / (n - 2)) };
+  }
+
+  /** Pure statistics for one series. `labels` are optional (defaults to 1..n). */
+  function analyzeSeries(values, labels) {
+    var n = values.length, i, sum = 0;
+    labels = labels && labels.length === n ? labels : values.map(function (_, k) { return '#' + (k + 1); });
+    for (i = 0; i < n; i++) sum += values[i];
+    var mean = sum / n, sorted = values.slice().sort(function (a, b) { return a - b; });
+    var sd = Math.sqrt(values.reduce(function (a, v) { return a + Math.pow(v - mean, 2); }, 0) / (n > 1 ? n - 1 : 1));
+    var q1 = dQuantile(sorted, 0.25), q3 = dQuantile(sorted, 0.75), iqr = q3 - q1;
+    var hiI = values.indexOf(sorted[n - 1]), loI = values.indexOf(sorted[0]);
+    var outliers = [];
+    if (iqr > 0) values.forEach(function (v, k) { if (v < q1 - 1.5 * iqr || v > q3 + 1.5 * iqr) outliers.push({ label: labels[k], value: v }); });
+    var out = { n: n, sum: sum, mean: mean, median: dQuantile(sorted, 0.5), sd: sd, cv: mean ? Math.abs(sd / mean) * 100 : null, q1: q1, q3: q3,
+                max: { label: labels[hiI], value: sorted[n - 1] }, min: { label: labels[loI], value: sorted[0] }, outliers: outliers, labels: labels };
+    if (n >= 3) {
+      var fit = dFit(values), steps = [];
+      for (i = 1; i < n; i++) if (values[i - 1]) steps.push((values[i] - values[i - 1]) / Math.abs(values[i - 1]) * 100);
+      out.trend = { slope: fit ? fit.slope : 0, r2: fit ? fit.r2 : 0,
+                    lastChangePct: values[n - 2] ? (values[n - 1] - values[n - 2]) / Math.abs(values[n - 2]) * 100 : null,
+                    avgStepPct: steps.length ? steps.reduce(function (a, x) { return a + x; }, 0) / steps.length : null,
+                    totalPct: values[0] ? (values[n - 1] - values[0]) / Math.abs(values[0]) * 100 : null };
+      if (fit && n >= 6 && fit.r2 >= 0.3) {
+        var band = 1.28 * fit.se;
+        out.projection = [1, 2, 3].map(function (k) { var v = fit.intercept + fit.slope * (n - 1 + k); return { ahead: k, value: v, low: v - band, high: v + band }; });
+      }
+    }
+    return out;
+  }
+
+  function seriesMarkdown(name, a, unitNote) {
+    var L = [];
+    L.push('**' + name + '**: ' + a.n + ' values' + (unitNote ? ' ' + unitNote : ''));
+    L.push('- Total ' + dFmt(a.sum) + ' \u00b7 average ' + dFmt(a.mean) + ' \u00b7 median ' + dFmt(a.median) + ' \u00b7 std dev ' + dFmt(a.sd) + (a.cv !== null && isFinite(a.cv) ? ' (spread ' + Math.round(a.cv) + '% of the average)' : ''));
+    L.push('- Highest ' + dFmt(a.max.value) + ' (' + a.max.label + ') \u00b7 lowest ' + dFmt(a.min.value) + ' (' + a.min.label + ') \u00b7 middle half of values between ' + dFmt(a.q1) + ' and ' + dFmt(a.q3));
+    if (a.trend) {
+      var t = a.trend, dir = Math.abs(t.slope) < 1e-9 ? 'flat' : t.slope > 0 ? 'rising' : 'falling', fitWord = t.r2 >= 0.7 ? 'a strong' : t.r2 >= 0.4 ? 'a moderate' : 'a weak';
+      L.push('- Trend: ' + dir + ' by about ' + dFmt(Math.abs(t.slope)) + ' per step (straight-line fit R\u00b2 ' + t.r2.toFixed(2) + ', ' + fitWord + ' fit)');
+      var bits = [];
+      if (t.lastChangePct !== null) bits.push('latest step ' + dPct(t.lastChangePct));
+      if (t.avgStepPct !== null) bits.push('average step ' + dPct(t.avgStepPct));
+      if (t.totalPct !== null) bits.push('first to last ' + dPct(t.totalPct));
+      if (bits.length) L.push('- Change: ' + bits.join(' \u00b7 '));
+    }
+    L.push('- Outliers (beyond 1.5 \u00d7 the interquartile range): ' + (a.outliers.length ? a.outliers.slice(0, 5).map(function (o) { return dFmt(o.value) + ' (' + o.label + ')'; }).join(', ') + (a.outliers.length > 5 ? ' and ' + (a.outliers.length - 5) + ' more' : '') : 'none'));
+    if (a.projection) L.push('- Projection (estimate, straight line): next 3 steps \u2248 ' + a.projection.map(function (p) { return dFmt(p.value); }).join(', ') + ' (typical range for the first: ' + dFmt(a.projection[0].low) + ' to ' + dFmt(a.projection[0].high) + '). A direction, not a promise; it ignores seasonality and one-off events.');
+    else if (a.trend && a.n < 6) L.push('- No projection: it takes at least 6 values to project responsibly.');
+    else if (a.trend) L.push('- No projection: the pattern is too irregular for a straight line (R\u00b2 ' + a.trend.r2.toFixed(2) + ').');
+    return L.join('\n');
+  }
+
+  function draftSummary(name, a) {
+    var s = 'Across ' + a.n + ' observations, ' + name + ' totalled ' + dFmt(a.sum) + ' (average ' + dFmt(a.mean) + ', median ' + dFmt(a.median) + ')';
+    if (a.trend && a.trend.totalPct !== null) s += ' and moved ' + dPct(a.trend.totalPct) + ' from the first to the last value';
+    s += '. The peak was ' + dFmt(a.max.value) + ' (' + a.max.label + ') and the low ' + dFmt(a.min.value) + ' (' + a.min.label + ')';
+    if (a.outliers.length) s += '; ' + a.outliers.length + ' value' + (a.outliers.length === 1 ? ' is' : 's are') + ' unusually far from the rest and worth verifying';
+    return s + '.';
+  }
+
+  var NUM_ITEM_RE = /^\s*(?:(.+?)\s*[:=]\s*)?([-+]?\s*[$\u20ac\u00a3]?\s*\d+(?:\.\d+)?)\s*(%|[kKmM])?\s*$/;
+  function parseNumber(token) {
+    var m = /^([-+]?)\s*[$\u20ac\u00a3]?\s*(\d+(?:\.\d+)?)\s*(%|[kKmM])?$/.exec(String(token).trim());
+    if (!m) return NaN;
+    var v = parseFloat(m[2]) * (m[3] && /k/i.test(m[3]) ? 1e3 : m[3] && /m/i.test(m[3]) ? 1e6 : 1);
+    return m[1] === '-' ? -v : v;
+  }
+  function stripIntent(text) {
+    var t = text.trim(), m = /^([^:\n]*?)\s*:\s*([\s\S]+)$/.exec(t);
+    if (m && ANALYZE_INTENT_RE.test(m[1]) && /\d/.test(m[2])) return m[2];
+    var lead = /^([A-Za-z][A-Za-z\s,.'?!-]*?)\s+(?=[-+]?[$\u20ac\u00a3]?\d)/.exec(t);
+    if (lead && ANALYZE_INTENT_RE.test(lead[1])) return t.slice(lead[0].length);
+    return t;
+  }
+  /** "10, 20, 30 ..." or "Jan: 120, Feb: 135 ..." (also one per line) -> { labels, values } or null. */
+  function parseSeries(text) {
+    var body = stripIntent(text.replace(CODE_FENCE_RE, function (_m, _l, c) { return c; }));
+    if (/, /.test(body) || /\n/.test(body)) body = body.replace(/(\d),(\d{3})(?!\d)/g, '$1$2');
+    var items = body.split(/[\n;,]+/).map(function (s) { return s.trim(); }).filter(Boolean);
+    if (items.length < 4 && !/[:=]/.test(body)) items = body.split(/\s+/).filter(Boolean);
+    if (items.length < 4 || items.length > 5000) return null;
+    var labels = [], values = [], labelled = 0;
+    for (var i = 0; i < items.length; i++) {
+      var m = NUM_ITEM_RE.exec(items[i]);
+      if (!m) return null;
+      var v = parseNumber(m[2] + (m[3] || ''));
+      if (isNaN(v)) return null;
+      if (m[1]) labelled++;
+      labels.push(m[1] ? m[1].trim() : '#' + (i + 1));
+      values.push(v);
+    }
+    return { labels: labels, values: values, labelled: labelled === values.length };
+  }
+
+  /** Pasted CSV / TSV / ;-separated / markdown table -> { headers, rows } or null. */
+  function parseTable(text) {
+    var raw = text.replace(CODE_FENCE_RE, function (_m, _l, c) { return c; }).split(/\r?\n/).map(function (l) { return l.trim(); }).filter(Boolean);
+    raw = raw.filter(function (l) { return !/^\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?$/.test(l); });
+    if (raw.length < 3) return null;
+    var pairLines = raw.filter(function (l) { return /^[^,;\t|]+[:=]\s*[-+]?[$\u20ac\u00a3]?\d[\d,]*(\.\d+)?\s*[%kKmM]?$/.test(l); });
+    if (pairLines.length >= raw.length * 0.6) return null;          // "label: value" lists are a series, not a table (the commas are thousands separators)
+    var best = null;
+    ['\t', ',', ';', '|'].forEach(function (d) {
+      var counts = {};
+      raw.forEach(function (l) { var c = l.split(d).length; counts[c] = (counts[c] || 0) + 1; });
+      Object.keys(counts).forEach(function (c) { if (+c >= 2 && counts[c] >= 3 && (!best || counts[c] > best.n)) best = { d: d, cols: +c, n: counts[c] }; });
+    });
+    if (!best) return null;
+    var lines = raw.filter(function (l) { return l.split(best.d).length === best.cols; });
+    if (lines.length < 3 || lines.length < raw.length * 0.6) return null;
+    var cut = function (l) { return l.split(best.d).map(function (c) { return c.trim(); }); };
+    var all = lines.map(cut);
+    if (best.d === '|') all = all.map(function (r) { return r.filter(function (c, i) { return !((i === 0 || i === r.length - 1) && c === ''); }); });
+    var headers = all[0], rows = all.slice(1);
+    if (headers.every(function (h) { return !isNaN(parseNumber(h)); })) return null;
+    return { headers: headers, rows: rows };
+  }
+
+  var ISO_DATE_RE = /^\d{4}-\d{2}(-\d{2})?$/;
+  function tableMarkdown(tb) {
+    var cols = tb.headers.map(function (h, ci) {
+      var cells = tb.rows.map(function (r) { return r[ci] === undefined ? '' : r[ci]; }), filled = cells.filter(Boolean), nums = filled.map(parseNumber).filter(function (x) { return !isNaN(x); });
+      var type = filled.length && nums.length >= filled.length * 0.8 ? 'number' : filled.length && filled.filter(function (c) { return ISO_DATE_RE.test(c); }).length >= filled.length * 0.8 ? 'date' : 'text';
+      return { name: h || 'Column ' + (ci + 1), index: ci, type: type, cells: cells, blanks: cells.length - filled.length };
+    });
+    var numCols = cols.filter(function (c) { return c.type === 'number'; });
+    if (!numCols.length) return null;
+    var L = ['**Data analysis**: ' + tb.rows.length + ' rows \u00d7 ' + cols.length + ' columns (' + numCols.length + ' numeric)'], blankNote = cols.filter(function (c) { return c.blanks; });
+    numCols.slice(0, 4).forEach(function (c) {
+      var vals = c.cells.map(parseNumber).filter(function (x) { return !isNaN(x); }), a = analyzeSeries(vals);
+      L.push('- **' + c.name + '**: total ' + dFmt(a.sum) + ' \u00b7 average ' + dFmt(a.mean) + ' \u00b7 median ' + dFmt(a.median) + ' \u00b7 min ' + dFmt(a.min.value) + ' \u00b7 max ' + dFmt(a.max.value) + (a.outliers.length ? ' \u00b7 ' + a.outliers.length + ' outlier' + (a.outliers.length === 1 ? '' : 's') : ''));
+    });
+    var m1 = numCols[0], cat = cols.filter(function (c) { return c.type === 'text'; }).filter(function (c) { var d = {}; c.cells.forEach(function (v) { if (v) d[v] = 1; }); var k = Object.keys(d).length; return k >= 2 && k <= Math.max(12, tb.rows.length / 3); })[0];
+    if (cat) {
+      var g = {}, total = 0;
+      tb.rows.forEach(function (r) { var v = parseNumber(r[m1.index]); if (isNaN(v)) return; var k = r[cat.index] || '(blank)'; g[k] = (g[k] || 0) + v; total += v; });
+      var ranked = Object.keys(g).map(function (k) { return { k: k, v: g[k] }; }).sort(function (x, y) { return y.v - x.v; });
+      L.push('', '**' + m1.name + ' by ' + cat.name + '**' + (ranked.some(function (x) { return x.v < 0; }) ? ' (contains negatives, so shares are omitted)' : ''));
+      ranked.slice(0, 6).forEach(function (x) { L.push('- ' + x.k + ': ' + dFmt(x.v) + (total > 0 && x.v >= 0 ? ' (' + Math.round(x.v / total * 1000) / 10 + '%)' : '')); });
+      if (ranked.length > 6) L.push('- and ' + (ranked.length - 6) + ' more');
+    }
+    var dateCol = cols.filter(function (c) { return c.type === 'date'; })[0];
+    if (dateCol && tb.rows.length >= 4) {
+      var pairs = tb.rows.map(function (r) { return { d: r[dateCol.index], v: parseNumber(r[m1.index]) }; }).filter(function (p) { return p.d && !isNaN(p.v); }).sort(function (x, y) { return x.d < y.d ? -1 : x.d > y.d ? 1 : 0; });
+      if (pairs.length >= 4) L.push('', seriesMarkdown(m1.name + ' over ' + dateCol.name, analyzeSeries(pairs.map(function (p) { return p.v; }), pairs.map(function (p) { return p.d; })), '(sorted by date)'));
+    }
+    if (numCols.length >= 2) {
+      var xs = [], ys = [];
+      tb.rows.forEach(function (r) { var x = parseNumber(r[numCols[0].index]), y = parseNumber(r[numCols[1].index]); if (!isNaN(x) && !isNaN(y)) { xs.push(x); ys.push(y); } });
+      if (xs.length >= 8) {
+        var mx = xs.reduce(function (a, b) { return a + b; }, 0) / xs.length, my = ys.reduce(function (a, b) { return a + b; }, 0) / ys.length, sxy = 0, sxx = 0, syy = 0;
+        xs.forEach(function (x, i) { sxy += (x - mx) * (ys[i] - my); sxx += Math.pow(x - mx, 2); syy += Math.pow(ys[i] - my, 2); });
+        if (sxx && syy) { var r = sxy / Math.sqrt(sxx * syy); if (Math.abs(r) >= 0.5) L.push('', '**Relationship**: ' + numCols[0].name + ' and ' + numCols[1].name + ' ' + (r > 0 ? 'rise together' : 'move in opposite directions') + ' (correlation r = ' + r.toFixed(2) + '). Correlation is not causation; check whether one is calculated from the other.'); }
+      }
+    }
+    var seen = {}, dups = 0;
+    tb.rows.forEach(function (r) { var k = r.join('\u0001'); if (seen[k]) dups++; else seen[k] = 1; });
+    var flags = [];
+    if (blankNote.length) flags.push(blankNote.slice(0, 4).map(function (c) { return c.name + ' has ' + c.blanks + ' blank' + (c.blanks === 1 ? '' : 's'); }).join('; '));
+    if (dups) flags.push(dups + ' exact duplicate row' + (dups === 1 ? '' : 's'));
+    L.push('', '**Data quality**: ' + (flags.length ? flags.join('; ') + '.' : 'no blanks or duplicate rows found.'));
+    L.push('', '_For the full workflow (cleaning, drill-down, charts, PDF/Excel reports) import the file into Data Studio or attach it in the AI workspace._');
+    return L.join('\n');
+  }
+
+  /** Returns an analysis reply, or null when the message isn't pasted data. A table is analysed when it is clearly a table; a bare list of numbers needs an analysis word. */
+  function tryDataAnalysis(text) {
+    if (CODE_FENCE_RE.test(text) && !/^```(csv|tsv|text|txt)?\s*\n[\s\S]*,[\s\S]*```$/i.test(text.trim())) return null;
+    var intent = ANALYZE_INTENT_RE.test(text);
+    var tb = parseTable(text);
+    if (tb) { var md = tableMarkdown(tb); if (md) return md; }
+    if (!intent) return null;
+    var s = parseSeries(text);
+    if (!s) return null;
+    var a = analyzeSeries(s.values, s.labelled ? s.labels : null);
+    return [seriesMarkdown('Series', a, s.labelled ? '(in the order given)' : '(treated as time-ordered, oldest first)'), '', '**Draft summary**: ' + draftSummary('the series', a)].join('\n');
+  }
+
+  /* ========================================================================
      6. Utilities — arithmetic + date/time
      ======================================================================== */
   var MATH_EXPR_RE = /^[\s\d+\-*/^().%]+$/;
@@ -767,6 +976,10 @@ var DashViewAI = (function () {
     // 1) Safety — always checked first, always wins.
     if (CRISIS_RE.test(t)) return { content: CRISIS_REPLY, tag: null, kind: 'crisis' };
 
+    // 2a) Pasted numbers / a small table -> real statistics (never steals real code: fenced code and "debug this" + code skip it).
+    var dataReply = (DEBUG_INTENT_RE.test(t) && looksLikeCode(t)) ? null : tryDataAnalysis(t);
+    if (dataReply) return { content: dataReply, tag: 'Data analysis', kind: 'data' };
+
     // 2) Real code debugging.
     var debugReply = tryDebug(t);
     if (debugReply) return { content: debugReply, tag: 'Debugging', kind: 'debug' };
@@ -814,6 +1027,10 @@ var DashViewAI = (function () {
     runCodeAnalysis: runCodeAnalysis,
     detectLanguage: detectLanguage,
     safeMathEval: safeMathEval,
+    analyzeSeries: analyzeSeries,
+    parseSeries: parseSeries,
+    parseTable: parseTable,
+    tryDataAnalysis: tryDataAnalysis,
     topics: TOPICS,
     emotionTopics: EMOTION_TOPICS,
   };
