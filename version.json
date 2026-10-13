@@ -1,14 +1,28 @@
 {
-  "version": "2.18.0",
+  "version": "2.18.2",
   "build": "2026.10.13",
   "released": "2026-10-13",
   "notes": [
-    "Improved: every PDF and Excel report now carries computed key takeaways and a data profile (completeness, range, outliers); PDFs get a contents page with real page numbers, KPI tiles with status, change and notes, labelled charts with share-of-total, data-quality findings and recommended next steps",
-    "Added: AI file analysis now reads growth, momentum, seasonality, top movers and correlations, adds a clearly-labelled straight-line projection and concrete next steps; AI reports export to a structured Excel workbook (one typed sheet per chart, finding and table, with live share and change formulas)",
-    "Added: Odoo AI dashboards get an Export Excel workbook button; the AI service gains odoo_compare (like-for-like period-over-period) and odoo_trend (growth, momentum, projection) computed server-side, plus a stricter report structure with confidence and caveats",
-    "Added: the offline assistant analyses pasted numbers or tables (totals, median, spread, outliers, group shares, trend, projection and a draft summary sentence)"
+    "Improved: loading / sync popup restyled as an iOS notification banner - frosted Liquid Glass material, app-icon logo, SF-style type, iOS activity indicator and spring motion (light / dark, reduced-motion and reduced-transparency aware)"
   ],
   "history": [
+    {
+      "version": "2.18.2",
+      "date": "2026-10-13",
+      "notes": [
+        "Improved: loading / sync popup restyled as an iOS notification banner - frosted Liquid Glass material, app-icon logo, SF-style type, iOS activity indicator and spring motion (light / dark, reduced-motion and reduced-transparency aware)"
+      ],
+      "critical": false
+    },
+    {
+      "version": "2.18.1",
+      "date": "2026-10-13",
+      "notes": [
+        "Improved: logo and favicon redesigned in higher detail - full-detail 1024 master (logo.svg), a small-size favicon drawn on a pixel grid so it stays sharp at 16 / 32 / 48 px, a multi-size favicon.ico, opaque apple-touch icon, and maskable icons that fit Android's safe zone",
+        "Added: a small popup with the DashView logo - Page is loading / Syncing data - shown only when a page or an Odoo sync takes longer than a moment (never blocks taps, follows light / dark theme)"
+      ],
+      "critical": false
+    },
     {
       "version": "2.18.0",
       "date": "2026-10-13",
@@ -310,26 +324,8 @@
         "Charts and KPI cards: new gradient/glow styling"
       ],
       "critical": false
-    },
-    {
-      "version": "2.1.2",
-      "date": "2026-10-01",
-      "notes": [
-        "Settings control center: live health cards (Odoo, AI, Security, Backup, Version), Needs attention list with Fix shortcuts, settings search (press /), remembered last section"
-      ]
-    },
-    {
-      "version": "2.1.1",
-      "date": "2026-10-01",
-      "notes": [
-        "Executive overview: headline health strip, previous value and absolute change on every KPI, per-section favourable badges, Basis & data notes",
-        "Scorecard export now includes absolute change and status columns",
-        "Fixed: login/register no longer send a stale session token",
-        "Fixed: CI/engineering questions mentioning 'pipeline' were treated as Odoo data questions",
-        "Fixed: query provenance now lists group-by and measures"
-      ]
     }
   ],
   "critical": false,
-  "size": 4472190
+  "size": 4302494
 }

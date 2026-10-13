@@ -1,6 +1,6 @@
 {
   "id": "dashview",
-  "name": "DashView — Workspace, Data Studio & AI",
+  "name": "DashView \u2014 Workspace, Data Studio & AI",
   "short_name": "DashView",
   "description": "Sales dashboard, People workspace, Data Studio and a local AI assistant. Installable and works offline on laptop and mobile.",
   "start_url": "dashboard.html?source=pwa",
@@ -29,6 +29,11 @@
     {
       "src": "assets/favicon-32x32.png",
       "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/favicon-48x48.png",
+      "sizes": "48x48",
       "type": "image/png"
     },
     {

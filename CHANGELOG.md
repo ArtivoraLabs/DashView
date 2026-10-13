@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.18.2 - 2026-10-13
+- Improved: loading / sync popup restyled as an iOS notification banner - frosted Liquid Glass material, app-icon logo, SF-style type, iOS activity indicator and spring motion (light / dark, reduced-motion and reduced-transparency aware)
+
+## 2.18.1 - 2026-10-13
+- Improved: logo and favicon redesigned in higher detail - full-detail 1024 master (logo.svg), a small-size favicon drawn on a pixel grid so it stays sharp at 16 / 32 / 48 px, a multi-size favicon.ico, opaque apple-touch icon, and maskable icons that fit Android's safe zone
+- Added: a small popup with the DashView logo - Page is loading / Syncing data - shown only when a page or an Odoo sync takes longer than a moment (never blocks taps, follows light / dark theme)
+
 ## 2.18.0 - 2026-10-13
 - Improved: every PDF and Excel report now carries computed key takeaways and a data profile (completeness, range, outliers); PDFs get a contents page with real page numbers, KPI tiles with status, change and notes, labelled charts with share-of-total, data-quality findings and recommended next steps
 - Added: AI file analysis now reads growth, momentum, seasonality, top movers and correlations, adds a clearly-labelled straight-line projection and concrete next steps; AI reports export to a structured Excel workbook (one typed sheet per chart, finding and table, with live share and change formulas)
