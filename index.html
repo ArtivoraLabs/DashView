@@ -377,8 +377,10 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
 <link rel="stylesheet" href="css/index-glass.css"/>
 <link rel="stylesheet" href="css/index-plus.css"/>
 <link rel="stylesheet" href="css/cursor.css"/>
+<link rel="stylesheet" href="css/tabbar-ios.css"/>
 <script defer src="js/index-demo.js"></script>
 <script defer src="js/index-plus.js"></script>
+<script defer src="js/tabbar-ios.js"></script>
 <script defer src="js/cursor.js"></script>
 <link rel="stylesheet" href="css/8k-quality.css"/>
 <script src="js/8k-quality.js" defer></script>
@@ -669,6 +671,14 @@ html[data-theme="light"] .theme-toggle .icon-moon{opacity:0;transform:rotate(70d
   </div>
 </div>
 
+<!-- iOS-style dynamic tab bar (phones / tablets) -->
+<nav class="ios-tabbar" id="iosTabbar" aria-label="Page sections"><div class="ios-tb-track">
+  <a class="ios-tb-item active" aria-current="true" href="#top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg><span>Home</span></a>
+  <a class="ios-tb-item" href="#ai"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/></svg><span>AI</span></a>
+  <a class="ios-tb-item" href="#features"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg><span>Features</span></a>
+  <a class="ios-tb-item" href="#security"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7.5 2.8v5.6c0 4.4-3 8.2-7.5 9.6-4.5-1.4-7.5-5.2-7.5-9.6V5.8z"/><path d="M8.8 12l2.2 2.2 4.2-4.4"/></svg><span>Security</span></a>
+  <a class="ios-tb-item" href="dashboard.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20v-6M12 20V5M19 20v-9"/></svg><span>Dashboard</span></a>
+</div></nav>
 <div class="ip-sticky" id="ipSticky" aria-hidden="true"><a class="btn btn-primary" href="dashboard.html" tabindex="-1">Open the dashboard</a><button type="button" class="btn btn-outline" id="stickyReqBtn" tabindex="-1">Request access</button></div>
 <button type="button" class="ip-top" id="ipTop" aria-label="Back to top"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 6-6 6 6"/></svg></button>
 <div class="toast-stack" id="toastStack"></div>
