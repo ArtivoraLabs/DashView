@@ -204,6 +204,19 @@
       setTimeout(function () { var i = $('dvLockInput'); if (i) i.focus(); }, 60);
     } else { var i = $('dvLockInput'); if (i) { i.value = ''; i.blur(); } var er = $('dvLockErr'); if (er) er.textContent = ''; }
   }
+  var lockTimer = 0;
+  function lockoutLeft() { var a = conf().attempts; return a && a.until > Date.now() ? Math.ceil((a.until - Date.now()) / 1000) : 0; }
+  function startLockout() {
+    clearInterval(lockTimer);
+    var inp = $('dvLockInput'), err = $('dvLockErr'), btn = $('dvLockBtn'); if (!inp) return;
+    var tick = function () {
+      var s = lockoutLeft();
+      if (!s) { clearInterval(lockTimer); inp.disabled = false; btn.disabled = false; inp.placeholder = 'Enter Password'; err.textContent = ''; if (locked) inp.focus(); return; }
+      inp.disabled = true; btn.disabled = true; inp.value = ''; inp.placeholder = 'Locked for ' + (s >= 60 ? Math.floor(s / 60) + ':' + pad2(s % 60) : s + 's');
+      err.textContent = 'Too many attempts. Try again in ' + (s >= 60 ? Math.floor(s / 60) + ' min ' + pad2(s % 60) + ' s' : s + ' s') + '.';
+    };
+    tick(); if (lockoutLeft()) lockTimer = setInterval(tick, 1000);
+  }
   function ensureOverlay() {
     if ($('dvLock') || !document.body) return;
     var u = who();
@@ -223,20 +236,23 @@
         '<g class="w4" filter="url(#dvwBlur)"><path d="M-60 560 C200 520 480 560 720 610 S1120 700 1360 650 L1360 900 L-60 900Z" fill="#1a8a5c" opacity=".85"/><path d="M-60 690 C240 640 520 690 800 730 S1150 780 1360 740 L1360 900 L-60 900Z" fill="#117250" opacity=".7"/><path d="M-60 780 C300 740 640 770 920 800 S1200 830 1360 810 L1360 900 L-60 900Z" fill="#0b5a3f" opacity=".65"/></g></svg>' +
       '<div class="dv-lock-shade" aria-hidden="true"></div>' +
       '<div class="dv-lock-clock"><p class="dv-lock-date" id="dvLockDate"></p><time class="dv-lock-time" id="dvLockTime"></time><p class="dv-lock-greet" id="dvLockGreet"></p></div>' +
+      '<a class="dv-lock-home" href="index.html" id="dvLockHome" aria-label="Go to the DashView home page"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Home page</a>' +
       '<div class="dv-lock-status"><span id="dvLockWhy"></span><span id="dvLockNet">Online</span></div>' +
-      '<main class="dv-lock-user">' +
+      '<div class="dv-lock-user">' +
         '<div class="dv-lock-avatar" aria-hidden="true">' + esc(u.initials) + '</div>' +
         '<h2 class="dv-lock-name">' + esc(u.name) + '</h2>' +
         '<p class="dv-lock-hint" id="dvLockHint">Press Enter or click to unlock</p>' +
         '<form class="dv-lock-card" autocomplete="off">' +
-          '<div class="dv-lock-field"><input type="password" id="dvLockInput" placeholder="Enter Password" autocomplete="current-password" aria-label="Password"/>' +
+          '<div class="dv-lock-field"><input type="password" id="dvLockInput" placeholder="Enter Password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" aria-label="Password" aria-describedby="dvLockErr"/>' +
           '<button type="submit" class="dv-lock-go" id="dvLockBtn" aria-label="Unlock"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>' +
-          '<p class="dv-lock-err" id="dvLockErr" role="alert"></p>' +
+          '<p class="dv-lock-caps" id="dvLockCaps" hidden>\u21ea Caps Lock is on</p>' +
+          '<p class="dv-lock-err" id="dvLockErr" role="alert" aria-live="assertive"></p>' +
         '</form>' +
-      '</main>' +
+      '</div>' +
       '<footer class="dv-lock-foot"><span>Workspace locked</span><span class="hide-sm">Live data cleared from memory</span><span class="hide-sm"><kbd>Ctrl</kbd>/<kbd>\u2318</kbd> + <kbd>Shift</kbd> + <kbd>L</kbd> locks instantly</span></footer>' +
       '<span id="dvLockSince" hidden></span>';
     document.body.appendChild(d);
+    try { if (window.matchMedia && matchMedia('(hover: none)').matches) $('dvLockHint').textContent = 'Tap to unlock'; } catch (e) {}
     var raf = 0;
     d.addEventListener('pointermove', function (e) {
       if (raf) return;
@@ -244,6 +260,7 @@
     }, { passive: true });
     var wake = function (e) {
       if (!locked || d.classList.contains('is-wake')) return;
+      if (e && e.target && e.target.closest && e.target.closest('.dv-lock-home')) return;
       if (e && e.type === 'keydown' && (e.key === 'Shift' || e.key === 'Control' || e.key === 'Meta' || e.key === 'Alt')) return;
       setView(true);
       if (e && e.type === 'keydown' && e.key && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); var i = $('dvLockInput'); if (i) i.value = e.key; }
@@ -251,33 +268,57 @@
     d.addEventListener('click', function (e) { if (!d.classList.contains('is-wake')) wake(e); else if (!e.target.closest('.dv-lock-card')) { var i = $('dvLockInput'); if (i && !i.value) setView(false); } });
     d.addEventListener('touchstart', wake, { passive: true });
     document.addEventListener('keydown', function (e) { if (!d.hidden) { wake(e); if (e.key === 'Escape') { var i = $('dvLockInput'); if (i && !i.value) setView(false); } } });
-    d.querySelector('form').addEventListener('input', function () { setView(true); });
+    document.addEventListener('keydown', function (e) {
+      if (d.hidden || e.key !== 'Tab') return;
+      var f = [].filter.call(d.querySelectorAll('a[href], input, button'), function (n) { return !n.disabled && n.offsetParent !== null && getComputedStyle(n).visibility !== 'hidden' && (n.id !== 'dvLockBtn' || $('dvLockInput').value); });
+      if (!d.classList.contains('is-wake')) { e.preventDefault(); setView(true); return; }
+      if (!f.length) return; var a = document.activeElement, i = f.indexOf(a);
+      if (e.shiftKey && (i <= 0)) { e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && (i === f.length - 1 || i < 0)) { e.preventDefault(); f[0].focus(); }
+    });
+    var capsEl = function (e) { var c = $('dvLockCaps'); if (c && e.getModifierState) c.hidden = !e.getModifierState('CapsLock'); };
+    d.querySelector('input').addEventListener('keydown', capsEl); d.querySelector('input').addEventListener('keyup', capsEl);
+    d.querySelector('input').addEventListener('blur', function () { var c = $('dvLockCaps'); if (c) c.hidden = true; });
+    d.querySelector('form').addEventListener('input', function () { setView(true); var er = $('dvLockErr'); if (er && !lockoutLeft()) er.textContent = ''; });
     d.querySelector('form').addEventListener('submit', function (e) {
       e.preventDefault();
       var inp = $('dvLockInput'), err = $('dvLockErr'), btn = $('dvLockBtn'), card = d.querySelector('.dv-lock-card');
+      if (lockoutLeft()) return startLockout();
+      if (!inp.value) { err.textContent = 'Enter your password.'; return; }
       btn.disabled = true; err.textContent = '';
       unlock(inp.value).then(function () { inp.value = ''; })
         .catch(function (x) {
-          err.textContent = x.message || 'Could not unlock.'; inp.select();
+          var m = String((x && x.message) || 'Could not unlock.').replace(/passcode/gi, 'password'), n = (conf().attempts || {}).n || 0;
+          if (/Incorrect/.test(m) && n > 0 && n < 5) m += ' ' + (5 - n) + (5 - n === 1 ? ' attempt' : ' attempts') + ' left before a short lock.';
+          err.textContent = m; inp.select();
           card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+          if (lockoutLeft()) startLockout();
         })
-        .then(function () { btn.disabled = false; });
+        .then(function () { if (!lockoutLeft()) btn.disabled = false; });
     });
   }
+  var baseTitle = '';
   function setLocked(on) {
     locked = on;
     document.documentElement.classList.toggle('dv-locked', on);
     ensureOverlay();
     var o = $('dvLock'); if (!o) return;
-    o.hidden = !on;
-    clearInterval(clockTimer); clearTimeout(wakeTimer);
+    clearInterval(clockTimer); clearTimeout(wakeTimer); clearTimeout(o._hide);
     if (on) {
+      o.classList.remove('is-unlocking'); o.hidden = false;
+      if (!baseTitle) baseTitle = document.title; if (!/^Locked/.test(document.title)) document.title = 'Locked \u2014 DashView';
+      try { var act = document.activeElement; if (act && act !== document.body && !o.contains(act)) act.blur(); } catch (e) {}
       if (!lockMeta.at) lockMeta.at = +(function () { try { return sessionStorage.getItem('dv_last'); } catch (e) { return 0; } })() || Date.now();
       var why = $('dvLockWhy'); if (why) why.textContent = lockMeta.reason || '';
-      var sn = $('dvLockSince'); if (sn) sn.hidden = true;
       tickClock(); clockTimer = setInterval(tickClock, 1000);
-      setView(false);
-    } else { lockMeta = { reason: '', at: 0 }; var i = $('dvLockInput'); if (i) i.value = ''; }
+      setView(false); if (lockoutLeft()) startLockout();
+    } else {
+      lockMeta = { reason: '', at: 0 }; var i = $('dvLockInput'); if (i) i.value = '';
+      if (baseTitle) { document.title = baseTitle; baseTitle = ''; }
+      clearInterval(lockTimer);
+      o.classList.add('is-unlocking');
+      o._hide = setTimeout(function () { if (!locked) { o.hidden = true; o.classList.remove('is-unlocking', 'is-wake'); o.classList.add('is-sleep'); } }, 380);
+    }
   }
 
   /* -- Public actions ------------------------------------------------------ */

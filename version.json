@@ -1,13 +1,29 @@
 {
-  "version": "2.18.3",
+  "version": "2.18.5",
   "build": "2026.10.13",
   "released": "2026-10-13",
   "notes": [
-    "Redesigned: workspace lock screen in a macOS-style layout with DashView colours - animated amber and green wave wallpaper, translucent date and clock, avatar with an Enter-to-unlock password field",
-    "Improved: lock screen shows who is locked, why it locked, online status and the Ctrl/Cmd + Shift + L shortcut; the clock keeps time while locked and the password field returns to the clock view after 45 s idle",
-    "Fixed: the sign-in page did not load the lock screen stylesheet, so a passcode lock there appeared unstyled"
+    "Improved: lock screen detailing - live lock-out countdown after 5 wrong passwords, attempts-left hint, Caps Lock warning, Tab key kept inside the lock screen, browser tab shows Locked while locked, smooth fade-out on unlock, Tap to unlock on touch screens, 16 px password field on phones (no iOS zoom), safe-area spacing and clearer focus rings"
   ],
   "history": [
+    {
+      "version": "2.18.5",
+      "date": "2026-10-13",
+      "notes": [
+        "Improved: lock screen detailing - live lock-out countdown after 5 wrong passwords, attempts-left hint, Caps Lock warning, Tab key kept inside the lock screen, browser tab shows Locked while locked, smooth fade-out on unlock, Tap to unlock on touch screens, 16 px password field on phones (no iOS zoom), safe-area spacing and clearer focus rings"
+      ],
+      "critical": false
+    },
+    {
+      "version": "2.18.4",
+      "date": "2026-10-13",
+      "notes": [
+        "Fixed: lock screen user block sat off-centre on the dashboard (the page's entrance animation overrode its centring) - avatar, name and password field are now centred on laptop, tablet, phone and landscape phone",
+        "Added: Home page button on the lock screen - you can leave the lock screen for the home page without a password, while the dashboard, People and AI pages still ask for the password",
+        "Improved: lock screen layout checked at 320 px to 1902 px wide, no sideways scroll, clock and user block aligned to the same centre"
+      ],
+      "critical": false
+    },
     {
       "version": "2.18.3",
       "date": "2026-10-13",
@@ -304,29 +320,8 @@
         "New: PDF reports get a Report contents page and a Confidential footer"
       ],
       "critical": false
-    },
-    {
-      "version": "2.2.2",
-      "date": "2026-10-01",
-      "notes": [
-        "Executive line charts: fixed the zigzag - monotone smoothing (no overshoot between points), automatic y-axis scale with headroom, compact ticks and a capped number of x labels",
-        "Line charts: Peak / Low / Latest value badges, average reference line, hover crosshair and 'vs previous' change in the tooltip",
-        "Executive trend cards: summary strip (Latest with change, Peak, Low, Average, Total) and a 3-month trend overlay toggle",
-        "Liquid Glass v3: neutral professional glass, 3 elevation levels, hairline edges, calm motion, now also covers the Executive cards, charts and detail drawer; fallbacks for reduced transparency, high contrast, no backdrop-filter and print",
-        "Liquid Glass preference now applies before first paint (no flat-to-glass flash)"
-      ],
-      "critical": false
-    },
-    {
-      "version": "2.2.1",
-      "date": "2026-10-01",
-      "notes": [
-        "Executive dashboards: click any KPI for a detail panel (current vs previous, change, status, how it is calculated, 12-month trend with average line, last-6-months table, View records)",
-        "Executive: Refresh button, concentration-risk gauge with 40% / 60% thresholds"
-      ],
-      "critical": false
     }
   ],
   "critical": false,
-  "size": 4354235
+  "size": 4359705
 }

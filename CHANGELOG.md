@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.18.5 - 2026-10-13
+- Improved: lock screen detailing - live lock-out countdown after 5 wrong passwords, attempts-left hint, Caps Lock warning, Tab key kept inside the lock screen, browser tab shows Locked while locked, smooth fade-out on unlock, Tap to unlock on touch screens, 16 px password field on phones (no iOS zoom), safe-area spacing and clearer focus rings
+
+## 2.18.4 - 2026-10-13
+- Fixed: lock screen user block sat off-centre on the dashboard (the page's entrance animation overrode its centring) - avatar, name and password field are now centred on laptop, tablet, phone and landscape phone
+- Added: Home page button on the lock screen - you can leave the lock screen for the home page without a password, while the dashboard, People and AI pages still ask for the password
+- Improved: lock screen layout checked at 320 px to 1902 px wide, no sideways scroll, clock and user block aligned to the same centre
+
 ## 2.18.3 - 2026-10-13
 - Redesigned: workspace lock screen in a macOS-style layout with DashView colours - animated amber and green wave wallpaper, translucent date and clock, avatar with an Enter-to-unlock password field
 - Improved: lock screen shows who is locked, why it locked, online status and the Ctrl/Cmd + Shift + L shortcut; the clock keeps time while locked and the password field returns to the clock view after 45 s idle

@@ -27,7 +27,7 @@ html.dv-locked body > *:not(#dvLock) { visibility: hidden !important; }
 .dv-lock-status #dvLockNet.bad { color: #ffb4ad; }
 .dv-lock-status svg { vertical-align: -2px; margin-right: 5px; }
 
-.dv-lock-user { position: absolute; z-index: 3; left: 50%; bottom: clamp(48px, 13vh, 120px); width: min(92vw, 320px); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; text-align: center; }
+.dv-lock-user { position: absolute; z-index: 3; left: 0; right: 0; margin: 0 auto !important; bottom: clamp(48px, 13vh, 120px); width: min(92vw, 320px); transform: none !important; animation: none !important; display: flex; flex-direction: column; align-items: center; text-align: center; }
 .dv-lock-avatar { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; font-size: 24px; font-weight: 700; margin-bottom: 8px;
   background: radial-gradient(circle at 30% 25%, #ffd27a, #e8a33d 55%, #a8650f); color: #1a1305; border: 2px solid rgba(255,235,200,.6); box-shadow: 0 8px 24px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.4); transition: transform .45s cubic-bezier(.2,.8,.2,1); }
 .dv-lock-name { margin: 0; font-size: 17px; font-weight: 600; color: #fff; text-shadow: 0 1px 8px rgba(0,0,0,.3); }
@@ -48,6 +48,21 @@ html.dv-locked body > *:not(#dvLock) { visibility: hidden !important; }
 .dv-lock-card.shake .dv-lock-field { animation: dvLkShake .4s; }
 @keyframes dvLkShake { 20%,60% { transform: translateX(-9px); } 40%,80% { transform: translateX(9px); } }
 
+.dv-lock-home { position: absolute; z-index: 4; top: 10px; left: 14px; display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px 6px 8px; border-radius: 99px; font-size: 12px; font-weight: 600; text-decoration: none; cursor: pointer; color: rgba(255,240,215,.95);
+  background: rgba(255,240,215,.14); box-shadow: inset 0 0 0 .5px rgba(255,255,255,.3); -webkit-backdrop-filter: blur(20px) saturate(170%); backdrop-filter: blur(20px) saturate(170%); text-shadow: 0 1px 6px rgba(0,0,0,.3); transition: background .2s; }
+.dv-lock-home:hover, .dv-lock-home:focus-visible { background: rgba(255,240,215,.26); outline: none; }
+.dv-lock-caps { margin: 8px 0 0; font-size: 11.5px; font-weight: 600; color: rgba(255,226,175,.95); text-shadow: 0 1px 6px rgba(0,0,0,.35); }
+.dv-lock-caps[hidden] { display: none; }
+.dv-lock-card input:disabled { opacity: .75; cursor: not-allowed; }
+.dv-lock-home:focus-visible, .dv-lock-go:focus-visible { box-shadow: 0 0 0 3px rgba(255,255,255,.55); }
+#dvLock:not([hidden]) { animation: dvLkIn .45s ease both; }
+@keyframes dvLkIn { from { opacity: 0; } }
+#dvLock.is-unlocking { animation: none; opacity: 0; transform: scale(1.04); transition: opacity .35s ease, transform .38s cubic-bezier(.4,0,.2,1); pointer-events: none; }
+#dvLock.is-unlocking .dv-lock-avatar { transform: scale(1.12); }
+@media (hover: none) and (pointer: coarse), (max-width: 560px) { .dv-lock-card input { font-size: 16px; height: 36px; } .dv-lock-field { width: 230px; } .dv-lock-go { top: 6px; } .dv-lock-home { padding: 8px 14px 8px 10px; } }
+#dvLock { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+.dv-lock-home { top: max(10px, env(safe-area-inset-top)); left: max(14px, env(safe-area-inset-left)); }
+.dv-lock-status { top: max(10px, env(safe-area-inset-top)); right: max(16px, env(safe-area-inset-right)); }
 .dv-lock-foot { position: absolute; z-index: 2; left: 0; right: 0; bottom: 16px; text-align: center; font-size: 11.5px; color: rgba(255,255,255,.7); text-shadow: 0 1px 6px rgba(0,0,0,.3); }
 .dv-lock-foot span + span::before { content: '\00b7'; margin: 0 8px; opacity: .7; }
 .dv-lock-foot kbd { font: inherit; font-weight: 600; }
