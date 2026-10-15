@@ -44,8 +44,6 @@
 <link rel="stylesheet" href="css/chart-polish.css"/>
 <link rel="stylesheet" href="css/overview-charts-pro.css"/>
 <link rel="stylesheet" href="css/exec-unify.css"/>
-<link rel="stylesheet" href="css/exec-ceo.css"/>
-<link rel="stylesheet" href="css/overview-pulse.css"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.js" integrity="sha384-G436+Z2nlA8+PNoeRvWdxKbvOf8E/y+lYxqht2iBwNHTQDV5CJr3+AGVj8fGZi5t" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"></script>
 <meta name="mobile-web-app-capable" content="yes"/>
@@ -59,6 +57,7 @@
 <link rel="stylesheet" href="css/studio-pro.css"/>
 <link rel="stylesheet" href="css/theme-final.css"/>
 <link rel="stylesheet" href="css/accent-sync.css"/>
+<link rel="stylesheet" href="css/widget-pro.css"/>
 <link rel="stylesheet" href="css/cursor.css"/>
 <!-- Liquid Glass / density / chart-label preferences are applied by js/config.js on every page -->
 <link rel="stylesheet" href="css/8k-quality.css"/>
@@ -486,19 +485,21 @@
       <!-- ══════════════════════ WIDGET BUILDER ══════════════════════ -->
       <section class="view-panel" id="view-widgets">
         <div class="ov-head">
-          <div><h1>Widget Builder</h1><p>Compose KPI, chart and table widgets from your live Odoo data or an imported file — then share or put them on a TV.</p></div>
+          <div><h1>Widget Builder</h1><p>Compose KPI, chart, table and progress widgets from your live Odoo data or an imported file — filter, drill into full size, export, then share or put them on a TV.</p></div>
           <div class="ov-head-actions dv-widget-toolbar">
             <button class="btn btn-outline btn-sm" id="dvImportLayoutBtn" data-require-perm="importExport">⬆ Import layout</button>
             <input type="file" id="dvImportLayoutFile" accept="application/json" style="display:none"/>
             <button class="btn btn-outline btn-sm" id="dvExportLayoutBtn" data-require-perm="importExport">⬇ Export layout</button>
             <button class="btn btn-outline btn-sm" id="dvShareBtn" data-require-perm="share">🔗 Share</button>
             <button class="btn btn-outline btn-sm" id="dvTvModeBtn" data-require-perm="tvMode">📺 TV Mode</button>
+            <button class="btn btn-outline btn-sm" id="dvTemplatesBtn" data-require-perm="editWidgets">✦ Templates</button>
             <button class="btn btn-signal btn-sm" id="dvAddWidgetBtn" data-require-perm="editWidgets">+ Add widget</button>
           </div>
         </div>
         <p class="dv-signin-banner" id="dvGuestBanner" style="display:none;">
           <span>Browsing as <b>Guest (Viewer)</b> — widgets are read-only. <button type="button" class="dv-account-menu-item" style="display:inline;padding:2px 4px;" id="dashSignInBtn">Sign in</button> to edit.</span>
         </p>
+        <div class="wb-controls" id="dvWidgetControls"></div>
         <div class="dv-widget-grid" id="dvWidgetGrid"></div>
       </section>
 
@@ -1713,7 +1714,8 @@
     <button class="modal-close" id="dvWidgetModalClose" type="button" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     <p class="eyebrow" style="margin-bottom:var(--sp-2);">Widget Builder</p>
     <h3 id="dvWidgetModalTitle">Add a widget</h3>
-    <div class="field"><label for="dvWidgetTitleInput">Title</label><input type="text" id="dvWidgetTitleInput" placeholder="e.g. Total revenue"/></div>
+    <div class="field"><label for="dvWidgetTitleInput">Title</label><input type="text" id="dvWidgetTitleInput" placeholder="e.g. Total revenue" maxlength="120"/></div>
+    <div class="field"><label for="dvWidgetDescInput">Description <span class="wb-optional">optional</span></label><input type="text" id="dvWidgetDescInput" placeholder="One line shown under the title, e.g. Confirmed sales, all regions" maxlength="160"/></div>
     <p class="dv-source-group-label">Type</p>
     <div class="chip-select-row" id="dvWidgetTypeChips">
       <button class="chip-select active" data-type="kpi" type="button">KPI</button>
@@ -1734,6 +1736,16 @@
         <option value="radar">Radar</option>
       </select>
     </div>
+    <div id="dvWidgetFormatRow" style="display:none;margin-top:var(--sp-3);">
+      <label style="font-size:var(--fs-xs);color:var(--ink-50);font-weight:600;display:block;margin-bottom:5px;">Number format</label>
+      <select class="pro-select" id="dvWidgetFormatSelect" style="width:100%;">
+        <option value="auto">Automatic</option>
+        <option value="number">Plain number (1,234.5)</option>
+        <option value="compact">Compact (1.2K, 3.4M)</option>
+        <option value="currency">Currency</option>
+        <option value="percent">Percent (12.5%)</option>
+      </select>
+    </div>
     <div id="dvWidgetTargetRow" style="display:none;margin-top:var(--sp-3);">
       <label style="font-size:var(--fs-xs);color:var(--ink-50);font-weight:600;display:block;margin-bottom:5px;">Target value</label>
       <input type="number" class="pro-select" id="dvWidgetTargetInput" placeholder="e.g. 50000" style="width:100%;"/>
@@ -1741,6 +1753,22 @@
     <div id="dvWidgetCsvRow" style="display:none;margin-top:var(--sp-3);">
       <div class="dv-widget-csv-drop" id="dvWidgetCsvDrop">⬆ Click to choose a CSV or Excel file<br/><span id="dvWidgetCsvStatus" style="display:block;margin-top:4px;color:var(--ink-30);">No file loaded yet.</span></div>
       <input type="file" id="dvWidgetCsvInput" accept=".csv,.xlsx,.xls" style="display:none"/>
+      <div id="dvWidgetAggRow" style="display:none;margin-top:var(--sp-3);">
+        <label style="font-size:var(--fs-xs);color:var(--ink-50);font-weight:600;display:block;margin-bottom:5px;">Calculate</label>
+        <select class="pro-select" id="dvWidgetAggSelect" style="width:100%;">
+          <option value="sum">Total (sum)</option>
+          <option value="avg">Average</option>
+          <option value="count">Count of rows</option>
+          <option value="max">Highest value</option>
+          <option value="min">Lowest value</option>
+        </select>
+      </div>
+      <div id="dvWidgetTopNRow" style="display:none;margin-top:var(--sp-3);">
+        <label style="font-size:var(--fs-xs);color:var(--ink-50);font-weight:600;display:block;margin-bottom:5px;">Show the top</label>
+        <select class="pro-select" id="dvWidgetTopNSelect" style="width:100%;">
+          <option value="5">5 groups</option><option value="8">8 groups</option><option value="12" selected>12 groups</option><option value="20">20 groups</option>
+        </select>
+      </div>
       <div id="dvWidgetNumericFieldRow" style="display:none;margin-top:var(--sp-3);">
         <label style="font-size:var(--fs-xs);color:var(--ink-50);font-weight:600;display:block;margin-bottom:5px;">Sum this column</label>
         <select class="pro-select" id="dvWidgetNumericFieldSelect" style="width:100%;"></select>
@@ -1769,7 +1797,8 @@
       <select class="pro-select" id="dvWidgetSizeSelect" style="width:auto;">
         <option value="sm">Small</option>
         <option value="md" selected>Medium</option>
-        <option value="lg">Large</option>
+        <option value="lg">Large (2 columns)</option>
+        <option value="full">Full width</option>
       </select>
     </div>
     <button class="btn btn-primary btn-block btn-lg" id="dvWidgetSaveBtn" type="button" style="margin-top:var(--sp-5);">Save widget</button>
@@ -1920,12 +1949,10 @@
 <script src="js/odoo-service.js"></script>
 <script src="js/odoo-live.js"></script>
 <script src="js/overview-live.js"></script>
-<script src="js/overview-pulse.js"></script>
 <script src="js/exec-retail.js"></script>
 <script src="js/exec-drill.js"></script>
 <script src="js/exec-errors.js"></script>
 <script src="js/exec-company.js"></script>
-<script src="js/exec-ceo.js"></script>
 <script src="js/ws-store.js"></script>
 <script src="js/odoo-targets.js"></script>
 <script src="js/people-live.js"></script>

@@ -8,3 +8,17 @@ html .btn-signal:hover { background: var(--beacon-h, #d98f27); }
 html .pro-seg button.active, html .board-tab.active { background: var(--signal); }
 /* no half-way colours while the accent is being switched */
 html.dv-accent-fade *, html.dv-accent-fade *::before, html.dv-accent-fade *::after { transition: none !important; }
+
+/* ── Light theme + Amber accent: text on an accent fill ───────────────────────────────────────────────────────────
+   Light Amber's accent is a deep brown (#9a5b0a). The fixed dark-brown label colour sat on it at ~3.2 : 1, which is why the
+   active "All" filter chip (and every other accent-filled control) looked muddy. White is 5.9 : 1. These tokens only apply while
+   the accent is Amber - every other accent sets --on-signal / --beacon-h inline from js/config.js, which wins over this. */
+html[data-theme="light"] { --on-signal: #ffffff; --beacon-h: #7d4707; }
+
+/* Every accent-filled "selected" control follows the accent and its readable label colour, on every theme + accent. */
+html .rp-chip.active, html .rp-seg button.active, html .rp-sheets button.active, html .field-well-btn.active,
+html .role-preset-btn.active, html .rpb-n, html .rp-stages li.active b { color: var(--on-signal, #191008); }
+html .rp-chip.active { background: var(--signal); border-color: var(--signal); box-shadow: 0 6px 16px -8px var(--signal), inset 0 1px 0 rgba(255, 255, 255, .16); }
+html .rp-chip.active em { opacity: .88; }
+html .rp-chip { transition: background .2s, border-color .2s, color .2s, box-shadow .2s; }
+html .rp-chip:focus-visible, html .rp-seg button:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }

@@ -1,11 +1,23 @@
 {
-  "version": "2.18.5",
-  "build": "2026.10.13",
-  "released": "2026-10-13",
+  "version": "2.19.0",
+  "build": "2026.10.15",
+  "released": "2026-10-15",
   "notes": [
-    "Improved: lock screen detailing - live lock-out countdown after 5 wrong passwords, attempts-left hint, Caps Lock warning, Tab key kept inside the lock screen, browser tab shows Locked while locked, smooth fade-out on unlock, Tap to unlock on touch screens, 16 px password field on phones (no iOS zoom), safe-area spacing and clearer focus rings"
+    "Widget Builder: filter, search and sort, summary strip, starter templates, live preview, full-size view, CSV export per widget, duplicate",
+    "Widget Builder: KPI trend lines with month-on-month change, number formats, average / count / highest / lowest for imported data, sortable tables, loading and retry states",
+    "Theme: the active All chip and other accent-filled controls now follow the accent and stay readable on light Amber"
   ],
   "history": [
+    {
+      "version": "2.19.0",
+      "date": "2026-10-15",
+      "notes": [
+        "Widget Builder: filter, search and sort, summary strip, starter templates, live preview, full-size view, CSV export per widget, duplicate",
+        "Widget Builder: KPI trend lines with month-on-month change, number formats, average / count / highest / lowest for imported data, sortable tables, loading and retry states",
+        "Theme: the active All chip and other accent-filled controls now follow the accent and stay readable on light Amber"
+      ],
+      "critical": false
+    },
     {
       "version": "2.18.5",
       "date": "2026-10-13",
@@ -309,19 +321,8 @@
         "Improved: Overview header, period switch, KPI/card hover and responsive grid"
       ],
       "critical": false
-    },
-    {
-      "version": "2.3.0",
-      "date": "2026-10-01",
-      "notes": [
-        "Improved: Software Update sheet - version/size/released cards, progress stepper, New/Fixed/Improved tags, Remind me tomorrow, mobile bottom-sheet",
-        "Improved: Drill-in now shows a breadcrumb trail (Overview > chart > value) with Clear, Back to charts and Esc; drillable legend rows show an arrow",
-        "Improved: Settings - sticky glass header, active-section tracking, mobile chip navigation",
-        "New: PDF reports get a Report contents page and a Confidential footer"
-      ],
-      "critical": false
     }
   ],
   "critical": false,
-  "size": 4359705
+  "size": 4437880
 }

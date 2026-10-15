@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.19.0 - 2026-10-15
+- Widget Builder: filter, search and sort, summary strip, starter templates, live preview, full-size view, CSV export per widget, duplicate
+- Widget Builder: KPI trend lines with month-on-month change, number formats, average / count / highest / lowest for imported data, sortable tables, loading and retry states
+- Theme: the active All chip and other accent-filled controls now follow the accent and stay readable on light Amber
+
 ## 2.18.5 - 2026-10-13
 - Improved: lock screen detailing - live lock-out countdown after 5 wrong passwords, attempts-left hint, Caps Lock warning, Tab key kept inside the lock screen, browser tab shows Locked while locked, smooth fade-out on unlock, Tap to unlock on touch screens, 16 px password field on phones (no iOS zoom), safe-area spacing and clearer focus rings
 
