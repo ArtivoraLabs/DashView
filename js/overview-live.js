@@ -583,6 +583,11 @@
     };
     document.dispatchEvent(new CustomEvent('dv:overview-data'));
   }
+  /* Read-only bridge for add-on Overview sections (js/overview-pulse.js): same company scope, currency and drill as the cards above. */
+  window.DVOverview = {
+    scoped: scopedDomain, companyIds: companyIds, sum: sum, readGroup: readGroup, records: records, money: money,
+    currency: function () { return S.currency; }, range: function () { return S.range; }, seq: function () { return S.seq; }
+  };
   window.DASHVIEW_OV = window.DASHVIEW_OV || { MONTHS: [], REVENUE: [], ORDERS_M: [], CATS: [], CAT_REV: [], TOP_L: [], TOP_V: [], ORDERS: [], SUMMARY: { revenue12: 0, orders12: 0 } };
 
   /* -- Orchestration -------------------------------------------------------------- */
@@ -596,6 +601,7 @@
     }).then(function () {
       if (seq !== S.seq) return;
       S.lastSynced = new Date(); setStatus('live', 'Live · synced ' + S.lastSynced.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }) + ' · ' + (Date.now() - t0) + ' ms'); publish();
+      document.dispatchEvent(new CustomEvent('dv:overview-synced', { detail: { seq: seq } }));
     }).catch(function (e) {
       if (seq !== S.seq) return;
       build();

@@ -1,0 +1,73 @@
+/* ==========================================================================
+   DashView — Overview: Today at a glance  (pairs with js/overview-pulse.js)
+   Shared tokens, so it follows dark / light and the Liquid Glass surface.
+   Verdict colours (--st-good / --st-warn / --st-bad) are defined in exec-unify.css.
+   ========================================================================== */
+.ovp { display: flex; flex-direction: column; gap: 14px; margin: 0 0 16px; }
+.ovp[hidden] { display: none; }
+.ovp .panel { margin: 0; min-width: 0; }
+.ovp-h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.ovp-h h3 { margin: 0; font-size: .95rem; font-weight: 700; color: var(--ink); }
+.ovp-h small { font-size: .75rem; color: var(--ink-50); }
+.ovp-note { margin: 12px 0 0; font-size: .75rem; line-height: 1.5; color: var(--ink-50); }
+.ovp-more { padding: 0 2px; font: 600 .75rem var(--f-body); color: var(--signal); background: none; border: 0; cursor: pointer; }
+.ovp-more:hover { text-decoration: underline; }
+
+/* Briefing */
+.ovp-brief { --t: var(--st-flat); padding: 14px 18px; border: 1px solid var(--line); border-left: 4px solid var(--t); border-radius: var(--r-md);
+  background: var(--paper); background: linear-gradient(100deg, color-mix(in srgb, var(--t) 11%, var(--paper)), var(--paper) 70%); }
+.ovp-brief.tone-good { --t: var(--st-good); } .ovp-brief.tone-bad { --t: var(--st-bad); }
+.ovp-kicker { font-family: var(--f-mono); font-size: 10px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-50); }
+.ovp-brief p { margin: 5px 0 0; font-size: .95rem; line-height: 1.55; font-weight: 600; color: var(--ink); }
+
+/* Today board */
+.ovp-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.ovp-tile { --t: var(--st-flat); position: relative; display: flex; flex-direction: column; gap: 4px; padding: 13px 15px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-md); cursor: pointer; overflow: hidden; transition: transform .15s, border-color .15s; }
+.ovp-tile::before { content: ""; position: absolute; left: 0; top: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--t), transparent 85%); }
+.ovp-tile.is-good { --t: var(--st-good); } .ovp-tile.is-bad { --t: var(--st-bad); }
+.ovp-tile:hover { transform: translateY(-2px); border-color: var(--line-strong); }
+.ovp-tile:focus-visible, .ovp-qi:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+.ovp-tl { font-family: var(--f-mono); font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-50); }
+.ovp-tv { font-size: 1.5rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; font-variant-numeric: tabular-nums; color: var(--ink); }
+.ovp-ts { font-size: .75rem; line-height: 1.4; color: var(--ink-50); }
+.ovp-d { font-style: normal; display: inline-block; padding: 1px 7px; border-radius: 99px; font-size: .6875rem; font-weight: 700; margin-right: 2px; }
+.ovp-d.good { color: var(--st-good); background: rgba(48, 209, 88, .14); background: color-mix(in srgb, var(--st-good) 15%, transparent); }
+.ovp-d.bad { color: var(--st-bad); background: rgba(255, 69, 58, .14); background: color-mix(in srgb, var(--st-bad) 15%, transparent); }
+.ovp-d.flat { color: var(--st-flat); background: rgba(152, 152, 157, .16); background: color-mix(in srgb, var(--st-flat) 16%, transparent); }
+
+/* Rhythm + queue */
+.ovp-row { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; }
+.ovp-row > :only-child { grid-column: 1 / -1; }
+.ovp-days-fig { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+.ovp-days-fig span { display: block; font-size: .6875rem; color: var(--ink-50); margin-bottom: 3px; }
+.ovp-days-fig b { font-size: 1.05rem; font-weight: 800; letter-spacing: -.01em; font-variant-numeric: tabular-nums; color: var(--ink); }
+.ovp-bars { display: grid; grid-template-columns: repeat(14, minmax(0, 1fr)); gap: 6px; height: 130px; align-items: end; }
+.ovp-bar { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 5px; }
+.ovp-bar u { display: block; width: 100%; max-width: 26px; border-radius: 6px 6px 3px 3px; text-decoration: none; background: color-mix(in srgb, var(--dv-c1, var(--signal)) 45%, transparent); transition: height .6s cubic-bezier(.2, .8, .2, 1); flex: none; }
+.ovp-bar.is-best u { background: color-mix(in srgb, var(--dv-c1, var(--signal)) 80%, transparent); }
+.ovp-bar.is-today u { background: var(--dv-c1, var(--signal)); box-shadow: 0 0 0 2px color-mix(in srgb, var(--dv-c1, var(--signal)) 30%, transparent); }
+.ovp-bar span { font: 600 .625rem var(--f-mono); color: var(--ink-50); }
+.ovp-bar.is-today span { color: var(--ink); }
+
+.ovp-q { display: flex; flex-direction: column; gap: 8px; }
+.ovp-qi { --t: var(--st-flat); display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 9px 12px; border: 1px solid var(--line); border-left: 3px solid var(--t); border-radius: var(--r-md); background: var(--paper-soft); cursor: pointer; transition: background .15s, border-color .15s; }
+.ovp-qi:hover { background: var(--signal-10); }
+.ovp-qi.tone-bad { --t: var(--st-bad); } .ovp-qi.tone-warn { --t: var(--st-warn); } .ovp-qi.tone-info { --t: var(--st-info); } .ovp-qi.tone-ok { --t: var(--st-good); }
+.ovp-qi b { font-size: 1.3rem; font-weight: 800; text-align: center; font-variant-numeric: tabular-nums; color: var(--ink); }
+.ovp-qi.tone-ok b { color: var(--st-good); }
+.ovp-qi div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ovp-qi span { font-size: .8125rem; font-weight: 600; color: var(--ink); }
+.ovp-qi em { font-style: normal; font-size: .72rem; color: var(--ink-50); }
+.ovp-qi strong { font-size: .8125rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink); white-space: nowrap; }
+
+@media (max-width: 980px) { .ovp-row { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 640px) {
+  .ovp-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ovp-tv { font-size: 1.25rem; }
+  .ovp-days-fig { grid-template-columns: minmax(0, 1fr); }
+  .ovp-bars { gap: 3px; }
+  .ovp-qi { grid-template-columns: 38px minmax(0, 1fr); }
+  .ovp-qi strong { grid-column: 2; }
+}
+@media (prefers-reduced-motion: reduce) { .ovp-bar u, .ovp-tile { transition: none; } }
+@media print { .ovp-more { display: none; } .ovp .panel, .ovp-tile { break-inside: avoid; } }
