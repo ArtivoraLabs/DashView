@@ -1,13 +1,21 @@
 {
-  "version": "2.19.0",
+  "version": "2.19.1",
   "build": "2026.10.15",
   "released": "2026-10-15",
   "notes": [
-    "Widget Builder: filter, search and sort, summary strip, starter templates, live preview, full-size view, CSV export per widget, duplicate",
-    "Widget Builder: KPI trend lines with month-on-month change, number formats, average / count / highest / lowest for imported data, sortable tables, loading and retry states",
-    "Theme: the active All chip and other accent-filled controls now follow the accent and stay readable on light Amber"
+    "Fixed: Version history in Settings now lists every release (it was stuck on old versions and capped at 30; the update pop-up showed only 4 previous versions)",
+    "Improved: Settings > Version history loads the newest release list from the server, marks Installed and Update available, and the history is rebuilt from the changelog"
   ],
   "history": [
+    {
+      "version": "2.19.1",
+      "date": "2026-10-15",
+      "notes": [
+        "Fixed: Version history in Settings now lists every release (it was stuck on old versions and capped at 30; the update pop-up showed only 4 previous versions)",
+        "Improved: Settings > Version history loads the newest release list from the server, marks Installed and Update available, and the history is rebuilt from the changelog"
+      ],
+      "critical": false
+    },
     {
       "version": "2.19.0",
       "date": "2026-10-15",
@@ -321,8 +329,65 @@
         "Improved: Overview header, period switch, KPI/card hover and responsive grid"
       ],
       "critical": false
+    },
+    {
+      "version": "2.2.2",
+      "date": "2026-10-01",
+      "notes": [
+        "Executive line charts: fixed the zigzag - monotone smoothing (no overshoot between points), automatic y-axis scale with headroom, compact ticks and a capped number of x labels",
+        "Line charts: Peak / Low / Latest value badges, average reference line, hover crosshair and 'vs previous' change in the tooltip",
+        "Executive trend cards: summary strip (Latest with change, Peak, Low, Average, Total) and a 3-month trend overlay toggle",
+        "Liquid Glass v3: neutral professional glass, 3 elevation levels, hairline edges, calm motion, now also covers the Executive cards, charts and detail drawer; fallbacks for reduced transparency, high contrast, no backdrop-filter and print",
+        "Liquid Glass preference now applies before first paint (no flat-to-glass flash)"
+      ]
+    },
+    {
+      "version": "2.2.1",
+      "date": "2026-10-01",
+      "notes": [
+        "Executive dashboards: click any KPI for a detail panel (current vs previous, change, status, how it is calculated, 12-month trend with average line, last-6-months table, View records)",
+        "Executive: Refresh button, concentration-risk gauge with 40% / 60% thresholds"
+      ]
+    },
+    {
+      "version": "2.2.0",
+      "date": "2026-10-01",
+      "notes": [
+        "Software Update: top banner when an update is available, then Download and Install & Restart, like a phone",
+        "Settings: live update status, progress, what's new, auto-check and auto-download switches (the old button did not really check)",
+        "AI: business playbooks (aging, period comparison, concentration, pipeline, low stock, cash, stuck work), 7 more Odoo models, confidence line, clickable follow-up questions",
+        "Charts and KPI cards: new gradient/glow styling"
+      ]
+    },
+    {
+      "version": "2.1.2",
+      "date": "2026-10-01",
+      "notes": [
+        "Settings control center: live health cards (Odoo, AI, Security, Backup, Version), Needs attention list with Fix shortcuts, settings search (press /), remembered last section"
+      ]
+    },
+    {
+      "version": "2.1.1",
+      "date": "2026-10-01",
+      "notes": [
+        "Executive overview: headline health strip, previous value and absolute change on every KPI, per-section favourable badges, Basis & data notes",
+        "Scorecard export now includes absolute change and status columns",
+        "Fixed: login/register no longer send a stale session token",
+        "Fixed: CI/engineering questions mentioning 'pipeline' were treated as Odoo data questions",
+        "Fixed: query provenance now lists group-by and measures"
+      ]
+    },
+    {
+      "version": "2.1.0",
+      "date": "2026-09-29",
+      "notes": [
+        "Visual polish layer (`css/visual-polish.css`) and detailing layer (`css/pro-detail.css`): spacing, alignment, tabular numbers, shared chart palette, skeletons, empty states, badges, tooltips, print styles.",
+        "New Settings page: wider layout, active section highlight, Software Update section with version history.",
+        "iOS-style Software Update (`js/updater.js`): updates download quietly and wait; user sees \"Update available\", taps Install Now, watches an \"Updating\" window, then a \"What's new\" window. Service worker no longer applies updates on its own.",
+        "`scripts/release.mjs` bumps version.json, package.json, sw.js and CHANGELOG in one command."
+      ]
     }
   ],
   "critical": false,
-  "size": 4437880
+  "size": 4440931
 }

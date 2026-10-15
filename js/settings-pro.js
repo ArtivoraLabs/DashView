@@ -441,7 +441,7 @@
     var LABEL = { available: 'Download update', downloading: 'Updating in background…', ready: 'Update now', failed: 'Try again', maintenance: 'Maintenance in progress…', installing: 'Installing…' };
     function paint() {
       var release = window.DVReleaseInfo && window.DVReleaseInfo();
-      if (!U) { if (ver && release) ver.textContent = 'DashView ' + release.version; return; }
+      if (!U) { if (ver && release && release.version) ver.textContent = 'DashView ' + release.version; return; }
       var s2 = U.state(), i = U.info(), versionNumber = i.version && i.version !== '-' ? i.version : release && release.version;
       if (ver && versionNumber) ver.textContent = 'DashView ' + versionNumber + (i.build ? ' (build ' + i.build + ')' : '');
       if (checkEl && s2.lastChecked) checkEl.textContent = fmtWhen(new Date(s2.lastChecked).toISOString()) || 'Just now';

@@ -7,36 +7,12 @@
   var TAB_KEY = 'dashview_stg_tab_v2';
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function load(k, d) { try { var v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
-  var releaseInfo = {
-    version: '2.9.0',
-    released: '2026-10-04',
-    notes: [
-      'Rebuilt: People, Task assignments and Audit log from scratch - one shared workspace store, validated forms, kanban board, hiring pipeline and field-level audit history',
-      'Improved: every People, Task and Hiring change is recorded automatically in the Audit log, with search, filters, paging and CSV export',
-      'Fixed: overdue dates use the local calendar day, tasks of a deleted person are unassigned, duplicate emails are rejected and drag-and-drop works on the task board'
-    ],
-    history: [
-      { version: '2.9.0', date: '2026-10-04', notes: [
-        'Rebuilt: People, Task assignments and Audit log from scratch - one shared workspace store, validated forms, kanban board, hiring pipeline and field-level audit history',
-        'Improved: every People, Task and Hiring change is recorded automatically in the Audit log, with search, filters, paging and CSV export',
-        'Fixed: overdue dates use the local calendar day, tasks of a deleted person are unassigned, duplicate emails are rejected and drag-and-drop works on the task board'
-      ] },
-      { version: '2.8.0', date: '2026-10-03', notes: [
-        'New: Manufacturing, procurement, invoice, GRN and delivery metrics in the company-aware executive Overview',
-        'Improved: Drill Explorer with server-side search, 25-record paging, contextual Odoo links and full filtered CSV exports up to 10,000 records',
-        'Improved: Main Settings now includes the user manual, keyboard shortcuts, resettable preferences and clickable release history',
-        'Fixed: Settings disclosures remain open during refresh and all dashboard panels stay within the viewport'
-      ] },
-      { version: '2.7.0', date: '2026-10-03', notes: [
-        'New: Overview company selector with safe multi-currency handling',
-        'Improved: Odoo People, Tasks and Audit data mapping and error visibility',
-        'Improved: Data Studio imports Excel worksheets and parses CSV/TSV offline',
-        'Improved: Liquid Glass text contrast and colorful chart palettes',
-        'Fixed: incomplete app updates are rejected and reported for retry',
-        'Improved: Settings install guidance and PWA install state'
-      ] }
-    ]
-  };
+  /* No hard-coded release list any more (it was stuck on 2.9.0): version.json is the single source of truth. */
+  var releaseInfo = { version: '', released: '', notes: [], history: [] };
+  function installedVersion() {
+    try { var i = window.DV && window.DV.updater && window.DV.updater.info && window.DV.updater.info(); if (i && i.version && i.version !== '-') return i.version; } catch (e) { /* fall back */ }
+    return releaseInfo && releaseInfo.version || '';
+  }
   window.DVReleaseInfo = function () { return releaseInfo; };
   function releaseDialog(info) {
     var dialog = document.getElementById('stgoReleaseDialog');
@@ -48,29 +24,37 @@
       dialog.addEventListener('click', function (e) { if (e.target === dialog || e.target.closest('[data-release-close]')) dialog.close(); });
     }
     var current = info || releaseInfo || {};
-    var history = Array.isArray(current.history) ? current.history : [];
+    var history = Array.isArray(current.history) ? current.history.slice() : [];
     if (!history.length && current.version) history = [{ version: current.version, date: current.released || '', notes: current.notes || [] }];
-    dialog.innerHTML = '<header><div><span>DashView release history</span><h2>What\u2019s new</h2></div><button type="button" data-release-close aria-label="Close release notes">\u00D7</button></header><div class="stgo-release-body">' +
-      history.map(function (item, index) {
-        return '<section' + (index === 0 ? ' class="is-current"' : '') + '><div><h3>DashView ' + esc(item.version) + (index === 0 ? ' <small>Current</small>' : '') + '</h3><time>' + esc(item.date || '') + '</time></div><ul>' +
+    var installed = installedVersion() || (history[0] && history[0].version) || '';
+    var newer = function (a, b) { var x = String(a).split('.').map(Number), y = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) > (y[i] || 0); } return false; };
+    dialog.innerHTML = '<header><div><span>DashView release history \u00B7 ' + history.length + ' releases</span><h2>What\u2019s new</h2></div><button type="button" data-release-close aria-label="Close release notes">\u00D7</button></header><div class="stgo-release-body">' +
+      history.map(function (item) {
+        var isCur = item.version === installed, isNew = installed && newer(item.version, installed);
+        return '<section' + (isCur ? ' class="is-current"' : '') + '><div><h3>DashView ' + esc(item.version) + (isCur ? ' <small>Installed</small>' : isNew ? ' <small>Update available</small>' : '') + '</h3><time>' + esc(item.date || '') + '</time></div><ul>' +
           (Array.isArray(item.notes) ? item.notes : []).map(function (note) { return '<li>' + esc(note) + '</li>'; }).join('') + '</ul></section>';
       }).join('') + '</div>';
     if (typeof dialog.showModal === 'function') dialog.showModal();
     else dialog.setAttribute('open', '');
   }
+  /* Always shows the FULL history. It asks the server for the newest version.json (the "?latest" request bypasses the service
+     worker's installed copy), so releases that are published but not installed yet appear right away, marked "Update available". */
   function showReleaseNotes() {
-    try {
-      if (window.DV && window.DV.updater && window.DV.updater.history && window.DV.updater.history().length && window.DV.updater.notes) {
-        window.DV.updater.notes();
-        return;
-      }
-    } catch (e) { /* Use the local release-history fallback if the updater is unavailable. */ }
-    if (releaseInfo) { releaseDialog(releaseInfo); return; }
-    fetch('version.json', { cache: 'no-store' }).then(function (r) {
+    var local = null;
+    try { local = window.DV && window.DV.updater && window.DV.updater.history && window.DV.updater.history(); } catch (e) { /* none */ }
+    var fallback = function () {
+      if (local && local.length) { releaseDialog({ version: installedVersion(), history: local }); return true; }
+      if (releaseInfo && releaseInfo.history && releaseInfo.history.length) { releaseDialog(releaseInfo); return true; }
+      return false;
+    };
+    fetch('version.json?latest=' + Date.now(), { cache: 'no-store' }).then(function (r) {
       if (!r.ok) throw new Error('Could not load release history.');
       return r.json();
-    }).then(function (data) { releaseInfo = data; releaseDialog(data); }).catch(function (e) {
-      if (window.showToast) window.showToast(e.message || 'Release notes are unavailable right now.');
+    }).then(function (data) {
+      if (!data || !Array.isArray(data.history) || !data.history.length) throw new Error('Release history is empty.');
+      releaseInfo = data; releaseDialog(data);
+    }).catch(function (e) {
+      if (!fallback() && window.showToast) window.showToast(e.message || 'Release notes are unavailable right now.');
     });
   }
   window.DVShowReleaseNotes = showReleaseNotes;

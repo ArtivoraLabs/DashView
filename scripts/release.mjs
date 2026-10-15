@@ -10,7 +10,7 @@ const v = JSON.parse(rd('version.json')); let [a, b, c] = v.version.split('.').m
 if (bump === 'major') { a++; b = 0; c = 0; } else if (bump === 'minor') { b++; c = 0; } else c++;
 const next = `${a}.${b}.${c}`, today = new Date().toISOString().slice(0, 10);
 v.version = next; v.build = today.replace(/-/g, '.'); v.released = today; v.notes = notes;
-v.history = [{ version: next, date: today, notes }, ...(v.history || [])].slice(0, 30);
+v.history = [{ version: next, date: today, notes }, ...(v.history || [])].slice(0, 200);
 wr('version.json', JSON.stringify(v, null, 2) + '\n');
 const p = JSON.parse(rd('package.json')); p.version = next; wr('package.json', JSON.stringify(p, null, 2) + '\n');
 let sw = rd('sw.js').replace(/var VERSION = '[^']*';/, `var VERSION = 'dv-${next}';`);

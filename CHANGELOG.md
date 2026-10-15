@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.19.1 - 2026-10-15
+- Fixed: Version history in Settings now lists every release (it was stuck on old versions and capped at 30; the update pop-up showed only 4 previous versions)
+- Improved: Settings > Version history loads the newest release list from the server, marks Installed and Update available, and the history is rebuilt from the changelog
+
 ## 2.19.0 - 2026-10-15
 - Widget Builder: filter, search and sort, summary strip, starter templates, live preview, full-size view, CSV export per widget, duplicate
 - Widget Builder: KPI trend lines with month-on-month change, number formats, average / count / highest / lowest for imported data, sortable tables, loading and retry states

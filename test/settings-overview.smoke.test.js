@@ -21,7 +21,9 @@ const ok = (n, c) => { if (c) { pass++; console.log(' ok  ', n); } else { fail++
   ok('version loaded from version.json', new RegExp('v' + releaseManifest.version.replace(/\./g, '\\.')).test(c.textContent));
   const versionCard = c.querySelector('[data-version-notes]');
   versionCard.click();
-  ok('clicking the version card opens release history', !!d.getElementById('stgoReleaseDialog') && /2\.8\.0/.test(d.getElementById('stgoReleaseDialog').textContent) && /2\.7\.0/.test(d.getElementById('stgoReleaseDialog').textContent));
+  await new Promise(r => setTimeout(r, 30));
+  const relText = d.getElementById('stgoReleaseDialog') ? d.getElementById('stgoReleaseDialog').textContent : '';
+  ok('clicking the version card opens the FULL release history (every release in version.json)', /2\.8\.0/.test(relText) && /2\.7\.0/.test(relText) && /2\.1\.0/.test(relText) && relText.includes(releaseManifest.history.length + ' releases'));
   const todo = c.querySelector('.stgo-todo');
   todo.querySelector('summary').click();
   await new Promise((r) => setTimeout(r, 100));

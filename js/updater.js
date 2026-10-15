@@ -163,9 +163,9 @@
     }).join('') || '<p class="sub" style="margin:0 0 12px">No release notes for this version.</p>';
   }
   function histHtml(skip) {
-    var seen = {}, h = ((latest && latest.history) || cur.history || []).filter(function (e) { if (!e || !e.version || e.version === skip || seen[e.version]) return false; seen[e.version] = 1; return true; }).slice(0, 4);
+    var seen = {}, h = ((latest && latest.history) || cur.history || []).filter(function (e) { if (!e || !e.version || e.version === skip || seen[e.version]) return false; seen[e.version] = 1; return true; }).slice(0, 60);
     if (!h.length) return '';
-    return '<details class="dvu-more"><summary>Previous versions</summary>' + h.map(function (e) {
+    return '<details class="dvu-more"><summary>Previous versions (' + h.length + ')</summary>' + h.map(function (e) {
       return '<details><summary>' + esc(e.version) + '<small>' + esc(e.date || '') + ' · ' + (e.notes || []).length + ' changes</small></summary><div class="in">' + notesHtml(e.notes) + '</div></details>';
     }).join('') + '</details>';
   }
