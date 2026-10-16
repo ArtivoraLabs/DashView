@@ -96,6 +96,6 @@ npm start               # :4000 pe chalta hai
 
 ## Worker chal raha hai ya nahi? (quick check)
 1. Browser mein apna Worker URL kholo (jaise `https://workspace.NAAM.workers.dev`). Ab ek status JSON dikhta hai (`"ok": true`) aur `problems` mein likha hota hai kya set nahi hai (`ALLOWED_ODOO_HOSTS`, `ALLOWED_ORIGINS`). Pehle yahan "Not found" / "POST only" aata tha, jo dead Worker jaisa lagta tha.
-2. Terminal se poora check: `ODOO_URL=... ODOO_DB=... ODOO_USER=... ODOO_KEY=... WORKER_URL=https://workspace.NAAM.workers.dev SITE_ORIGIN=https://artivoralabs.github.io node scripts/odoo-check.mjs`
+2. Terminal se poora check: `ODOO_URL=... ODOO_DB=... ODOO_USER=... ODOO_KEY=... WORKER_URL=https://workspace.NAAM.workers.dev SITE_ORIGIN=https://youknowumer.github.io node scripts/odoo-check.mjs`
 3. DashView mein "Cannot reach the Worker" ab batata hai: Worker down/galat URL hai, ya Worker online hai magar browser ne reply block kiya (ALLOWED_ORIGINS exactly site ka origin hona chahiye, bina path aur bina `/` ke).
 4. Crash ho to Cloudflare → Worker → Logs dekho (observability ab on hai).

@@ -1,13 +1,9 @@
-DashView 2.20.1 - changed files (same paths as the project; replace them as they are)
+DashView 2.20.2 - changed files (same paths as the project; replace them as they are)
 
-worker-src/index.js            status page on GET / and GET /api/health; clear 503 when D1 is not connected
-cloudflare-worker.js           status page on GET (was "POST only")
-js/odoo-client.js              "Failed to fetch" now says Worker unreachable vs blocked by ALLOWED_ORIGINS
-js/odoo-service.js             same clearer message in the Settings > Odoo connect form
-scripts/odoo-check.mjs         also checks Worker status + CORS (WORKER_URL, SITE_ORIGIN)
-wrangler.jsonc                 Worker logs (observability) switched on
-DEPLOY.md                      quick "is the Worker alive" check
-test/worker.smoke.test.js, test/odoo-transport.smoke.test.js   new checks
-version.json, package.json, sw.js, CHANGELOG.md                  release 2.20.1
+wrangler.jsonc     ALLOWED_ORIGINS = https://youknowumer.github.io (new GitHub Pages site)
+README.md, index.html   links point to github.com/youknowumer/DashView
+DEPLOY.md          example origin updated
+version.json, package.json, sw.js, CHANGELOG.md   release 2.20.2
 
-After copying: commit + push (GitHub Pages and Workers Builds redeploy). Then open your Worker URL in a browser.
+(2.20.1 files from the previous zip are still needed if you have not copied them yet.)
+Then: Cloudflare > Worker "workspace" > Settings > Builds > connect youknowumer/DashView (branch main), push, open the Worker URL.

@@ -22,8 +22,8 @@
 
   "vars": {
     // Exact frontend origin(s), comma-separated. No path, no trailing slash.
-    // (Add a custom domain here later, e.g. "https://artivoralabs.github.io,https://app.example.com")
-    "ALLOWED_ORIGINS": "https://artivoralabs.github.io",
+    // (Add a custom domain here later, e.g. "https://youknowumer.github.io,https://app.example.com")
+    "ALLOWED_ORIGINS": "https://youknowumer.github.io",
 
     // Odoo hostnames this Worker is allowed to call, comma-separated.
     // REQUIRED: with no value the Odoo relay refuses every request (it needs no login, so this list is its only guard).

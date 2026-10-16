@@ -1,14 +1,19 @@
 {
-  "version": "2.20.1",
+  "version": "2.20.2",
   "build": "2026.10.16",
   "released": "2026-10-16",
   "notes": [
-    "Fixed: opening the Worker URL in a browser now shows a status page (what is and is not configured) instead of Not found / POST only, which made a working Worker look dead",
-    "Fixed: account / task routes without a D1 database now answer a clear 503 explaining what is missing, not a bare 500",
-    "Improved: Failed to fetch now says whether the Worker is unreachable (wrong or undeployed URL) or online but blocking this site (ALLOWED_ORIGINS), in Odoo Live and the connect form",
-    "Improved: scripts/odoo-check.mjs checks the Worker status and the CORS preflight; Worker logs are enabled in wrangler.jsonc"
+    "Changed: Worker ALLOWED_ORIGINS and project links now point to the new GitHub home (youknowumer.github.io/DashView)"
   ],
   "history": [
+    {
+      "version": "2.20.2",
+      "date": "2026-10-16",
+      "notes": [
+        "Changed: Worker ALLOWED_ORIGINS and project links now point to the new GitHub home (youknowumer.github.io/DashView)"
+      ],
+      "critical": false
+    },
     {
       "version": "2.20.1",
       "date": "2026-10-16",
@@ -411,5 +416,5 @@
     }
   ],
   "critical": false,
-  "size": 4582088
+  "size": 4581832
 }

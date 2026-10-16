@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.20.2 - 2026-10-16
+- Changed: Worker ALLOWED_ORIGINS and project links now point to the new GitHub home (youknowumer.github.io/DashView)
+
 ## 2.20.1 - 2026-10-16
 - Fixed: opening the Worker URL in a browser now shows a status page (what is and is not configured) instead of Not found / POST only, which made a working Worker look dead
 - Fixed: account / task routes without a D1 database now answer a clear 503 explaining what is missing, not a bare 500

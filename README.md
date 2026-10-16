@@ -347,7 +347,7 @@ degradation where unsupported.
 
 MIT — see [LICENSE](LICENSE).
 
-Link: https://artivoralabs.github.io/Workspace/index.html
+Link: https://youknowumer.github.io/DashView/index.html
 
 ---
 
