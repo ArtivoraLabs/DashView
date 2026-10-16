@@ -32,6 +32,13 @@
      identical at 60 / 120 / 144 Hz and never overshoots or wobbles.
      TAU = response time in seconds (smaller = snappier). */
   var TAU_POS = 0.062, TAU_DOCK = 0.085, TAU_SIZE = 0.075;
+  /* Settings → Cursor: smoothness (response time), size, magnetic pull, optional extras */
+  var SMOOTH = { snappy: 0.034, balanced: 0.062, smooth: 0.105, silky: 0.165 };
+  var SIZE = { s: { k: 0.8, dot: 5 }, m: { k: 1, dot: 6 }, l: { k: 1.3, dot: 8 } };
+  var MAGNET = { off: 0, soft: 0.06, strong: 0.16 };
+  var sizeK = 1, lean = 0.06, useLabels = true, useRipple = true;
+  var POP = !!(window.HTMLElement && HTMLElement.prototype && typeof HTMLElement.prototype.showPopover === 'function');
+  var liftDlg = null;
   var dot = null, ring = null, label = null;
   var enabled = false, live = false, failed = false, listening = false;
   var fx = 'rich', raf = 0, last = 0, moved = false, down = false, away = false;
@@ -49,16 +56,22 @@
     var reduced = de.hasAttribute('data-reduce-motion') || (!window.DV && mqReduce.matches);
     return !reduced && pref('cursor', 'on') !== 'off';
   }
-  function mk(cn) { var n = d.createElement('div'); n.className = cn; n.setAttribute('aria-hidden', 'true'); return n; }
+  function mk(cn) { var n = d.createElement('div'); n.className = cn; n.setAttribute('aria-hidden', 'true'); if (POP) n.setAttribute('popover', 'manual'); return n; }
+  /* A modal <dialog> lives in the browser's top layer, above any z-index, so a pointer drawn in the page
+     would vanish behind it while the native cursor is hidden. Popover elements join the top layer too;
+     showing them again after a dialog opens puts them back on top. */
+  function toTop(n) { if (!POP || !n) return; try { if (n.matches(':popover-open')) n.hidePopover(); n.showPopover(); } catch (e) {} }
+  function lift() { toTop(ring); toTop(label); toTop(dot); }
   function mount() {
     if (dot || !d.body) return !!dot;
     ring = mk('dvc-ring'); label = mk('dvc-label'); dot = mk('dvc-dot');
     d.body.appendChild(ring); d.body.appendChild(label); d.body.appendChild(dot);
+    lift();
     return true;
   }
   function setCls(name, on) { on = !!on; if (cls[name] === on) return; cls[name] = on; de.classList.toggle(name, on); }
   function clearAll() {
-    ['dvc-on', 'dvc-link', 'dvc-area', 'dvc-text', 'dvc-down', 'dvc-busy', 'dvc-dis', 'dvc-drag', 'dvc-grab', 'dvc-docked', 'dvc-label-on', 'dvc-away'].forEach(function (c) { de.classList.remove(c); });
+    ['dvc-modal', 'dvc-on', 'dvc-link', 'dvc-area', 'dvc-text', 'dvc-down', 'dvc-busy', 'dvc-dis', 'dvc-drag', 'dvc-grab', 'dvc-docked', 'dvc-label-on', 'dvc-away'].forEach(function (c) { de.classList.remove(c); });
     cls = {};
   }
   function fail() {
@@ -93,6 +106,9 @@
     var t = null;
     try { t = d.elementFromPoint(px, py); } catch (e) {}
     cur.src = t;
+    var dl = (t && t.closest) ? t.closest('dialog[open]') : null;
+    if (dl !== liftDlg) { liftDlg = dl; if (dl) lift(); }
+    setCls('dvc-modal', !!dl && !POP);   /* very old browsers: give the native cursor back inside a modal */
     cur.el = null; cur.kind = 'none'; cur.label = ''; cur.dis = false; cur.busy = false; cur.drag = false;
     if (t && t !== de && t !== d.body) {
       if (t.closest(TEXT)) cur.kind = 'text';
@@ -131,7 +147,7 @@
     if (text === labelText) return;
     labelText = text; clearTimeout(labelTimer);
     setCls('dvc-label-on', false);
-    if (!text || fx !== 'rich' || !label) return;
+    if (!text || !useLabels || !label) return;
     labelTimer = setTimeout(function () {
       if (!label || labelText !== text) return;
       label.textContent = text; labelW = label.offsetWidth;
@@ -145,11 +161,10 @@
     if (cur.kind === 'link' && !cur.dis && cur.el) {
       var r = pickRect(cur.el);
       var w = Math.max(r.width, 20) + pad * 2 - shrink, h = Math.max(r.height, 20) + pad * 2 - shrink;
-      var cx = r.left + r.width / 2, cy = r.top + r.height / 2, lean = fx === 'rich' ? 0.06 : 0;
-      T.x = cx + (px - cx) * lean; T.y = cy + (py - cy) * lean; T.w = w; T.h = h;
+      var cx = r.left + r.width / 2, cy = r.top + r.height / 2;       T.x = cx + (px - cx) * lean; T.y = cy + (py - cy) * lean; T.w = w; T.h = h;
       T.r = Math.min(cur.radius + pad, Math.min(w, h) / 2);
     } else {
-      var s = cur.kind === 'area' ? 38 : cur.dis ? 26 : 30;
+      var s = (cur.kind === 'area' ? 38 : cur.dis ? 26 : 30) * sizeK;
       if (down) s *= 0.82;
       T.x = px; T.y = py; T.w = s; T.h = s; T.r = s / 2;
     }
@@ -206,12 +221,13 @@
     wake();
   }
   function ripple() {
-    if (fx !== 'rich' || !d.body) return;
+    if (!useRipple || !d.body) return;
     var n = d.createElement('i');
-    n.className = 'dvc-ripple'; n.setAttribute('aria-hidden', 'true');
+    n.className = 'dvc-ripple'; n.setAttribute('aria-hidden', 'true'); if (POP) n.setAttribute('popover', 'manual');
     n.style.transform = 'translate3d(' + px + 'px,' + py + 'px,0)';
     n.style.setProperty('--dvc-rx', px + 'px'); n.style.setProperty('--dvc-ry', py + 'px');
     d.body.appendChild(n);
+    if (POP) { try { n.showPopover(); } catch (e) {} }
     n.addEventListener('animationend', function () { if (n.parentNode) n.parentNode.removeChild(n); });
     setTimeout(function () { if (n.parentNode) n.parentNode.removeChild(n); }, 900);
   }
@@ -258,18 +274,35 @@
     d.addEventListener('visibilitychange', function () { last = 0; if (d.hidden) onAway(); });
     /* Settings → Cursor toggles write localStorage after their own handler ran */
     d.addEventListener('change', function (e) {
-      if (e.target && e.target.closest && e.target.closest('[data-pref="cursor"],[data-pref="cursorFx"]')) setTimeout(refresh, 0);
+      if (e.target && e.target.closest && e.target.closest('[data-pref^="cursor"]')) setTimeout(refresh, 0);
     });
-    addEventListener('storage', function (e) { if (!e.key || e.key === 'dv-pref-cursor' || e.key === 'dv-pref-cursorFx') refresh(); });
+    addEventListener('storage', function (e) { if (!e.key || e.key.indexOf('dv-pref-cursor') === 0) refresh(); });
     [mqFine, mqForced, mqReduce].forEach(function (q) {
       if (q.addEventListener) q.addEventListener('change', refresh); else if (q.addListener) q.addListener(refresh);
     });
-    if (window.MutationObserver) new MutationObserver(refresh).observe(de, { attributes: true, attributeFilter: ['data-reduce-motion'] });
+    if (window.MutationObserver) {
+      new MutationObserver(refresh).observe(de, { attributes: true, attributeFilter: ['data-reduce-motion'] });
+      /* a dialog opening (or a popover / fullscreen change) must not bury the pointer */
+      new MutationObserver(function (m) {
+        for (var i = 0; i < m.length; i++) { var t = m[i].target; if (t && t.nodeName === 'DIALOG') { requestAnimationFrame(lift); break; } }
+      }).observe(d, { attributes: true, subtree: true, attributeFilter: ['open'] });
+    }
+    d.addEventListener('toggle', function (e) { if (e.target !== ring && e.target !== dot && e.target !== label) requestAnimationFrame(lift); }, true);
+    d.addEventListener('fullscreenchange', function () { requestAnimationFrame(lift); });
   }
   function refresh() {
     if (failed) return;
     fx = pref('cursorFx', 'rich') === 'simple' ? 'simple' : 'rich';
     setCls('dvc-simple', fx === 'simple');
+    var rich = fx === 'rich', sm = pref('cursorSmooth', 'balanced'), t = SMOOTH[sm] || SMOOTH.balanced, sz = SIZE[pref('cursorSize', 'm')] || SIZE.m;
+    TAU_POS = t; TAU_DOCK = t * 1.37; TAU_SIZE = Math.max(0.05, t * 1.2);
+    sizeK = sz.k; de.style.setProperty('--dvc-dot', sz.dot + 'px');
+    var mg = pref('cursorMagnet', rich ? 'soft' : 'off'); lean = MAGNET[mg] != null ? MAGNET[mg] : 0.06;
+    useLabels = pref('cursorLabels', rich ? 'on' : 'off') !== 'off';
+    useRipple = pref('cursorRipple', rich ? 'on' : 'off') !== 'off';
+    var style = pref('cursorStyle', 'classic'); if (style !== 'dot' && style !== 'ring') style = 'classic';
+    setCls('dvc-style-dot', style === 'dot'); setCls('dvc-style-ring', style === 'ring');
+    setCls('dvc-neutral', pref('cursorColor', 'accent') === 'neutral');
     if (wanted()) {
       enabled = true; listen();
       if (!d.body) d.addEventListener('DOMContentLoaded', function () { mount(); }, { once: true }); else mount();

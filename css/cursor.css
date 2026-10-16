@@ -48,7 +48,7 @@ html.dvc-on [contenteditable="true"] { cursor: text !important; }
   pointer-events: none; opacity: 0; will-change: transform; contain: layout style;
 }
 .dvc-dot {
-  width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%;
+  width: var(--dvc-dot, 6px); height: var(--dvc-dot, 6px); margin: calc(var(--dvc-dot, 6px) / -2) 0 0 calc(var(--dvc-dot, 6px) / -2); border-radius: 50%;
   background: var(--dvc-ink); box-shadow: 0 0 0 1px var(--dvc-edge);
   transition: opacity 0.18s, width 0.2s var(--dvc-ease), height 0.2s var(--dvc-ease), margin 0.2s var(--dvc-ease), background-color 0.2s;
 }
@@ -116,3 +116,37 @@ html[data-reduce-motion] .dvc-dot, html[data-reduce-motion] .dvc-ring,
 html[data-reduce-motion] .dvc-label, html[data-reduce-motion] .dvc-ripple { display: none !important; }
 /* pointer left the window */
 html.dvc-away .dvc-dot, html.dvc-away .dvc-ring, html.dvc-away .dvc-label { opacity: 0 !important; }
+
+/* ── Top layer: the pointer elements are popovers so they stay above modal <dialog>s ──
+   (author styles beat the popover UA defaults; these lines just neutralise the ones that would shift them) */
+.dvc-dot[popover], .dvc-ring[popover], .dvc-label[popover], .dvc-ripple[popover] {
+  inset: auto; left: 0; top: 0; overflow: visible; max-width: none; max-height: none; color: inherit;
+}
+.dvc-ring[popover] { margin: 0; padding: 0; }
+.dvc-ripple[popover] { padding: 0; }
+.dvc-label[popover] { margin: 0; }
+.dvc-dot[popover] { padding: 0; border: 0; }
+.dvc-dot[popover], .dvc-ring[popover], .dvc-label[popover] { background-clip: padding-box; }
+.dvc-ring[popover] { background-color: transparent; }
+.dvc-ripple[popover] { background: transparent; }
+.dvc-dot[popover]:not(:popover-open), .dvc-ring[popover]:not(:popover-open), .dvc-label[popover]:not(:popover-open) { display: none; }
+/* browsers without popover: native cursor comes back inside a modal dialog */
+html.dvc-on.dvc-modal.dvc-modal.dvc-modal, html.dvc-on.dvc-modal.dvc-modal.dvc-modal * { cursor: auto !important; }
+html.dvc-modal .dvc-dot, html.dvc-modal .dvc-ring, html.dvc-modal .dvc-label { opacity: 0 !important; }
+
+/* ── Settings → Cursor: style, colour ── */
+html.dvc-style-dot .dvc-ring, html.dvc-style-dot .dvc-ring::after { display: none; }
+html.dvc-style-dot.dvc-link .dvc-dot, html.dvc-style-dot.dvc-link.dvc-docked .dvc-dot {
+  opacity: 1; width: calc(var(--dvc-dot, 6px) * 1.9); height: calc(var(--dvc-dot, 6px) * 1.9);
+  margin: calc(var(--dvc-dot, 6px) * -0.95) 0 0 calc(var(--dvc-dot, 6px) * -0.95);
+  background: var(--dvc-accent); box-shadow: 0 0 0 4px var(--dvc-accent-soft);
+}
+html.dvc-style-ring .dvc-dot { display: none; }
+html.dvc-style-ring.dvc-link.dvc-docked .dvc-dot { display: none; }
+html.dvc-neutral {
+  --dvc-accent: var(--dvc-ink);
+  --dvc-accent-soft: rgba(128, 128, 128, 0.16);
+}
+@supports (color: color-mix(in srgb, red, blue)) {
+  html.dvc-neutral { --dvc-accent-soft: color-mix(in srgb, var(--dvc-ink) 14%, transparent); }
+}

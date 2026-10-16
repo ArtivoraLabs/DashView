@@ -129,6 +129,15 @@
       chip.classList.remove('on'); void chip.offsetWidth; chip.classList.add('on');
     });
 
+    /* ── reset only the cursor design ── */
+    var cr = $('#curReset');
+    if (cr) cr.addEventListener('click', function () {
+      ['cursor', 'cursorFx', 'cursorStyle', 'cursorSize', 'cursorSmooth', 'cursorColor', 'cursorMagnet', 'cursorLabels', 'cursorRipple'].forEach(function (k) { try { localStorage.removeItem('dv-pref-' + k); } catch (e) {} });
+      $$('#cursorfx [data-pref^="cursor"]').forEach(function (g) { var def = g.querySelector('input[checked]'); $$('input', g).forEach(function (i) { i.checked = i === def; }); });
+      if (window.DVCursor && DVCursor.refresh) DVCursor.refresh();
+      var m = $('#msg'); if (m) { m.textContent = 'Cursor reset'; m.className = 'msg on'; setTimeout(function () { m.className = 'msg'; }, 1800); }
+    });
+
     /* ── accent swatches: hover / long-press label ── */
     $$('.sw').forEach(function (l) { var n = $('.vh', l); if (n && !l.title) l.title = n.textContent; });
 

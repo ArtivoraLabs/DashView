@@ -117,3 +117,8 @@ kbd.sp-pressed{transform:translateY(1px);box-shadow:none;border-color:var(--sign
 }
 html[data-reduce-motion] .sp-saved.on{animation:none;opacity:1}
 html[data-reduce-motion] .seg input:checked+span,html[data-reduce-motion] section.sp-flash .card{animation:none}
+
+/* cursor playground */
+.cur-try{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end}
+.cur-try input{width:190px;padding:8px 12px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:inherit;font-size:13.5px}
+@media (max-width:760px){.cur-try{justify-content:flex-start}.cur-try input{width:100%}}

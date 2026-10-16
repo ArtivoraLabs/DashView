@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.22.1 - 2026-10-16
+- Fixed: the custom cursor disappeared inside pop-up sheets such as What's new (the native cursor is hidden and the page-level pointer was drawn underneath the sheet) - the pointer now sits in the browser top layer and is raised whenever a dialog opens, and browsers without that support get their normal cursor back inside the sheet
+- Improved: Settings > Cursor and effects - cursor style (dot + ring, dot, ring), size, smoothness (Snappy / Balanced / Smooth / Silky), accent or neutral colour, magnetic pull, context labels and click ripple, a Try it row and a Reset cursor button; all apply instantly
+
 ## 2.22.0 - 2026-10-16
 - Improved: landing page smoothness - the theme switch now reveals as a circle from the toggle, the nav tucks away while reading down and returns on scroll up, section jumps re-aim at their target every frame so they always land exactly, sibling blocks reveal one after another, buttons ripple on press, images fade in after decoding, the modal and toasts spring in (css/index-smooth.css, js/index-smooth.js)
 - Improved: Settings page detailing - search with highlighted matches and the / shortcut, a sliding section indicator, a Saved chip beside the control you changed, accent swatches with a check mark and name, a storage meter, press-feedback on every keycap (and Mac symbols), a ring on the section you jump to, calmer card entrance, clearer section chips on phones (css/settings-page.css, js/settings-page.js)
