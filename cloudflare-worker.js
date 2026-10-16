@@ -95,6 +95,16 @@ export default {
     if (request.method === 'OPTIONS') return new Response(null, { status: blocked ? 403 : 204, headers: cors });
     if (blocked) return reply({ ok: false, error: 'Origin not allowed by this Worker' }, 403);
 
+    /* Opening the Worker URL in a browser (GET) used to answer "POST only" - which looks like a dead Worker. Show a status. */
+    if (request.method === 'GET' || request.method === 'HEAD') {
+      const problems = [];
+      if (!hosts.length) problems.push('ALLOWED_ODOO_HOSTS is empty - the Odoo relay refuses every request. Set it to your Odoo hostname (e.g. mycompany.odoo.com) and redeploy.');
+      if (!origins.length) problems.push('ALLOWED_ORIGINS is empty - any website can use this Worker. Set it to your DashView site origin (e.g. https://you.github.io).');
+      return reply({
+        ok: true, service: 'DashView Worker', odooRelay: hosts.length > 0, originsLocked: origins.length > 0, problems,
+        hint: 'Paste this Worker URL (no path) in DashView -> Settings -> Odoo -> Proxy URL. Odoo calls are POST requests; opening the URL in a browser only shows this status.',
+      }, 200);
+    }
     if (request.method !== 'POST') return reply({ ok: false, error: 'POST only' }, 405);
 
     let body;

@@ -2,7 +2,8 @@
 /* Odoo connectivity + coverage check (read-only).
    Usage:
      ODOO_URL=https://xyz.odoo.com ODOO_DB=xyz ODOO_USER=you@mail.com ODOO_KEY=api-key node scripts/odoo-check.mjs
-   Optional: WORKER_URL=https://dashview-proxy.you.workers.dev  → also tests the Cloudflare Worker path the dashboard uses. */
+   Optional: WORKER_URL=https://dashview-proxy.you.workers.dev  → also tests the Cloudflare Worker path the dashboard uses.
+   Optional: SITE_ORIGIN=https://you.github.io  → also checks the Worker lets that website call it (CORS / ALLOWED_ORIGINS). */
 const { ODOO_URL, ODOO_DB, ODOO_USER, ODOO_KEY, WORKER_URL } = process.env;
 if (!ODOO_URL || !ODOO_DB || !ODOO_USER || !ODOO_KEY) {
   console.error('Set ODOO_URL, ODOO_DB, ODOO_USER, ODOO_KEY (and optionally WORKER_URL).'); process.exit(2);
@@ -41,6 +42,25 @@ if (uid) {
 }
 if (WORKER_URL) {
   console.log('3) Cloudflare Worker ' + WORKER_URL);
+  const W = WORKER_URL.replace(/\/+$/, ''), SITE = process.env.SITE_ORIGIN;
+  t = performance.now();
+  try {
+    const r = await fetch(W + '/api/health', { signal: AbortSignal.timeout(15000) });
+    const d = await r.json().catch(() => null);
+    if (!d || !d.ok) line(false, 'Worker answered HTTP ' + r.status + ' but not with its status JSON - is this the DashView Worker URL?');
+    else {
+      line(true, 'Worker is online (' + ms(t) + ')');
+      line(d.odooRelay !== false, d.odooRelay === false ? 'ALLOWED_ODOO_HOSTS is empty - the Odoo relay refuses every request' : 'Odoo relay enabled (ALLOWED_ODOO_HOSTS set)');
+      (d.problems || []).forEach((p) => console.log('  NOTE ' + p));
+    }
+  } catch (e) { line(false, 'Worker unreachable (wrong URL, not deployed, or no internet): ' + e.message); }
+  if (SITE) {   // SITE_ORIGIN=https://you.github.io  -> checks the browser CORS preflight the dashboard depends on
+    try {
+      const r = await fetch(W, { method: 'OPTIONS', headers: { Origin: SITE, 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'content-type' }, signal: AbortSignal.timeout(15000) });
+      const allow = r.headers.get('access-control-allow-origin');
+      line(r.status < 300 && (allow === SITE || allow === '*'), r.status < 300 && (allow === SITE || allow === '*') ? 'CORS ok for ' + SITE : 'Worker blocks ' + SITE + ' (HTTP ' + r.status + ') - set ALLOWED_ORIGINS to exactly that origin and redeploy');
+    } catch (e) { line(false, 'CORS preflight failed: ' + e.message); }
+  }
   t = performance.now();
   try {
     const r = await fetch(WORKER_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' },

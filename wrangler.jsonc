@@ -4,7 +4,7 @@
   // WHAT THIS DEPLOYS RIGHT NOW
   //   - Read-only "Odoo Live" path (POST to the Worker root) + AI relay.
   //     This path never touches D1, so it works without a database.
-  //   - GET /api/health  ->  {"ok":true}
+  //   - GET / and GET /api/health  ->  status JSON (what is / is not configured). Open your Worker URL in a browser to check it is alive.
   //
   // NOT ACTIVE YET (needs D1): DashView accounts / sign-in and the stored
   //   Odoo connection + tasks (/api/auth/*, /api/tasks, /api/teams ...).
@@ -16,6 +16,9 @@
   "main": "worker-src/index.js",
   "compatibility_date": "2025-09-01",
   "workers_dev": true,
+
+  // Keep Worker logs: Cloudflare -> your Worker -> Logs shows crashes and errors (e.g. "Exceeded CPU limit").
+  "observability": { "enabled": true },
 
   "vars": {
     // Exact frontend origin(s), comma-separated. No path, no trailing slash.

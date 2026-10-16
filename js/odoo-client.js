@@ -135,12 +135,36 @@
           var wait = Math.max(e.retryAfter || 0, Math.min(RETRY_CAP, RETRY_BASE * Math.pow(2, n)) * (0.75 + Math.random() * 0.5));
           return sleep(wait).then(function () { if (gen !== _gen) throw mkErr('Request cancelled: the Odoo connection was reset.', 'cancelled'); return attempt(n + 1); });
         }
-        if (e && e.code === 'cancelled') stats.cancelled++;
-        else { stats.failed++; stats.lastError = e && e.message; stats.lastErrorAt = Date.now(); }
-        throw e;
+        if (e && e.code === 'cancelled') { stats.cancelled++; throw e; }
+        /* A bare "Failed to fetch" tells the user nothing. Ask the Worker whether it is there at all, so the message says
+           which of the usual causes it is (wrong / undeployed URL, or the Worker blocking this website). */
+        var named = e && e.code === 'network' && gen === _gen ? _diagnoseNetwork(url) : Promise.resolve('');
+        return named.then(function (msg) {
+          if (msg) e.message = msg;
+          stats.failed++; stats.lastError = e && e.message; stats.lastErrorAt = Date.now();
+          throw e;
+        });
       });
     }
     return attempt(0);
+  }
+
+  /* Why did the request fail before any answer came back? A no-cors GET resolves (opaque) whenever the Worker is
+     online, even if CORS would block reading the reply, and rejects only when nothing answers at all. */
+  function _diagnoseNetwork(url) {
+    var origin = typeof location !== 'undefined' && location.origin && location.origin !== 'null' ? location.origin : 'this website';
+    var host = String(url).replace(/^https?:\/\//i, '').replace(/[\/?#].*$/, '');
+    var ctl = typeof AbortController === 'function' ? new AbortController() : null, timer;
+    var probe;
+    try { probe = fetch(url + '/api/health', { mode: 'no-cors', cache: 'no-store', credentials: 'omit', signal: ctl ? ctl.signal : undefined }); }
+    catch (e) { probe = Promise.reject(e); }
+    var limit = new Promise(function (res) { timer = setTimeout(function () { if (ctl) { try { ctl.abort(); } catch (e) {} } res('unknown'); }, 5000); });
+    return Promise.race([probe.then(function () { return 'up'; }, function () { return 'down'; }), limit]).then(function (state) {
+      clearTimeout(timer);
+      if (state === 'up') return 'Cannot reach the Worker: ' + host + ' is online, but the browser blocked its reply. Most often ALLOWED_ORIGINS on the Worker must be exactly ' + origin + ' (no path, no trailing slash) - fix it in Cloudflare and redeploy. If that is already right, the Worker crashed: open Cloudflare > your Worker > Logs.';
+      if (state === 'down') return 'Cannot reach the Worker at ' + host + '. Check the Worker URL (it must be your ...workers.dev address), that the Worker is deployed, and your internet connection.';
+      return '';
+    }, function () { clearTimeout(timer); return ''; });
   }
 
   /* -- Fast repeat reads ------------------------------------------------------
@@ -266,6 +290,7 @@
       return memo.cur;
     }
   };
+  api.diagnoseNetwork = function (workerUrl) { return _diagnoseNetwork(String(workerUrl || '').trim().replace(/\/+$/, '')); };   /* used by odoo-service.js (connect form) */
   window.DVOdooClient = api;
 
   /* -- Formatters ---------------------------------------------------------- */

@@ -140,6 +140,27 @@ const ok = (n, c) => { if (c) { pass++; console.log(' ok  ', n); } else { fail++
   fs.unlinkSync(tmp2);
   global.fetch = prevFetch;
 
+  /* ── Status page: opening the Worker URL in a browser must look alive, not "Not found" / "POST only" ── */
+  const getRoot = async (w, path, env, origin) => { const x = await w(new Request('https://w.dev' + path, { method: 'GET', headers: origin ? { Origin: origin } : {} }), env); return { status: x.status, j: await x.json() }; };
+  let g = await getRoot((q, e) => worker.fetch(q, e), '/', { ALLOWED_ODOO_HOSTS: 'x.odoo.com', ALLOWED_ORIGINS: 'https://a.github.io' });
+  ok('root: GET / shows a status page (200), not "POST only"', g.status === 200 && g.j.ok === true && g.j.odooRelay === true && g.j.originsLocked === true && g.j.problems.length === 0);
+  g = await getRoot((q, e) => worker.fetch(q, e), '/', {});
+  ok('root: status page lists what is missing', g.j.ok === true && g.j.problems.length === 2);
+  g = await getRoot((q, e) => worker.fetch(q, e), '/', { ALLOWED_ODOO_HOSTS: 'private-co.odoo.com', ALLOWED_ORIGINS: 'https://private.github.io' });
+  ok('root: status page never leaks the configured hosts / origins', !JSON.stringify(g.j).includes('private'));
+  g = await getRoot((q, e) => worker.fetch(q, e), '/', { ALLOWED_ORIGINS: 'https://a.github.io' }, 'https://evil.example');
+  ok('root: status page still respects ALLOWED_ORIGINS', g.status === 403);
+
+  const idx = (await import('file://' + path.join(__dirname, '..', 'worker-src', 'index.js'))).default;
+  g = await getRoot((q, e) => idx.fetch(q, e), '/', { ALLOWED_ODOO_HOSTS: 'x.odoo.com', ALLOWED_ORIGINS: 'https://a.github.io' });
+  ok('worker-src: GET / shows a status page (200)', g.status === 200 && g.j.ok === true && g.j.odooRelay === true && g.j.accounts.d1 === false);
+  g = await getRoot((q, e) => idx.fetch(q, e), '/api/health', { DB: {}, JWT_SECRET: 'x'.repeat(40), ODOO_ENC_KEY: 'k' });
+  ok('worker-src: /api/health keeps ok:true and reports D1 / secrets', g.status === 200 && g.j.ok === true && g.j.accounts.d1 === true && g.j.accounts.jwtSecret === true && g.j.accounts.encKey === true);
+  g = await getRoot((q, e) => idx.fetch(q, e), '/api/tasks', {});
+  ok('worker-src: account routes without D1 answer 503 with a clear reason (not a bare 500)', g.status === 503 && g.j.code === 'd1_missing' && /D1/.test(g.j.error));
+  const lp = await idx.fetch(new Request('https://w.dev/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ endpoint: 'test', url: 'https://x.odoo.com', db: 'x', username: 'u', apiKey: 'k' }) }), { ALLOWED_ODOO_HOSTS: 'other.odoo.com' });
+  ok('worker-src: the Odoo relay (POST /) needs no D1', lp.status === 403);
+
   fs.unlinkSync(tmp);
   console.log(`${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);

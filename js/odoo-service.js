@@ -111,7 +111,13 @@
       })
       .catch(function (err) {
         if (/Failed to fetch|NetworkError|Load failed|fetch failed/i.test(err.message || '')) {
-          throw new Error('Cannot reach the Proxy URL. It must be your Worker URL (…workers.dev), and ALLOWED_ORIGINS on the Worker must include ' + (typeof location !== 'undefined' ? location.origin : 'this site') + '.');
+          var generic = new Error('Cannot reach the Proxy URL. It must be your Worker URL (…workers.dev), and ALLOWED_ORIGINS on the Worker must include ' + (typeof location !== 'undefined' ? location.origin : 'this site') + '.');
+          /* Ask the Worker whether it is there at all, so the message names the real cause (see odoo-client.js). */
+          var dx = window.DVOdooClient && window.DVOdooClient.diagnoseNetwork;
+          if (typeof dx === 'function') {
+            return dx(base).then(function (msg) { if (msg) generic.message = msg.replace(/^Cannot reach the Worker/, 'Cannot reach the Proxy URL'); throw generic; }, function () { throw generic; });
+          }
+          throw generic;
         }
         throw err;
       });

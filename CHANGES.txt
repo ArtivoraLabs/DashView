@@ -1,17 +1,13 @@
-DashView - changed files (same paths as the project; replace them as they are)
+DashView 2.20.1 - changed files (same paths as the project; replace them as they are)
 
-login.html                    new professional sign-in page (setup + sign in + signed-in card)
-css/login.css                 styles for the new sign-in page
-js/auth-service.js            pages need sign-in; guests go to login.html and come back after login
-js/updater.js                 background maintenance notice -> "Update available" popup (Update now / Later)
-js/settings-pro.js            dashboard Settings update card: maintenance + background states
-css/settings-pro.css          dashboard Settings update card styling
-settings.html                 "My settings" personal view + new Updates status card
-test/updater.smoke.test.js    updated test for the new update flow
+worker-src/index.js            status page on GET / and GET /api/health; clear 503 when D1 is not connected
+cloudflare-worker.js           status page on GET (was "POST only")
+js/odoo-client.js              "Failed to fetch" now says Worker unreachable vs blocked by ALLOWED_ORIGINS
+js/odoo-service.js             same clearer message in the Settings > Odoo connect form
+scripts/odoo-check.mjs         also checks Worker status + CORS (WORKER_URL, SITE_ORIGIN)
+wrangler.jsonc                 Worker logs (observability) switched on
+DEPLOY.md                      quick "is the Worker alive" check
+test/worker.smoke.test.js, test/odoo-transport.smoke.test.js   new checks
+version.json, package.json, sw.js, CHANGELOG.md                  release 2.20.1
 
-After copying, release it so users get the update prompt:
-  node scripts/release.mjs minor "New sign-in page" "Professional update popup with background maintenance notice" "My settings view"
-then deploy.
-
-Optional maintenance window (set before you push, remove after): in version.json
-  "maintenance": { "active": true, "message": "Deploying a new version..." }
+After copying: commit + push (GitHub Pages and Workers Builds redeploy). Then open your Worker URL in a browser.

@@ -39,7 +39,15 @@ const reply = (status, body, headers) => Promise.resolve({ status, headers: { ge
   /* 4. network failure */
   calls = 0; handler = () => Promise.reject(new TypeError('Failed to fetch'));
   const e4 = await fail_(C.records('res.partner', { fresh: true, limit: 5 }));
-  ok('network failure becomes code "network" with the friendly message', e4 && e4.code === 'network' && /Cannot reach the Worker/.test(e4.message) && calls === 3);
+  ok('network failure becomes code "network" with the friendly message', e4 && e4.code === 'network' && /Cannot reach the Worker/.test(e4.message) && calls >= 3);
+  ok('a dead Worker URL is named as unreachable (health probe fails too)', /Check the Worker URL/.test(e4.message) && /w\.example/.test(e4.message));
+
+  /* 4b. Worker online but the browser blocks the reply (CORS / crashed Worker): the probe resolves, the POST does not */
+  calls = 0; handler = (b) => (b ? Promise.reject(new TypeError('Failed to fetch')) : reply(200, 'ok'));
+  w.fetch = (url, init) => { calls++; if (init && init.mode === 'no-cors') return Promise.resolve({ type: 'opaque', status: 0 }); const b = JSON.parse(init.body); return Promise.resolve(handler(b, init)); };
+  const e4b = await fail_(C.records('res.partner', { fresh: true, limit: 55 }));
+  ok('Worker answers but reply is blocked: message points at ALLOWED_ORIGINS and the exact site origin', e4b && e4b.code === 'network' && /ALLOWED_ORIGINS/.test(e4b.message) && /dashview\.example/.test(e4b.message));
+  w.fetch = (url, init) => { calls++; live++; peak = Math.max(peak, live); const b = JSON.parse(init.body); return Promise.resolve(handler(b, init)).finally(() => { live--; }); };
 
   /* 5. a hung Worker times out and frees its slot */
   calls = 0; handler = () => new Promise(() => {});

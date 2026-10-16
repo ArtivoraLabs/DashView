@@ -1,6 +1,6 @@
 {
   "name": "dashview",
-  "version": "2.20.0",
+  "version": "2.20.1",
   "private": true,
   "license": "MIT",
   "description": "DashView — static, installable, offline-capable web app for laptop and mobile.",
@@ -14,6 +14,6 @@
     "cf:test": "node test/worker.e2e.mjs"
   },
   "devDependencies": {
-    "wrangler": "^4.0.0"
+    "wrangler": "^4.151.0"
   }
 }

@@ -62,8 +62,31 @@ const ROUTES = [
   ['POST', '/api/tasks', appRoutes.createTaskStoredRoute],
   ['PATCH', '/api/tasks/:id', appRoutes.updateTaskStoredRoute],
 
-  ['GET', '/api/health', async () => ({ status: 200, body: { ok: true } })],
+  ['GET', '/api/health', async (_req, env) => ({ status: 200, body: workerStatus(env) })],
 ];
+
+/* Routes that never touch D1 (everything else needs the DB binding and a signed-in session). */
+const NO_DB_ROUTES = new Set(['/api/health']);
+
+/* What the Worker reports on GET / and GET /api/health. Booleans and counts only - never a secret, a key or a
+   hostname list. Lets you open the Worker URL in a browser and see at a glance what is (not) configured. */
+const list = (v) => String(v || '').split(',').map((s) => s.trim()).filter(Boolean);
+function workerStatus(env) {
+  env = env || {};
+  const origins = list(env.ALLOWED_ORIGINS), hosts = list(env.ALLOWED_ODOO_HOSTS);
+  const problems = [];
+  if (!hosts.length) problems.push('ALLOWED_ODOO_HOSTS is empty - the Odoo relay refuses every request. Set it to your Odoo hostname (e.g. mycompany.odoo.com) and redeploy.');
+  if (!origins.length) problems.push('ALLOWED_ORIGINS is empty - any website can use this Worker. Set it to your DashView site origin (e.g. https://you.github.io).');
+  return {
+    ok: true,
+    service: 'DashView Worker',
+    odooRelay: hosts.length > 0,
+    originsLocked: origins.length > 0,
+    accounts: { d1: !!env.DB, jwtSecret: String(env.JWT_SECRET || '').length >= 32, encKey: !!env.ODOO_ENC_KEY },
+    problems,
+    hint: 'Paste this Worker URL (no path) in DashView -> Settings -> Odoo -> Proxy URL. Odoo calls are POST requests; opening the URL in a browser only shows this status.',
+  };
+}
 
 function matchRoute(method, pathname) {
   for (const [m, pattern, handler] of ROUTES) {
@@ -112,6 +135,13 @@ export default {
 
     try {
       const url = new URL(request.url);
+
+      /* Opening the Worker URL in a browser (GET /) used to answer "Not found" - which looks exactly like a dead Worker.
+         Answer with the status page instead. */
+      if ((request.method === 'GET' || request.method === 'HEAD') && (url.pathname === '/' || url.pathname === '')) {
+        return reply(workerStatus(env), 200);
+      }
+
       const match = matchRoute(request.method, url.pathname);
 
       if (!match) {
@@ -120,6 +150,17 @@ export default {
         // but only for POST (that dispatch has never supported other verbs).
         if (request.method === 'POST') return handleLegacy(await withBodyLimit(request, 200000), env, reply);
         return reply({ ok: false, error: `Not found: ${url.pathname}` }, 404);
+      }
+
+      /* Sign-in, tasks and the stored Odoo connection live in D1. Without the binding every one of these crashed with a
+         bare 500 "Internal server error"; say what is actually missing instead. */
+      if (!env.DB && !NO_DB_ROUTES.has(url.pathname)) {
+        return reply({
+          ok: false, code: 'd1_missing',
+          error: 'This Worker has no database (D1) connected, so DashView accounts, tasks and the saved Odoo connection are off. ' +
+                 'Odoo Live and the AI relay still work (they need no database). To turn accounts on: add the d1_databases block in wrangler.jsonc, ' +
+                 'run migrations/0001_init.sql, set the JWT_SECRET and ODOO_ENC_KEY secrets, then redeploy.',
+        }, 503);
       }
 
       const limited = await withBodyLimit(request);   // real byte count, also for chunked uploads with no Content-Length
