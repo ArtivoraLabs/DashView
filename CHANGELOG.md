@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.23.0 - 2026-10-16
+- Improved: Executive dashboards charts - taller canvases and a high-detail layer: CEO trend gets an average line with Peak / Low / Latest badges and a Net line in the tooltip; company trend shows end-of-line value badges; growth and money in/out charts show values plus green/red change and Net badges; the revenue ring prints the share on each slice; shop and drill bars show value and share; the yearly stack shows totals with year-on-year change; larger type, thicker lines and rounder bars (css/exec-charts-pro.css, js/exec-charts-pro.js)
+- Fixed: the CEO command center files (css/exec-ceo.css, js/exec-ceo.js) were cached by the service worker but never loaded by dashboard.html - they are now linked
+
 ## 2.22.1 - 2026-10-16
 - Fixed: the custom cursor disappeared inside pop-up sheets such as What's new (the native cursor is hidden and the page-level pointer was drawn underneath the sheet) - the pointer now sits in the browser top layer and is raised whenever a dialog opens, and browsers without that support get their normal cursor back inside the sheet
 - Improved: Settings > Cursor and effects - cursor style (dot + ring, dot, ring), size, smoothness (Snappy / Balanced / Smooth / Silky), accent or neutral colour, magnetic pull, context labels and click ripple, a Try it row and a Reset cursor button; all apply instantly

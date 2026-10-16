@@ -181,7 +181,7 @@
       options: { indexAxis: 'y', onClick: function (evt, els) { if (els && els.length) drillShop(rows[els[0].index], null); },
         onHover: function (evt, els) { var c = evt && evt.native && evt.native.target; if (c) c.style.cursor = els && els.length ? 'pointer' : 'default'; },
         scales: { x: { beginAtZero: true, grid: { color: t.grid }, ticks: { color: t.text, callback: compact } }, y: { grid: { display: false }, ticks: { color: t.text } } },
-        plugins: { tooltip: { callbacks: { title: function (i) { return rows[i[0].dataIndex].label; }, label: function (c) { return ' ' + F.money(c.parsed.x) + ' \u00B7 ' + (total ? (c.parsed.x / total * 100).toFixed(1) : 0) + '% of sales'; } } } } } });
+        plugins: { dvExecPro: { total: total }, tooltip: { callbacks: { title: function (i) { return rows[i[0].dataIndex].label; }, label: function (c) { return ' ' + F.money(c.parsed.x) + ' \u00B7 ' + (total ? (c.parsed.x / total * 100).toFixed(1) : 0) + '% of sales'; } } } } } });
   }
   function drawYearChart() {
     if (!S || !S.sales || !$('xrYearCv')) return;

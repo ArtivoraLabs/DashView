@@ -429,7 +429,7 @@
         options: { onClick: onClick, onHover: hover, scales: { x: { grid: { display: false }, ticks: { color: t.text, maxRotation: 0, autoSkip: true } }, y: scale('y') }, plugins: { dvBarLabels: { enabled: false }, tooltip: tip } } });
     } else {
       F.chart('dvdrCv', { type: 'bar', data: { labels: rows.map(function (r) { return short(r.label, 24); }), datasets: [{ data: rows.map(function (r) { return r.value; }), backgroundColor: cols, borderRadius: 6, maxBarThickness: 22 }] },
-        options: { indexAxis: 'y', onClick: onClick, onHover: hover, scales: { x: scale('x'), y: { grid: { display: false }, ticks: { color: t.text } } }, plugins: { dvBarLabels: { enabled: false }, tooltip: tip } } });
+        options: { indexAxis: 'y', onClick: onClick, onHover: hover, scales: { x: scale('x'), y: { grid: { display: false }, ticks: { color: t.text } } }, plugins: { dvBarLabels: { enabled: false }, dvExecPro: { total: total || 0 }, tooltip: tip } } });
     }
   }
   function hover(evt, els) { var c = evt && evt.native && evt.native.target; if (c) c.style.cursor = els && els.length ? 'pointer' : 'default'; }
