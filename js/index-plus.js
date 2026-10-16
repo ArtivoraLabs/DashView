@@ -30,14 +30,17 @@
   function smoothTo(targetY, done) {
     stopAnim();
     var startY = window.pageYOffset || de.scrollTop;
-    targetY = Math.max(0, Math.min(targetY, de.scrollHeight - innerHeight));
-    var dist = targetY - startY;
-    if (reduce || Math.abs(dist) < 2) { window.scrollTo(0, targetY); if (done) done(); return; }
+    /* targetY may be a function: the destination is re-read every frame, so late layout shifts
+       (images, fonts, reveals) never make the scroll land short or overshoot */
+    var live = typeof targetY === 'function';
+    function goal() { return Math.max(0, Math.min(live ? targetY() : targetY, de.scrollHeight - innerHeight)); }
+    var dist = goal() - startY;
+    if (reduce || Math.abs(dist) < 2) { window.scrollTo(0, goal()); if (done) done(); return; }
     var dur = Math.min(1150, 420 + Math.abs(dist) * .35), t0 = null;
     (function step(t) {
       if (t0 === null) t0 = t;
-      var p = Math.min((t - t0) / dur, 1);
-      window.scrollTo(0, startY + dist * easeInOut(p));
+      var p = Math.min((t - t0) / dur, 1), g = goal();
+      window.scrollTo(0, startY + (g - startY) * easeInOut(p));
       if (p < 1) anim = requestAnimationFrame(step); else { anim = 0; if (done) done(); }
     })(performance.now());
   }
@@ -50,7 +53,7 @@
     if (!id) { e.preventDefault(); smoothTo(0); return; }
     e.preventDefault();
     var nav = $('nav'), off = (nav ? nav.offsetHeight : 64) + 16;
-    smoothTo(el.getBoundingClientRect().top + (window.pageYOffset || de.scrollTop) - off, function () {
+    smoothTo(function () { return el.getBoundingClientRect().top + (window.pageYOffset || de.scrollTop) - off; }, function () {
       try { history.pushState(null, '', '#' + id); } catch (x) {}
       if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
       try { el.focus({ preventScroll: true }); } catch (x) {}

@@ -1,16 +1,21 @@
 {
-  "version": "2.21.1",
+  "version": "2.22.0",
   "build": "2026.10.16",
   "released": "2026-10-16",
   "notes": [
-    "Fixed: the What's new / release history sheet opened stuck in the top-left corner of the screen (a global CSS reset removed the dialog's auto-centring) - it is now centred on laptop and tablet and slides up as a bottom sheet on phones",
-    "Fixed: release notes showed no bullets and raw Fixed: / Improved: / Changed: prefixes inside plain text - every note is now a row with a coloured New / Improved / Fixed / Security chip, file names and constants in monospace, and dates like Today / Yesterday / Oct 16, 2026",
-    "Fixed: the close button showed a focus ring as soon as the sheet opened, the page behind kept scrolling (and scrolled when you reached the end of the list), and clicking the version did nothing until the server answered - the sheet now opens instantly with the saved history and refreshes in place",
-    "Fixed: a press that started inside the sheet and ended on the dim background (for example dragging the scroll bar) closed it by mistake",
-    "Fixed: the Software Update sheet and the Settings update card left Redesigned: / Added: / Changed: written in front of the note and filed it under New - these notes now sit in the right group without the prefix",
-    "Improved: release history in iOS style - glass backdrop, grabber and swipe-down to close on phones, title bar that gets a hairline as you scroll, inset-grouped rows with hairline separators, All / New / Improved / Fixed segmented filter, open and close motion that respects Reduce motion, safe-area spacing, light and dark"
+    "Improved: landing page smoothness - the theme switch now reveals as a circle from the toggle, the nav tucks away while reading down and returns on scroll up, section jumps re-aim at their target every frame so they always land exactly, sibling blocks reveal one after another, buttons ripple on press, images fade in after decoding, the modal and toasts spring in (css/index-smooth.css, js/index-smooth.js)",
+    "Improved: Settings page detailing - search with highlighted matches and the / shortcut, a sliding section indicator, a Saved chip beside the control you changed, accent swatches with a check mark and name, a storage meter, press-feedback on every keycap (and Mac symbols), a ring on the section you jump to, calmer card entrance, clearer section chips on phones (css/settings-page.css, js/settings-page.js)"
   ],
   "history": [
+    {
+      "version": "2.22.0",
+      "date": "2026-10-16",
+      "notes": [
+        "Improved: landing page smoothness - the theme switch now reveals as a circle from the toggle, the nav tucks away while reading down and returns on scroll up, section jumps re-aim at their target every frame so they always land exactly, sibling blocks reveal one after another, buttons ripple on press, images fade in after decoding, the modal and toasts spring in (css/index-smooth.css, js/index-smooth.js)",
+        "Improved: Settings page detailing - search with highlighted matches and the / shortcut, a sliding section indicator, a Saved chip beside the control you changed, accent swatches with a check mark and name, a storage meter, press-feedback on every keycap (and Mac symbols), a ring on the section you jump to, calmer card entrance, clearer section chips on phones (css/settings-page.css, js/settings-page.js)"
+      ],
+      "critical": false
+    },
     {
       "version": "2.21.1",
       "date": "2026-10-16",
@@ -442,5 +447,5 @@
     }
   ],
   "critical": false,
-  "size": 4624607
+  "size": 4656478
 }

@@ -1,0 +1,78 @@
+/* index-smooth.css — landing page smoothness layer (v2.23).
+   Loaded after index-plus.css. Purely additive: nothing here removes a feature,
+   everything animated is switched off for prefers-reduced-motion. */
+
+:root{--ease-out:cubic-bezier(.16,1,.3,1);--ease-io:cubic-bezier(.65,0,.35,1);--ease-spring:cubic-bezier(.34,1.56,.64,1)}
+
+/* native anchor fallback keeps the sticky nav clear of the heading it jumps to */
+html{scroll-padding-top:84px}
+
+/* ── nav: tucks away while reading down, returns the moment you scroll up ── */
+.nav{transition:transform .45s var(--ease-out),background-color .3s,border-color .3s,backdrop-filter .3s;will-change:transform}
+.nav.ip-hide{transform:translate3d(0,-110%,0)}
+.nav.scrolled{box-shadow:0 10px 30px -22px rgba(0,0,0,.55)}
+.nav-logo-ring{transition:transform .5s var(--ease-spring),box-shadow .3s}
+.nav-brand:hover .nav-logo-ring{transform:rotate(-8deg) scale(1.08);box-shadow:0 6px 20px rgba(232,163,61,.5)}
+
+/* ── theme switch: circular reveal from the toggle (View Transitions) ── */
+html.ip-vt *,html.ip-vt *::before,html.ip-vt *::after{transition:none!important}
+html.ip-vt::view-transition-old(root),html.ip-vt::view-transition-new(root){animation:none;mix-blend-mode:normal}
+html.ip-vt::view-transition-old(root){z-index:1}
+html.ip-vt::view-transition-new(root){z-index:2}
+
+/* ── buttons: press ripple + steadier hover ── */
+.btn{position:relative;overflow:hidden;isolation:isolate}
+.ip-ripple{position:absolute;border-radius:50%;pointer-events:none;z-index:-1;background:currentColor;opacity:.22;transform:scale(0);animation:ipRipple .7s var(--ease-out) forwards}
+@keyframes ipRipple{to{transform:scale(1);opacity:0}}
+.theme-toggle{transition:border-color .2s,color .2s,transform .35s var(--ease-spring)}
+.theme-toggle:hover{transform:rotate(14deg) scale(1.06)}
+.theme-toggle:active{transform:scale(.92)}
+
+/* ── links: underline that draws in, footer nudge ── */
+.footer-col a,.footer-col button{transition:color .2s,transform .3s var(--ease-out)}
+.footer-col a:hover,.footer-col button:hover{transform:translateX(4px)}
+
+/* ── section heads: the kicker rule draws itself, headings settle a touch later ── */
+@media (prefers-reduced-motion:no-preference){
+  .kicker::before,.ig-kicker i{transform-origin:left center}
+  .rv:not(.in) .kicker::before{transform:scaleX(0)}
+  .rv .kicker::before{transition:transform .8s var(--ease-out) .25s}
+  .rv.in .kicker::before{transform:scaleX(1)}
+  .ig-head.rv h2{transition:letter-spacing .9s var(--ease-out)}
+  .ig-head.rv:not(.in) h2{letter-spacing:.012em}
+
+  /* modal: spring-in card, softer scrim */
+  .modal-overlay{transition:opacity .3s var(--ease-out),backdrop-filter .3s}
+  .modal-card{transform:translateY(18px) scale(.965);transition:transform .5s var(--ease-spring),opacity .3s;opacity:0}
+  .modal-overlay.open .modal-card{transform:none;opacity:1}
+
+  /* toasts glide in and out instead of popping */
+  .toast{animation:ipToastIn .45s var(--ease-spring) both}
+  @keyframes ipToastIn{from{opacity:0;transform:translate3d(24px,0,0) scale(.94)}to{opacity:1;transform:none}}
+
+  /* mock dashboard bars/rows: gentle settle once the stage is revealed */
+  .ig-stage.in .ig-bar,.ig-stage.in [class*="bar"] i{transition-timing-function:var(--ease-out)}
+
+  /* sections below the fold ease their images/graphics in once decoded */
+  img.ip-lazy{opacity:0;transform:scale(1.02);transition:opacity .6s var(--ease-out),transform .8s var(--ease-out)}
+  img.ip-lazy.ip-loaded{opacity:1;transform:none}
+}
+
+/* inputs: calm focus ring growth */
+input,textarea,select{transition:border-color .2s,box-shadow .3s var(--ease-out),background-color .25s}
+input:focus,textarea:focus,select:focus{box-shadow:0 0 0 4px rgba(232,163,61,.16)}
+
+/* scroll progress bar: GPU-only and slightly thicker glow at the head */
+.ip-progress i{will-change:transform;box-shadow:0 0 12px rgba(232,163,61,.55)}
+
+/* keep the page from repainting hero effects while a panel / menu is open on phones */
+@media(max-width:720px){
+  .nav.menu-open{transform:none!important}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .nav,.nav-logo-ring,.theme-toggle,.footer-col a,.footer-col button{transition:none}
+  .nav.ip-hide{transform:none}
+  .ip-ripple{display:none}
+  html.ip-vt::view-transition-group(*){animation:none}
+}

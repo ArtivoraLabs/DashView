@@ -1,0 +1,119 @@
+/* settings-page.css — Settings page detailing (v2.23). Additive; loaded after the page's own styles.
+   Search, sliding section indicator, per-row "Saved" confirmation, swatch check + labels,
+   storage meter, section flash, entrance motion. All motion honours Reduce motion. */
+
+:root{--sp-ease:cubic-bezier(.16,1,.3,1);--sp-spring:cubic-bezier(.34,1.56,.64,1)}
+html{scroll-padding-top:92px}
+
+/* ── top bar: hairline + shadow only once the page has scrolled ── */
+.bar{transition:box-shadow .3s,border-color .3s}
+.bar.sp-stuck{box-shadow:0 12px 28px -22px rgba(0,0,0,.6)}
+.back{transition:color .2s,transform .3s var(--sp-ease)}
+.back:hover{transform:translateX(-3px)}
+
+/* ── search ── */
+.sp-find{position:relative;margin:0 0 18px}
+.sp-find svg{position:absolute;left:14px;top:50%;width:16px;height:16px;transform:translateY(-50%);color:var(--muted);pointer-events:none;transition:color .2s}
+.sp-find #setFind{width:100%;margin:0;padding:12px 44px 12px 42px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--text);font:inherit;font-size:14.5px;transition:border-color .2s,box-shadow .3s var(--sp-ease)}
+.sp-find #setFind::placeholder{color:var(--muted)}
+.sp-find #setFind:focus{outline:none;border-color:var(--signal);box-shadow:0 0 0 4px color-mix(in srgb,var(--signal) 18%,transparent)}
+.sp-find:focus-within svg{color:var(--signal)}
+.sp-find kbd{position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;transition:opacity .2s}
+.sp-find #setFind:focus~kbd,.sp-find #setFind:not(:placeholder-shown)~kbd{opacity:0}
+.sp-clear{position:absolute;right:8px;top:50%;transform:translateY(-50%) scale(.8);width:28px;height:28px;padding:0;border-radius:50%;opacity:0;pointer-events:none;transition:opacity .2s,transform .3s var(--sp-spring)}
+.sp-find #setFind:not(:placeholder-shown)~.sp-clear{opacity:1;pointer-events:auto;transform:translateY(-50%) scale(1)}
+.sp-empty{padding:34px 20px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:16px}
+.sp-empty b{display:block;color:var(--text);margin-bottom:4px}
+mark.sp-hit{background:color-mix(in srgb,var(--signal) 32%,transparent);color:inherit;border-radius:3px;padding:0 1px}
+.row.nomatch,section.nomatch{display:none!important}
+
+/* ── sidebar: one indicator glides between sections ── */
+.side{position:sticky}
+.sp-ind{position:absolute;left:-1px;top:0;width:2px;height:20px;border-radius:2px;background:var(--signal);transform:translateY(0);opacity:0;transition:transform .45s var(--sp-ease),height .45s var(--sp-ease),opacity .2s;pointer-events:none}
+.side.has-ind .sp-ind{opacity:1}
+.side.has-ind a.on::before{display:none}
+.side.has-ind a{border-left-color:transparent!important}
+.side a{transition:background-color .2s,color .2s,transform .3s var(--sp-ease)}
+.side a:hover{transform:translateX(3px)}
+.side a.hide{display:none}
+
+/* ── cards & rows ── */
+.card{transition:border-color .25s,box-shadow .35s var(--sp-ease),transform .35s var(--sp-ease)}
+.row{position:relative}
+.row:active{background:color-mix(in srgb,var(--text) 5%,transparent)}
+.sp-saved{position:absolute;right:22px;top:9px;display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;color:var(--signal);opacity:0;transform:translateY(4px);pointer-events:none}
+.sp-saved svg{width:12px;height:12px}
+.sp-saved.on{animation:spSaved 1.6s var(--sp-ease) both}
+@keyframes spSaved{0%{opacity:0;transform:translateY(5px)}14%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-3px)}}
+section.sp-flash .card{animation:spFlash 1.3s var(--sp-ease)}
+@keyframes spFlash{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--signal) 55%,transparent)}30%{box-shadow:0 0 0 5px color-mix(in srgb,var(--signal) 28%,transparent)}100%{box-shadow:0 0 0 0 transparent}}
+
+/* ── segmented controls & buttons: tactile ── */
+.seg{position:relative}
+.seg label{transition:transform .2s var(--sp-ease)}
+.seg label:active{transform:scale(.96)}
+.seg span{transition:background-color .2s,box-shadow .25s,color .2s,transform .3s var(--sp-spring)}
+.seg label:hover input:not(:checked)+span{background:color-mix(in srgb,var(--text) 6%,transparent)}
+.seg input:checked+span{animation:spPop .35s var(--sp-spring)}
+@keyframes spPop{0%{transform:scale(.92)}100%{transform:none}}
+button,.btn{transition:border-color .2s,background-color .2s,color .2s,transform .2s var(--sp-ease),box-shadow .3s,filter .2s}
+button:active,.btn:active{transform:scale(.97)}
+button:disabled{opacity:.55;cursor:not-allowed}
+
+/* ── accent swatches: check mark + hover lift ── */
+.sw{transition:transform .3s var(--sp-spring)}
+.sw:hover{transform:translateY(-2px)}
+.sw span{position:relative;color:#fff;transition:box-shadow .25s var(--sp-ease),transform .3s var(--sp-spring)}
+.sw span::after{content:"";position:absolute;inset:0;margin:auto;width:16px;height:16px;background:currentColor;opacity:0;transform:scale(.4);transition:opacity .2s,transform .35s var(--sp-spring);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/contain no-repeat}
+.sw input:checked+span::after{opacity:1;transform:none}
+.sw input[value=yellow]+span,.sw input[value=mint]+span,.sw input[value=orange]+span{color:#2b2000}
+
+/* ── surface choice cards ── */
+.surface-choice{transition:border-color .25s,box-shadow .3s var(--sp-ease),background-color .25s,transform .3s var(--sp-ease)}
+.surface-choice:hover{transform:translateY(-2px)}
+.surface-choice:active{transform:scale(.98)}
+
+/* ── "my settings" tiles ── */
+.me-t{transition:border-color .2s,transform .3s var(--sp-ease),box-shadow .3s var(--sp-ease)}
+.me-t:hover{transform:translateY(-2px);box-shadow:0 12px 24px -16px rgba(0,0,0,.5)}
+.me-av{transition:transform .5s var(--sp-spring)}
+.me-who:hover .me-av{transform:rotate(-6deg) scale(1.06)}
+
+/* ── storage meter ── */
+.sp-meter{height:6px;margin-top:10px;border-radius:6px;background:color-mix(in srgb,var(--text) 10%,transparent);overflow:hidden;max-width:360px}
+.sp-meter i{display:block;height:100%;width:100%;border-radius:6px;background:var(--signal);transform-origin:left;transform:scaleX(var(--p,0));transition:transform .8s var(--sp-ease)}
+.sp-meter-note{font-size:12px;color:var(--muted);margin-top:6px}
+
+/* ── shortcuts: keycaps feel like keys ── */
+kbd{box-shadow:0 1px 0 color-mix(in srgb,var(--text) 18%,transparent);transition:transform .15s,box-shadow .15s}
+.row:hover kbd{transform:translateY(-1px)}
+kbd.sp-pressed{transform:translateY(1px);box-shadow:none;border-color:var(--signal);color:var(--signal)}
+
+/* ── toast ── */
+.msg{display:flex;align-items:center;gap:8px;transition:opacity .25s,transform .45s var(--sp-spring)}
+.msg::before{content:"";width:14px;height:14px;flex:none;background:var(--signal);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/contain no-repeat}
+
+/* ── scroll entrance for cards (set by settings-page.js, only below the fold) ── */
+@media (prefers-reduced-motion:no-preference){
+  html:not([data-reduce-motion]) .sp-rv{opacity:0;transform:translate3d(0,22px,0);transition:opacity .7s var(--sp-ease),transform .7s var(--sp-ease)}
+  html:not([data-reduce-motion]) .sp-rv.in{opacity:1;transform:none}
+}
+
+/* ── phones: sideways section chips with a clear active state ── */
+@media (max-width:760px){
+  .sp-ind{display:none}
+  .side a.on::before{display:none}
+  .side a{flex:none;white-space:nowrap;border-radius:999px;border-left:0!important}
+  .side a.on{background:var(--signal);color:var(--on)}
+  .side a:hover{transform:none}
+  .sp-saved{right:16px}
+  .side{scrollbar-width:none}.side::-webkit-scrollbar{display:none}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .sp-ind,.sp-meter i,.seg input:checked+span,.sw span::after{transition:none;animation:none}
+  .sp-saved.on{animation:none;opacity:1}
+  section.sp-flash .card{animation:none}
+}
+html[data-reduce-motion] .sp-saved.on{animation:none;opacity:1}
+html[data-reduce-motion] .seg input:checked+span,html[data-reduce-motion] section.sp-flash .card{animation:none}
