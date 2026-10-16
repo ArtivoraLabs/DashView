@@ -1,0 +1,74 @@
+/* ==========================================================================
+   DashView — Odoo Live: Module → Model → Data explorer  (pairs with js/odoo-explorer.js)
+   Tokens only (--paper, --ink, --line, --signal, --dv-c1..10), so it follows dark / light,
+   the iOS accent and the Liquid Glass surface.
+   ========================================================================== */
+.oxp-on .olx-select-bar .olx-model, .oxp-on .olx-select-bar .olx-crumb { display: none !important; }
+.oxp-on .olx-select-bar { justify-content: flex-start; padding-top: 10px; padding-bottom: 10px; }
+.oxp-on.olx-all .olx-select-bar { display: none; }
+
+.oxp { margin: 0 0 14px; padding: 0; overflow: hidden; }
+.oxp-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 16px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, color-mix(in srgb, var(--dv-c1) 6%, transparent), transparent); }
+.oxp[data-open="0"] .oxp-top { border-bottom: 0; }
+.oxp-trail { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; min-width: 0; flex: 1 1 280px; font-size: .875rem; color: var(--ink); }
+.oxp-trail .oxp-t { font: 600 10px var(--f-mono, monospace); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-50); }
+.oxp-trail i { font-style: normal; color: var(--ink-50); }
+.oxp-trail b { font-weight: 700; letter-spacing: -.01em; }
+.oxp-trail em { font: 11px var(--f-mono, monospace); font-style: normal; color: var(--ink-50); }
+.oxp-tab { padding: 2px 9px; border-radius: 99px; font-size: .6875rem; font-weight: 700; color: var(--signal); background: var(--signal-10); }
+.oxp-search { display: flex; align-items: center; gap: 8px; flex: 0 1 340px; min-width: 200px; padding: 0 12px; height: 34px; border: 1px solid var(--line-strong); border-radius: 99px; background: var(--paper-soft); color: var(--ink-50); transition: border-color .15s, box-shadow .15s; }
+.oxp-search:focus-within { border-color: var(--signal); box-shadow: 0 0 0 3px var(--signal-10); }
+.oxp-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: inherit; font-size: .8125rem; color: var(--ink); }
+.oxp-body { padding: 14px 16px 16px; max-height: min(64vh, 620px); overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.oxp-body[hidden] { display: none; }
+
+.oxp-sec-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin: 2px 0 10px; }
+.oxp-sec-h h4 { display: flex; align-items: baseline; gap: 8px; margin: 0; font-size: .9rem; font-weight: 700; letter-spacing: -.005em; color: var(--ink); }
+.oxp-sec-h h4 small { font-size: .72rem; font-weight: 500; color: var(--ink-50); }
+.oxp-n { align-self: center; flex: none; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font: 700 .6875rem var(--f-body, inherit); color: var(--paper); background: var(--ink); }
+.oxp-body > .oxp-sec-h:not(:first-child) { margin-top: 20px; padding-top: 16px; border-top: 1px dashed var(--line-strong); }
+.oxp-seg button { font-size: .75rem; }
+
+.oxp-grid { display: grid; gap: 10px; }
+.oxp-mods { grid-template-columns: repeat(auto-fill, minmax(206px, 1fr)); }
+.oxp-cards { grid-template-columns: repeat(auto-fill, minmax(248px, 1fr)); }
+.oxp-tile { position: relative; display: grid; grid-template-columns: 38px minmax(0, 1fr); grid-template-rows: auto auto; align-items: center; gap: 2px 11px; padding: 11px 12px; text-align: left; cursor: pointer; font: inherit; color: var(--ink);
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-md); transition: transform .16s, border-color .16s, box-shadow .16s, background .16s; }
+.oxp-tile:hover { transform: translateY(-2px); border-color: var(--line-strong); box-shadow: 0 12px 26px -16px rgba(0, 0, 0, .55); }
+.oxp-tile.is-on { border-color: var(--signal); background: color-mix(in srgb, var(--signal) 9%, var(--paper)); box-shadow: 0 0 0 1px var(--signal) inset; }
+.oxp-tile:focus-visible, .oxp-open:focus-visible, .oxp-ins:focus-visible, .oxp-link:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+.oxp-av { grid-row: 1 / 3; width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; font: 800 1rem var(--f-body, inherit); color: #fff; --c: var(--dv-c1);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--c) 100%, #fff 18%), color-mix(in srgb, var(--c) 78%, #000)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28); }
+.oxp-exec .oxp-av { background: linear-gradient(145deg, var(--dv-c1), color-mix(in srgb, var(--dv-c1) 55%, #000)); }
+.oxp-tx { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
+.oxp-tx b { font-size: .8125rem; font-weight: 700; letter-spacing: -.005em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.oxp-tx small { font: 10.5px var(--f-mono, monospace); color: var(--ink-50); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.oxp-bd { position: absolute; top: 8px; right: 9px; display: flex; gap: 4px; }
+.oxp-bd u, .oxp-open u { text-decoration: none; padding: 1px 7px; border-radius: 99px; font: 700 .5625rem var(--f-mono, monospace); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-50); background: var(--paper-soft); border: 1px solid var(--line); }
+.oxp-bd u.i { color: var(--dv-c1); border-color: color-mix(in srgb, var(--dv-c1) 40%, var(--line)); background: color-mix(in srgb, var(--dv-c1) 12%, transparent); }
+.oxp-tile .oxp-tx b { padding-right: 52px; }
+
+.oxp-card { display: flex; align-items: stretch; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--paper); overflow: hidden; transition: border-color .16s, box-shadow .16s, transform .16s; }
+.oxp-card:hover { transform: translateY(-2px); border-color: var(--line-strong); box-shadow: 0 12px 26px -16px rgba(0, 0, 0, .55); }
+.oxp-card.is-on { border-color: var(--signal); box-shadow: 0 0 0 1px var(--signal) inset; background: color-mix(in srgb, var(--signal) 8%, var(--paper)); }
+.oxp-open { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 11px 12px; text-align: left; cursor: pointer; font: inherit; color: var(--ink); background: none; border: 0; }
+.oxp-open .oxp-tx { flex: 1; }
+.oxp-ins { flex: none; padding: 0 12px; font: 600 .6875rem var(--f-body, inherit); color: var(--ink-70); cursor: pointer; background: var(--paper-soft); border: 0; border-left: 1px solid var(--line); }
+.oxp-ins:hover { color: var(--signal); background: var(--signal-10); }
+
+.oxp-sk { height: 58px; border-radius: var(--r-md); border: 1px solid var(--line); background: linear-gradient(100deg, var(--paper-soft) 30%, color-mix(in srgb, var(--ink) 7%, var(--paper-soft)) 50%, var(--paper-soft) 70%); background-size: 220% 100%; animation: oxpSk 1.3s infinite linear; }
+@keyframes oxpSk { to { background-position: -120% 0; } }
+.oxp-empty { padding: 22px 10px; text-align: center; font-size: .8125rem; color: var(--ink-50); }
+.oxp-hint { margin-top: 14px; padding: 12px 14px; border: 1px dashed var(--line-strong); border-radius: var(--r-md); font-size: .8125rem; color: var(--ink-70); }
+.oxp-foot { margin: 12px 2px 0; font-size: .75rem; line-height: 1.5; color: var(--ink-50); }
+.oxp-foot b { color: var(--ink-70); }
+.oxp-link { padding: 0; font: 600 inherit; color: var(--signal); background: none; border: 0; cursor: pointer; text-decoration: underline; }
+
+@media (max-width: 700px) {
+  .oxp-top { padding: 10px 12px; } .oxp-search { flex: 1 1 100%; }
+  .oxp-body { padding: 12px; max-height: 58vh; }
+  .oxp-mods { grid-template-columns: repeat(auto-fill, minmax(100%, 1fr)); } .oxp-cards { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { .oxp-tile, .oxp-card, .oxp-search { transition: none; } .oxp-tile:hover, .oxp-card:hover { transform: none; } .oxp-sk { animation: none; } }
+@media print { .oxp { display: none !important; } }
+body.olx-print-exec .oxp { display: none !important; }
