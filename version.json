@@ -1,11 +1,19 @@
 {
-  "version": "2.20.2",
+  "version": "2.21.0",
   "build": "2026.10.16",
   "released": "2026-10-16",
   "notes": [
-    "Changed: Worker ALLOWED_ORIGINS and project links now point to the new GitHub home (youknowumer.github.io/DashView)"
+    "Redesigned: Odoo Live header, connection card and connection health - one refresh control, setup progress (credentials, Worker URL, verified login), health meter with status tiles, clearer error state, light/dark and phone layouts"
   ],
   "history": [
+    {
+      "version": "2.21.0",
+      "date": "2026-10-16",
+      "notes": [
+        "Redesigned: Odoo Live header, connection card and connection health - one refresh control, setup progress (credentials, Worker URL, verified login), health meter with status tiles, clearer error state, light/dark and phone layouts"
+      ],
+      "critical": false
+    },
     {
       "version": "2.20.2",
       "date": "2026-10-16",
@@ -416,5 +424,5 @@
     }
   ],
   "critical": false,
-  "size": 4581832
+  "size": 4601232
 }

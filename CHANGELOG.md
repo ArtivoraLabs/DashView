@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.21.0 - 2026-10-16
+- Redesigned: Odoo Live header, connection card and connection health - one refresh control, setup progress (credentials, Worker URL, verified login), health meter with status tiles, clearer error state, light/dark and phone layouts
+
 ## 2.20.2 - 2026-10-16
 - Changed: Worker ALLOWED_ORIGINS and project links now point to the new GitHub home (youknowumer.github.io/DashView)
 

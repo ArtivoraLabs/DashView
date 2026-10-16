@@ -1,9 +1,9 @@
-DashView 2.20.2 - changed files (same paths as the project; replace them as they are)
+DashView 2.21.0 - changed files (same paths as the project; replace them as they are)
 
-wrangler.jsonc     ALLOWED_ORIGINS = https://youknowumer.github.io (new GitHub Pages site)
-README.md, index.html   links point to github.com/youknowumer/DashView
-DEPLOY.md          example origin updated
-version.json, package.json, sw.js, CHANGELOG.md   release 2.20.2
+dashboard.html            Odoo Live header (combined auto-refresh + Refresh), connection card markup, new stylesheet link
+css/odoo-live-pro.css     NEW - styles for the Odoo Live header, connection card and connection health
+js/odoo-live.js           connection card: clear title/message, setup progress steps, error state
+js/odoo-connectivity.js   "Connection health" card: meter, status tiles, full checklist toggle
+version.json, package.json, sw.js, CHANGELOG.md    release 2.21.0
 
-(2.20.1 files from the previous zip are still needed if you have not copied them yet.)
-Then: Cloudflare > Worker "workspace" > Settings > Builds > connect youknowumer/DashView (branch main), push, open the Worker URL.
+Then: commit + push, hard-refresh (Ctrl+Shift+R) so the new service worker cache loads.

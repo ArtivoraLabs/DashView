@@ -59,12 +59,33 @@
     if (/cannot reach|failed to fetch|networkerror|load failed/i.test(message)) return 'Could not reach the configured proxy. Check its URL, deployment and allowed site origins.';
     return message;
   }
+  /* Setup progress shown inside the connection card: credentials -> Worker URL -> verified login. */
+  var CHECK_SVG = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"/></svg>';
+  function renderSteps(errored) {
+    var box = byId('odooLiveConnectSteps'); if (!box) return;
+    var c = C.cfg(), connected = !!(window.DVOdoo && window.DVOdoo.isConnected && window.DVOdoo.isConnected());
+    var steps = [
+      { label: 'Credentials', hint: 'URL, database, API key', done: !!(c.url && c.db && c.username && c.apiKey) },
+      { label: 'Worker URL', hint: 'Your Cloudflare proxy', done: !!c.proxyUrl },
+      { label: 'Verify login', hint: errored ? 'Odoo did not answer' : 'Press Connect in Settings', done: connected && !errored }
+    ];
+    var current = -1; steps.forEach(function (st, i) { if (current < 0 && !st.done) current = i; });
+    box.innerHTML = steps.map(function (st, i) {
+      var cls = st.done ? 'is-done' : (errored && i === 2 ? 'is-error' : (i === current ? 'is-current' : ''));
+      return '<li class="olp-step ' + cls + '"' + (i === current ? ' aria-current="step"' : '') + '><span class="olp-step-dot">' + (st.done ? CHECK_SVG : (errored && i === 2 ? '!' : (i + 1))) + '</span>' +
+        '<span class="olp-step-text"><b>' + esc(st.label) + '</b><em>' + esc(st.hint) + '</em></span></li>';
+    }).join('');
+  }
+  function paintBanner(tone, title, message) {
+    var banner = byId('odooLiveConnectBanner'), text = byId('odooLiveConnectBannerText'); if (!banner || !text) return;
+    banner.setAttribute('data-tone', tone);
+    text.innerHTML = '<strong>' + esc(title) + '</strong><span>' + esc(message) + '</span>';
+    banner.hidden = false;
+  }
   function showLiveError(e) {
-    var banner = byId('odooLiveConnectBanner'), text = byId('odooLiveConnectBannerText'), retry = byId('odooLiveRetryBtn');
-    if (banner && text) {
-      text.innerHTML = '<strong>Connection issue.</strong> ' + esc(safeError(e));
-      banner.hidden = false;
-    }
+    var retry = byId('odooLiveRetryBtn');
+    paintBanner('error', 'Connection issue', safeError(e));
+    renderSteps(true);
     if (retry) retry.hidden = false;
     setStatus('error', 'Connection error');
   }
@@ -76,11 +97,13 @@
       if (retry) retry.hidden = true;
       return true;
     }
-    banner.hidden = false;
     var message = s === 'ok'
       ? 'Connect from Settings before browsing live records. Your saved credentials remain in this browser.'
+      : s === 'none' ? 'Add your Odoo URL, database, username and API key, plus your Worker URL, in Settings \u2192 Odoo. Credentials stay in this browser.'
       : C.message(s);
-    text.innerHTML = '<strong>' + (s === 'locked' ? 'Workspace locked.' : s === 'noproxy' ? 'Proxy URL missing.' : s === 'ok' ? 'Odoo is disconnected.' : 'Odoo is not configured.') + '</strong> ' + esc(message);
+    paintBanner(s === 'locked' ? 'locked' : 'idle',
+      s === 'locked' ? 'Workspace locked' : s === 'noproxy' ? 'Worker URL missing' : s === 'ok' ? 'Odoo is disconnected' : 'Odoo is not connected yet', message);
+    renderSteps(false);
     if (retry) retry.hidden = true;
     setStatus('disconnected', s === 'locked' ? 'Locked' : 'Not connected');
     byId('odooLiveConn').innerHTML = '';

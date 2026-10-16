@@ -57,6 +57,7 @@
 <link rel="stylesheet" href="css/audit-pro.css"/>
 <link rel="stylesheet" href="css/studio-pro.css"/>
 <link rel="stylesheet" href="css/theme-final.css"/>
+<link rel="stylesheet" href="css/odoo-live-pro.css"/>
 <link rel="stylesheet" href="css/accent-sync.css"/>
 <link rel="stylesheet" href="css/widget-pro.css"/>
 <link rel="stylesheet" href="css/cursor.css"/>
@@ -507,27 +508,39 @@
 
       <!-- ══════════════════════ ODOO — LIVE (real, director-scale) ══════════════════════ -->
       <section class="view-panel" id="view-odoo-live">
-        <div class="ov-head">
-          <div>
+        <div class="ov-head olp-head">
+          <div class="olp-title">
             <h1>Odoo Live <span class="odoo-live-status is-disconnected" id="odooLiveStatus" role="status" aria-live="polite"><span class="dot" aria-hidden="true"></span><span id="odooLiveStatusText">Not connected</span></span></h1>
             <p id="odooLiveSub">Pick an installed app, then explore its models — insights and charts adapt to the app you choose.</p>
           </div>
-          <div class="ov-head-actions">
-            <select class="pro-select" id="odooLiveAutoRefresh" aria-label="Auto refresh">
-              <option value="0">Auto-refresh: off</option>
-              <option value="30000">Every 30 s</option>
-              <option value="60000">Every minute</option>
-              <option value="300000">Every 5 min</option>
-            </select>
+          <div class="ov-head-actions olp-toolbar" role="group" aria-label="Refresh controls">
+            <label class="olp-auto" for="odooLiveAutoRefresh">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+              <select class="pro-select" id="odooLiveAutoRefresh" aria-label="Auto refresh">
+                <option value="0">Auto-refresh: off</option>
+                <option value="30000">Every 30 s</option>
+                <option value="60000">Every minute</option>
+                <option value="300000">Every 5 min</option>
+              </select>
+            </label>
+            <span class="olp-sep" aria-hidden="true"></span>
             <button class="btn btn-outline btn-sm olx-refresh" id="odooLiveRefreshBtn" type="button">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg> Refresh
             </button>
           </div>
         </div>
-        <div class="odoo-live-connect-banner" id="odooLiveConnectBanner" role="region" aria-live="polite" aria-labelledby="odooLiveConnectBannerText" hidden>
-          <p id="odooLiveConnectBannerText"></p>
-          <button class="btn btn-outline btn-sm" id="odooLiveRetryBtn" type="button" hidden>Retry connection</button>
-          <a href="#settings" class="btn btn-primary btn-sm" data-view="settings">Open Settings</a>
+        <div class="odoo-live-connect-banner olp-conn" id="odooLiveConnectBanner" role="region" aria-live="polite" aria-labelledby="odooLiveConnectBannerText" data-tone="idle" hidden>
+          <span class="olp-conn-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v5M15 2v5"/><path d="M6 7h12v4a6 6 0 0 1-12 0V7z"/><path d="M12 17v5"/></svg>
+          </span>
+          <div class="olp-conn-main">
+            <p id="odooLiveConnectBannerText"></p>
+            <ol class="olp-steps" id="odooLiveConnectSteps" aria-label="Setup progress"></ol>
+          </div>
+          <div class="olp-conn-actions">
+            <a href="#settings" class="btn btn-primary btn-sm" data-view="settings">Open Settings</a>
+            <button class="btn btn-outline btn-sm" id="odooLiveRetryBtn" type="button" hidden>Retry connection</button>
+          </div>
         </div>
         <div id="odooLiveCheckpoints" class="odoo-live-checkpoints"></div>
         <div class="olx-conn" id="odooLiveConn"></div>

@@ -153,30 +153,59 @@
       '<div class="odoo-checkpoint-list">' + renderList(ops, ctx) + '</div>';
   }
 
-  /* ── Compact strip (Live Odoo view) ──────────────────────────────────── */
+  /* ── Connection health card (Live Odoo view) ─────────────────────────── */
+  var TILE_ICON = {
+    ok: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"/></svg>',
+    warn: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v6M12 17h.01"/></svg>',
+    blocked: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 12h12"/></svg>'
+  };
+  var NEXT_STEP = {
+    creds: 'Add them in Settings \u2192 Odoo',
+    backend: 'Paste your workers.dev URL',
+    session: 'Press Connect to Odoo'
+  };
+
   function renderLiveStrip() {
     var mount = byId('odooLiveCheckpoints');
     if (!mount) return;
     var ctx = getContext();
     var live = CHECKPOINTS.filter(function (c) { return c.kind === 'live'; });
-    var sum = summarize(CHECKPOINTS, ctx);
-    var expanded = mount.getAttribute('data-expanded') === '1';
-
-    var html = '<div class="odoo-checkpoints compact">' +
-      '<div class="odoo-checkpoints-head">' +
-        '<h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>Connectivity checkpoints</h4>' +
-        '<span class="odoo-checkpoints-summary"><b>' + sum.ok + '</b> / ' + sum.total + ' verified &middot; <button type="button" class="odoo-checkpoints-toggle" id="odooLiveCpToggle" aria-controls="odooLiveOpsChecklist" aria-expanded="' + (expanded ? 'true' : 'false') + '">' + (expanded ? 'Hide full checklist' : 'View full checklist') + '</button></span>' +
-      '</div>' +
-      '<div class="odoo-checkpoint-list">' + renderList(live, ctx) + '</div>' +
-      '</div>';
-
     var ops = CHECKPOINTS.filter(function (c) { return c.kind === 'ops'; });
-    html += '<div id="odooLiveOpsChecklist" class="odoo-checkpoints" style="margin-top:10px;"' + (expanded ? '' : ' hidden') + '>' +
-        '<p class="odoo-panel-sub" style="margin-bottom:8px;font-weight:700;color:var(--ink-70);">Production / director-scale checklist \u2014 confirm on the server</p>' +
-        '<div class="odoo-checkpoint-list">' + renderList(ops, ctx) + '</div>' +
-      '</div>';
+    var sum = summarize(CHECKPOINTS, ctx);
+    var pct = sum.total ? Math.round(sum.ok / sum.total * 100) : 0;
+    var expanded = mount.getAttribute('data-expanded') === '1';
+    var tone = sum.ok === sum.total ? 'ok' : (sum.ok > 2 ? 'warn' : 'low');
 
-    mount.innerHTML = html;
+    var tiles = live.map(function (cp) {
+      var st = cp.status(ctx);
+      var line = st === 'ok' ? statusText(cp, st) : (NEXT_STEP[cp.id] || statusText(cp, st));
+      return '<div class="olp-tile ' + st + '" data-checkpoint="' + cp.id + '">' +
+        '<span class="olp-tile-icon">' + TILE_ICON[st] + '</span>' +
+        '<span class="olp-tile-text"><b>' + esc(cp.title) + '</b><em>' + esc(line) + '</em></span>' +
+        '<span class="olp-tile-state">' + esc(statusText(cp, st)) + '</span>' +
+      '</div>';
+    }).join('');
+
+    mount.innerHTML =
+      '<section class="olp-health" data-tone="' + tone + '" aria-label="Connection health">' +
+        '<header class="olp-health-head">' +
+          '<div class="olp-health-title"><h4>Connection health</h4><p>Checked live from this browser</p></div>' +
+          '<div class="olp-meter" role="img" aria-label="' + sum.ok + ' of ' + sum.total + ' checkpoints verified">' +
+            '<span class="olp-meter-num"><b>' + sum.ok + '</b> of ' + sum.total + ' verified</span>' +
+            '<span class="olp-meter-bar"><i style="width:' + pct + '%"></i></span>' +
+          '</div>' +
+          '<button type="button" class="olp-health-toggle" id="odooLiveCpToggle" aria-controls="odooLiveOpsChecklist" aria-expanded="' + (expanded ? 'true' : 'false') + '">' +
+            (expanded ? 'Hide full checklist' : 'View full checklist') +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="olp-chev"><path d="M6 9l6 6 6-6"/></svg>' +
+          '</button>' +
+        '</header>' +
+        '<div class="olp-tiles">' + tiles + '</div>' +
+        '<div id="odooLiveOpsChecklist" class="olp-ops"' + (expanded ? '' : ' hidden') + '>' +
+          '<p class="olp-ops-title">Production checklist <span>confirm these on the server and in Odoo</span></p>' +
+          '<div class="odoo-checkpoint-list">' + renderList(ops, ctx) + '</div>' +
+        '</div>' +
+      '</section>';
+
     var toggle = byId('odooLiveCpToggle');
     if (toggle) toggle.addEventListener('click', function () {
       mount.setAttribute('data-expanded', expanded ? '0' : '1');
