@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.20.0 - 2026-10-16
+- Improved: Executive CEO command center - masthead with live sync status, refresh and optional 5-minute auto-refresh, five health pillars, KPI icons with previous values, run-rate daily pace, 7/14/30-day cash horizon, 12-month trend stats, collections watchlist (largest overdue customers), share bars on leaders, definitions panel, KPI CSV export and a clean board-pack print layout
+- Added: Odoo Live module explorer - pick a module first (apps, all modules or with insights), then its models, then open any model in the Data browser or Insights; search finds modules, models of the open module and any other readable Odoo model
+
 ## 2.19.1 - 2026-10-15
 - Fixed: Version history in Settings now lists every release (it was stuck on old versions and capped at 30; the update pop-up showed only 4 previous versions)
 - Improved: Settings > Version history loads the newest release list from the server, marks Installed and Update available, and the history is rebuilt from the changelog
