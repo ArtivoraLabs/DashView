@@ -32,7 +32,7 @@ async function run(opts) {
       } else if (gb[0].indexOf(':month') > -1) {
         const field = gb[0].split(':')[0];
         for (let i = 11; i >= 0; i--) groups.push({ [gb[0]]: 'm' + i, amount_total: 100 + (11 - i) * 20, __count: 5, __domain: [[field, '>=', mk(i)], [field, '<', mk(i - 1)]] });
-      } else if (gb[0] === 'partner_id') groups = [{ partner_id: [7, 'Big Client'], amount_total: 600 }, { partner_id: [8, 'Small Client'], amount_total: 200 }];
+      } else if (gb[0] === 'partner_id') groups = [{ partner_id: [7, 'Big Client'], amount_total: 600, amount_residual: 150 }, { partner_id: [8, 'Small Client'], amount_total: 200, amount_residual: 50 }];
       else if (gb[0] === 'product_id') groups = [{ product_id: [3, 'Widget'], price_subtotal: 500 }];
       else if (gb[0] === 'user_id') groups = [{ user_id: [2, 'Sara'], amount_total: 700 }];
       out = { ok: true, groups };
@@ -86,6 +86,30 @@ async function run(opts) {
   let printed = 0; d.getElementById('olxPrint').addEventListener('click', () => printed++);
   d.getElementById('ceoBoard').click();
   ok('Board pack triggers the existing Print / PDF', printed === 1);
+
+  /* v2 detailing: masthead, pillars, cash horizon, trend stats, watchlist, exports, refresh */
+  ok('masthead shows title, live status and the four actions', /Command Center/.test(d.querySelector('.ceo-mast').textContent) && d.getElementById('ceoLive') && ['ceoRefresh', 'ceoCopy', 'ceoCsv', 'ceoBoard'].every((id) => d.getElementById(id)));
+  ok('live status says updated once data is in', /Live/.test(d.getElementById('ceoLiveTx').textContent) && d.getElementById('ceoLive').classList.contains('is-ok'));
+  ok('health pillars listed (growth, collections, cash cover, customer mix)', ['Growth', 'Collections', 'Cash cover', 'Customer mix'].every((x) => d.querySelector('.ceo-pillars').textContent.includes(x)));
+  ok('pillar scores are 0-100', [...d.querySelectorAll('.ceo-pillars li b')].every((b) => +b.textContent >= 0 && +b.textContent <= 100));
+  ok('customer-mix pillar penalises the 75% top customer', +([...d.querySelectorAll('.ceo-pillars li')].filter((li) => /Customer mix/.test(li.textContent))[0].querySelector('b').textContent) < 40);
+  ok('tiles carry an icon and the previous value', d.querySelectorAll('.ceo-tile .ceo-ti svg').length >= 5 && /before/.test(rev.textContent));
+  ok('cash outlook splits into three weekly horizons', d.querySelectorAll('.ceo-wk-c').length === 3);
+  ok('trend stats: 12-month revenue, average, best, last full month', ['12-month revenue', 'Monthly average', 'Best month', 'Last full month'].every((x) => d.getElementById('ceoTrendStats').textContent.includes(x)));
+  ok('run-rate shows daily average and needed per day', /Daily average/.test(d.getElementById('ceoRun').textContent) && /Days left/.test(d.getElementById('ceoRun').textContent));
+  ok('leader boards show a share bar and top-3 concentration', d.querySelectorAll('.ceo-mix').length === 3 && /Top 3 hold/.test(d.getElementById('ceoLeaders').textContent));
+  ok('collections watchlist lists the largest overdue customer', !d.getElementById('ceoWatch').hidden && /Big Client/.test(d.getElementById('ceoWatch').textContent));
+  const nOpen = R.opened.length; d.querySelector('.ceo-wr').click();
+  ok('watchlist row drills into that customer\u2019s overdue invoices', R.opened.length === nOpen + 1 && R.opened[nOpen].model === 'account.move' && JSON.stringify(R.opened[nOpen].domain).includes('"partner_id","=",7'));
+  ok('brief header counts risks / watch / positives', d.querySelectorAll('#ceoBrief .ceo-chip').length > 0 && d.querySelector('.ceo-pri'));
+  ok('definitions panel explains the figures', /How these numbers are defined/.test(d.querySelector('.ceo-defs summary').textContent) && /Net trading position/.test(d.querySelector('.ceo-defs').textContent));
+  let saved = null; R.w.DVFmt.download = (name, text) => { saved = { name, text }; };
+  d.getElementById('ceoCsv').click();
+  ok('CSV export: dated file name, headline + aging + leaders rows', saved && /^ceo-kpis-\d{4}-\d\d-\d\d\.csv$/.test(saved.name) && /Headline,Revenue,/.test(saved.text) && /Receivable aging,/.test(saved.text) && /Top customers,Big Client,/.test(saved.text));
+  const before = R.bodies.length; d.getElementById('ceoRefresh').click(); await wait(900);
+  ok('Refresh re-reads Odoo in place (one section, fresh requests, ring redrawn)', R.bodies.length > before && d.querySelectorAll('#ceoSec').length === 1 && d.querySelectorAll('.ceo-ring').length === 1 && !d.getElementById('ceoCopy').disabled);
+  d.getElementById('ceoAuto').click();
+  ok('auto-refresh choice is remembered', R.w.localStorage.getItem('dashview_ceo_auto') === 'true');
 
   /* period / lens rebuild: executive re-renders → section remounts once, no duplicates */
   d.getElementById('odooLiveExec').innerHTML = R.shell('company'); await wait(900);

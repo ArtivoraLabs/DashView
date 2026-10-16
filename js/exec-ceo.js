@@ -12,7 +12,11 @@
      • Cash outlook     receivable vs payable due in the next 30 days
      • Collections      receivable aging, current → 90+ days overdue
      • Leaders          top customers, products and salespeople for the period
-     • CEO brief        copy a plain-text summary (WhatsApp / e-mail) or open Print / PDF
+     • CEO brief        copy a plain-text summary (WhatsApp / e-mail), export KPIs to CSV, or open Print / PDF
+     • Health pillars   growth, collections, cash cover, customer mix, pipeline cover (0-100, rule-based)
+     • Cash horizon     collect vs pay for the next 7 / 14 / 30 days
+     • Watchlist        the largest overdue customers, one click to the invoices
+     • Live status      sync state, "updated n min ago", manual refresh and optional 5-minute auto-refresh
 
    Read-only: only read_group queries through DVOdooClient. Nothing is written to Odoo.
    Every figure comes from Odoo; the insights are rules over those figures (no AI, no estimates
@@ -26,7 +30,19 @@
   if (!C || !F || !PR || !host) return;
 
   var esc = F.esc, PERIOD_KEY = 'dashview_odoo_period';
-  var S = null, seq = 0, drills = [], lastBrief = '';
+  var S = null, seq = 0, drills = [], lastBrief = '', clock = 0;
+  var AUTO_KEY = 'dashview_ceo_auto', AUTO_MS = 5 * 60 * 1000;
+  var ICON_BODY = {
+    rev: '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
+    ord: '<path d="M6 7h15l-1.5 9H8z"/><path d="M6 7L5 3H2"/><circle cx="9" cy="20" r="1.2"/><circle cx="18" cy="20" r="1.2"/>',
+    aov: '<circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M14.8 9.3c-.5-.9-1.5-1.4-2.8-1.4-1.6 0-2.8.8-2.8 2s1.1 1.7 2.8 2.1 2.8.8 2.8 2.1-1.2 2-2.8 2c-1.3 0-2.4-.5-2.9-1.5"/>',
+    net: '<path d="M12 3v18M6 21h12"/><path d="M5 8h14"/><path d="M7 8l-3 7a3 3 0 006 0zM17 8l-3 7a3 3 0 006 0z"/>',
+    ovd: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    pipe: '<path d="M3 5h18l-7 8v6l-4-2v-4z"/>',
+    emp: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.5a3.5 3.5 0 010 7M18 14c2 .7 3.5 2.6 3.5 6"/>'
+  };
+  function icon(id) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICON_BODY[id] || ICON_BODY.rev) + '</svg>'; }
+  var MIXC = ['var(--dv-c1)', 'var(--dv-c2)', 'var(--dv-c3)', 'var(--dv-c4)', 'var(--dv-c5)'];
 
   /* ── small helpers ───────────────────────────────────────────────────── */
   function $(id) { return document.getElementById(id); }
@@ -116,6 +132,31 @@
     skeleton();
     watchHead(my);
     load(my);
+    startClock(my);
+  }
+  /* Manual / automatic refresh: re-reads everything in place (the shared client cache is cleared first). */
+  function reload() {
+    if (!S || !document.body.contains(S.sec)) return;
+    try { if (C.invalidate) C.invalidate(); } catch (e) { /* cache clear is best-effort */ }
+    var my = ++seq; drills = []; specCache = {};
+    S.days = days(); S.D = {}; S.updated = 0; S.sec.removeAttribute('data-ready');
+    skeleton(); watchHead(my); load(my); startClock(my);
+  }
+  function autoOn() { return jget(AUTO_KEY, false) === true; }
+  function startClock(my) {
+    clearInterval(clock);
+    clock = setInterval(function () {
+      if (!alive(my)) { clearInterval(clock); return; }
+      paintLive();
+      if (autoOn() && S.updated && Date.now() - S.updated >= AUTO_MS) reload();
+    }, 30000);
+  }
+  function paintLive() {
+    var tx = $('ceoLiveTx'), dot = $('ceoLive'); if (!tx || !dot || !S) return;
+    if (!S.updated) { tx.textContent = 'Syncing with Odoo\u2026'; dot.className = 'ceo-live is-sync'; return; }
+    var m = Math.floor((Date.now() - S.updated) / 60000);
+    tx.textContent = 'Live \u00B7 updated ' + (m < 1 ? 'just now' : m + ' min ago') + ' \u00B7 ' + new Date(S.updated).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    dot.className = 'ceo-live ' + (m >= 15 ? 'is-old' : 'is-ok');
   }
   var pending = 0;
   new MutationObserver(function () { cancelAnimationFrame(pending); pending = requestAnimationFrame(tryMount); }).observe(host, { childList: true });
@@ -125,24 +166,51 @@
 
   /* ── skeleton ────────────────────────────────────────────────────────── */
   function skeleton() {
+    var co = ''; try { co = (C.cfg().db || ''); } catch (e) { co = ''; }
+    var today = new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     S.sec.innerHTML =
+      '<header class="ceo-mast">' +
+        '<div class="ceo-mast-l"><span class="ceo-kicker">Executive \u00B7 CEO view</span><h2>Command Center</h2>' +
+          '<p>' + (co ? '<b>' + esc(co) + '</b> \u00B7 ' : '') + esc(today) + ' \u00B7 last <b>' + esc(periodText()) + '</b> vs the previous equal period</p></div>' +
+        '<div class="ceo-mast-r">' +
+          '<span class="ceo-live is-sync" id="ceoLive" role="status" aria-live="polite"><i></i><span id="ceoLiveTx">Syncing with Odoo\u2026</span></span>' +
+          '<label class="ceo-auto" title="Re-read Odoo every 5 minutes"><input type="checkbox" id="ceoAuto"' + (autoOn() ? ' checked' : '') + '/><span>Auto-refresh</span></label>' +
+          '<span class="ceo-tools"><button type="button" class="btn btn-outline btn-sm" id="ceoRefresh">\u21BB Refresh</button>' +
+          '<button type="button" class="btn btn-outline btn-sm" id="ceoCopy">Copy CEO brief</button>' +
+          '<button type="button" class="btn btn-outline btn-sm" id="ceoCsv">Export KPIs (CSV)</button>' +
+          '<button type="button" class="btn btn-sm ceo-primary" id="ceoBoard">Board pack (PDF)</button></span>' +
+        '</div>' +
+      '</header>' +
       '<div class="ceo-top">' +
         '<div class="panel ceo-score" id="ceoScore"><div class="olx-skel"></div></div>' +
         '<div class="panel ceo-brief" id="ceoBrief"><div class="ceo-h"><h3>Executive brief</h3><small>what moved, what it means, what to do \u00B7 rule-based</small></div><div class="ceo-brief-body"><div class="olx-skel"></div></div></div>' +
       '</div>' +
+      '<div class="ceo-sec-h"><span>Headline numbers</span><i></i></div>' +
       '<div class="ceo-tiles" id="ceoTiles" aria-label="Headline numbers"></div>' +
+      '<div class="ceo-sec-h"><span>Momentum &amp; cash</span><i></i></div>' +
       '<div class="ceo-mid">' +
         '<div class="panel ceo-run" id="ceoRun"><div class="ceo-h"><h3>Run-rate this month</h3><small>month-to-date vs last month</small></div><div class="ceo-run-body"><div class="olx-skel"></div></div></div>' +
         '<div class="panel ceo-cash" id="ceoCash"><div class="ceo-h"><h3>Cash outlook \u00B7 next 30 days</h3><small>unpaid documents falling due</small></div><div class="ceo-cash-body"><div class="olx-skel"></div></div></div>' +
       '</div>' +
       '<div class="ceo-wide">' +
-        '<div class="panel ceo-trend" id="ceoTrendBox"><div class="ceo-h"><h3>Revenue vs vendor bills</h3><small>last 12 months</small></div><div class="ceo-cv"><canvas id="ceoTrend"></canvas></div></div>' +
+        '<div class="panel ceo-trend" id="ceoTrendBox"><div class="ceo-h"><h3>Revenue vs vendor bills</h3><small>last 12 months</small></div><div class="ceo-stats" id="ceoTrendStats"></div><div class="ceo-cv"><canvas id="ceoTrend"></canvas></div></div>' +
         '<div class="panel ceo-aging" id="ceoAging"><div class="ceo-h"><h3>Collections \u00B7 receivable aging</h3><small>unpaid customer invoices by days overdue</small></div><div class="ceo-aging-body"><div class="olx-skel"></div></div></div>' +
       '</div>' +
+      '<div class="ceo-sec-h"><span>Who drives the numbers</span><i></i></div>' +
       '<div class="ceo-leaders" id="ceoLeaders"></div>' +
-      '<div class="ceo-foot"><span>CEO command center \u00B7 live, read-only \u00B7 period <b>' + esc(periodText()) + '</b> vs the previous equal period</span>' +
-      '<span class="ceo-tools"><button type="button" class="btn btn-outline btn-sm" id="ceoCopy">Copy CEO brief</button><button type="button" class="btn btn-outline btn-sm" id="ceoBoard">Board pack (PDF)</button></span></div>';
+      '<details class="ceo-defs"><summary>How these numbers are defined</summary><ul>' +
+        '<li><b>Revenue</b> confirmed sales orders (sale / done), dated by order date. Drafts and cancelled orders are excluded.</li>' +
+        '<li><b>Invoiced / Vendor bills</b> posted customer invoices and posted vendor bills, dated by invoice date.</li>' +
+        '<li><b>Net trading position</b> invoiced minus vendor bills for the period. It is not profit: payroll, tax and stock movements are not included.</li>' +
+        '<li><b>Overdue receivable</b> unpaid or part-paid posted invoices whose due date has passed, measured by the amount still open.</li>' +
+        '<li><b>Open pipeline</b> expected revenue of open CRM opportunities that are not yet won.</li>' +
+        '<li><b>Run-rate projection</b> revenue so far \u00F7 days elapsed \u00D7 days in the month. A straight line, not a forecast.</li>' +
+        '<li><b>Health pillars</b> indicative 0\u2013100 scores from the same figures: growth (revenue vs previous), collections (share overdue), cash cover (collect \u00F7 pay, 30 days), customer mix (top-customer share), pipeline cover (months of recent revenue).</li>' +
+      '</ul></details>' +
+      '<div class="ceo-foot"><span>CEO command center \u00B7 live, read-only \u00B7 source <b>Odoo</b> \u00B7 nothing is written back</span><span class="ceo-foot-r">Every number with a pointer opens the records behind it</span></div>';
     var cap = $('ceoCopy'); if (cap) cap.disabled = true;
+    var csv = $('ceoCsv'); if (csv) csv.disabled = true;
+    paintLive();
   }
 
   /* ── data ────────────────────────────────────────────────────────────── */
@@ -216,6 +284,10 @@
       D.cash = r[0] && r[1] ? { inc: r[0].sum, incN: r[0].count, out: r[1].sum, outN: r[1].count } : null;
       paintCash();
     }));
+    var WK = [[0, 8, 'Next 7 days'], [8, 15, 'Days 8\u201314'], [15, 31, 'Days 15\u201330']];
+    jobs.push(Promise.all(WK.map(function (w) {
+      return Promise.all([inDue(w[0], w[1], UNPAID_IN), inDue(w[0], w[1], UNPAID_OUT)]).then(function (r) { return r[0] && r[1] ? { label: w[2], inc: r[0].sum, out: r[1].sum } : null; });
+    })).then(function (rows) { if (!alive(my)) return; D.cashW = rows.every(Boolean) ? rows : null; paintCash(); }));
     var B = [['Not yet due', 0, null], ['1\u201330 days', -30, 0], ['31\u201360 days', -60, -30], ['61\u201390 days', -90, -60], ['90+ days', null, -90]];
     jobs.push(Promise.all(B.map(function (b) {
       var dm = UNPAID_IN.slice();
@@ -244,6 +316,14 @@
     ];
     jobs.push(Promise.all(leaders).then(function (L) { if (!alive(my)) return; D.leaders = L.filter(function (x) { return x && x.rows.length; }); paintLeaders(); }));
 
+    jobs.push(safe(group('account.move', { domain: PR.tokens(UNPAID_IN.concat([['invoice_date_due', '<', '$now']])), fields: ['amount_residual:sum'], groupby: ['partner_id'] })).then(function (g) {
+      if (!alive(my)) return;
+      if (!g) { D.watch = null; return; }
+      var rows = g.map(function (r) { var f = r.partner_id; return { id: Array.isArray(f) ? f[0] : null, name: Array.isArray(f) ? String(f[1]) : 'Not set', v: Number(r.amount_residual) || 0 }; })
+        .filter(function (r) { return r.v > 0 && r.id != null; }).sort(function (a, b) { return b.v - a.v; });
+      D.watch = { rows: rows, total: rows.reduce(function (t, r) { return t + r.v; }, 0) }; paintWatch();
+    }));
+
     Promise.all(jobs).then(function () { if (!alive(my)) return; derive(); paintTiles(); paintInsights(); paintScore(); finish(); });
   }
 
@@ -264,6 +344,9 @@
     var t = e.target.closest && e.target.closest('[data-dr]');
     if (t && S && S.sec.contains(t)) { var s = drills[+t.getAttribute('data-dr')]; if (s && window.DVDrill) window.DVDrill.open(s, t); return; }
     if (e.target.closest && e.target.closest('#ceoCopy')) return copyBrief();
+    if (e.target.closest && e.target.closest('#ceoRefresh')) return reload();
+    if (e.target.closest && e.target.closest('#ceoCsv')) return exportCsv();
+    if (e.target.closest && e.target.closest('#ceoAuto')) { try { localStorage.setItem(AUTO_KEY, JSON.stringify(!!$('ceoAuto').checked)); } catch (e4) { /* private mode */ } return; }
     if (e.target.closest && e.target.closest('#ceoBoard')) { var p = $('olxPrint'); if (p) p.click(); }
   }
   function drillSpec(k) {
@@ -290,16 +373,16 @@
     var D = S.D, cur = D.cur, prev = D.prev;
     var derived = { aov: cur.rev != null && cur.ord != null ? (cur.ord ? cur.rev / cur.ord : 0) : null, net: cur.inv != null && cur.bill != null ? cur.inv - cur.bill : null };
     var derivedP = { aov: prev.rev != null && prev.ord != null ? (prev.ord ? prev.rev / prev.ord : 0) : null, net: prev.inv != null && prev.bill != null ? prev.inv - prev.bill : null };
-    var html = '';
+    var html = '', n = 0;
     ORDER.forEach(function (id) {
       var k = kpi(id), v = k.of ? derived[id] : cur[id], p = k.of ? derivedP[id] : prev[id];
       if (v == null) return;                                     /* not installed / not readable: no tile */
       if (id === 'pipe' && v === 0) return;                       /* no CRM pipeline: no tile */
       var t = p != null && p !== 0 ? tone(k, v, p) : 'flat', d = pct(v, p);
       var di = spec(k) != null ? ' data-dr="' + spec(k) + '" tabindex="0" role="button" aria-label="Drill into ' + esc(k.label) + '"' : '';
-      html += '<div class="ceo-tile ' + (di ? 'is-drill ' : '') + 'is-' + t + '"' + di + '>' +
-        '<span class="ceo-tl">' + esc(k.label) + '</span><b class="ceo-tv">' + esc(fmtK(k, v)) + '</b>' +
-        '<span class="ceo-ts">' + (d != null && !k.now ? '<i class="ceo-d ' + t + '">' + (d >= 0 ? '\u25B2 ' : '\u25BC ') + Math.abs(d).toFixed(1) + '%</i> vs previous' : esc(k.sub || 'Last ' + periodText())) + '</span>' +
+      html += '<div class="ceo-tile ' + (di ? 'is-drill ' : '') + 'is-' + t + '"' + di + ' style="--i:' + (n++) + '">' +
+        '<div class="ceo-tt"><span class="ceo-ti">' + icon(id) + '</span><span class="ceo-tl">' + esc(k.label) + '</span></div><b class="ceo-tv">' + esc(fmtK(k, v)) + '</b>' +
+        '<span class="ceo-ts">' + (d != null && !k.now ? '<i class="ceo-d ' + t + '">' + (d >= 0 ? '\u25B2 ' : '\u25BC ') + Math.abs(d).toFixed(1) + '%</i> vs ' + esc(fmtK(k, p)) + ' before' : esc(k.sub || 'Last ' + periodText())) + '</span>' +
         (D.spark[id] ? spark(D.spark[id], t) : '') + '</div>';
     });
     if (box._h !== html) { box.innerHTML = html; box._h = html; }
@@ -323,6 +406,10 @@
     b.innerHTML =
       '<div class="ceo-run-fig"><div><span>Month to date</span><b>' + esc(money(r.mtd)) + '</b></div><div><span>Projected month-end</span><b class="' + tn + '">' + esc(money(proj)) + '</b></div><div><span>Last month</span><b>' + esc(money(r.last)) + '</b></div></div>' +
       '<div class="ceo-bar" role="img" aria-label="Month to date ' + esc(money(r.mtd)) + ', projected ' + esc(money(proj)) + ', last month ' + esc(money(r.last)) + '"><u class="proj" style="width:' + (proj / base * 100).toFixed(1) + '%"></u><u class="mtd" style="width:' + (r.mtd / base * 100).toFixed(1) + '%"></u><s style="left:' + (r.last / base * 100).toFixed(1) + '%" title="Last month"></s></div>' +
+      '<div class="ceo-legend"><span><i class="mtd"></i>Month to date</span><span><i class="proj"></i>Projected</span><span><i class="mark"></i>Last month</span></div>' +
+      '<div class="ceo-run-meta"><div><span>Daily average</span><b>' + esc(money(r.dom ? r.mtd / r.dom : 0)) + '</b></div>' +
+      '<div><span>Needed per day to match last month</span><b>' + (r.dim - r.dom <= 0 ? '\u2013' : r.mtd >= r.last ? '<i class="good">Already ahead</i>' : esc(money((r.last - r.mtd) / (r.dim - r.dom)))) + '</b></div>' +
+      '<div><span>Days left</span><b>' + Math.max(0, r.dim - r.dom) + '</b></div></div>' +
       '<p class="ceo-note">Day ' + r.dom + ' of ' + r.dim + '. ' +
       (pace != null ? 'Pace is <i class="ceo-d ' + (pace >= 1 ? 'good' : pace <= -1 ? 'bad' : 'flat') + '">' + (pace >= 0 ? '\u25B2 ' : '\u25BC ') + Math.abs(pace).toFixed(1) + '%</i> against the same days last month. ' : '') +
       'Projection is a straight-line run-rate (revenue so far \u00F7 days elapsed \u00D7 days in month), not a forecast.</p>';
@@ -339,7 +426,18 @@
       '<div class="ceo-cash-row in"><span>To collect</span><div class="ceo-track"><u style="width:' + (c.inc / mx * 100).toFixed(1) + '%"></u></div><b>' + esc(money(c.inc)) + '</b><em>' + num(c.incN) + ' invoice' + (c.incN === 1 ? '' : 's') + '</em></div>' +
       '<div class="ceo-cash-row out"><span>To pay</span><div class="ceo-track"><u style="width:' + (c.out / mx * 100).toFixed(1) + '%"></u></div><b>' + esc(money(c.out)) + '</b><em>' + num(c.outN) + ' bill' + (c.outN === 1 ? '' : 's') + '</em></div>' +
       '<div class="ceo-cash-net ' + (net >= 0 ? 'good' : 'bad') + '"><span>Net from documents</span><b>' + (net >= 0 ? '+' : '\u2212') + esc(money(Math.abs(net))) + '</b></div>' +
+      cashWeeks() +
       '<p class="ceo-note">Unpaid invoices and bills with a due date in the next 30 days. Bank balances and unbilled commitments are not included.</p>';
+  }
+
+  function cashWeeks() {
+    var W = S.D.cashW; if (!W || !W.length) return '';
+    var mx = Math.max.apply(null, W.map(function (w) { return Math.max(w.inc, w.out); }).concat([1]));
+    return '<div class="ceo-wk" role="group" aria-label="Collect versus pay by week">' + W.map(function (w) {
+      var nt = w.inc - w.out;
+      return '<div class="ceo-wk-c"><div class="ceo-wk-b"><u class="in" style="height:' + Math.max(3, w.inc / mx * 100).toFixed(1) + '%" title="To collect ' + esc(money(w.inc)) + '"></u><u class="out" style="height:' + Math.max(3, w.out / mx * 100).toFixed(1) + '%" title="To pay ' + esc(money(w.out)) + '"></u></div>' +
+        '<span>' + esc(w.label) + '</span><b class="' + (nt >= 0 ? 'good' : 'bad') + '">' + (nt >= 0 ? '+' : '\u2212') + esc(money(Math.abs(nt))) + '</b></div>';
+    }).join('') + '</div><div class="ceo-legend"><span><i class="in"></i>To collect</span><span><i class="out"></i>To pay</span></div>';
   }
 
   /* ── aging ───────────────────────────────────────────────────────────── */
@@ -358,7 +456,20 @@
       '<div class="ceo-age-rows">' + rows.map(function (r, i) {
         var di = regDrill({ title: 'Receivable \u00B7 ' + r.label, model: 'account.move', domain: r.dom, measure: 'amount_residual', date: null, kind: 'money', inverse: i > 0, crumbs: [] });
         return '<div class="ceo-age is-drill" data-dr="' + di + '" tabindex="0" role="button" aria-label="Drill into ' + esc(r.label) + '"><i class="' + AGE_CLS[i] + '"></i><span>' + esc(r.label) + '</span><b>' + esc(money(r.v)) + '</b><em>' + (r.v / total * 100).toFixed(0) + '%</em></div>';
-      }).join('') + '</div>';
+      }).join('') + '</div><div class="ceo-watch" id="ceoWatch" hidden></div>';
+    paintWatch();
+  }
+  function paintWatch() {
+    var b = $('ceoWatch'); if (!b || !S) return;
+    var W = S.D.watch;
+    if (!W || !W.rows.length) { b.hidden = true; return; }
+    var top = W.rows.slice(0, 4), mx = top[0].v || 1;
+    b.hidden = false;
+    b.innerHTML = '<div class="ceo-watch-h"><b>Call first</b><span>largest overdue customers</span></div>' + top.map(function (r) {
+      var di = regDrill({ title: 'Overdue \u00B7 ' + r.name, model: 'account.move', domain: PR.tokens(UNPAID_IN.concat([['invoice_date_due', '<', '$now'], ['partner_id', '=', r.id]])), measure: 'amount_residual', date: null, kind: 'money', inverse: true, crumbs: [] });
+      return '<div class="ceo-wr is-drill" data-dr="' + di + '" tabindex="0" role="button" aria-label="Drill into overdue invoices of ' + esc(r.name) + '"><span class="ceo-wn" title="' + esc(r.name) + '">' + esc(shortName(r.name, 26)) + '</span>' +
+        '<div class="ceo-track"><u style="width:' + Math.max(4, r.v / mx * 100).toFixed(1) + '%"></u></div><b>' + esc(money(r.v)) + '</b><em>' + (W.total ? (r.v / W.total * 100).toFixed(0) : 0) + '%</em></div>';
+    }).join('');
   }
 
   /* ── trend chart ─────────────────────────────────────────────────────── */
@@ -366,16 +477,31 @@
     var T = S && S.D.trend, box = $('ceoTrendBox'); if (!T || !box) return;
     if (!T.hasRev && !T.bill) { box.hidden = true; return; }
     var P = F.PALETTE, ds = [];
+    paintTrendStats(T);
     if (T.hasRev) ds.push({ type: 'bar', label: 'Revenue', data: T.rev, backgroundColor: P[0], borderRadius: 6, maxBarThickness: 34, order: 2 });
     if (T.bill) ds.push({ type: 'line', label: 'Vendor bills', data: T.bill, borderColor: P[1], backgroundColor: P[1], borderWidth: 2.5, pointRadius: 3, pointHoverRadius: 5, tension: 0, cubicInterpolationMode: 'monotone', order: 1 });
     F.chart('ceoTrend', {
       type: 'bar', data: { labels: T.months.map(monthLabel), datasets: ds },
       options: {
         maintainAspectRatio: false,
-        plugins: { legend: { display: ds.length > 1, position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } }, tooltip: { callbacks: { label: function (c) { return ' ' + c.dataset.label + ': ' + money(c.parsed.y, false); } } } },
+        plugins: { legend: { display: ds.length > 1, position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } }, tooltip: { callbacks: { label: function (c) { return ' ' + c.dataset.label + ': ' + money(c.parsed.y, false); }, afterBody: function (items) {
+          var i = items && items[0] ? items[0].dataIndex : 0, d = T.hasRev && i > 0 ? pct(T.rev[i], T.rev[i - 1]) : null;
+          return d == null ? '' : 'Revenue vs prior month: ' + (d >= 0 ? '+' : '\u2212') + Math.abs(d).toFixed(1) + '%';
+        } } } },
         scales: { x: { grid: { display: false } }, y: { beginAtZero: true, ticks: { callback: function (v) { return compact(v); } } } }
       }
     });
+  }
+
+  function paintTrendStats(T) {
+    var b = $('ceoTrendStats'); if (!b) return;
+    if (!T.hasRev) { b.innerHTML = ''; return; }
+    var tot = T.rev.reduce(function (s, v) { return s + v; }, 0), bi = 0;
+    T.rev.forEach(function (v, i) { if (v > T.rev[bi]) bi = i; });
+    var lf = T.rev[T.rev.length - 2], pf = T.rev[T.rev.length - 3], d = pf ? pct(lf, pf) : null;
+    var cell = function (l, v, sub) { return '<div><span>' + esc(l) + '</span><b>' + esc(v) + '</b>' + (sub ? '<em>' + sub + '</em>' : '') + '</div>'; };
+    b.innerHTML = cell('12-month revenue', money(tot)) + cell('Monthly average', money(tot / 12)) + cell('Best month', money(T.rev[bi]), esc(monthLabel(T.months[bi]))) +
+      cell('Last full month', money(lf), d == null ? '' : '<i class="ceo-d ' + (d >= 1 ? 'good' : d <= -1 ? 'bad' : 'flat') + '">' + (d >= 0 ? '\u25B2 ' : '\u25BC ') + Math.abs(d).toFixed(1) + '%</i> vs month before');
   }
 
   /* ── leaders ─────────────────────────────────────────────────────────── */
@@ -384,9 +510,12 @@
     var L = S.D.leaders || [];
     box.innerHTML = L.map(function (l) {
       var top = l.rows.slice(0, 5), mx = top[0].v || 1, di = regDrill({ title: l.title, model: l.model, domain: l.dom, measure: l.measure, date: null, kind: 'money', inverse: false, crumbs: [] });
-      return '<div class="panel ceo-lead"><div class="ceo-h"><h3>' + esc(l.title) + '</h3><small>last ' + esc(periodText()) + ' \u00B7 ' + num(l.rows.length) + ' ' + esc(l.noun) + '</small></div><div class="ceo-lead-rows">' +
+      var t3 = l.total ? l.rows.slice(0, 3).reduce(function (s, r) { return s + r.v; }, 0) / l.total * 100 : 0, rest = l.total ? Math.max(0, l.total - top.reduce(function (s, r) { return s + r.v; }, 0)) : 0;
+      var mix = '<div class="ceo-mix" role="img" aria-label="Share of the top ' + top.length + ' ' + esc(l.noun) + '">' + top.map(function (r, i) { return '<u style="flex:' + (r.v / l.total * 100).toFixed(2) + ';background:' + MIXC[i] + '" title="' + esc(r.name + ': ' + money(r.v)) + '"></u>'; }).join('') + (rest > 0 ? '<u class="o" style="flex:' + (rest / l.total * 100).toFixed(2) + '" title="Others: ' + esc(money(rest)) + '"></u>' : '') + '</div>' +
+        '<p class="ceo-mixnote">Top 3 hold <b>' + t3.toFixed(0) + '%</b>' + (l.rows.length > 5 ? ' \u00B7 ' + num(l.rows.length - 5) + ' more share the rest' : '') + '</p>';
+      return '<div class="panel ceo-lead"><div class="ceo-h"><h3>' + esc(l.title) + '</h3><small>last ' + esc(periodText()) + ' \u00B7 ' + num(l.rows.length) + ' ' + esc(l.noun) + '</small></div>' + mix + '<div class="ceo-lead-rows">' +
         top.map(function (r, i) {
-          return '<div class="ceo-lr"><span class="ceo-rk">' + (i + 1) + '</span><span class="ceo-ln" title="' + esc(r.name) + '">' + esc(shortName(r.name, 30)) + '</span><div class="ceo-track"><u style="width:' + Math.max(3, r.v / mx * 100).toFixed(1) + '%"></u></div><b>' + esc(money(r.v)) + '</b><em>' + (l.total ? (r.v / l.total * 100).toFixed(0) : 0) + '%</em></div>';
+          return '<div class="ceo-lr" style="--rk:' + MIXC[i] + '"><span class="ceo-rk">' + (i + 1) + '</span><span class="ceo-ln" title="' + esc(r.name) + '">' + esc(shortName(r.name, 30)) + '</span><div class="ceo-track"><u style="width:' + Math.max(3, r.v / mx * 100).toFixed(1) + '%"></u></div><b>' + esc(money(r.v)) + '</b><em>' + (l.total ? (r.v / l.total * 100).toFixed(0) : 0) + '%</em></div>';
         }).join('') + '</div><button type="button" class="ceo-more" data-dr="' + di + '">Break down all \u203A</button></div>';
     }).join('');
     box.hidden = !L.length;
@@ -434,8 +563,11 @@
     var b = S && S.sec.querySelector('.ceo-brief-body'); if (!b) return;
     var list = insights(); S.D.insights = list;
     var ICON = { bad: '!', warn: '!', good: '\u2713' };
-    b.innerHTML = list.length ? '<ul class="ceo-ins">' + list.slice(0, 6).map(function (x) {
-      return '<li class="' + x.tone + '"><i aria-hidden="true">' + ICON[x.tone] + '</i><div><b>' + esc(x.title) + '</b><span>' + esc(x.text) + '</span>' + (x.action ? '<em>Next step: ' + esc(x.action) + '</em>' : '') + '</div></li>';
+    var cnt = function (t) { return list.filter(function (x) { return x.tone === t; }).length; };
+    var sm = S.sec.querySelector('#ceoBrief .ceo-h small');
+    if (sm && list.length) sm.innerHTML = [['bad', cnt('bad'), 'risk'], ['warn', cnt('warn'), 'to watch'], ['good', cnt('good'), 'positive']].filter(function (c) { return c[1]; }).map(function (c) { return '<span class="ceo-chip ' + c[0] + '">' + c[1] + ' ' + c[2] + (c[0] !== 'warn' && c[1] > 1 ? 's' : '') + '</span>'; }).join('');
+    b.innerHTML = list.length ? '<ul class="ceo-ins">' + list.slice(0, 6).map(function (x, i) {
+      return '<li class="' + x.tone + '"><i aria-hidden="true">' + ICON[x.tone] + '</i><div><b>' + esc(x.title) + (i === 0 && x.tone !== 'good' ? ' <u class="ceo-pri">Priority</u>' : '') + '</b><span>' + esc(x.text) + '</span>' + (x.action ? '<em>Next step: ' + esc(x.action) + '</em>' : '') + '</div></li>';
     }).join('') + '</ul>' : '<div class="ceo-empty">No notable movements or risks found for this period.</div>';
   }
 
@@ -457,6 +589,28 @@
     var mo = new MutationObserver(function () { if (!alive(my)) { mo.disconnect(); return; } paintScore(); });
     mo.observe(head, { childList: true, subtree: true });
   }
+  function pillars() {
+    var D = S.D, out = [], cur = D.cur || {}, prev = D.prev || {};
+    var clamp = function (v) { return Math.max(0, Math.min(100, Math.round(v))); };
+    var dRev = cur.rev != null && prev.rev ? pct(cur.rev, prev.rev) : null;
+    if (dRev != null) out.push({ label: 'Growth', score: clamp(60 + dRev * 1.6), note: (dRev >= 0 ? '+' : '\u2212') + Math.abs(dRev).toFixed(1) + '% revenue' });
+    var ag = D.agingCalc; if (ag && ag.total) out.push({ label: 'Collections', score: clamp(100 - ag.share * 2), note: ag.share.toFixed(0) + '% overdue' });
+    if (D.cash && D.cash.out > 0) out.push({ label: 'Cash cover', score: clamp(D.cash.inc / D.cash.out * 100), note: money(D.cash.inc) + ' in vs ' + money(D.cash.out) + ' out' });
+    var cust = (D.leaders || []).filter(function (l) { return l.title === 'Top customers'; })[0];
+    if (cust && cust.total && cust.rows.length > 1) { var sh = cust.rows[0].v / cust.total * 100; out.push({ label: 'Customer mix', score: clamp(100 - Math.max(0, sh - 15) * 1.8), note: 'top customer ' + sh.toFixed(0) + '%' }); }
+    if (cur.pipe > 0 && D.revM) {
+      var m3 = last12().slice(-4, -1).reduce(function (s, k) { return s + (D.revM[k] ? D.revM[k].v : 0); }, 0) / 3;
+      if (m3 > 0) { var cov = cur.pipe / m3; out.push({ label: 'Pipeline cover', score: clamp(cov * 70), note: cov.toFixed(1) + ' months of revenue' }); }
+    }
+    return out;
+  }
+  function pillarHtml() {
+    var P = pillars(); if (P.length < 2) return '';
+    return '<ul class="ceo-pillars" aria-label="Health pillars">' + P.map(function (p) {
+      var t = p.score >= 70 ? 'good' : p.score >= 45 ? 'warn' : 'bad';
+      return '<li class="' + t + '"><span>' + esc(p.label) + '</span><div class="ceo-pbar"><u style="width:' + p.score + '%"></u></div><b>' + p.score + '</b><em>' + esc(p.note) + '</em></li>';
+    }).join('') + '</ul>';
+  }
   function band(s) { return s >= 75 ? ['Strong', 'good'] : s >= 55 ? ['Steady', 'good'] : s >= 35 ? ['Watch', 'warn'] : ['At risk', 'bad']; }
   function paintScore() {
     var box = $('ceoScore'); if (!box || !S) return;
@@ -476,6 +630,7 @@
       '<div><b>' + score + '</b><span>/ 100</span></div></div>' +
       '<div class="ceo-score-tx"><span class="ceo-kicker">Business health</span><h3 class="' + bd[1] + '">' + bd[0] + '</h3>' +
       '<p>' + (h && scored ? h.good + ' of ' + scored + ' KPIs improving, ' + h.bad + ' declining' + (h.alerts ? ', ' + h.alerts + ' open alert' + (h.alerts > 1 ? 's' : '') : '') + '.' : 'Based on the insights below.') + '</p></div></div>' +
+      pillarHtml() +
       '<p class="ceo-fine">Score = share of KPIs moving the right way (stable counts 60%), less 3 points per open alert. It summarises movement against the previous ' + esc(periodText()) + ', not absolute performance.</p>';
     if (box._h !== html) { box.innerHTML = html; box._h = html; }
     refreshBrief();
@@ -513,8 +668,27 @@
       document.body.appendChild(ta); ta.select(); var ok = document.execCommand('copy'); ta.remove(); done(ok);
     } catch (e2) { done(false); }
   }
+  function exportCsv() {
+    if (!S || !S.D.cur) return;
+    var D = S.D, rows = [['Section', 'Metric', 'Current', 'Previous', 'Change %', 'Basis']], per = 'last ' + periodText();
+    var tot = function (id, w) { var o = D[w]; if (!o) return null; if (id === 'aov') return o.rev != null && o.ord != null ? (o.ord ? o.rev / o.ord : 0) : null; if (id === 'net') return o.inv != null && o.bill != null ? o.inv - o.bill : null; return o[id]; };
+    ORDER.forEach(function (id) {
+      var k = kpi(id), v = tot(id, 'cur'); if (v == null) return;
+      var p = k.now ? null : tot(id, 'prev'), d = p != null && p !== 0 ? pct(v, p) : null;
+      rows.push(['Headline', k.label, Math.round(v * 100) / 100, p == null ? '' : Math.round(p * 100) / 100, d == null ? '' : Math.round(d * 10) / 10, k.now ? 'right now' : per + ' vs previous equal period']);
+    });
+    if (D.run) rows.push(['Run-rate', 'Month-to-date revenue', Math.round(D.run.mtd), Math.round(D.run.last), '', 'projected month-end ' + Math.round(D.runCalc ? D.runCalc.proj : 0)]);
+    if (D.cash) rows.push(['Cash outlook', 'To collect / to pay (30 days)', Math.round(D.cash.inc), Math.round(D.cash.out), '', 'unpaid documents falling due']);
+    (D.aging || []).forEach(function (r) { rows.push(['Receivable aging', r.label, Math.round(r.v), '', '', num(r.n) + ' invoices']); });
+    (D.watch ? D.watch.rows.slice(0, 10) : []).forEach(function (r) { rows.push(['Overdue customers', r.name, Math.round(r.v), '', D.watch.total ? Math.round(r.v / D.watch.total * 1000) / 10 : '', 'share of overdue']); });
+    (D.leaders || []).forEach(function (l) { l.rows.slice(0, 10).forEach(function (r) { rows.push([l.title, r.name, Math.round(r.v), '', l.total ? Math.round(r.v / l.total * 1000) / 10 : '', 'share of ' + per]); }); });
+    if (window.DVSec && window.DVSec.log) { try { window.DVSec.log('Exported CEO KPIs (CSV)', rows.length - 1 + ' rows'); } catch (e5) { /* logging is best-effort */ } }
+    F.download('ceo-kpis-' + ymd(new Date()) + '.csv', F.csv(rows));
+  }
   function finish() {
     var cap = $('ceoCopy'); if (cap) cap.disabled = false;
+    var cv = $('ceoCsv'); if (cv) cv.disabled = false;
+    S.updated = Date.now(); paintLive();
     refreshBrief();
     S.sec.setAttribute('data-ready', '1');
   }
