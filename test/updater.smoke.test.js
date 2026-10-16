@@ -3,7 +3,7 @@ const { JSDOM } = require('./vendor/jsdom.bundle.js'); const fs = require('fs');
 const src = fs.readFileSync(path.join(__dirname, '..', 'js', 'updater.js'), 'utf8');
 const dom = new JSDOM('<body></body>', { url: 'https://dash.test/', runScripts: 'outside-only', pretendToBeVisual: true });
 const w = dom.window; const posted = [];
-let remote = { version: '2.0.0', build: 'b', notes: ['New: one', 'Fixed: two'], history: [] }; let workerMessage, updateFails = false, status = 200;
+let remote = { version: '2.0.0', build: 'b', notes: ['New: one', 'Fixed: two', 'Redesigned: three'], history: [] }; let workerMessage, updateFails = false, status = 200;
 const reg = { waiting: null, update: () => updateFails ? Promise.reject(new Error('fetch failed')) : Promise.resolve() };
 w.DV = {};
 w.fetch = (u) => Promise.resolve({ ok: status === 200, status, json: () => Promise.resolve(/latest=/.test(u) ? remote : { version: '1.0.0', build: 'a', notes: [], history: [] }) });
@@ -20,7 +20,7 @@ const U = w.DV.updater, wait = (ms) => new Promise(r => setTimeout(r, ms)), $ = 
   assert.strictEqual((await U.check(false)).status, 'maintenance');
   assert.strictEqual(U.state().phase, 'maintenance');
   assert(/Maintenance in progress/.test($('.dvb').textContent) && /Deploying 2\.0\.0/.test($('.dvb').textContent), 'maintenance notice shows the server message');
-  status = 503; remote = { version: '2.0.0', build: 'b', notes: ['New: one', 'Fixed: two'], history: [] };
+  status = 503; remote = { version: '2.0.0', build: 'b', notes: ['New: one', 'Fixed: two', 'Redesigned: three'], history: [] };
   await U.check(false); assert.strictEqual(U.state().phase, 'maintenance', 'a 503 while deploying is treated as maintenance');
   status = 200;
 
@@ -38,6 +38,8 @@ const U = w.DV.updater, wait = (ms) => new Promise(r => setTimeout(r, ms)), $ = 
   const dialog = $('.dvu'); assert(dialog, 'the Update available popup opens by itself');
   assert(/Update available/.test(dialog.textContent) && $('#u-in') && /Update now/.test($('#u-in').textContent) && $('#u-l') && /Later/.test($('#u-l').textContent), 'popup offers Update now and Later');
   assert(dialog.querySelector('.dvu-ng'), 'popup groups the release notes');
+  assert(!/Redesigned:|Added:|Changed:/.test(dialog.textContent) && /three/.test(dialog.textContent), 'Redesigned / Added / Changed notes lose their raw prefix and are grouped (not left as "Redesigned: ..." under New)');
+  assert(dialog.querySelector('.dvu-ng[data-k="improved"]') && /three/.test(dialog.querySelector('.dvu-ng[data-k="improved"]').textContent), 'a Redesigned note is grouped under Improved');
   assert.strictEqual(dialog.getAttribute('role'), 'dialog'); assert.strictEqual(dialog.getAttribute('aria-modal'), 'true');
   assert(dialog.getAttribute('aria-labelledby') && dialog.getAttribute('aria-describedby'), 'dialog has an accessible name and description');
   assert.strictEqual(w.document.activeElement.id, 'u-in', 'focus moves to the primary action');

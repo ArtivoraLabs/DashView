@@ -154,8 +154,9 @@
 
   /* ---------- release-note helpers ---------- */
   var ORDER = ['security', 'new', 'improved', 'fixed'], LBL = { security: 'Security', new: 'New', improved: 'Improved', fixed: 'Fixed' };
-  function tagOf(t) { var m = /^(fixed|new|improved|security)\b/i.exec(t); return m ? m[1].toLowerCase() : /^fix/i.test(t) ? 'fixed' : 'new'; }
-  function clean(x) { return String(x).replace(/^(fixed|new|improved|security):?\s*/i, ''); }
+  var TAGMAP = { fixed: 'fixed', new: 'new', added: 'new', improved: 'improved', redesigned: 'improved', rebuilt: 'improved', changed: 'improved', removed: 'improved', security: 'security' };
+  function tagOf(t) { var m = /^(fixed|new|added|improved|redesigned|rebuilt|changed|removed|security)\b/i.exec(t); return m ? TAGMAP[m[1].toLowerCase()] : /^fix/i.test(t) ? 'fixed' : 'new'; }
+  function clean(x) { return String(x).replace(/^(fixed|new|added|improved|redesigned|rebuilt|changed|removed|security):?\s*/i, ''); }
   function notesHtml(n) {
     var g = { security: [], new: [], improved: [], fixed: [] }; (n || []).forEach(function (x) { g[tagOf(x)].push(clean(x)); });
     return ORDER.filter(function (k) { return g[k].length; }).map(function (k) {

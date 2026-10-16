@@ -24,6 +24,28 @@ const ok = (n, c) => { if (c) { pass++; console.log(' ok  ', n); } else { fail++
   await new Promise(r => setTimeout(r, 30));
   const relText = d.getElementById('stgoReleaseDialog') ? d.getElementById('stgoReleaseDialog').textContent : '';
   ok('clicking the version card opens the FULL release history (every release in version.json)', /2\.8\.0/.test(relText) && /2\.7\.0/.test(relText) && /2\.1\.0/.test(relText) && relText.includes(releaseManifest.history.length + ' releases'));
+  /* release sheet: typed rows, filter, badges, page lock, accessibility */
+  const sheet = d.getElementById('stgoReleaseDialog');
+  ok('release sheet is a labelled modal dialog with a close button', sheet.getAttribute('aria-labelledby') === 'stgoReleaseTitle' && !!d.getElementById('stgoReleaseTitle') && !!sheet.querySelector('[data-release-close][aria-label]'));
+  ok('every release is its own section and every note is a typed row', sheet.querySelectorAll('.stgo-rel').length === releaseManifest.history.length && sheet.querySelectorAll('.stgo-rel-list li').length === releaseManifest.history.reduce((n, h) => n + (h.notes || []).length, 0));
+  ok('"Fixed:" / "Improved:" prefixes became chips (no raw prefix left in the text)', !!sheet.querySelector('.stgo-rel-chip.c-fix') && !!sheet.querySelector('.stgo-rel-chip.c-imp') && ![...sheet.querySelectorAll('.stgo-rel-list p')].some((p) => /^(Fixed|Improved|Added|Changed|Redesigned|Security|New):/.test(p.textContent)));
+  ok('the dates are formatted (no raw 2026-10-16 text) and keep a machine-readable datetime', ![...sheet.querySelectorAll('.stgo-rel-hd time')].some((t) => /^\d{4}-\d{2}-\d{2}$/.test(t.textContent)) && !!sheet.querySelector('.stgo-rel-hd time[datetime]'));
+  ok('exactly one release is marked Installed', sheet.querySelectorAll('.stgo-rel-badge.is-installed').length === 1);
+  ok('opening the sheet locks page scroll', d.documentElement.classList.contains('stgo-rel-lock'));
+  sheet.querySelector('[data-f="fix"]').click();
+  const shown = [...sheet.querySelectorAll('.stgo-rel-list li')].filter((li) => !li.hidden);
+  ok('the Fixed filter keeps only fixed / security rows and hides empty releases', shown.length > 0 && shown.every((li) => /^(fix|sec)$/.test(li.getAttribute('data-k'))) && [...sheet.querySelectorAll('.stgo-rel')].every((sct) => sct.hidden || sct.querySelector('li:not([hidden])')));
+  sheet.querySelector('[data-f="all"]').click();
+  ok('All brings every row back', [...sheet.querySelectorAll('.stgo-rel-list li')].every((li) => !li.hidden));
+  const realFetch = w.fetch;
+  w.fetch = async () => ({ ok: true, json: async () => ({ version: '9.9.9', history: [{ version: '9.9.9<u>', date: '2026-10-16', notes: ['Fixed: <img src=x onerror=alert(1)> `<i>x</i>`', '<b>Topic</b>: <script>alert(1)</script>'] }] }) });
+  w.DVShowReleaseNotes(); await new Promise((r) => setTimeout(r, 40));
+  ok('XSS: version, date and note text from version.json are escaped, never parsed as HTML', sheet.querySelectorAll('.stgo-rel').length === 1 && !sheet.querySelector('[data-rel-body]').querySelector('img, script, u, i, b') && /<img src=x/.test(sheet.querySelector('.stgo-rel-list').textContent));
+  w.fetch = realFetch;
+  const proCss = fs.readFileSync(path.join(ROOT, 'css/settings-pro.css'), 'utf8');
+  const dlgRule = (proCss.match(/\n\.stgo-release-dialog\s*\{[^}]*\}/) || [''])[0];
+  ok('CSS keeps the sheet centred: the global `* { margin: 0 }` reset must not pin it to the top-left corner', /margin:\s*auto/.test(dlgRule) && /inset:\s*0/.test(dlgRule));
+  ok('CSS gives the sheet its own list bullets, scroll containment and reduced-motion rules', /\.stgo-release-body\s*\{[^}]*overscroll-behavior:\s*contain/.test(proCss) && /prefers-reduced-motion[\s\S]*stgo-release-dialog/.test(proCss) && /\.stgo-release-dialog \[hidden\]\s*\{\s*display:\s*none/.test(proCss));
   const todo = c.querySelector('.stgo-todo');
   todo.querySelector('summary').click();
   await new Promise((r) => setTimeout(r, 100));

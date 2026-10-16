@@ -150,21 +150,102 @@ html[data-theme="dark"] .glass-preview-float{background:rgba(255,255,255,.12);bo
 .stg-shortcuts>div { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; min-width: 0; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper-soft); }
 .stg-shortcuts>div>span { flex: 1; min-width: 140px; color: var(--ink-70); font-size: .84rem; }
 .stg-shortcuts kbd { padding: 2px 6px; border: 1px solid var(--line-strong); border-radius: 5px; background: var(--paper); color: var(--ink); font: .7rem var(--f-mono); }
-.stgo-release-dialog { width: min(720px, calc(100vw - 28px)); max-height: min(82vh, 780px); padding: 0; border: 1px solid var(--line-strong); border-radius: 18px; background: var(--paper); color: var(--ink); box-shadow: 0 24px 80px rgba(0,0,0,.38); }
-.stgo-release-dialog::backdrop { background: rgba(8,12,18,.62); backdrop-filter: blur(5px); }
-.stgo-release-dialog>header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 22px; border-bottom: 1px solid var(--line); }
-.stgo-release-dialog>header span { color: var(--ink-50); font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-.stgo-release-dialog h2 { margin: 3px 0 0; color: var(--ink); font-size: 1.25rem; }
-.stgo-release-dialog>header button { width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 50%; background: var(--paper-soft); color: var(--ink-70); font-size: 22px; cursor: pointer; }
-.stgo-release-body { overflow-y: auto; max-height: calc(min(82vh,780px) - 74px); padding: 8px 22px 20px; }
-.stgo-release-body section { padding: 14px 0; border-bottom: 1px solid var(--line); }
-.stgo-release-body section:last-child { border: 0; }
-.stgo-release-body section>div { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
-.stgo-release-body h3 { margin: 0; font-size: .98rem; }
-.stgo-release-body h3 small { margin-left: 4px; padding: 2px 8px; border-radius: 99px; background: var(--signal-10); color: var(--signal); font-size: .65rem; text-transform: uppercase; }
-.stgo-release-body time { color: var(--ink-50); font-size: .75rem; }
-.stgo-release-body ul { margin: 10px 0 0; padding-left: 20px; color: var(--ink-70); font-size: .83rem; line-height: 1.55; }
-.stgo-release-body li+li { margin-top: 5px; }
+/* ---- Release history: iOS-style sheet ("What's new") ----
+   Centred card on laptop / tablet, bottom sheet with a grabber on phones. Grouped rows, typed New / Improved / Fixed / Security chips,
+   All / New / Improved / Fixed filter, hairline title bar on scroll, glass backdrop, safe-area aware, light + dark. */
+.stgo-release-dialog {
+  --rel-bg: var(--paper); --rel-card: var(--paper-soft); --rel-thumb: color-mix(in srgb, var(--ink) 20%, var(--paper));
+  --rel-hair: color-mix(in srgb, var(--ink) 11%, transparent); --rel-fill: color-mix(in srgb, var(--ink) 8%, transparent);
+  position: fixed; inset: 0; margin: auto; /* the global `* { margin: 0 }` reset removed the dialog's auto-centring and pinned it to the top-left corner */
+  width: min(600px, calc(100vw - 32px)); max-width: none; height: fit-content; max-height: min(86vh, 780px); max-height: min(86dvh, 780px);
+  padding: 0; overflow: hidden; border: 0; border-radius: 28px; background: var(--rel-bg); color: var(--ink);
+  box-shadow: 0 0 0 .5px color-mix(in srgb, var(--ink) 16%, transparent), 0 40px 90px -24px rgba(0,0,0,.6), 0 8px 24px -10px rgba(0,0,0,.3);
+  -webkit-font-smoothing: antialiased; transition: transform .34s var(--ease, cubic-bezier(.16,1,.3,1));
+}
+html[data-theme="light"] .stgo-release-dialog { --rel-bg: var(--paper-soft); --rel-card: var(--paper); --rel-thumb: var(--paper); box-shadow: 0 0 0 .5px rgba(0,0,0,.08), 0 40px 90px -28px rgba(20,28,60,.38), 0 8px 24px -10px rgba(20,28,60,.18); }
+.stgo-release-dialog[open] { display: flex; flex-direction: column; animation: stgoRelIn .4s var(--ease, cubic-bezier(.16,1,.3,1)) both; }
+.stgo-release-dialog.is-closing { animation: stgoRelOut .24s cubic-bezier(.4,0,1,1) both; pointer-events: none; }
+.stgo-release-dialog.is-dragging { transition: none; }
+.stgo-release-dialog [hidden] { display: none !important; }
+.stgo-release-dialog::backdrop { background: rgba(8,10,14,.46); -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%); }
+html[data-theme="light"] .stgo-release-dialog::backdrop { background: rgba(110,120,148,.30); }
+.stgo-release-dialog[open]::backdrop { animation: stgoRelFade .3s ease both; }
+.stgo-release-dialog.is-closing::backdrop { animation: stgoRelFadeOut .24s ease both; }
+html.stgo-rel-lock, html.stgo-rel-lock body { overflow: hidden !important; }
+html.stgo-rel-lock.stgo-rel-has-sb { scrollbar-gutter: stable; }
+@keyframes stgoRelIn { from { opacity: 0; transform: translateY(14px) scale(.965); } to { opacity: 1; transform: none; } }
+@keyframes stgoRelOut { to { opacity: 0; transform: translateY(8px) scale(.98); } }
+@keyframes stgoRelUp { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes stgoRelDown { from { transform: translateY(var(--rel-dy, 0px)); } to { transform: translateY(100%); } }
+@keyframes stgoRelFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes stgoRelFadeOut { to { opacity: 0; } }
+@keyframes stgoRelSpin { to { transform: rotate(360deg); } }
+@keyframes stgoRelShimmer { 50% { opacity: .45; } }
+
+/* title bar */
+.stgo-rel-top { position: relative; z-index: 2; flex: none; padding: 6px 20px 0; background: var(--rel-bg); touch-action: none; transition: box-shadow .2s ease; }
+.stgo-rel-top.is-scrolled { box-shadow: 0 1px 0 var(--rel-hair); }
+.stgo-rel-grab { display: none; width: 36px; height: 5px; margin: 2px auto 0; border-radius: 3px; background: var(--ink); opacity: .22; }
+.stgo-rel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 14px 0 12px; }
+.stgo-rel-titles { min-width: 0; }
+.stgo-rel-eyebrow { display: flex; align-items: center; flex-wrap: wrap; gap: 0 6px; color: var(--ink-50); font-size: 11.5px; font-weight: 600; letter-spacing: .06em; line-height: 1.5; text-transform: uppercase; }
+.stgo-rel-eyebrow>span { display: inline-flex; align-items: center; gap: 6px; }
+.stgo-rel-spin { flex: none; width: 10px; height: 10px; border: 1.5px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: stgoRelSpin .8s linear infinite; }
+.stgo-release-dialog h2 { margin: 2px 0 0; color: var(--ink); font-size: 28px; font-weight: 700; letter-spacing: -.022em; line-height: 1.12; }
+.stgo-rel-x { position: relative; flex: none; display: grid; place-items: center; width: 30px; height: 30px; margin-top: 2px; padding: 0; border: 0; border-radius: 50%; background: var(--rel-fill); color: var(--ink-50); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .15s ease, color .15s ease, transform .2s var(--ease, cubic-bezier(.16,1,.3,1)); }
+.stgo-rel-x::after { content: ""; position: absolute; inset: -7px; border-radius: 50%; } /* 44 px touch target */
+.stgo-rel-x:hover { background: color-mix(in srgb, var(--ink) 14%, transparent); color: var(--ink); }
+.stgo-rel-x:active { transform: scale(.9); }
+.stgo-rel-x:focus-visible, .stgo-rel-seg button:focus-visible, .stgo-rel-retry:focus-visible { outline: 2px solid var(--signal, var(--ios-blue)); outline-offset: 2px; }
+.stgo-rel-seg { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); margin: 0 0 12px; padding: 2px; border-radius: 10px; background: var(--rel-fill); }
+.stgo-rel-thumb { position: absolute; top: 2px; bottom: 2px; left: 2px; width: calc((100% - 4px) / 4); border-radius: 8px; background: var(--rel-thumb); box-shadow: 0 3px 8px rgba(0,0,0,.12), 0 .5px 1px rgba(0,0,0,.16); transform: translateX(calc(var(--i, 0) * 100%)); transition: transform .32s var(--ease, cubic-bezier(.16,1,.3,1)); pointer-events: none; }
+.stgo-rel-seg button { position: relative; z-index: 1; height: 30px; padding: 0 4px; border: 0; border-radius: 8px; background: none; color: var(--ink-70); font-size: 13px; font-weight: 600; letter-spacing: -.005em; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: color .2s ease; }
+.stgo-rel-seg button[aria-pressed="true"] { color: var(--ink); }
+
+/* scrolling list */
+.stgo-release-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 10px 20px calc(24px + env(safe-area-inset-bottom, 0px)); outline: none; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--ink) 28%, transparent) transparent; }
+.stgo-rel { margin: 0 0 22px; }
+.stgo-rel:last-of-type { margin-bottom: 0; }
+.stgo-rel-hd { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; padding: 0 16px 8px; }
+.stgo-rel-hd h3 { margin: 0; color: var(--ink); font-family: inherit; font-size: 17px; font-weight: 600; letter-spacing: -.015em; line-height: 1.25; }
+.stgo-rel-hd time { margin-left: auto; color: var(--ink-50); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.stgo-rel-badge { padding: 2px 8px; border-radius: 99px; color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); font-size: 11px; font-weight: 600; line-height: 1.45; white-space: nowrap; }
+.stgo-rel-badge.is-installed { --c: var(--ios-green); } .stgo-rel-badge.is-update { --c: var(--ios-blue); } .stgo-rel-badge.is-critical { --c: var(--ios-orange); }
+.stgo-rel-list { margin: 0; padding: 0; list-style: none; overflow: hidden; border-radius: 16px; background: var(--rel-card); }
+.stgo-rel-list li { position: relative; padding: 11px 16px; list-style: none; }
+.stgo-rel-list li:not([hidden]) ~ li:not([hidden])::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; height: 1px; background: var(--rel-hair); }
+.stgo-rel-list p { margin: 0; color: var(--ink); font-size: 15px; letter-spacing: -.01em; line-height: 1.42; overflow-wrap: anywhere; text-wrap: pretty; }
+.stgo-rel-list b { font-weight: 600; }
+.stgo-rel-chip { display: inline-block; margin-right: 7px; padding: 1px 7px; border-radius: 6px; color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); font-size: 11px; font-weight: 700; letter-spacing: .02em; line-height: 1.5; vertical-align: 1px; }
+.stgo-rel-chip.c-new { --c: var(--ios-blue); } .stgo-rel-chip.c-imp { --c: var(--ios-orange); } .stgo-rel-chip.c-fix { --c: var(--ios-green); } /* same meaning as the Software Update sheet and the Settings update card */
+.stgo-rel-chip.c-sec { --c: var(--ios-red); } .stgo-rel-chip.c-des { --c: var(--ios-purple); } .stgo-rel-chip.c-chg, .stgo-rel-chip.c-upd { --c: var(--ios-gray); }
+.stgo-rel-list code { padding: 1px 4px; border-radius: 5px; background: var(--rel-fill); color: inherit; font: 500 .86em ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 0; overflow-wrap: anywhere; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.stgo-rel-none { margin: 0; padding: 11px 16px; border-radius: 16px; background: var(--rel-card); color: var(--ink-50); font-size: 15px; }
+.stgo-rel-empty, .stgo-rel-state { margin: 0; padding: 48px 16px; color: var(--ink-50); font-size: 15px; text-align: center; }
+.stgo-rel-state b { display: block; color: var(--ink); font-size: 17px; font-weight: 600; }
+.stgo-rel-state p { margin: 4px 0 16px; }
+.stgo-rel-retry { padding: 8px 18px; border: 0; border-radius: 99px; background: var(--signal, var(--ios-blue)); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
+.stgo-rel-skel { display: grid; gap: 8px; }
+.stgo-rel-skel>i { display: block; width: 38%; height: 16px; margin: 6px 16px 0; border-radius: 6px; background: var(--rel-fill); animation: stgoRelShimmer 1.4s ease-in-out infinite; }
+.stgo-rel-skel>div { display: grid; gap: 12px; margin-bottom: 14px; padding: 16px; border-radius: 16px; background: var(--rel-card); }
+.stgo-rel-skel b { display: block; height: 12px; border-radius: 6px; background: var(--rel-fill); animation: stgoRelShimmer 1.4s ease-in-out infinite; }
+.stgo-rel-skel b:nth-child(2) { width: 86%; } .stgo-rel-skel b:nth-child(3) { width: 58%; }
+
+/* phones: bottom sheet */
+@media (max-width: 640px) {
+  .stgo-release-dialog { width: 100%; max-height: calc(100vh - 28px - env(safe-area-inset-top, 0px)); max-height: calc(100dvh - 28px - env(safe-area-inset-top, 0px)); margin: auto 0 0; border-radius: 26px 26px 0 0; }
+  .stgo-release-dialog[open] { animation-name: stgoRelUp; animation-duration: .44s; }
+  .stgo-release-dialog.is-closing { animation-name: stgoRelDown; animation-duration: .28s; }
+  .stgo-rel-top { padding: 6px 16px 0; }
+  .stgo-rel-grab { display: block; }
+  .stgo-rel-head { padding-top: 10px; }
+  .stgo-release-dialog h2 { font-size: 26px; }
+  .stgo-release-body { padding: 10px 16px calc(24px + env(safe-area-inset-bottom, 0px)); }
+  .stgo-rel-seg button { height: 32px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stgo-release-dialog, .stgo-release-dialog::backdrop, .stgo-rel-thumb, .stgo-rel-x, .stgo-rel-top, .stgo-rel-spin, .stgo-rel-skel>i, .stgo-rel-skel b { animation: none !important; transition: none !important; }
+}
 .stg-tab.stgo-nomatch { opacity: .35; }
 .stg-card.stgo-hit { outline: 2px solid var(--signal, #6366f1); outline-offset: 2px; } .stg-card.stgo-dim { opacity: .45; }
 @media (max-width: 640px) { .stgo-search input { min-width: 0; width: 100%; } .stgo-search { width: 100%; } }
@@ -201,7 +282,7 @@ html[data-theme="light"] .upd-tag { color: #2563a8; }
 html[data-theme="light"] .upd-tag.is-improved { color: #a85d08; }
 html[data-theme="light"] .upd-tag.is-fixed { color: #17814a; }
 @media (max-width:600px){.stgo-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.stgo-card{padding:10px 12px}.stgo-card em{white-space:normal}}
-@media (max-width:640px){.stg-manual-frame{height:68vh;min-height:460px}.stg-shortcuts{grid-template-columns:1fr}.stgo-release-dialog>header{padding:14px 16px}.stgo-release-body{padding:8px 16px 16px}}
+@media (max-width:640px){.stg-manual-frame{height:68vh;min-height:460px}.stg-shortcuts{grid-template-columns:1fr}}
 html[data-theme="light"] .upd-tag.is-security { color: #c2362a; }
 @media (prefers-reduced-motion: reduce) { .stg-conn-meta-item span.upd-pill.is-info::before { animation: none; } }
 

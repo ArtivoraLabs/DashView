@@ -455,9 +455,10 @@
         var show = (s2.phase === 'available' || s2.phase === 'ready') && s2.notes.length; notes.hidden = !show;
         if (show) {
           var esc2 = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
-          var kind = function (t) { var m = /^(fixed|new|improved|security)\b/i.exec(t); return m ? m[1].toLowerCase() : 'new'; };
+          var KMAP = { fixed: 'fixed', new: 'new', added: 'new', improved: 'improved', redesigned: 'improved', rebuilt: 'improved', changed: 'improved', removed: 'improved', security: 'security' };
+          var kind = function (t) { var m = /^(fixed|new|added|improved|redesigned|rebuilt|changed|removed|security)\b/i.exec(t); return m ? KMAP[m[1].toLowerCase()] : 'new'; };
           notes.innerHTML = '<div class="upd-notes-h"><b>What\u2019s new in ' + esc2(s2.version) + '</b>' + (s2.size ? '<span>' + (s2.size > 1048576 ? (s2.size / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(s2.size / 1024)) + ' KB') + '</span>' : '') + '</div><ul>' +
-            s2.notes.map(function (n) { var k = kind(n); return '<li><em class="upd-tag is-' + k + '">' + k + '</em>' + esc2(String(n).replace(/^(fixed|new|improved|security):?\s*/i, '')) + '</li>'; }).join('') + '</ul>';
+            s2.notes.map(function (n) { var k = kind(n); return '<li><em class="upd-tag is-' + k + '">' + k + '</em>' + esc2(String(n).replace(/^(fixed|new|added|improved|redesigned|rebuilt|changed|removed|security):?\s*/i, '')) + '</li>'; }).join('') + '</ul>';
         }
       }
     }

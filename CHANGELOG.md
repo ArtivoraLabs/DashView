@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.21.1 - 2026-10-16
+- Fixed: the What's new / release history sheet opened stuck in the top-left corner of the screen (a global CSS reset removed the dialog's auto-centring) - it is now centred on laptop and tablet and slides up as a bottom sheet on phones
+- Fixed: release notes showed no bullets and raw Fixed: / Improved: / Changed: prefixes inside plain text - every note is now a row with a coloured New / Improved / Fixed / Security chip, file names and constants in monospace, and dates like Today / Yesterday / Oct 16, 2026
+- Fixed: the close button showed a focus ring as soon as the sheet opened, the page behind kept scrolling (and scrolled when you reached the end of the list), and clicking the version did nothing until the server answered - the sheet now opens instantly with the saved history and refreshes in place
+- Fixed: a press that started inside the sheet and ended on the dim background (for example dragging the scroll bar) closed it by mistake
+- Fixed: the Software Update sheet and the Settings update card left Redesigned: / Added: / Changed: written in front of the note and filed it under New - these notes now sit in the right group without the prefix
+- Improved: release history in iOS style - glass backdrop, grabber and swipe-down to close on phones, title bar that gets a hairline as you scroll, inset-grouped rows with hairline separators, All / New / Improved / Fixed segmented filter, open and close motion that respects Reduce motion, safe-area spacing, light and dark
+
 ## 2.21.0 - 2026-10-16
 - Redesigned: Odoo Live header, connection card and connection health - one refresh control, setup progress (credentials, Worker URL, verified login), health meter with status tiles, clearer error state, light/dark and phone layouts
 
