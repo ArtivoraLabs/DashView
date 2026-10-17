@@ -1,0 +1,138 @@
+/* ==========================================================================
+   DashView — landing page tab bar (css/index-tabbar.css) · paired with js/index-tabbar.js
+   Floating iOS-style "liquid glass" dock. Icons only; the active tab grows a
+   label inside a sliding glass bead. Replaces the text links in the top bar.
+   Load LAST on index.html.
+   ========================================================================== */
+:root {
+  --itb-h: 58px;
+  --itb-glass: rgba(24, 26, 25, .38);
+  --itb-edge: rgba(255, 255, 255, .22);
+  --itb-edge-lo: rgba(255, 255, 255, .06);
+  --itb-icon: rgba(255, 255, 255, .72);
+  --itb-bead: rgba(255, 255, 255, .92);
+  --itb-bead-ink: #141813;
+  --itb-shadow: 0 18px 40px -12px rgba(0, 0, 0, .55), 0 2px 8px rgba(0, 0, 0, .25);
+  --itb-ease: cubic-bezier(.32, .72, 0, 1);
+}
+html[data-theme="light"] {
+  --itb-glass: rgba(255, 255, 255, .5);
+  --itb-edge: rgba(255, 255, 255, .85);
+  --itb-edge-lo: rgba(20, 24, 19, .08);
+  --itb-icon: rgba(20, 24, 19, .62);
+  --itb-bead: rgba(20, 24, 19, .88);
+  --itb-bead-ink: #ffffff;
+  --itb-shadow: 0 18px 40px -14px rgba(20, 24, 19, .28), 0 2px 8px rgba(20, 24, 19, .08);
+}
+
+.itb {
+  position: fixed;
+  left: 50%;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 235;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px;
+  height: var(--itb-h);
+  max-width: calc(100vw - 24px);
+  border-radius: 999px;
+  isolation: isolate;
+  background: var(--itb-glass);
+  -webkit-backdrop-filter: blur(28px) saturate(190%) brightness(1.05);
+  backdrop-filter: blur(28px) saturate(190%) brightness(1.05);
+  border: 1px solid var(--itb-edge-lo);
+  box-shadow:
+    var(--itb-shadow),
+    inset 0 1px 0 var(--itb-edge),
+    inset 0 -1px 0 var(--itb-edge-lo),
+    inset 0 0 18px rgba(255, 255, 255, .05);
+  transition: bottom .35s var(--itb-ease), opacity .25s ease, transform .35s var(--itb-ease);
+  -webkit-tap-highlight-color: transparent;
+}
+/* soft specular sheen across the top half, like glass catching light */
+.itb::before {
+  content: "";
+  position: absolute; inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .22) 0%, rgba(255, 255, 255, .04) 46%, transparent 60%);
+  mix-blend-mode: soft-light;
+}
+
+/* sliding bead behind the active tab (positioned by JS) */
+.itb-bead {
+  position: absolute; left: 0; top: 6px;
+  height: calc(var(--itb-h) - 14px);
+  width: 0;
+  border-radius: 999px;
+  z-index: 0;
+  pointer-events: none;
+  background: var(--itb-bead);
+  box-shadow: 0 6px 16px -6px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .5);
+  opacity: 0;
+  will-change: transform, width;
+}
+.itb.ready .itb-bead { opacity: 1; transition: transform .5s var(--itb-ease), width .5s var(--itb-ease); }
+
+.itb-tab {
+  position: relative; z-index: 1;
+  display: flex; align-items: center;
+  height: calc(var(--itb-h) - 14px);
+  padding: 0 13px;
+  border-radius: 999px;
+  color: var(--itb-icon);
+  text-decoration: none;
+  font: 600 .9375rem/1 var(--f-display, system-ui, sans-serif);
+  letter-spacing: -.01em;
+  white-space: nowrap;
+  transition: color .3s ease, padding .5s var(--itb-ease), transform .2s ease;
+}
+.itb-tab:hover { color: #fff; }
+html[data-theme="light"] .itb-tab:hover { color: #141813; }
+.itb-tab:active { transform: scale(.94); }
+.itb-tab svg { width: 22px; height: 22px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
+.itb-tab .f { transition: fill .3s ease; }
+.itb-tab .k { transition: stroke .3s ease; }
+
+/* label collapses to zero width when inactive */
+.itb-lab { display: block; max-width: 0; overflow: hidden; opacity: 0; transition: max-width .5s var(--itb-ease), opacity .25s ease; }
+.itb-lab > span { display: block; padding-left: 0; white-space: nowrap; transition: padding .5s var(--itb-ease); }
+
+.itb-tab.on { color: var(--itb-bead-ink); padding: 0 18px 0 14px; }
+.itb-tab.on .f { fill: currentColor; }
+.itb-tab.on .k { stroke: var(--itb-bead); }
+.itb-tab.on .itb-lab { max-width: 8em; opacity: 1; transition-delay: 0s, .08s; }
+.itb-tab.on .itb-lab > span { padding-left: 9px; }
+
+.itb-tab:focus-visible { outline: 2px solid var(--amber, #e8a33d); outline-offset: 1px; }
+
+/* the same dock replaces the text links in the header on desktop */
+@media (min-width: 861px) {
+  .nav-links { display: none !important; }
+  .nav-inner { grid-template-columns: 1fr auto; }
+  .nav-actions { grid-column: 2; }
+}
+
+/* keep the dock clear of other fixed things */
+.ip-top { bottom: calc(max(16px, env(safe-area-inset-bottom)) + var(--itb-h) + 14px) !important; }
+body:has(.ip-sticky.show) .itb { bottom: calc(78px + env(safe-area-inset-bottom)); }
+body:has(.ip-sticky.show) .ip-top { bottom: calc(78px + var(--itb-h) + 14px + env(safe-area-inset-bottom)) !important; }
+.toast-stack { bottom: calc(max(16px, env(safe-area-inset-bottom)) + var(--itb-h) + 14px); }
+html.menu-lock .itb, body:has(.modal-overlay.open) .itb { opacity: 0; pointer-events: none; transform: translate(-50%, 24px); }
+
+@media (max-width: 400px) {
+  .itb-tab { padding: 0 11px; }
+  .itb-tab.on { padding: 0 15px 0 12px; }
+  .itb-tab svg { width: 21px; height: 21px; }
+  .itb-tab { font-size: .875rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .itb, .itb-tab, .itb-lab, .itb-lab > span, .itb.ready .itb-bead { transition: none !important; }
+}
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+  .itb { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--bg, #0a0c0b); border: 1px solid var(--itb-edge-lo); }
+}
+@media print { .itb { display: none !important; } }

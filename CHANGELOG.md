@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.24.0 - 2026-10-17
+- New: landing page glass tab bar - iOS-style floating dock with Home, How it works, Features, Security and FAQ; a tap scrolls to that section's heading, the active tab opens its label in a sliding glass bead; replaces the text links in the top bar on desktop (css/index-tabbar.css, js/index-tabbar.js)
+
 ## 2.23.1 - 2026-10-17
 - Improved: landing page navigation bar - centred links, one control height, frosted bar on scroll, section underline; Dashboard, People and Data Studio removed from the top bar (css/nav-pro.css)
 - Fixed: Sign in on the landing page opened the waitlist form - it now goes to login.html; the request form is named Request access everywhere, reopens on a fresh form and shows Sending while it works
