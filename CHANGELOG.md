@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.25.3 - 2026-10-17
+- Improved: dock navigation icons redrawn as one consistent set - every tab has its own icon, shapes fill when active and inner details cut out in the bead colour (dashboard.html, people.html, css/sidebar-itb.css)
+
 ## 2.25.2 - 2026-10-17
 - Improved: navigation moved from the left sidebar to the landing page glass dock at the bottom centre (icons, active tab opens its label in a sliding glass bead); the dashboard and People pages now use the full width, logo sits in the top bar (css/sidebar-itb.css, js/sidebar-dock.js)
 

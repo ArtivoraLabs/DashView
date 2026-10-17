@@ -1,11 +1,19 @@
 {
-  "version": "2.25.2",
+  "version": "2.25.3",
   "build": "2026.10.17",
   "released": "2026-10-17",
   "notes": [
-    "Improved: navigation moved from the left sidebar to the landing page glass dock at the bottom centre (icons, active tab opens its label in a sliding glass bead); the dashboard and People pages now use the full width, logo sits in the top bar (css/sidebar-itb.css, js/sidebar-dock.js)"
+    "Improved: dock navigation icons redrawn as one consistent set - every tab has its own icon, shapes fill when active and inner details cut out in the bead colour (dashboard.html, people.html, css/sidebar-itb.css)"
   ],
   "history": [
+    {
+      "version": "2.25.3",
+      "date": "2026-10-17",
+      "notes": [
+        "Improved: dock navigation icons redrawn as one consistent set - every tab has its own icon, shapes fill when active and inner details cut out in the bead colour (dashboard.html, people.html, css/sidebar-itb.css)"
+      ],
+      "critical": false
+    },
     {
       "version": "2.25.2",
       "date": "2026-10-17",
@@ -491,5 +499,5 @@
     }
   ],
   "critical": false,
-  "size": 4738121
+  "size": 4741275
 }

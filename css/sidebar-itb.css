@@ -118,8 +118,11 @@ html .dash-side .dash-nav .dash-nav-link svg {
   stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; overflow: visible;
   transition: color .3s ease;
 }
-html .dash-side .dash-nav .dash-nav-link svg :is(rect, circle, ellipse):not([fill]) { transition: fill .3s ease; }
-html .dash-side .dash-nav .dash-nav-link.active svg :is(rect, circle, ellipse):not([fill]) { fill: currentColor; }
+/* icon shapes: .f fills when active, .k details cut out in the bead colour, .s stays a plain stroke */
+html .dash-side .dash-nav .dash-nav-link svg .f { transition: fill .3s ease; }
+html .dash-side .dash-nav .dash-nav-link svg .k { transition: stroke .3s ease; }
+html .dash-side .dash-nav .dash-nav-link.active svg .f { fill: currentColor; }
+html .dash-side .dash-nav .dash-nav-link.active svg .k { stroke: var(--sd-bead); }
 
 /* label collapses to zero width when inactive */
 html .dash-side .dash-nav .dash-nav-link > span:not(.badge) {
