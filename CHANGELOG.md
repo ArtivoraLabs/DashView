@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.25.1 - 2026-10-17
+- Improved: dashboard and People sidebar now use the landing page glass tab-bar look - rounded pills, filled active icon and a sliding glass bead instead of the amber pill (css/sidebar-itb.css)
+
 ## 2.25.0 - 2026-10-17
 - Improved: landing page finishing layer - richer aurora colour (amber, teal, violet), tinted sections with gradient hairlines, gradient-edge glass cards, glowing icons, blur-to-sharp headings, scroll parallax, magnetic buttons, smooth FAQ open (css/index-polish.css, js/index-polish.js)
 

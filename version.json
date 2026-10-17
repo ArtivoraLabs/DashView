@@ -1,16 +1,19 @@
 {
-  "version": "2.25.0",
+  "version": "2.25.1",
   "build": "2026.10.17",
   "released": "2026-10-17",
   "notes": [
-    "Improved: landing page finishing layer - richer aurora colour (amber, teal, violet), tinted sections with gradient hairlines, gradient-edge glass cards, glowing icons, blur-to-sharp headings, scroll parallax, magnetic buttons, smooth FAQ open (css/index-polish.css, js/index-polish.js)",
-    "New: landing page glass tab bar - iOS-style floating dock (Home, How it works, Features, Security, FAQ); each tab scrolls to its section heading, the active tab opens a label in a sliding glass bead (css/index-tabbar.css, js/index-tabbar.js)",
-    "Improved: landing page navigation bar - centred links, one control height, frosted bar on scroll, section underline; Dashboard, People and Data Studio removed from the top bar (css/nav-pro.css)",
-    "Fixed: Sign in on the landing page opened the waitlist form - it now goes to login.html; the request form is named Request access everywhere, reopens on a fresh form and shows Sending while it works",
-    "Fixed: the mobile menu opened empty because the bar trapped the fixed panel - it now opens full screen",
-    "Improved: custom cursor responds faster - the ring settles in about 85 ms instead of 150 ms and the dot follows the pointer event directly (js/cursor.js)"
+    "Improved: dashboard and People sidebar now use the landing page glass tab-bar look - rounded pills, filled active icon and a sliding glass bead instead of the amber pill (css/sidebar-itb.css)"
   ],
   "history": [
+    {
+      "version": "2.25.1",
+      "date": "2026-10-17",
+      "notes": [
+        "Improved: dashboard and People sidebar now use the landing page glass tab-bar look - rounded pills, filled active icon and a sliding glass bead instead of the amber pill (css/sidebar-itb.css)"
+      ],
+      "critical": false
+    },
     {
       "version": "2.25.0",
       "date": "2026-10-17",
@@ -480,5 +483,5 @@
     }
   ],
   "critical": false,
-  "size": 4698201
+  "size": 4732444
 }

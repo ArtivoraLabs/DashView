@@ -1,0 +1,144 @@
+/* ==========================================================================
+   DashView — sidebar in the landing-page tab-bar style (css/sidebar-itb.css)
+   Same "liquid glass" language as css/index-tabbar.css: rounded pills, quiet
+   icons, a sliding glass bead behind the active item, filled active icon and
+   the same easing. Pure CSS — js/tabbar.js still positions the bead, so no tab
+   logic, ids or events change. Load LAST (after tabbar.css and the theme files)
+   on dashboard.html and people.html.
+   ========================================================================== */
+
+.dash-side {
+  --sb-ease: cubic-bezier(.32, .72, 0, 1);
+  --sb-icon: rgba(255, 255, 255, .72);
+  --sb-icon-hover: #fff;
+  --sb-bead: rgba(255, 255, 255, .92);
+  --sb-bead-ink: #141813;
+  --sb-bead-shadow: 0 6px 16px -6px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .5);
+  --sb-hover-bg: rgba(255, 255, 255, .07);
+}
+/* glass surface + light theme = a light sidebar, so the bead turns dark (like the landing dock in light) */
+html[data-theme="light"][data-surface="glass"] .dash-side {
+  --sb-icon: rgba(20, 24, 19, .62);
+  --sb-icon-hover: #141813;
+  --sb-bead: rgba(20, 24, 19, .88);
+  --sb-bead-ink: #fff;
+  --sb-bead-shadow: 0 6px 16px -6px rgba(20, 24, 19, .35), inset 0 1px 0 rgba(255, 255, 255, .22);
+  --sb-hover-bg: rgba(20, 24, 19, .06);
+}
+
+/* ── the bead (re-skin of the existing sliding .dv-pill) ─────────────────── */
+html .dash-side .dash-nav > .dv-pill {
+  --tb-r: 999px;
+  border-radius: 999px;
+  background: var(--sb-bead);
+  box-shadow: var(--sb-bead-shadow);
+  transition: transform .5s var(--sb-ease), width .5s var(--sb-ease), height .5s var(--sb-ease), opacity .25s ease;
+}
+html .dash-side .dash-nav > .dv-pill::after { display: none; }   /* no amber sheen */
+html .dash-side .dash-nav > .dv-lamp { display: none !important; } /* no amber lamp */
+html .dash-side .dash-nav.dv-instant > .dv-pill { transition: none !important; }
+
+/* ── tabs: icon + label pills ────────────────────────────────────────────── */
+html .dash-side .dash-nav .dash-nav-link {
+  min-height: 44px;
+  margin-bottom: 4px;
+  padding: 0 14px;
+  gap: 12px;
+  border-radius: 999px;
+  color: var(--sb-icon);
+  font-family: var(--f-display, system-ui, sans-serif);
+  font-size: .9375rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -.01em;
+  background: transparent;
+  box-shadow: none;
+  transition: color .3s ease, background-color .25s ease, transform .2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+html .dash-side .dash-nav .dash-nav-link:hover:not(.active) {
+  background: var(--sb-hover-bg);
+  color: var(--sb-icon-hover);
+}
+html[data-theme="light"][data-surface="glass"] .dash-side .dash-nav .dash-nav-link:not(.active) { color: var(--sb-icon); }
+html[data-theme="light"][data-surface="glass"] .dash-side .dash-nav .dash-nav-link:not(.active):hover { color: var(--sb-icon-hover); }
+html .dash-side .dash-nav .dash-nav-link:active { transform: scale(.97); }
+html .dash-side .dash-nav .dash-nav-link:focus-visible { outline: 2px solid var(--amber, #e8a33d); outline-offset: 1px; }
+
+html .dash-side .dash-nav .dash-nav-link svg {
+  width: 21px; height: 21px;
+  opacity: 1;
+  color: inherit;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  overflow: visible;
+  transition: color .3s ease;
+}
+/* closed shapes fill in when active, like the dock icons (the green Odoo dot keeps its own fill) */
+html .dash-side .dash-nav .dash-nav-link svg :is(rect, circle, ellipse):not([fill]) { transition: fill .3s ease; }
+html .dash-side .dash-nav .dash-nav-link.active svg :is(rect, circle, ellipse):not([fill]) { fill: currentColor; }
+
+/* ── active tab: ink on the bead ─────────────────────────────────────────── */
+html .dash-side .dash-nav.dv-has .dash-nav-link.active,
+html .dash-side .dash-nav .dash-nav-link.active {
+  color: var(--sb-bead-ink) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  font-weight: 600;
+}
+html .dash-side .dash-nav .dash-nav-link.active svg { color: var(--sb-bead-ink); opacity: 1; }
+/* before JS has placed the bead, the active tab paints its own */
+html .dash-side .dash-nav:not(.dv-has) .dash-nav-link.active {
+  background: var(--sb-bead) !important;
+  box-shadow: var(--sb-bead-shadow) !important;
+}
+
+html .dash-side .dash-nav .dash-nav-link > span:not(.badge) { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.35; }
+/* the phone drawer is only 240px wide: same look, one step smaller so labels stay on one line */
+@media (max-width: 800px) {
+  html .dash-side .dash-nav .dash-nav-link { font-size: .875rem; gap: 11px; padding: 0 12px; }
+  html .dash-side .dash-nav .dash-nav-link svg { width: 20px; height: 20px; }
+}
+
+/* ── badges ──────────────────────────────────────────────────────────────── */
+html .dash-side .dash-nav .dash-nav-link .badge {
+  margin-left: auto;
+  padding: 3px 9px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  border-radius: 999px;
+  transition: background-color .3s ease, border-color .3s ease, color .3s ease;
+}
+html .dash-side .dash-nav .dash-nav-link.active .badge,
+html .dash-side .dash-nav .dash-nav-link.active .badge.new,
+html .dash-side .dash-nav .dash-nav-link.active .badge.live {
+  background: color-mix(in srgb, var(--sb-bead-ink) 10%, transparent);
+  border-color: color-mix(in srgb, var(--sb-bead-ink) 22%, transparent);
+  color: var(--sb-bead-ink);
+  animation: none;
+  box-shadow: none;
+}
+
+/* ── section labels keep their hairline, just a touch quieter ───────────── */
+html .dash-side .dash-nav-label { letter-spacing: .14em; }
+
+/* ── icon rail (collapsed / tablet): each icon sits in its own round bead ── */
+@media (min-width: 801px) {
+  .dash-shell.collapsed .dash-side .dash-nav .dash-nav-link { padding: 0; justify-content: center; }
+}
+@media (min-width: 801px) and (max-width: 1100px) {
+  .dash-shell:not(.collapsed) .dash-side .dash-nav .dash-nav-link { padding: 0; justify-content: center; }
+  .dash-shell.collapsed .dash-side .dash-nav .dash-nav-link { padding: 0 14px; justify-content: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html .dash-side .dash-nav > .dv-pill,
+  html .dash-side .dash-nav .dash-nav-link,
+  html .dash-side .dash-nav .dash-nav-link svg { transition: none !important; }
+}
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+  html .dash-side .dash-nav > .dv-pill { background: var(--sb-bead); box-shadow: none; }
+}
