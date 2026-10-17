@@ -1,8 +1,9 @@
 {
-  "version": "2.24.0",
+  "version": "2.25.0",
   "build": "2026.10.17",
   "released": "2026-10-17",
   "notes": [
+    "Improved: landing page finishing layer - richer aurora colour (amber, teal, violet), tinted sections with gradient hairlines, gradient-edge glass cards, glowing icons, blur-to-sharp headings, scroll parallax, magnetic buttons, smooth FAQ open (css/index-polish.css, js/index-polish.js)",
     "New: landing page glass tab bar - iOS-style floating dock (Home, How it works, Features, Security, FAQ); each tab scrolls to its section heading, the active tab opens a label in a sliding glass bead (css/index-tabbar.css, js/index-tabbar.js)",
     "Improved: landing page navigation bar - centred links, one control height, frosted bar on scroll, section underline; Dashboard, People and Data Studio removed from the top bar (css/nav-pro.css)",
     "Fixed: Sign in on the landing page opened the waitlist form - it now goes to login.html; the request form is named Request access everywhere, reopens on a fresh form and shows Sending while it works",
@@ -11,7 +12,7 @@
   ],
   "history": [
     {
-      "version": "2.24.0",
+      "version": "2.25.0",
       "date": "2026-10-17",
       "notes": [
         "Improved: landing page navigation bar - centred links, one control height, frosted bar on scroll, section underline; Dashboard, People and Data Studio removed from the top bar (css/nav-pro.css)",

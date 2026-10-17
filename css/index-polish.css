@@ -1,0 +1,184 @@
+/* ==========================================================================
+   DashView — landing page finishing layer (css/index-polish.css · v2.25)
+   Loaded LAST on index.html, after index-tabbar.css. Presentation only.
+
+   1  Colour      richer aurora (amber · teal · violet), tinted section light,
+                  gradient hairlines between sections, deeper dark / warmer light
+   2  Depth       gradient-edge glass cards, glowing icons, layered shadows
+   3  Motion      one easing curve everywhere, blur-to-sharp headings, staggered
+                  entrances, scroll parallax, magnetic buttons, silky FAQ
+   4  Detail      refined kickers, chips, bars, focus rings, selection, scrollbar
+   Everything animated is transform / opacity / filter and is switched off under
+   prefers-reduced-motion. No markup or behaviour of the page is changed.
+   ========================================================================== */
+
+:root {
+  --pl-ease: cubic-bezier(.22, 1, .36, 1);
+  --pl-spring: cubic-bezier(.34, 1.56, .64, 1);
+  --pl-teal: 64, 201, 184;
+  --pl-violet: 150, 124, 255;
+  --pl-amber: 232, 163, 61;
+  /* aurora used by the page background */
+  --g-blob-a: rgba(232, 163, 61, .36);
+  --g-blob-b: rgba(64, 160, 200, .30);
+  --g-blob-c: rgba(150, 124, 255, .17);
+  --pl-edge-a: rgba(232, 163, 61, .55);
+  --pl-edge-b: rgba(255, 255, 255, .06);
+  --pl-edge-c: rgba(64, 201, 184, .32);
+  --pl-glow: rgba(232, 163, 61, .16);
+  --pl-line: linear-gradient(90deg, transparent, rgba(232, 163, 61, .45), rgba(64, 201, 184, .35), transparent);
+}
+html[data-theme="light"] {
+  --g-blob-a: rgba(232, 163, 61, .30);
+  --g-blob-b: rgba(74, 150, 200, .22);
+  --g-blob-c: rgba(150, 124, 255, .13);
+  --pl-edge-a: rgba(184, 115, 22, .42);
+  --pl-edge-b: rgba(20, 24, 19, .05);
+  --pl-edge-c: rgba(42, 150, 140, .28);
+  --pl-glow: rgba(184, 115, 22, .10);
+  --pl-line: linear-gradient(90deg, transparent, rgba(184, 115, 22, .35), rgba(42, 150, 140, .28), transparent);
+}
+html { interpolate-size: allow-keywords; }
+::selection { background: rgba(232, 163, 61, .35); color: inherit; }
+
+/* ── 1 · COLOUR ─────────────────────────────────────────────────────────── */
+/* slow conic aurora behind the blobs: the page never looks flat black */
+.ig-bg::after {
+  content: ""; position: absolute; left: 50%; top: 38%;
+  width: 120vmax; height: 120vmax; margin: -60vmax 0 0 -60vmax;
+  background: conic-gradient(from 0deg, transparent 0 18%, rgba(var(--pl-amber), .10) 26%, transparent 38% 52%, rgba(var(--pl-teal), .09) 62%, transparent 74% 88%, rgba(var(--pl-violet), .08) 95%, transparent);
+  filter: blur(60px); opacity: .9;
+  animation: plSpin 90s linear infinite;
+  pointer-events: none;
+}
+html[data-theme="light"] .ig-bg::after { opacity: .55; }
+@keyframes plSpin { to { transform: rotate(360deg); } }
+.ig-blob.a { translate: 0 calc(var(--pl-sy, 0) * -.07px); }
+.ig-blob.b { translate: 0 calc(var(--pl-sy, 0) * -.12px); }
+.ig-blob.c { translate: 0 calc(var(--pl-sy, 0) * -.04px); }
+
+/* each section gets its own tinted light + a gradient hairline above it */
+.ig-sec { isolation: isolate; }
+.ig-sec::before {
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  left: 50%; top: 0; width: min(1100px, 100%); height: 70%; transform: translateX(-50%);
+  background: radial-gradient(60% 70% at 50% 0%, var(--pl-glow), transparent 70%);
+  opacity: .9;
+}
+.ig-sec:nth-of-type(3n+2)::before { background: radial-gradient(60% 70% at 30% 0%, rgba(var(--pl-teal), .11), transparent 70%); }
+.ig-sec:nth-of-type(3n)::before   { background: radial-gradient(60% 70% at 72% 0%, rgba(var(--pl-violet), .10), transparent 70%); }
+.ig-sec + .ig-sec::after {
+  content: ""; position: absolute; left: 50%; top: 0; width: min(880px, 86%); height: 1px;
+  transform: translateX(-50%); background: var(--pl-line); opacity: .8; pointer-events: none;
+}
+
+/* headline gradient: warmer, with a coral end so it reads at a glance */
+.ig-grad { background-image: linear-gradient(105deg, #f6c978 0%, #e8a33d 42%, #f0743e 100%) !important; background-size: 200% 100%; }
+html[data-theme="light"] .ig-grad { background-image: linear-gradient(105deg, #b87316 0%, #c2561a 60%, #a8431a 100%) !important; }
+.ig-head h2 {
+  background: linear-gradient(180deg, var(--text) 30%, color-mix(in srgb, var(--text) 62%, transparent));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.ig-head h2 .ig-grad { -webkit-text-fill-color: transparent; }
+
+/* scroll progress: amber → teal */
+.ip-progress i { background: linear-gradient(90deg, #e8a33d, #f0c06a 45%, rgb(var(--pl-teal))) !important; box-shadow: 0 0 14px rgba(232, 163, 61, .6), 0 0 28px rgba(64, 201, 184, .25) !important; }
+
+/* ── 2 · DEPTH ──────────────────────────────────────────────────────────── */
+/* gradient edge: bright amber top-left, teal bottom-right, glass in between */
+.ig-card::before, .ip-cmp-col::before, .ig-rec::before, .ig-ai::before, .ig-faq details::before, .ip-stat::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: linear-gradient(135deg, var(--pl-edge-a), var(--pl-edge-b) 38%, var(--pl-edge-b) 62%, var(--pl-edge-c));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  opacity: .55; transition: opacity .45s var(--pl-ease);
+}
+.ig-card:hover::before, .ip-cmp-col:hover::before, .ig-faq details[open]::before, .ig-faq details:hover::before { opacity: 1; }
+.ig-card, .ig-s, .ip-cmp-col, .ig-faq details, .ig-rec, .ig-ai {
+  transition-timing-function: var(--pl-ease);
+}
+.ig-card:hover { box-shadow: var(--g-rim), 0 2px 6px rgba(0, 0, 0, .3), 0 30px 70px -30px rgba(var(--pl-amber), .35), 0 36px 90px -28px rgba(0, 0, 0, .8); }
+html[data-theme="light"] .ig-card:hover { box-shadow: var(--g-rim), 0 2px 6px rgba(20, 24, 19, .08), 0 30px 70px -30px rgba(184, 115, 22, .35); }
+
+/* icon tiles glow like lit glass */
+.ig-card .ic, .ig-faq summary::after {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), 0 8px 20px -8px rgba(var(--pl-amber), .55);
+  transition: transform .5s var(--pl-spring), box-shadow .4s var(--pl-ease);
+}
+.ig-card:hover .ic { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 12px 28px -8px rgba(var(--pl-amber), .8); }
+
+/* step numbers: gradient ring */
+.ig-s .num { background: linear-gradient(var(--g-solid), var(--g-solid)) padding-box, linear-gradient(135deg, var(--amber2), rgba(var(--pl-teal), .7)) border-box; border: 1px solid transparent; box-shadow: 0 10px 24px -10px rgba(var(--pl-amber), .6); }
+.ig-s::before { background: linear-gradient(90deg, rgba(var(--pl-amber), .7), rgba(var(--pl-teal), .5)) !important; opacity: .7; }
+
+/* the hero window: a soft coloured halo so it floats off the page */
+.ig-win { box-shadow: var(--g-rim), var(--g-shadow-hi), 0 0 0 1px rgba(255, 255, 255, .03), 0 50px 120px -40px rgba(var(--pl-amber), .28), 0 30px 90px -50px rgba(var(--pl-teal), .30); }
+html[data-theme="light"] .ig-win { box-shadow: var(--g-rim), var(--g-shadow-hi), 0 50px 120px -50px rgba(184, 115, 22, .30); }
+
+/* charts: glossier bars + a moving highlight */
+.ig-bar i { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 10px 22px -12px currentColor; }
+.ig-bar:not(:nth-child(even)) i { background: linear-gradient(180deg, #f8d28a, #e8a33d 55%, #cf7d1c); }
+.ig-bar:nth-child(even) i { background: linear-gradient(180deg, #9cc6e6, #6f9bc4 55%, #4f7fa8); }
+.ig-kpi { transition: transform .45s var(--pl-ease), border-color .3s, background-color .3s, box-shadow .4s var(--pl-ease); }
+.ig-kpi:hover { transform: translateY(-3px); box-shadow: 0 18px 40px -20px rgba(var(--pl-amber), .45); }
+
+/* ── 3 · MOTION ─────────────────────────────────────────────────────────── */
+/* headings arrive blur → sharp, kicker first, paragraph last */
+@media (prefers-reduced-motion: no-preference) {
+  .js-rv .ig-head.rv:not(.in) h2, .ig-head.rv:not(.in) h2 { filter: blur(8px); }
+  .ig-head.rv h2 { transition: filter .9s var(--pl-ease), letter-spacing .9s var(--pl-ease); }
+  .ig-head.rv:not(.in) .ig-kicker, .ig-head.rv:not(.in) p { opacity: 0; transform: translateY(12px); }
+  .ig-head.rv .ig-kicker { transition: opacity .7s var(--pl-ease), transform .7s var(--pl-ease); }
+  .ig-head.rv p { transition: opacity .8s var(--pl-ease) .25s, transform .8s var(--pl-ease) .25s; }
+  .ig-head.rv.in .ig-kicker { transition-delay: .05s; }
+
+  /* section content eases in with the same curve, no overshoot */
+  .rv { transition-timing-function: var(--pl-ease) !important; }
+
+  /* buttons: a little life */
+  .btn { transition: transform .45s var(--pl-spring), box-shadow .4s var(--pl-ease), background-color .25s, border-color .25s, color .25s; translate: var(--bx, 0) var(--by, 0); }
+  .btn:active { transform: scale(.96); transition-duration: .12s; }
+  .btn-primary:hover { box-shadow: 0 16px 40px -12px rgba(232, 163, 61, .85), inset 0 1px 0 rgba(255, 255, 255, .45); }
+
+  /* chips + kicker */
+  .ig-chip, .ig-kicker { transition: transform .4s var(--pl-spring), border-color .25s, background-color .25s; }
+  .ig-chip:hover { transform: translateY(-2px); }
+
+  /* floating stat chips drift on a slower, offset loop */
+  .ig-float.f1 { animation-duration: 7s; }
+  .ig-float.f2 { animation-duration: 8.5s; animation-delay: -2s; }
+
+  /* FAQ opens with a real height transition */
+  .ig-faq details::details-content { block-size: 0; overflow: clip; transition: block-size .5s var(--pl-ease), content-visibility .5s allow-discrete; }
+  .ig-faq details[open]::details-content { block-size: auto; }
+  .ig-faq summary::after { transition: transform .5s var(--pl-spring), background-color .25s, border-color .25s; }
+  .ig-faq details:hover { transform: translateY(-1px); }
+}
+
+/* ── 4 · DETAIL ─────────────────────────────────────────────────────────── */
+.ig-kicker { background: linear-gradient(var(--g-surface), var(--g-surface)) padding-box, linear-gradient(120deg, rgba(var(--pl-amber), .55), rgba(255, 255, 255, .08), rgba(var(--pl-teal), .4)) border-box; border: 1px solid transparent; }
+.ig-chip:hover { border-color: rgba(var(--pl-amber), .55); box-shadow: var(--g-rim), 0 10px 24px -12px rgba(var(--pl-amber), .6); }
+.ig-faq details[open] { box-shadow: var(--g-rim), 0 24px 60px -30px rgba(var(--pl-amber), .35), var(--g-shadow); }
+.ig-faq details[open] summary { color: var(--amber2); }
+.ip-stat b, .ig-big b { background: linear-gradient(180deg, var(--text), color-mix(in srgb, var(--text) 70%, var(--amber))); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+/* keyboard focus: one consistent, visible ring */
+a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; border-radius: 10px; }
+
+/* thin themed scrollbar */
+html { scrollbar-width: thin; scrollbar-color: rgba(var(--pl-amber), .4) transparent; }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(var(--pl-amber), .35); border-radius: 10px; border: 2px solid var(--bg); }
+::-webkit-scrollbar-thumb:hover { background: rgba(var(--pl-amber), .6); }
+
+@media (max-width: 720px) {
+  .ig-bg::after { width: 160vmax; height: 160vmax; margin: -80vmax 0 0 -80vmax; filter: blur(40px); }
+  .ig-head h2 { -webkit-text-fill-color: transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ig-bg::after { animation: none; }
+  .ig-blob { translate: none !important; }
+  .ig-faq details::details-content { transition: none; }
+}
+@media (prefers-reduced-transparency: reduce) { .ig-bg::after { display: none; } }
+@media print { .ig-bg::after, .ig-sec::before, .ig-sec::after { display: none !important; } }

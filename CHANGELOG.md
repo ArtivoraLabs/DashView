@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.25.0 - 2026-10-17
+- Improved: landing page finishing layer - richer aurora colour (amber, teal, violet), tinted sections with gradient hairlines, gradient-edge glass cards, glowing icons, blur-to-sharp headings, scroll parallax, magnetic buttons, smooth FAQ open (css/index-polish.css, js/index-polish.js)
+
 ## 2.24.0 - 2026-10-17
 - New: landing page glass tab bar - iOS-style floating dock with Home, How it works, Features, Security and FAQ; a tap scrolls to that section's heading, the active tab opens its label in a sliding glass bead; replaces the text links in the top bar on desktop (css/index-tabbar.css, js/index-tabbar.js)
 
