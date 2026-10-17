@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.23.1 - 2026-10-17
+- Improved: landing page navigation bar - centred links, one control height, frosted bar on scroll, section underline; Dashboard, People and Data Studio removed from the top bar (css/nav-pro.css)
+- Fixed: Sign in on the landing page opened the waitlist form - it now goes to login.html; the request form is named Request access everywhere, reopens on a fresh form and shows Sending while it works
+- Fixed: the mobile menu opened empty because the bar trapped the fixed panel - it now opens full screen
+- Improved: custom cursor responds faster - the ring settles in about 85 ms instead of 150 ms and the dot follows the pointer event directly (js/cursor.js)
+
 ## 2.23.0 - 2026-10-16
 - Improved: Executive dashboards charts - taller canvases and a high-detail layer: CEO trend gets an average line with Peak / Low / Latest badges and a Net line in the tooltip; company trend shows end-of-line value badges; growth and money in/out charts show values plus green/red change and Net badges; the revenue ring prints the share on each slice; shop and drill bars show value and share; the yearly stack shows totals with year-on-year change; larger type, thicker lines and rounder bars (css/exec-charts-pro.css, js/exec-charts-pro.js)
 - Fixed: the CEO command center files (css/exec-ceo.css, js/exec-ceo.js) were cached by the service worker but never loaded by dashboard.html - they are now linked

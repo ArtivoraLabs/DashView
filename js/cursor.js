@@ -1,7 +1,7 @@
 /* ==========================================================================
    DashView pointer v3 — js/cursor.js (+ css/cursor.css)
    --------------------------------------------------------------------------
-   · Dot    : exact pointer position, never lags.
+   · Dot    : exact pointer position, never lags (written straight from the pointer event).
    · Ring   : spring-follows the dot; over a control it MORPHS onto that
               control (same box + corner radius), over big areas it grows.
    · Label  : a small chip only where it adds meaning (Drill, Drag, Copy,
@@ -30,10 +30,11 @@
 
   /* Ring physics: critically damped spring ("smooth damp"), time based, so it is
      identical at 60 / 120 / 144 Hz and never overshoots or wobbles.
-     TAU = response time in seconds (smaller = snappier). */
-  var TAU_POS = 0.062, TAU_DOCK = 0.085, TAU_SIZE = 0.075;
+     TAU = response time in seconds (smaller = snappier). A critically damped spring reaches ~95% of the way
+     in 2.4 x TAU, so 0.032 s settles in about 75 ms; the old 0.062 s took ~150 ms and felt laggy. */
+  var TAU_POS = 0.032, TAU_DOCK = 0.038, TAU_SIZE = 0.035;
   /* Settings → Cursor: smoothness (response time), size, magnetic pull, optional extras */
-  var SMOOTH = { snappy: 0.034, balanced: 0.062, smooth: 0.105, silky: 0.165 };
+  var SMOOTH = { snappy: 0.018, balanced: 0.032, smooth: 0.06, silky: 0.105 };
   var SIZE = { s: { k: 0.8, dot: 5 }, m: { k: 1, dot: 6 }, l: { k: 1.3, dot: 8 } };
   var MAGNET = { off: 0, soft: 0.06, strong: 0.16 };
   var sizeK = 1, lean = 0.06, useLabels = true, useRipple = true;
@@ -152,7 +153,7 @@
       if (!label || labelText !== text) return;
       label.textContent = text; labelW = label.offsetWidth;
       setCls('dvc-label-on', true); wake();
-    }, 140);
+    }, 90);
   }
 
   /* ── per-frame: aim → spring → paint ────────────────────────────────── */
@@ -234,6 +235,7 @@
   function onMove(e) {
     if (!enabled || (e.pointerType && e.pointerType !== 'mouse') || !mount()) return;
     px = e.clientX; py = e.clientY; moved = true;
+    if (px !== applied.dx || py !== applied.dy) { dot.style.transform = 'translate3d(' + px + 'px,' + py + 'px,0)'; applied.dx = px; applied.dy = py; }
     if (!live) {
       live = true; R.x = T.x = px; R.y = T.y = py;
       setCls('dvc-on', true);
@@ -295,7 +297,7 @@
     fx = pref('cursorFx', 'rich') === 'simple' ? 'simple' : 'rich';
     setCls('dvc-simple', fx === 'simple');
     var rich = fx === 'rich', sm = pref('cursorSmooth', 'balanced'), t = SMOOTH[sm] || SMOOTH.balanced, sz = SIZE[pref('cursorSize', 'm')] || SIZE.m;
-    TAU_POS = t; TAU_DOCK = t * 1.37; TAU_SIZE = Math.max(0.05, t * 1.2);
+    TAU_POS = t; TAU_DOCK = t * 1.2; TAU_SIZE = Math.max(0.03, t * 1.1);
     sizeK = sz.k; de.style.setProperty('--dvc-dot', sz.dot + 'px');
     var mg = pref('cursorMagnet', rich ? 'soft' : 'off'); lean = MAGNET[mg] != null ? MAGNET[mg] : 0.06;
     useLabels = pref('cursorLabels', rich ? 'on' : 'off') !== 'off';
