@@ -1,11 +1,19 @@
 {
-  "version": "2.25.1",
+  "version": "2.25.2",
   "build": "2026.10.17",
   "released": "2026-10-17",
   "notes": [
-    "Improved: dashboard and People sidebar now use the landing page glass tab-bar look - rounded pills, filled active icon and a sliding glass bead instead of the amber pill (css/sidebar-itb.css)"
+    "Improved: navigation moved from the left sidebar to the landing page glass dock at the bottom centre (icons, active tab opens its label in a sliding glass bead); the dashboard and People pages now use the full width, logo sits in the top bar (css/sidebar-itb.css, js/sidebar-dock.js)"
   ],
   "history": [
+    {
+      "version": "2.25.2",
+      "date": "2026-10-17",
+      "notes": [
+        "Improved: navigation moved from the left sidebar to the landing page glass dock at the bottom centre (icons, active tab opens its label in a sliding glass bead); the dashboard and People pages now use the full width, logo sits in the top bar (css/sidebar-itb.css, js/sidebar-dock.js)"
+      ],
+      "critical": false
+    },
     {
       "version": "2.25.1",
       "date": "2026-10-17",
@@ -483,5 +491,5 @@
     }
   ],
   "critical": false,
-  "size": 4732444
+  "size": 4738121
 }

@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.25.2 - 2026-10-17
+- Improved: navigation moved from the left sidebar to the landing page glass dock at the bottom centre (icons, active tab opens its label in a sliding glass bead); the dashboard and People pages now use the full width, logo sits in the top bar (css/sidebar-itb.css, js/sidebar-dock.js)
+
 ## 2.25.1 - 2026-10-17
 - Improved: dashboard and People sidebar now use the landing page glass tab-bar look - rounded pills, filled active icon and a sliding glass bead instead of the amber pill (css/sidebar-itb.css)
 
