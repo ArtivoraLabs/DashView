@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.26.0 - 2026-10-17
+- Improved: whole theme now scrolls, loads and transitions the iOS way - shared smoothness layer on every page (css/ios-smooth.css, js/ios-smooth.js): soft page fade-in, cross-fade between pages, tab fade in dashboard and People
+- Improved: landing page scrolling - eased mouse-wheel scrolling on desktop, rubber-band overscroll back, no more blurred hero words / headings, lighter background (no spinning 60px-blur layer), backdrop blur removed from cards on phones and low-power devices
+- Fixed: landing page section glows had a hard vertical edge and a hard step between sections - now full width and fade in and out; footer skipped until near
+
 ## 2.25.3 - 2026-10-17
 - Improved: dock navigation icons redrawn as one consistent set - every tab has its own icon, shapes fill when active and inner details cut out in the bead colour (dashboard.html, people.html, css/sidebar-itb.css)
 

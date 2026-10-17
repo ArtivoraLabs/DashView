@@ -1,0 +1,147 @@
+/* ==========================================================================
+   DashView — iOS-style smoothness layer (css/ios-smooth.css · v2.26)
+   Loaded LAST on every page, together with js/ios-smooth.js.
+
+   Goal: the whole product scrolls, loads and transitions the way iOS does —
+   one spring curve, nothing that repaints every frame, no hard edges.
+
+   1  Tokens          one easing set for the whole theme
+   2  Page            load fade, rubber-band, momentum scrolling, tap feel
+   3  Landing colour  section glows without hard edges, calmer aurora
+   4  Landing motion  blur-free headings / hero words (blur on text = GPU jank)
+   5  Landing cost    backdrop-blur only where it is seen, footer skipped until near
+   6  App views       dashboard / People tabs fade in
+   Everything animated is opacity / transform and is off for reduced motion.
+   Nothing here removes a feature or changes markup.
+   ========================================================================== */
+
+/* ── 1 · TOKENS ─────────────────────────────────────────────────────────── */
+:root {
+  --ios-ease: cubic-bezier(.22, 1, .36, 1);        /* decelerate, no overshoot */
+  --ios-spring: cubic-bezier(.32, .72, 0, 1);      /* iOS sheet / navigation curve */
+  --ios-bounce: cubic-bezier(.34, 1.4, .64, 1);    /* tiny overshoot for pops */
+  --ios-fast: .22s;
+  --ios-base: .42s;
+  --ios-slow: .7s;
+}
+
+/* ── 2 · PAGE ───────────────────────────────────────────────────────────── */
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  /* the colour you see when the page is pulled past its end */
+  background-color: var(--bg, #0a0c0b);
+}
+/* keep native momentum on every scroll area and stop scroll chaining out of panels */
+.table-wrap, .tbl-wrap, .rc-tablewrap, .data-grid-wrap, .modal-card, .cmd-list,
+[class*="drawer-body"], [class*="-body"][style*="overflow"], .aiw-messages, .sp-body {
+  -webkit-overflow-scrolling: touch;
+}
+.modal-card, .cmd-list, [class*="drawer-body"], .aiw-messages, .sp-body { overscroll-behavior: contain; }
+
+/* the landing page is a normal document: give it the iOS rubber-band back
+   (index-plus.css switched it off, which is what made scrolling feel "dead" at the ends) */
+html.ios-landing { overscroll-behavior-y: auto; }
+/* the real scroll is driven by the browser or by js/ios-smooth.js — a CSS smooth-scroll on top of a
+   per-frame scrollTo() restarts the animation every frame and makes it stutter */
+html.ios-landing { scroll-behavior: auto; }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* soft arrival on every page; opacity only, so position:fixed children are never affected */
+  body { animation: iosPageIn var(--ios-slow) var(--ios-ease) backwards; }
+  @keyframes iosPageIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* page → page: the same cross-fade on every page (index already opted in) */
+  @view-transition { navigation: auto; }
+  ::view-transition-old(root) { animation: .2s var(--ios-ease) both iosVtOut; }
+  ::view-transition-new(root) { animation: .34s var(--ios-ease) both iosVtIn; }
+  @keyframes iosVtOut { to { opacity: 0; } }
+  @keyframes iosVtIn { from { opacity: 0; } }
+}
+
+/* press feedback like a native control: instant in, springy out */
+@media (hover: none) {
+  .btn:active, button:active:not(:disabled), [role="button"]:active { transition-duration: .08s; }
+}
+
+/* ── 3 · LANDING · COLOUR ───────────────────────────────────────────────── */
+/* The per-section glow was a 1100px box whose gradient was still visible at its edges (a hard vertical edge near
+   the left side) and it started at full strength on the section's top line (a hard horizontal step between sections).
+   Now: full width (the edges are the screen edges) and the light is centred inside the section, so it fades in
+   from the section above and fades out toward the one below. */
+.ig-sec::before {
+  left: 0; width: 100%; transform: none; top: 0; height: 100%;
+  background: radial-gradient(ellipse 58% 52% at 50% 34%, var(--pl-glow, rgba(232, 163, 61, .14)), transparent 100%);
+}
+.ig-sec:nth-of-type(3n+2)::before { background: radial-gradient(ellipse 52% 50% at 26% 34%, rgba(var(--pl-teal, 64, 201, 184), .12), transparent 100%); }
+.ig-sec:nth-of-type(3n)::before   { background: radial-gradient(ellipse 52% 50% at 76% 34%, rgba(var(--pl-violet, 150, 124, 255), .11), transparent 100%); }
+
+/* aurora: no 60px blur on a 1500px layer, no endless repaint.
+   The conic gradient already fades smoothly, so it needs no blur; it turns very slowly on the GPU
+   only (transform) and stands still on phones and low-power devices. */
+.ig-bg::after { filter: none; animation-duration: 140s; will-change: transform; }
+html.ios-lite .ig-bg::after, html.ios-touch .ig-bg::after { animation: none; }
+html.ios-lite .ig-blob, html.ios-touch .ig-blob { animation-duration: 60s; }
+html.ios-lite .ig-blob.c { display: none; }
+/* every glass surface sits on the same warm / cool base: a hairline of light on top, depth below */
+html[data-theme="light"] .ig-sec::before { opacity: .8; }
+
+/* ── 4 · LANDING · MOTION ───────────────────────────────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  /* hero words: rise + fade only. The old keyframes blurred each word by up to 14px, which
+     repaints text on every frame and left the last words looking out of focus for a second */
+  @keyframes ipWord {
+    0%   { opacity: 0; transform: translate3d(0, .5em, 0); }
+    100% { opacity: 1; transform: none; }
+  }
+  .ig-h1 .word { animation-duration: .85s; animation-timing-function: var(--ios-ease); }
+  .ig-h1 .word.ig-grad { animation-duration: .85s, 5s; }
+
+  /* section headings: same idea — no filter on big gradient text */
+  .js-rv .ig-head.rv:not(.in) h2, .ig-head.rv:not(.in) h2 { filter: none; opacity: 0; transform: translate3d(0, 14px, 0); }
+  .ig-head.rv h2 { transition: opacity .8s var(--ios-ease), transform .9s var(--ios-ease), letter-spacing .9s var(--ios-ease); }
+  .ig-head.rv.in h2 { opacity: 1; transform: none; }
+
+  /* one calm 3D entrance instead of a steep tilt that has to re-rasterise a huge window */
+  .ig-stage.rv { transform: perspective(1400px) translate3d(0, 40px, 0) rotateX(6deg) scale(.965); }
+
+  /* nav tucks away with the iOS spring */
+  .nav { transition-timing-function: var(--ios-spring); }
+}
+
+/* ── 5 · LANDING · COST ─────────────────────────────────────────────────── */
+/* the footer is far below the fold and never needed on first paint: skip its layout/paint until it is near.
+   (sections themselves are NOT skipped: skipped sections are measured with a guessed height, which makes the
+   scrollbar jump while you scroll and lets anchor links land short) */
+.footer { content-visibility: auto; contain-intrinsic-size: auto 310px; }
+/* a footer blur over a flat page is invisible but costs a full-width backdrop pass */
+.footer { -webkit-backdrop-filter: none; backdrop-filter: none; }
+
+/* phones / tablets: the page behind the cards is already soft aurora, so blurring it again for every card
+   buys nothing and is what drops frames on a scroll. Keep blur on the nav and tab bar only. */
+@media (hover: none), (max-width: 900px) {
+  .ig-glass, .ig-float, .btn-outline, .ig-cta-band .cta-input, .ip-sticky, .ip-top {
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+  }
+  .ig-glass, .ig-float { background-color: color-mix(in srgb, var(--bg, #0a0c0b) 58%, transparent); }
+  html[data-theme="light"] .ig-glass, html[data-theme="light"] .ig-float { background-color: rgba(255, 255, 255, .72); }
+  .ig-sec::before { opacity: .7; }
+}
+html.ios-lite .ig-glass, html.ios-lite .ig-float { -webkit-backdrop-filter: none; backdrop-filter: none; }
+
+/* ── 6 · APP VIEWS ──────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  /* switching a tab in the dashboard / People: fade in, no layout movement */
+  .view-panel.active { animation: iosViewIn var(--ios-base) var(--ios-ease) backwards; }
+  @keyframes iosViewIn { from { opacity: 0; } to { opacity: 1; } }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body { animation: none; }
+  html.ios-landing { scroll-behavior: auto; }
+  .view-panel.active { animation: none; }
+}
+
+/* background keeps still while the hero is out of view (nothing to see, nothing to repaint) */
+html.ios-hero-off .ig-bg::after, html.ios-hero-off .ig-blob { animation-play-state: paused; }
